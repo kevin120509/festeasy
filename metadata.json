@@ -1,0 +1,7 @@
+{
+  "name": "FestEasy - AI Party Planner",
+  "description": "FestEasy is a single-page application that connects event hosts with service providers. It features an AI-powered party planner to create ideal event packages based on budget and location, simplifying the entire event planning process.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
