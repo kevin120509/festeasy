@@ -252,6 +252,7 @@ export class PaquetesComponent {
     try {
       // Preparar datos del paquete con toda la información
       const packageToSave: any = {
+        proveedor_usuario_id: this.authService.currentUser()?.id,
         nombre: this.packageData().nombre,
         categoria_servicio_id: this.packageData().categoria_servicio_id,
         descripcion: this.packageData().descripcion,
