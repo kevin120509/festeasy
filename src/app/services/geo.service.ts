@@ -153,4 +153,8 @@ export class GeoService {
     private deg2rad(deg: number): number {
         return deg * (Math.PI / 180);
     }
+    getSuppliers() {
+        // Tu backend hace el trabajo sucio, Angular solo recibe el JSON limpio
+        return this.http.get('http://localhost:3000/api/search-suppliers');
+    }
 }

@@ -1,41 +1,60 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../shared/header/header';
 import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service';
+import { ServiceRequest, Payment } from '../../models';
+import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 
 @Component({
     selector: 'app-proveedor-dashboard',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css'
 })
-export class ProveedorDashboardComponent {
+export class ProveedorDashboardComponent implements OnInit {
     auth = inject(AuthService);
+    api = inject(ApiService);
 
     metricas = signal({
-        ticketPromedio: 12500,
-        ingresosMes: 145000,
-        rating: 4.9,
-        crecimiento: 15
+        nuevasSolicitudes: 0,
+        cotizacionesActivas: 0,
+        ingresosMensuales: 0,
+        porcentajeSolicitudes: 0,
+        porcentajeIngresos: 0
     });
 
-    serviciosPopulares = signal([
-        { nombre: 'Paquete Premium', porcentaje: 45, color: '#E53935' },
-        { nombre: 'Paquete Básico', porcentaje: 30, color: '#FF7043' },
-        { nombre: 'Extras', porcentaje: 25, color: '#FFC107' }
-    ]);
+    recentRequests = signal<ServiceRequest[]>([]);
+    recentPayments = signal<Payment[]>([]);
 
-    clientesRecurrentes = signal([
-        { nombre: 'María García', eventos: 5, ultimoEvento: 'Hace 2 semanas' },
-        { nombre: 'Carlos López', eventos: 3, ultimoEvento: 'Hace 1 mes' },
-        { nombre: 'Ana Martínez', eventos: 2, ultimoEvento: 'Hace 3 meses' }
-    ]);
+    ngOnInit() {
+        this.loadDashboardData();
+    }
 
-    ingresosMensuales = signal([
-        { mes: 'Sep', valor: 85000 },
-        { mes: 'Oct', valor: 92000 },
-        { mes: 'Nov', valor: 125000 },
-        { mes: 'Dic', valor: 145000 }
-    ]);
+    loadDashboardData() {
+        // 1. Métricas
+        this.api.getProviderDashboardMetrics().subscribe({
+            next: (data) => {
+                this.metricas.set(data);
+            },
+            error: (err) => console.error('Error loading metrics', err)
+        });
+
+        // 2. Solicitudes Recientes
+        this.api.getRecentRequests().subscribe({
+            next: (data) => {
+                this.recentRequests.set(data);
+            },
+            error: (err) => console.error('Error loading requests', err)
+        });
+
+        // 3. Pagos Recientes
+        this.api.getRecentPayments().subscribe({
+            next: (data) => {
+                this.recentPayments.set(data);
+            },
+            error: (err) => console.error('Error loading payments', err)
+        });
+    }
 }

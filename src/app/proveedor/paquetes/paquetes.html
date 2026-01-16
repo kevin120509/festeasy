@@ -1,149 +1,870 @@
-
-<aside class="hidden md:flex flex-col w-64 bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 sticky top-0 h-screen">
-<div class="p-6">
-<div class="flex items-center gap-2">
-<img alt="FESTEASY Logo" class="w-10 h-10 rounded-full object-contain bg-white" src="assets/festeasy.jpeg"/>
-<span class="font-bold text-xl tracking-tight text-primary">FESTEASY</span>
-</div>
-</div>
-<nav class="flex-1 px-4 space-y-2 mt-4">
-<a routerLink="/proveedor/dashboard" class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" >
-<span class="material-icons-outlined">dashboard</span>
-<span class="font-medium">Dashboard</span>
-</a>
-<a routerLink="/proveedor/paquetes" class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-xl transition-all">
-<span class="material-icons-outlined">inventory_2</span>
-<span class="font-medium text-primary">Mis Paquetes</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" href="#">
-<span class="material-icons-outlined">calendar_today</span>
-<span class="font-medium">Reservas</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" href="#">
-<span class="material-icons-outlined">insights</span>
-<span class="font-medium">Estadísticas</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" href="#">
-<span class="material-icons-outlined">settings</span>
-<span class="font-medium">Configuración</span>
-</a>
-</nav>
-<div class="p-4 border-t border-slate-200 dark:border-zinc-800">
-<button class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-zinc-800 rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors" onclick="document.documentElement.classList.toggle('dark')">
-<span>Modo Oscuro</span>
-<span class="material-icons-outlined text-base">dark_mode</span>
-</button>
-</div>
-</aside>
-<main class="flex-1 flex flex-col">
-<header class="h-16 flex items-center justify-between px-6 md:px-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 dark:border-zinc-800">
-<div class="flex items-center md:hidden">
-<button class="p-2 -ml-2 text-slate-600 dark:text-slate-400">
-<span class="material-icons-outlined">menu</span>
-</button>
-<span class="ml-2 font-bold text-primary">FESTEASY</span>
-</div>
-<div class="hidden md:block flex-1 max-w-xl">
-<div class="relative">
-<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
-<span class="material-icons-outlined text-xl">search</span>
-</span>
-<input class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-zinc-800 border-transparent rounded-xl focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-zinc-900 text-sm transition-all" placeholder="Buscar en mis paquetes..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-4">
-<button class="p-2 text-slate-600 dark:text-slate-400 relative">
-<span class="material-icons-outlined">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full ring-2 ring-white dark:ring-zinc-900"></span>
-</button>
-<div class="flex items-center gap-3 border-l border-slate-200 dark:border-zinc-800 pl-4">
-<div class="text-right hidden sm:block">
-<p class="text-xs font-semibold">Eventos Magic S.A.</p>
-<p class="text-[10px] text-slate-500">Proveedor Premium</p>
-</div>
-<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYsk7iIWh2jOKPa_gWeECFhYtwadCythx3a-fujKws6QRdC7tGfHcXQNRViEfrpklaf8vtLmXDj_hVdnvc2UuPX8OvxUnjwnZeCkBzzlf1vLWQ1AsTkiSMmzwWy76brzO17qJyhg2DtOAlHselsajlWA5bONT2k6d7DNifk3dL-dOr1V3rqY-EbvBd4S1HWRkJOdgCTE-7SK0hyyLKWqvMQfsXcO4zmuA87bjfv2_ma3EJYKeBdNiGy_w1dcgTswYfW3OPrUnqWvM"/>
-</div>
-</div>
-</header>
-<div class="p-6 md:p-10 max-w-7xl mx-auto w-full">
-<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-<div>
-<h1 class="text-3xl font-bold text-slate-900 dark:text-white">Mis Paquetes</h1>
-<p class="text-slate-500 mt-1">Gestiona y personaliza tu oferta de servicios.</p>
-</div>
-<button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all transform active:scale-95">
-<span class="material-icons-outlined">add</span>
-                        Nuevo Paquete
-                    </button>
-</div>
-<div class="bg-gradient-to-r from-primary/5 to-accent/10 border border-primary/10 rounded-2xl p-4 md:p-6 mb-10 flex items-start gap-4">
-<div class="bg-primary/10 p-2 rounded-lg text-primary">
-<span class="material-icons-outlined">info</span>
-</div>
-<div>
-<h3 class="font-bold text-slate-900 dark:text-white">Aviso importante</h3>
-<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                            Este paquete define a qué solicitudes accedes. Asegúrate de categorizar correctamente tus servicios para recibir las mejores oportunidades de contratación.
-                        </p>
-</div>
-</div>
-<div class="flex items-center gap-4 mb-8 overflow-x-auto pb-2 scrollbar-hide">
-<button class="whitespace-nowrap px-4 py-2 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-full text-sm font-semibold">Todos (12)</button>
-<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors">Activos (8)</button>
-<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors">Borradores (4)</button>
-<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors">Archivados</button>
-</div>
-<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-
-@for (paquete of paquetes(); track paquete.id) {
-    <div class="group bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
-        <div class="relative aspect-video overflow-hidden">
-        <img alt="{{ paquete.nombre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="assets/image.png"/>
-        <div class="absolute top-3 right-3">
-            <span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">{{ paquete.estado }}</span>
+<aside
+    class="w-64 fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700 z-50 transition-colors duration-200">
+    <div class="p-6">
+        <div class="flex items-center gap-2 mb-8">
+            <img alt="FESTEASY Logo" class="h-8 w-auto" src="assets/festeasy.jpeg" />
         </div>
-        </div>
-        <div class="p-5 flex-1 flex flex-col">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">{{ paquete.categoria_servicio_id }}</span>
-            <span class="text-sm font-bold text-slate-900 dark:text-white">${{ paquete.precio_base.toLocaleString() }}</span>
-        </div>
-        <h3 class="font-bold text-lg mb-2 line-clamp-1 dark:text-white">{{ paquete.nombre }}</h3>
-        <p class="text-xs text-slate-500 mb-6 line-clamp-2">{{ paquete.descripcion }}</p>
-        <div class="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
-            <div class="flex items-center gap-1 text-slate-400">
-            <span class="material-icons-outlined text-sm">visibility</span>
-            <span class="text-[10px] font-semibold tracking-tighter">0 Vistas</span>
-            </div>
-            <div class="flex items-center gap-2">
-            <button class="p-2 text-slate-400 hover:text-primary transition-colors">
-                <span class="material-icons-outlined text-lg">edit</span>
+        <nav class="space-y-1">
+            <a routerLink="/proveedor/dashboard"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+            <a routerLink="/proveedor/paquetes"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium bg-primary/10 text-primary rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">inventory_2</span>
+                Mis Paquetes
+            </a>
+            <a routerLink="/proveedor/solicitudes"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">notifications_active</span>
+                Solicitudes
+            </a>
+            <a routerLink="/proveedor/agenda"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">calendar_today</span>
+                Calendario
+            </a>
+            <a routerLink="/proveedor/configuracion"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">settings</span>
+                Configuración
+            </a>
+        </nav>
+        <div class="absolute bottom-8 left-6 right-6">
+            <button
+                class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-gray-700 rounded-lg hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors"
+                onclick="document.documentElement.classList.toggle('dark')">
+                <span>Modo Oscuro</span>
+                <span class="material-icons-outlined text-base">dark_mode</span>
             </button>
-            <button class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
-                <span class="material-icons-outlined text-lg">more_vert</span>
-            </button>
-            </div>
-        </div>
         </div>
     </div>
-}
+</aside>
 
+<div class="flex-1 ml-64 min-h-screen bg-slate-50 dark:bg-gray-900">
+    <!-- Header -->
+    <header
+        class="h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between px-8">
+        <div class="flex items-center gap-4">
+            <a routerLink="/proveedor/dashboard"
+                class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                <span class="material-icons-outlined">arrow_back</span>
+            </a>
+            <h1 class="text-xl font-bold text-slate-800 dark:text-white">Crear Nuevo Paquete</h1>
+        </div>
+        <div class="flex items-center gap-3">
+            <button (click)="guardarBorrador()" [disabled]="saving()"
+                class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50">
+                Guardar Borrador
+            </button>
+            <button (click)="publicar()" [disabled]="saving()"
+                class="px-6 py-2 bg-primary hover:bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg shadow-red-200 dark:shadow-none transition-all disabled:opacity-50 flex items-center gap-2">
+                <span class="material-icons-outlined text-sm" *ngIf="!saving()">publish</span>
+                <span class="material-icons-outlined text-sm animate-spin" *ngIf="saving()">sync</span>
+                {{ saving() ? 'Publicando...' : 'Publicar' }}
+            </button>
+        </div>
+    </header>
 
-<button class="border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-primary/50 hover:bg-white dark:hover:bg-zinc-800 transition-all group">
-<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
-<span class="material-icons-outlined">add</span>
+    <main class="p-8 max-w-7xl mx-auto">
+        <!-- Mensajes -->
+        <div *ngIf="successMessage()"
+            class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 text-green-800 dark:text-green-200 px-4 py-3 rounded-xl flex items-center gap-3">
+            <span class="material-icons-outlined text-green-600">check_circle</span>
+            <span>{{ successMessage() }}</span>
+        </div>
+
+        <div *ngIf="errorMessage()"
+            class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl flex items-center gap-3">
+            <span class="material-icons-outlined text-red-600">error</span>
+            <span>{{ errorMessage() }}</span>
+        </div>
+
+        <!-- Stepper -->
+        <div class="mb-10 max-w-4xl mx-auto">
+            <div class="flex items-center justify-between relative">
+                <div class="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 dark:bg-gray-700 -translate-y-1/2 z-0">
+                </div>
+
+                <!-- Step 1 -->
+                <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(1)">
+                    <div
+                        [class]="currentStep() >= 1 
+                        ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                        : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                        <span *ngIf="currentStep() > 1" class="material-icons-outlined text-sm">check</span>
+                        <span *ngIf="currentStep() <= 1">1</span>
+                    </div>
+                    <span
+                        [class]="currentStep() === 1 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                        Información
+                    </span>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(2)">
+                    <div
+                        [class]="currentStep() >= 2 
+                        ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                        : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                        <span *ngIf="currentStep() > 2" class="material-icons-outlined text-sm">check</span>
+                        <span *ngIf="currentStep() <= 2">2</span>
+                    </div>
+                    <span
+                        [class]="currentStep() === 2 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                        Detalles y Precios
+                    </span>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(3)">
+                    <div
+                        [class]="currentStep() >= 3 
+                        ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                        : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                        <span *ngIf="currentStep() > 3" class="material-icons-outlined text-sm">check</span>
+                        <span *ngIf="currentStep() <= 3">3</span>
+                    </div>
+                    <span
+                        [class]="currentStep() === 3 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                        Multimedia
+                    </span>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(4)">
+                    <div
+                        [class]="currentStep() >= 4 
+                        ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                        : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                        4
+                    </div>
+                    <span
+                        [class]="currentStep() === 4 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                        Revisión
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASO 1: Información General -->
+        <div *ngIf="currentStep() === 1" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-7 space-y-6">
+                <div
+                    class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-2xl p-4 flex gap-4">
+                    <span class="material-icons-outlined text-amber-500">tips_and_updates</span>
+                    <div>
+                        <h4 class="text-sm font-bold text-amber-900 dark:text-amber-200">Recomendación importante</h4>
+                        <p class="text-sm text-amber-800/80 dark:text-amber-200/70 mt-1">
+                            La categoría que elijas determina qué solicitudes de clientes podrás ver en tu panel.
+                        </p>
+                    </div>
+                </div>
+
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            Nombre del paquete <span class="text-primary">*</span>
+                        </label>
+                        <input type="text" [value]="packageData().nombre"
+                            (input)="updateField('nombre', $any($event.target).value)"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                            placeholder="Ej: Paquete de Sonido e Iluminación" />
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            Categoría <span class="text-primary">*</span>
+                        </label>
+                        <select [value]="packageData().categoria_servicio_id"
+                            (change)="updateField('categoria_servicio_id', $any($event.target).value)"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+                            <option value="">Selecciona una categoría</option>
+                            <option value="musica">Música y Sonido</option>
+                            <option value="decoracion">Decoración</option>
+                            <option value="catering">Catering</option>
+                            <option value="fotografia">Fotografía y Video</option>
+                            <option value="mobiliario">Alquiler de Mobiliario</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            Descripción detallada
+                        </label>
+                        <textarea [value]="packageData().descripcion"
+                            (input)="updateField('descripcion', $any($event.target).value)" rows="6"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none resize-none"
+                            placeholder="Describe qué incluye tu servicio, duración, equipos utilizados..."></textarea>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Mínimo 50 caracteres para una mejor
+                            visibilidad.</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button routerLink="/proveedor/dashboard"
+                        class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors">
+                        Cancelar
+                    </button>
+                    <button (click)="nextStep()"
+                        class="px-8 py-3 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-xl font-bold flex items-center gap-2 hover:bg-slate-800 transition-all">
+                        Continuar
+                        <span class="material-icons-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista Previa -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-24">
+                    <div
+                        class="flex items-center gap-2 mb-4 text-slate-400 uppercase tracking-widest text-[10px] font-bold">
+                        <span class="material-icons-outlined text-sm">visibility</span>
+                        Vista Previa del Marketplace
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xl">
+                        <div
+                            class="relative aspect-video bg-slate-100 dark:bg-gray-700 flex items-center justify-center">
+                            <span class="text-slate-400 text-sm">Foto de portada</span>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span
+                                    class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">
+                                    {{ packageData().categoria_servicio_id || 'CATEGORÍA' }}
+                                </span>
+                                <span class="text-sm font-bold text-slate-900 dark:text-white">
+                                    ${{ packageData().precio_base || 0 | number:'1.2-2' }}
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 dark:text-white">
+                                {{ packageData().nombre || 'Nombre del Paquete' }}
+                            </h3>
+                            <p class="text-xs text-slate-500 mb-6 line-clamp-2">
+                                {{ packageData().descripcion || 'La descripción aparecerá aquí...' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASO 2: Detalles y Precios -->
+        <div *ngIf="currentStep() === 2" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Gestión de Items -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <span class="material-icons-outlined text-primary">inventory</span>
+                            Gestión de Items e Inventario
+                        </h3>
+                        <button (click)="addItem()"
+                            class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
+                            <span class="material-icons-outlined text-sm">add</span>
+                            Añadir Item
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <!-- Formulario para agregar item -->
+                        <div class="grid grid-cols-3 gap-4">
+                            <input type="text" [value]="newItemName()"
+                                (input)="newItemName.set($any($event.target).value)" placeholder="Nombre del item"
+                                class="col-span-2 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm" />
+                            <input type="number" [value]="newItemQuantity()"
+                                (input)="newItemQuantity.set(+$any($event.target).value)" placeholder="Cantidad" min="1"
+                                class="px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm" />
+                        </div>
+
+                        <!-- Lista de items -->
+                        <div *ngIf="items().length > 0" class="space-y-2">
+                            <div *ngFor="let item of items(); let i = index"
+                                class="flex items-center justify-between p-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
+                                <div>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 uppercase">Nombre del Item</p>
+                                    <p class="font-semibold text-slate-800 dark:text-white">{{ item.nombre }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 uppercase">Cantidad</p>
+                                    <p class="font-semibold text-slate-800 dark:text-white">{{ item.cantidad }}</p>
+                                </div>
+                                <button (click)="removeItem(i)"
+                                    class="p-2 text-slate-400 hover:text-red-500 transition-colors">
+                                    <span class="material-icons-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <p *ngIf="items().length === 0"
+                            class="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+                            No hay items agregados. Añade los elementos que incluye tu paquete.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Precio y Cargos Adicionales -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
+                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-outlined text-primary">payments</span>
+                        Precio y Cargos Adicionales
+                    </h3>
+
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                            Precio Base <span class="text-primary">*</span>
+                        </label>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">$</span>
+                            <input type="number" [value]="packageData().precio_base"
+                                (input)="updateField('precio_base', +$any($event.target).value)" min="0" step="0.01"
+                                class="w-full pl-8 pr-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                placeholder="500.00" />
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Precio por la renta básica del paquete
+                            completo.</p>
+                    </div>
+
+                    <!-- Servicios Extra / Cargos -->
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Servicios Extra / Cargos
+                            </label>
+                            <button (click)="addExtraCharge()"
+                                class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
+                                <span class="material-icons-outlined text-sm">add</span>
+                                Añadir cargo
+                            </button>
+                        </div>
+
+                        <!-- Formulario para agregar cargo -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" [value]="newChargeName()"
+                                (input)="newChargeName.set($any($event.target).value)" placeholder="Nombre del cargo"
+                                class="px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm" />
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 text-sm">$</span>
+                                <input type="number" [value]="newChargePrice()"
+                                    (input)="newChargePrice.set(+$any($event.target).value)" placeholder="0.00" min="0"
+                                    step="0.01"
+                                    class="w-full pl-7 pr-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-sm" />
+                            </div>
+                        </div>
+
+                        <!-- Lista de cargos -->
+                        <div *ngIf="extraCharges().length > 0" class="space-y-2">
+                            <div *ngFor="let charge of extraCharges(); let i = index"
+                                class="flex items-center justify-between p-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
+                                <p class="font-medium text-slate-800 dark:text-white">{{ charge.nombre }}</p>
+                                <div class="flex items-center gap-3">
+                                    <p class="font-semibold text-slate-800 dark:text-white">
+                                        ${{ charge.precio | number:'1.2-2' }}
+                                    </p>
+                                    <button (click)="removeExtraCharge(i)"
+                                        class="p-1 text-slate-400 hover:text-red-500 transition-colors">
+                                        <span class="material-icons-outlined text-sm">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button (click)="prevStep()"
+                        class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">arrow_back</span>
+                        Atrás
+                    </button>
+                    <button (click)="nextStep()"
+                        class="px-8 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold flex items-center gap-2 transition-all">
+                        Continuar a Multimedia
+                        <span class="material-icons-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resumen de Precios -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-24">
+                    <h3 class="font-bold text-slate-800 dark:text-white mb-4">Resumen de Precios</h3>
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-600 dark:text-slate-400">Precio Base</span>
+                            <span class="font-semibold text-slate-800 dark:text-white">
+                                ${{ packageData().precio_base || 0 | number:'1.2-2' }}
+                            </span>
+                        </div>
+
+                        <div *ngFor="let charge of extraCharges()" class="flex justify-between items-center">
+                            <span class="text-slate-600 dark:text-slate-400">{{ charge.nombre }}</span>
+                            <span class="font-semibold text-slate-800 dark:text-white">
+                                ${{ charge.precio | number:'1.2-2' }}
+                            </span>
+                        </div>
+
+                        <div class="border-t border-slate-200 dark:border-gray-700 pt-4 mt-4">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-800 dark:text-white">Total Estimado</span>
+                                <span class="text-2xl font-bold text-primary">
+                                    ${{ totalEstimado | number:'1.2-2' }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">SUJETO A CAMBIOS</p>
+                        </div>
+
+                        <div
+                            class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3 flex gap-2">
+                            <span class="material-icons-outlined text-blue-600 text-sm">info</span>
+                            <p class="text-xs text-blue-800 dark:text-blue-200">
+                                Este precio se mostrará como el punto de partida en el marketplace.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div
+                        class="mt-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200 dark:border-amber-900/30 p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-icons-outlined text-amber-500">lightbulb</span>
+                            <h4 class="font-bold text-amber-900 dark:text-amber-200 text-sm">Tips para el éxito</h4>
+                        </div>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-200">
+                                <span class="material-icons-outlined text-xs text-amber-600">check_circle</span>
+                                <span>Incluye todos los detalles menores para evitar malentendidos.</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-200">
+                                <span class="material-icons-outlined text-xs text-amber-600">check_circle</span>
+                                <span>Los cargos de montaje separados suelen ser mejor aceptados.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASO 3: Multimedia -->
+        <div *ngIf="currentStep() === 3" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-7 space-y-6">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-gray-700">
+                        <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                            <span class="material-icons-outlined text-primary">photo_library</span>
+                            Fotos y Videos del Paquete
+                        </h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                            Sube fotos reales de alta calidad para mostrar lo que ofreces.
+                        </p>
+                    </div>
+
+                    <div class="p-6 space-y-6">
+                        <!-- Zona de subida -->
+                        <label
+                            class="border-2 border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-8 flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                            <input type="file" accept="image/*" multiple (change)="onImageSelect($event)"
+                                class="hidden" />
+                            <div
+                                class="w-16 h-16 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center mb-4">
+                                <span class="material-icons-outlined text-primary text-3xl">cloud_upload</span>
+                            </div>
+                            <p class="font-semibold text-slate-800 dark:text-white mb-1">
+                                {{ uploadingImages() ? 'Subiendo...' : 'Haz clic o arrastra fotos aquí' }}
+                            </p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">
+                                Soporta JPG, PNG (Máx 5MB por imagen)
+                            </p>
+                        </label>
+
+                        <!-- Galería de imágenes subidas -->
+                        <div *ngIf="images().length > 0">
+                            <div class="flex justify-between items-center mb-4">
+                                <p class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    GALERÍA SUBIDA ({{ images().length }}/10)
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div *ngFor="let image of images(); let i = index"
+                                    class="relative group aspect-square rounded-xl overflow-hidden border-2"
+                                    [class.border-primary]="image.isPortada" [class.border-slate-200]="!image.isPortada"
+                                    [class.dark:border-gray-700]="!image.isPortada">
+                                    <img [src]="image.url" [alt]="'Imagen ' + (i + 1)"
+                                        class="w-full h-full object-cover" />
+
+                                    <!-- Overlay con acciones -->
+                                    <div
+                                        class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                        <button *ngIf="!image.isPortada" (click)="setPortada(i)"
+                                            class="p-2 bg-white rounded-lg hover:bg-slate-100 transition-colors">
+                                            <span class="material-icons-outlined text-slate-800 text-sm">star</span>
+                                        </button>
+                                        <button (click)="removeImage(i)"
+                                            class="p-2 bg-white rounded-lg hover:bg-red-50 transition-colors">
+                                            <span class="material-icons-outlined text-red-600 text-sm">delete</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Badge de portada -->
+                                    <div *ngIf="image.isPortada"
+                                        class="absolute bottom-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded uppercase">
+                                        FOTO DE PORTADA
+                                    </div>
+                                </div>
+
+                                <!-- Botón para añadir más -->
+                                <label *ngIf="images().length < 10"
+                                    class="aspect-square border-2 border-dashed border-slate-300 dark:border-gray-600 rounded-xl flex flex-col items-center justify-center cursor-pointer hover:border-primary transition-colors">
+                                    <input type="file" accept="image/*" multiple (change)="onImageSelect($event)"
+                                        class="hidden" />
+                                    <span
+                                        class="material-icons-outlined text-slate-400 text-3xl mb-2">add_photo_alternate</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 font-semibold">AÑADIR</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button (click)="prevStep()"
+                        class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">arrow_back</span>
+                        Atrás
+                    </button>
+                    <button (click)="nextStep()"
+                        class="px-8 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold flex items-center gap-2 transition-all">
+                        Continuar a Revisión
+                        <span class="material-icons-outlined text-sm">arrow_forward</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista Previa -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-24">
+                    <div
+                        class="flex items-center gap-2 mb-4 text-slate-400 uppercase tracking-widest text-[10px] font-bold">
+                        <span class="material-icons-outlined text-sm">visibility</span>
+                        Vista Previa del Marketplace
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="relative aspect-video bg-slate-100 dark:bg-gray-700">
+                            <img *ngIf="portadaUrl" [src]="portadaUrl" alt="Portada"
+                                class="w-full h-full object-cover" />
+                            <div *ngIf="images().length === 0"
+                                class="w-full h-full flex items-center justify-center text-slate-400">
+                                <span class="text-sm">Sin imagen de portada</span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <div class="flex items-center justify-between mb-2">
+                                <span
+                                    class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">
+                                    {{ packageData().categoria_servicio_id || 'CATEGORÍA' }}
+                                </span>
+                                <span class="text-sm font-bold text-slate-900 dark:text-white">
+                                    ${{ totalEstimado | number:'1.2-2' }}
+                                </span>
+                            </div>
+                            <h3 class="font-bold text-lg mb-2 dark:text-white">
+                                {{ packageData().nombre || 'Nombre del Paquete' }}
+                            </h3>
+                            <p class="text-xs text-slate-500 mb-4 line-clamp-2">
+                                {{ packageData().descripcion || 'Descripción del paquete...' }}
+                            </p>
+
+                            <!-- Mini galería -->
+                            <div *ngIf="images().length > 1" class="flex gap-2 overflow-x-auto">
+                                <div *ngFor="let image of images().slice(0, 4); let i = index"
+                                    class="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                                    <img [src]="image.url" [alt]="'Imagen ' + (i + 1)"
+                                        class="w-full h-full object-cover" />
+                                </div>
+                                <div *ngIf="images().length > 4"
+                                    class="w-16 h-16 rounded-lg bg-slate-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                                    <span class="text-xs font-bold text-slate-600 dark:text-slate-400">
+                                        +{{ images().length - 4 }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips -->
+                    <div
+                        class="mt-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-200 dark:border-amber-900/30 p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-icons-outlined text-amber-500">lightbulb</span>
+                            <h4 class="font-bold text-amber-900 dark:text-amber-200 text-sm">Tips para el éxito</h4>
+                        </div>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-200">
+                                <span class="material-icons-outlined text-xs text-amber-600">check_circle</span>
+                                <span>Las fotos bien iluminadas aumentan un 35% la tasa de reserva.</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-200">
+                                <span class="material-icons-outlined text-xs text-amber-600">check_circle</span>
+                                <span>Muestra el equipo en acción para dar confianza a tus clientes.</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-xs text-amber-800 dark:text-amber-200">
+                                <span class="material-icons-outlined text-xs text-amber-600">check_circle</span>
+                                <span>Incluye al menos 3 fotos para obtener el sello de "Perfil Verificado".</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PASO 4: Revisión Final -->
+        <div *ngIf="currentStep() === 4" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-7 space-y-6">
+                <div
+                    class="bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-900/30 rounded-2xl p-4 flex gap-4">
+                    <span class="material-icons-outlined text-red-500">verified</span>
+                    <div>
+                        <h4 class="text-sm font-bold text-red-900 dark:text-red-200">Revisión Final</h4>
+                        <p class="text-sm text-red-800/80 dark:text-red-200/70 mt-1">
+                            Verifica que toda la información sea correcta antes de publicar tu servicio.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Información General -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white">Información General</h3>
+                        <button (click)="goToStep(1)"
+                            class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
+                            <span class="material-icons-outlined text-sm">edit</span>
+                            Editar
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase mb-1">Nombre del Paquete</p>
+                            <p class="font-semibold text-slate-800 dark:text-white">
+                                {{ packageData().nombre || 'Sin nombre' }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase mb-1">Categoría</p>
+                            <p class="font-semibold text-slate-800 dark:text-white">
+                                {{ packageData().categoria_servicio_id || 'Sin categoría' }}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase mb-1">Descripción</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-300">
+                                {{ packageData().descripcion || 'Sin descripción' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Items y Precios -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white">Items y Precios</h3>
+                        <button (click)="goToStep(2)"
+                            class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
+                            <span class="material-icons-outlined text-sm">edit</span>
+                            Editar
+                        </button>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div *ngIf="items().length > 0">
+                            <p class="text-xs text-slate-500 dark:text-slate-400 uppercase mb-2">Items Incluidos</p>
+                            <div class="space-y-2">
+                                <div *ngFor="let item of items()" class="flex items-center gap-3">
+                                    <span class="material-icons-outlined text-slate-400 text-sm">inventory_2</span>
+                                    <span class="text-sm text-slate-800 dark:text-white">
+                                        {{ item.cantidad }}x {{ item.nombre }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-slate-200 dark:border-gray-700 pt-4">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-slate-600 dark:text-slate-400">Precio Base</span>
+                                <span class="font-semibold text-slate-800 dark:text-white">
+                                    ${{ packageData().precio_base || 0 | number:'1.2-2' }}
+                                </span>
+                            </div>
+
+                            <div *ngFor="let charge of extraCharges()" class="flex justify-between items-center mb-2">
+                                <span class="text-slate-600 dark:text-slate-400">{{ charge.nombre }}</span>
+                                <span class="font-semibold text-slate-800 dark:text-white">
+                                    ${{ charge.precio | number:'1.2-2' }}
+                                </span>
+                            </div>
+
+                            <div class="border-t border-slate-200 dark:border-gray-700 pt-2 mt-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-slate-800 dark:text-white">Precio Base Sugerido</span>
+                                    <span class="text-xl font-bold text-primary">
+                                        ${{ totalEstimado | number:'1.2-2' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Multimedia -->
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 dark:border-gray-700 flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 dark:text-white">Multimedia</h3>
+                        <button (click)="goToStep(3)"
+                            class="text-sm text-primary font-semibold hover:underline flex items-center gap-1">
+                            <span class="material-icons-outlined text-sm">edit</span>
+                            Editar
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <div *ngIf="images().length > 0" class="grid grid-cols-4 gap-3">
+                            <div *ngFor="let image of images(); let i = index"
+                                class="aspect-square rounded-lg overflow-hidden relative">
+                                <img [src]="image.url" [alt]="'Imagen ' + (i + 1)" class="w-full h-full object-cover" />
+                                <div *ngIf="image.isPortada"
+                                    class="absolute bottom-1 left-1 bg-primary text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+                                    Portada
+                                </div>
+                            </div>
+                        </div>
+                        <p *ngIf="images().length === 0"
+                            class="text-sm text-slate-500 dark:text-slate-400 text-center py-4">
+                            No hay imágenes agregadas
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4">
+                    <button (click)="prevStep()"
+                        class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors flex items-center gap-2">
+                        <span class="material-icons-outlined text-sm">arrow_back</span>
+                        Atrás
+                    </button>
+                    <button (click)="publicar()" [disabled]="saving()"
+                        class="px-8 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold flex items-center gap-2 transition-all disabled:opacity-50">
+                        <span class="material-icons-outlined text-sm" *ngIf="!saving()">publish</span>
+                        <span class="material-icons-outlined text-sm animate-spin" *ngIf="saving()">sync</span>
+                        {{ saving() ? 'Publicando...' : 'Publicar Paquete' }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Vista Previa Final -->
+            <div class="lg:col-span-5">
+                <div class="sticky top-24">
+                    <div
+                        class="flex items-center gap-2 mb-4 text-slate-400 uppercase tracking-widest text-[10px] font-bold">
+                        <span class="material-icons-outlined text-sm">visibility</span>
+                        Vista Previa Marketplace
+                    </div>
+                    <div
+                        class="bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-xl">
+                        <div class="relative aspect-video bg-slate-100 dark:bg-gray-700">
+                            <img *ngIf="portadaUrl" [src]="portadaUrl" alt="Portada"
+                                class="w-full h-full object-cover" />
+                            <div *ngIf="images().length === 0"
+                                class="w-full h-full flex items-center justify-center text-slate-400">
+                                <span class="text-sm">Sin imagen</span>
+                            </div>
+                            <div class="absolute top-3 right-3">
+                                <span
+                                    class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 dark:text-white">
+                                    {{ packageData().categoria_servicio_id || 'CATEGORÍA' }}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-6">
+                            <div class="flex items-start justify-between mb-3">
+                                <div class="flex-1">
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 uppercase">Nuevo</span>
+                                    <h3 class="font-bold text-xl text-slate-900 dark:text-white mt-1">
+                                        {{ packageData().nombre || 'Nombre del Paquete' }}
+                                    </h3>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-slate-500 dark:text-slate-400 uppercase">Desde</span>
+                                    <p class="text-2xl font-bold text-primary">
+                                        ${{ totalEstimado | number:'1.2-2' }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                                {{ packageData().descripcion || 'Sin descripción' }}
+                            </p>
+
+                            <div *ngIf="items().length > 0" class="mb-4">
+                                <p class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase mb-2">
+                                    Incluye:
+                                </p>
+                                <div class="space-y-1">
+                                    <div *ngFor="let item of items().slice(0, 3)" class="flex items-center gap-2">
+                                        <span class="material-icons-outlined text-primary text-sm">check_circle</span>
+                                        <span class="text-xs text-slate-600 dark:text-slate-400">
+                                            {{ item.cantidad }}x {{ item.nombre }}
+                                        </span>
+                                    </div>
+                                    <p *ngIf="items().length > 3"
+                                        class="text-xs text-slate-500 dark:text-slate-400 pl-6">
+                                        +{{ items().length - 3 }} más...
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="border-t border-slate-200 dark:border-gray-700 pt-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-gray-700"></div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-semibold text-slate-800 dark:text-white">
+                                            {{ authService.currentUser()?.correo_electronico || 'Tu Negocio' }}
+                                        </p>
+                                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Proveedor Premium</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tips finales -->
+                    <div
+                        class="mt-6 bg-green-50 dark:bg-green-900/10 rounded-2xl border border-green-200 dark:border-green-900/30 p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="material-icons-outlined text-green-600">verified</span>
+                            <h4 class="font-bold text-green-900 dark:text-green-200 text-sm">Tips para el éxito</h4>
+                        </div>
+                        <ul class="space-y-2">
+                            <li class="flex items-start gap-2 text-xs text-green-800 dark:text-green-200">
+                                <span class="material-icons-outlined text-xs text-green-600">check_circle</span>
+                                <span>Usa nombres claros y atractivos que incluyan el servicio principal.</span>
+                            </li>
+                            <li class="flex items-start gap-2 text-xs text-green-800 dark:text-green-200">
+                                <span class="material-icons-outlined text-xs text-green-600">check_circle</span>
+                                <span>Una buena descripción detallada aumenta la confianza del cliente en un 40%.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 </div>
-<div class="text-center">
-<p class="font-bold text-slate-900 dark:text-white">Agregar Nuevo</p>
-<p class="text-xs text-slate-400">Haz crecer tu catálogo</p>
-</div>
-</button>
-</div>
-<div class="mt-12 flex justify-center">
-<button class="text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-2 hover:text-primary transition-colors">
-                        Ver más paquetes
-                        <span class="material-icons-outlined text-sm">expand_more</span>
-</button>
-</div>
-</div>
-</main>

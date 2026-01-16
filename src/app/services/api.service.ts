@@ -217,5 +217,21 @@ export class ApiService {
     deleteCalendarBlock(id: string): Observable<any> {
         return this.http.delete(`${this.API_URL}/bloqueos-calendario/${id}`, { headers: this.getHeaders() });
     }
+
+    // ==========================================
+    // 12. Dashboard Proveedor
+    // ==========================================
+    getProviderDashboardMetrics(): Observable<any> {
+        // Retorna KPIs: solicitudes nuevas, cotizaciones activas, ingresos mensuales
+        return this.http.get<any>(`${this.API_URL}/dashboard/proveedor/metrics`, { headers: this.getHeaders() });
+    }
+
+    getRecentRequests(): Observable<ServiceRequest[]> {
+        return this.http.get<ServiceRequest[]>(`${this.API_URL}/dashboard/proveedor/recent-requests`, { headers: this.getHeaders() });
+    }
+
+    getRecentPayments(): Observable<Payment[]> {
+        return this.http.get<Payment[]>(`${this.API_URL}/dashboard/proveedor/recent-payments`, { headers: this.getHeaders() });
+    }
 }
 

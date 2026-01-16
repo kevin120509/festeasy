@@ -18,6 +18,7 @@ import { SolicitudesComponent } from './proveedor/solicitudes/solicitudes';
 import { AgendaComponent } from './proveedor/agenda/agenda';
 import { NotificacionesComponent } from './proveedor/notificaciones/notificaciones';
 import { PaquetesComponent } from './proveedor/paquetes/paquetes';
+import { ProveedorConfiguracionComponent } from './proveedor/configuracion/configuracion';
 
 export const routes: Routes = [
     // General
@@ -38,6 +39,7 @@ export const routes: Routes = [
     { path: 'proveedor/agenda', component: AgendaComponent },
     { path: 'proveedor/notificaciones', component: NotificacionesComponent },
     { path: 'proveedor/paquetes', component: PaquetesComponent },
+    { path: 'proveedor/configuracion', component: ProveedorConfiguracionComponent },
 
     // Fallback
     { path: '**', redirectTo: '' }
