@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
     templateUrl: './crear-solicitud.component.html',
     styleUrls: ['./crear-solicitud.component.css']
 })
-export class CrearSolicitudComponent {
+export class CrearSolicitudComponent implements OnInit {
     private fb = inject(FormBuilder);
     private api = inject(ApiService);
     private router = inject(Router);
@@ -71,6 +71,18 @@ export class CrearSolicitudComponent {
         window.scrollTo(0, 0);
     }
 
+    private route = inject(ActivatedRoute);
+    private targetProviderId = '9851a62f-92db-41e8-b430-b68a3d46b578'; // Default/Fallback
+
+    ngOnInit() {
+        // Leer ID del proveedor de la URL si existe (ej: /cliente/solicitudes/crear?providerId=123)
+        this.route.queryParams.subscribe(params => {
+            if (params['providerId']) {
+                this.targetProviderId = params['providerId'];
+            }
+        });
+    }
+
     submit() {
         if (this.solicitudForm.invalid) {
             this.solicitudForm.markAllAsTouched();
@@ -82,13 +94,11 @@ export class CrearSolicitudComponent {
 
         // Construir objeto para el backend
         const solicitudData = {
-            cliente_usuario_id: this.auth.currentUser()?.id, // ID del cliente logueado
-            proveedor_usuario_id: '9851a62f-92db-41e8-b430-b68a3d46b578', // FIXME: Debería venir de la selección previa o ser nulo si es broadcast
+            cliente_usuario_id: this.auth.currentUser()?.id,
+            proveedor_usuario_id: this.targetProviderId,
             titulo_evento: formValue.titulo_evento,
             fecha_servicio: new Date(`${formValue.fecha_servicio}T${formValue.hora_servicio}`).toISOString(),
             direccion_servicio: formValue.ubicacion,
-            // Metadata adicional que podríamos guardar en un campo JSON si la DB lo soporta,
-            // o concatenar en la descripción/título por ahora ya que el modelo es simple
             longitud_servicio: 0,
             latitud_servicio: 0
         };
@@ -99,9 +109,8 @@ export class CrearSolicitudComponent {
             next: (res) => {
                 console.log('Solicitud creada:', res);
                 this.isLoading = false;
-                // Redirigir a "Mis Solicitudes" o éxito
-                alert('¡Solicitud enviada con éxito!');
-                this.router.navigate(['/cliente/dashboard']);
+                // Redirigir a "Mis Solicitudes"
+                this.router.navigate(['/cliente/solicitudes']);
             },
             error: (err) => {
                 console.error('Error:', err);

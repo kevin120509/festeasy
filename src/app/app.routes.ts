@@ -11,6 +11,7 @@ import { ProveedorDetalleComponent } from './cliente/proveedor-detalle/proveedor
 import { CarritoComponent } from './cliente/carrito/carrito';
 import { ClienteDashboardComponent } from './cliente/dashboard/dashboard';
 import { CrearSolicitudComponent } from './cliente/solicitudes/crear-solicitud.component';
+import { MisSolicitudesComponent } from './cliente/solicitudes/solicitudes.component';
 
 // Proveedor
 import { ProveedorRegistroComponent } from './proveedor/registro/registro';
@@ -32,7 +33,8 @@ export const routes: Routes = [
     { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent },
     { path: 'cliente/carrito', component: CarritoComponent },
     { path: 'cliente/dashboard', component: ClienteDashboardComponent },
-    { path: 'cliente/solicitudes', component: CrearSolicitudComponent },
+    { path: 'cliente/solicitudes', component: MisSolicitudesComponent },
+    { path: 'cliente/solicitudes/crear', component: CrearSolicitudComponent },
 
     // Proveedor
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },

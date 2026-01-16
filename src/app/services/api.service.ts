@@ -252,5 +252,12 @@ export class ApiService {
     getRecentPayments(): Observable<Payment[]> {
         return this.http.get<Payment[]>(`${this.API_URL}/dashboard/proveedor/recent-payments`, { headers: this.getHeaders() });
     }
+
+    // ==========================================
+    // 13. Categorías (/categorias-servicio)
+    // ==========================================
+    getServiceCategories(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/categorias-servicio`);
+    }
 }
 
