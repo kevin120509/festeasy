@@ -177,8 +177,7 @@ export class ApiService {
     }
 
     getProviderPackages(): Observable<ProviderPackage[]> {
-        // Public endpoint
-        return this.http.get<ProviderPackage[]>(`${this.API_URL}/paquetes-proveedor`);
+        return this.http.get<ProviderPackage[]>(`${this.API_URL}/paquetes-proveedor`, { headers: this.getHeaders() });
     }
 
     getProviderPackage(id: string): Observable<ProviderPackage> {

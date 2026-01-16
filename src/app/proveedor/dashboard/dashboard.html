@@ -1,324 +1,261 @@
-<style>
-    .dashboard-page {
-        min-height: 100vh;
-        background: var(--color-gray-light);
-    }
 
-    .dashboard-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 20px;
-    }
-
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-    }
-
-    .dashboard-header h1 {
-        font-size: 32px;
-        font-weight: 700;
-    }
-
-    .dashboard-header p {
-        color: var(--color-gray);
-        margin-top: 4px;
-    }
-
-    .metrics-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 24px;
-        margin-bottom: 32px;
-    }
-
-    .metric-card {
-        background: var(--color-white);
-        border-radius: var(--border-radius);
-        padding: 28px;
-        box-shadow: var(--shadow);
-    }
-
-    .metric-label {
-        color: var(--color-gray);
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .metric-value {
-        font-size: 36px;
-        font-weight: 700;
-    }
-
-    .metric-value.primary {
-        color: var(--color-primary);
-    }
-
-    .metric-change {
-        display: inline-block;
-        margin-top: 8px;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .metric-change.positive {
-        background: #E8F5E9;
-        color: #2E7D32;
-    }
-
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 24px;
-    }
-
-    .dashboard-card {
-        background: var(--color-white);
-        border-radius: var(--border-radius);
-        padding: 28px;
-        box-shadow: var(--shadow);
-    }
-
-    .card-title {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 24px;
-    }
-
-    .chart-container {
-        height: 200px;
-        display: flex;
-        align-items: flex-end;
-        justify-content: space-around;
-        padding-top: 20px;
-        border-bottom: 2px solid var(--color-gray-border);
-    }
-
-    .chart-bar {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 8px;
-    }
-
-    .bar {
-        width: 50px;
-        background: linear-gradient(180deg, #E53935 0%, #FF7043 100%);
-        border-radius: 8px 8px 0 0;
-        transition: height 0.3s ease;
-    }
-
-    .bar-label {
-        font-size: 14px;
-        color: var(--color-gray);
-        margin-top: 8px;
-    }
-
-    .bar-value {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--color-dark);
-    }
-
-    .donut-chart {
-        display: flex;
-        justify-content: center;
-        margin: 20px 0;
-    }
-
-    .donut {
-        width: 160px;
-        height: 160px;
-        border-radius: 50%;
-        background: conic-gradient(#E53935 0% 45%,
-                #FF7043 45% 75%,
-                #FFC107 75% 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .donut-inner {
-        width: 100px;
-        height: 100px;
-        background: var(--color-white);
-        border-radius: 50%;
-    }
-
-    .legend {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-        margin-top: 16px;
-    }
-
-    .legend-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 14px;
-    }
-
-    .legend-color {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        margin-right: 8px;
-    }
-
-    .legend-label {
-        display: flex;
-        align-items: center;
-    }
-
-    .clientes-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .cliente-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
-        background: var(--color-gray-light);
-        border-radius: var(--border-radius-sm);
-    }
-
-    .cliente-info h4 {
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .cliente-info p {
-        font-size: 14px;
-        color: var(--color-gray);
-    }
-
-    .cliente-eventos {
-        background: var(--color-primary);
-        color: var(--color-white);
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .quick-links {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        margin-top: 24px;
-    }
-
-    .quick-link {
-        padding: 16px;
-        background: var(--color-primary);
-        color: var(--color-white);
-        border-radius: var(--border-radius-sm);
-        text-align: center;
-        font-weight: 600;
-        transition: background 0.3s ease;
-    }
-
-    .quick-link:hover {
-        background: var(--color-primary-dark);
-    }
-
-    .quick-link.outline {
-        background: var(--color-white);
-        color: var(--color-primary);
-        border: 2px solid var(--color-primary);
-    }
-</style>
-
-<div class="dashboard-page">
-    <app-header></app-header>
-
-    <div class="dashboard-container">
-        <div class="dashboard-header">
-            <div>
-                <h1>Panel de Control 📊</h1>
-                <p>Resumen del rendimiento de tu negocio</p>
-            </div>
-        </div>
-
-        <div class="metrics-grid">
-            <div class="metric-card">
-                <p class="metric-label">Ticket Promedio</p>
-                <p class="metric-value">${{ metricas().ticketPromedio.toLocaleString() }}</p>
-            </div>
-            <div class="metric-card">
-                <p class="metric-label">Ingresos Este Mes</p>
-                <p class="metric-value primary">${{ metricas().ingresosMes.toLocaleString() }}</p>
-                <span class="metric-change positive">↑ {{ metricas().crecimiento }}% vs mes anterior</span>
-            </div>
-            <div class="metric-card">
-                <p class="metric-label">Rating Promedio</p>
-                <p class="metric-value">⭐ {{ metricas().rating }}</p>
-            </div>
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="dashboard-card">
-                <h2 class="card-title">Tendencia de Ingresos</h2>
-                <div class="chart-container">
-                    @for (mes of ingresosMensuales(); track mes.mes) {
-                    <div class="chart-bar">
-                        <span class="bar-value">${{ (mes.valor / 1000) }}k</span>
-                        <div class="bar" [style.height.px]="mes.valor / 1000"></div>
-                        <span class="bar-label">{{ mes.mes }}</span>
-                    </div>
-                    }
-                </div>
-            </div>
-
-            <div class="dashboard-card">
-                <h2 class="card-title">Popularidad de Servicios</h2>
-                <div class="donut-chart">
-                    <div class="donut">
-                        <div class="donut-inner"></div>
-                    </div>
-                </div>
-                <div class="legend">
-                    @for (servicio of serviciosPopulares(); track servicio.nombre) {
-                    <div class="legend-item">
-                        <div class="legend-label">
-                            <span class="legend-color" [style.background]="servicio.color"></span>
-                            {{ servicio.nombre }}
-                        </div>
-                        <span>{{ servicio.porcentaje }}%</span>
-                    </div>
-                    }
-                </div>
-            </div>
-
-            <div class="dashboard-card">
-                <h2 class="card-title">Clientes Recurrentes</h2>
-                <div class="clientes-list">
-                    @for (cliente of clientesRecurrentes(); track cliente.nombre) {
-                    <div class="cliente-item">
-                        <div class="cliente-info">
-                            <h4>{{ cliente.nombre }}</h4>
-                            <p>{{ cliente.ultimoEvento }}</p>
-                        </div>
-                        <span class="cliente-eventos">{{ cliente.eventos }} eventos</span>
-                    </div>
-                    }
-                </div>
-            </div>
-
-            <div class="sidebar-actions">
-                <div class="quick-links">
-                    <a routerLink="/proveedor/solicitudes" class="quick-link">Ver Solicitudes</a>
-                    <a routerLink="/proveedor/agenda" class="quick-link outline">Mi Agenda</a>
-                </div>
-            </div>
-        </div>
-    </div>
+<aside class="w-64 fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700 z-50 transition-colors duration-200">
+<div class="p-6">
+<div class="flex items-center gap-2 mb-8">
+<img alt="FESTEASY Logo" class="h-8 w-auto" src="assets/festeasy.jpeg"/>
+</div>
+<nav class="space-y-1">
+<a class="sidebar-item-active flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all" href="#">
+<span class="material-icons-outlined text-[20px]">dashboard</span>
+                    Dashboard
+                </a>
+<a routerLink="/proveedor/paquetes" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+<span class="material-icons-outlined text-[20px]">inventory_2</span>
+                    Paquetes
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined text-[20px]">notifications_active</span>
+                    Solicitudes
+                    <span class="ml-auto bg-primary text-white text-[10px] px-2 py-0.5 rounded-full">3</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined text-[20px]">request_quote</span>
+                    Cotizaciones
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined text-[20px]">calendar_today</span>
+                    Calendario
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined text-[20px]">account_balance_wallet</span>
+                    Pagos
+                </a>
+</nav>
+<div class="absolute bottom-8 left-6 right-6">
+<div class="bg-slate-50 dark:bg-gray-700/50 p-4 rounded-xl border border-slate-100 dark:border-gray-700">
+<p class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">Soporte</p>
+<a class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-primary" href="#">
+<span class="material-icons-outlined text-[18px]">help_outline</span>
+                        Centro de ayuda
+                    </a>
+</div>
+</div>
+</div>
+</aside>
+<div class="flex-1 ml-64 min-h-screen">
+<header class="h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between px-8">
+<div class="flex items-center gap-4">
+<h1 class="text-xl font-bold text-slate-800 dark:text-white">Panel de Control</h1>
+<span class="bg-red-50 dark:bg-red-900/30 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-red-100 dark:border-red-900/50">
+                    Categoría: Mobiliario
+                </span>
+</div>
+<div class="flex items-center gap-6">
+<button class="p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-full transition-all" onclick="document.documentElement.classList.toggle('dark')">
+<span class="material-icons-outlined">dark_mode</span>
+</button>
+<div class="relative">
+<span class="material-icons-outlined text-slate-400">notifications</span>
+<span class="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full ring-2 ring-white dark:ring-gray-800"></span>
+</div>
+<div class="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-gray-700">
+<div class="text-right">
+<p class="text-sm font-semibold text-slate-800 dark:text-white leading-none">Mobiliarios Eventos S.A.</p>
+<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Proveedor Premium</p>
+</div>
+<img alt="Avatar" class="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-gray-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAmvBwBXLzFb6s0QvjTIElFkE97zBN3Gc_4Xzolkjw2neBrhCvKkCJ_uiz3uxjGZ5nzpiPs5W7o7WmcunMOAklj2jdQeCL38V_Whbs5lxJ0uwq06bxv7oO52hhOadJJnIwDf39GOKdmJOznRALKzYE75DOJWQfM6IExU3tkvbJhKH6j1eqe1HZ3gH-lYGAYOH6EUx0pVPOtdoxHJ-7ShrxDq33-S8i1SRZK9PMhedxD8zZMHPbKvRRLABnfI-E-feu6sO4vbAtl-I"/>
+</div>
+</div>
+</header>
+<main class="p-8 max-w-7xl mx-auto">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h2 class="text-2xl font-bold text-slate-800 dark:text-white">¡Hola de nuevo!</h2>
+<p class="text-slate-500 dark:text-slate-400">Aquí tienes un resumen de tu actividad hoy.</p>
+</div>
+<a routerLink="/proveedor/paquetes" class="bg-primary hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+<span class="material-icons-outlined">add_circle</span>
+                    Crear Nuevo Paquete
+                </a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-4">
+<div class="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-500">
+<span class="material-icons-outlined">mail</span>
+</div>
+<span class="text-green-500 text-xs font-bold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">+12%</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Nuevas Solicitudes</p>
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-1">3</h3>
+</div>
+<div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-4">
+<div class="h-12 w-12 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center text-amber-500">
+<span class="material-icons-outlined">history_edu</span>
+</div>
+<span class="text-slate-400 text-xs font-bold">Estable</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Cotizaciones Activas</p>
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-1">10</h3>
+</div>
+<div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
+<div class="flex items-center justify-between mb-4">
+<div class="h-12 w-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center text-green-500">
+<span class="material-icons-outlined">payments</span>
+</div>
+<span class="text-green-500 text-xs font-bold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">+8%</span>
+</div>
+<p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Ingresos Mensuales</p>
+<h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-1">$45,280.00</h3>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-slate-100 dark:border-gray-700 flex justify-between items-center">
+<h3 class="font-bold text-slate-800 dark:text-white">Solicitudes Pendientes</h3>
+<a class="text-sm text-primary font-semibold hover:underline" href="#">Ver todas</a>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead class="bg-slate-50/50 dark:bg-gray-700/50 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-bold">
+<tr>
+<th class="px-6 py-4">Cliente</th>
+<th class="px-6 py-4">Evento</th>
+<th class="px-6 py-4">Fecha</th>
+<th class="px-6 py-4">Estado</th>
+<th class="px-6 py-4 text-right">Acción</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 dark:divide-gray-700">
+<tr class="hover:bg-slate-50 dark:hover:bg-gray-700/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 text-xs font-bold">AM</div>
+<span class="text-sm font-medium dark:text-slate-200">Ana Martínez</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Boda de Jardín</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">12 Oct 2023</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            PENDIENTE
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary text-sm font-bold hover:text-red-600">Cotizar</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-gray-700/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 text-xs font-bold">CP</div>
+<span class="text-sm font-medium dark:text-slate-200">Carlos Pérez</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Graduación ITESM</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">25 Nov 2023</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            NUEVA
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary text-sm font-bold hover:text-red-600">Cotizar</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 dark:hover:bg-gray-700/30 transition-colors">
+<td class="px-6 py-4">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-600 text-xs font-bold">LR</div>
+<span class="text-sm font-medium dark:text-slate-200">Lucía Rivera</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">Cena Corporativa</td>
+<td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">02 Dic 2023</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                            PENDIENTE
+                                        </span>
+</td>
+<td class="px-6 py-4 text-right">
+<button class="text-primary text-sm font-bold hover:text-red-600">Cotizar</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden flex flex-col">
+<div class="p-6 border-b border-slate-100 dark:border-gray-700">
+<div class="flex items-center justify-between mb-1">
+<h3 class="font-bold text-slate-800 dark:text-white">Pagos Recientes</h3>
+<span class="text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase">
+<span class="material-icons-outlined text-[12px]">security</span>
+                                Vía Paynet
+                            </span>
+</div>
+</div>
+<div class="p-6 flex-1 custom-scrollbar overflow-y-auto space-y-6">
+<div class="flex items-start gap-4">
+<div class="h-10 w-10 rounded-full bg-green-50 dark:bg-green-900/20 flex-shrink-0 flex items-center justify-center text-green-600">
+<span class="material-icons-outlined text-[20px]">add</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold text-slate-800 dark:text-white truncate">Liquidación Paquete Boda</p>
+<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Ref: PY-492021</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-slate-800 dark:text-white">+$12,400</p>
+<p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Hoy, 10:30 AM</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="h-10 w-10 rounded-full bg-green-50 dark:bg-green-900/20 flex-shrink-0 flex items-center justify-center text-green-600">
+<span class="material-icons-outlined text-[20px]">add</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold text-slate-800 dark:text-white truncate">Anticipo Baby Shower</p>
+<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Ref: PY-491980</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-slate-800 dark:text-white">+$2,500</p>
+<p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">Ayer, 04:15 PM</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="h-10 w-10 rounded-full bg-slate-50 dark:bg-gray-700 flex-shrink-0 flex items-center justify-center text-slate-400">
+<span class="material-icons-outlined text-[20px]">remove</span>
+</div>
+<div class="flex-1 min-w-0">
+<p class="text-sm font-semibold text-slate-800 dark:text-white truncate">Comisión Plataforma</p>
+<p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Ref: FE-COMM-02</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-bold text-red-500">-$372</p>
+<p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">01 Oct, 2023</p>
+</div>
+</div>
+</div>
+<div class="p-4 bg-slate-50 dark:bg-gray-700/30 text-center">
+<button class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-primary uppercase tracking-widest">
+                            Descargar Reporte Mensual
+                        </button>
+</div>
+</div>
+</div>
+<div class="mt-8 bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-8 text-white relative overflow-hidden">
+<div class="relative z-10 max-w-lg">
+<h4 class="text-xl font-bold mb-2">¡Sube de nivel tu perfil!</h4>
+<p class="text-red-100 text-sm mb-4">Completa la descripción de tus 3 paquetes más populares para aparecer en los resultados destacados de la próxima semana.</p>
+<button class="bg-white text-primary px-5 py-2.5 rounded-lg font-bold text-sm shadow-md hover:bg-red-50 transition-colors">
+                        Optimizar Paquetes
+                    </button>
+</div>
+<span class="material-icons-outlined absolute right-[-20px] bottom-[-20px] text-[200px] text-white/10 select-none">celebration</span>
+</div>
+</main>
 </div>

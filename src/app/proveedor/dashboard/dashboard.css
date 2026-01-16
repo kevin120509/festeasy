@@ -1,0 +1,18 @@
+body { font-family: 'Lexend', sans-serif; }
+.sidebar-item-active {
+    background-color: #FF3D3D;
+    color: white !important;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #374151;
+}

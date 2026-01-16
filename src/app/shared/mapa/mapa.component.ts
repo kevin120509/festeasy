@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import * as L from 'leaflet';
-import { GeoService, GeocodingResult } from '../../services/geo.service';
+import { GeoService, LocationInfo } from '../../services/geo.service';
 
 // Fix for default marker icons validation
 const iconRetinaUrl = 'assets/marker-icon-2x.png';
@@ -132,13 +132,17 @@ export class MapaComponent implements AfterViewInit {
     geocodeAddress() {
         if (!this.searchAddress) return;
 
-        this.geoService.geocode(this.searchAddress).subscribe({
-            next: (result: GeocodingResult) => {
-                this.updateMapLocation(result.lat, result.lng);
-                this.searchAddress = result.formatted_address;
-                this.searchNearbyProviders(result.lat, result.lng);
+        this.geoService.geocodeAddress(this.searchAddress).subscribe({
+            next: (result) => {
+                if (result) {
+                    this.updateMapLocation(result.lat, result.lng);
+                    if (result.formatted_address) {
+                        this.searchAddress = result.formatted_address;
+                    }
+                    // this.searchNearbyProviders(result.lat, result.lng);
+                }
             },
-            error: (err) => console.error('Geocoding error', err)
+            error: (err: any) => console.error('Geocoding error', err)
         });
     }
 
@@ -168,21 +172,7 @@ export class MapaComponent implements AfterViewInit {
         }).addTo(this.map);
 
         // Refresh search if location is set
-        this.searchNearbyProviders(this.currentLat, this.currentLng);
-    }
-
-    searchNearbyProviders(lat: number, lng: number) {
-        this.geoService.searchNearby(lat, lng, this.radius).subscribe({
-            next: (results) => {
-                // Clear old result markers (except main one)
-                // Implementation note: Ideally we keep track of result markers array
-                results.forEach(req => {
-                    L.marker([req.latitud_servicio, req.longitud_servicio])
-                        .addTo(this.map)
-                        .bindPopup(`<b>${req.titulo_evento}</b><br>${req.fecha_servicio}`);
-                });
-            },
-            error: (err) => console.error('Search error', err)
-        });
+        // TODO: Implement nearby provider search
+        // this.searchNearbyProviders(this.currentLat, this.currentLng);
     }
 }

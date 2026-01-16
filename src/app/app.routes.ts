@@ -17,6 +17,7 @@ import { ProveedorDashboardComponent } from './proveedor/dashboard/dashboard';
 import { SolicitudesComponent } from './proveedor/solicitudes/solicitudes';
 import { AgendaComponent } from './proveedor/agenda/agenda';
 import { NotificacionesComponent } from './proveedor/notificaciones/notificaciones';
+import { PaquetesComponent } from './proveedor/paquetes/paquetes';
 
 export const routes: Routes = [
     // General
@@ -36,6 +37,7 @@ export const routes: Routes = [
     { path: 'proveedor/solicitudes', component: SolicitudesComponent },
     { path: 'proveedor/agenda', component: AgendaComponent },
     { path: 'proveedor/notificaciones', component: NotificacionesComponent },
+    { path: 'proveedor/paquetes', component: PaquetesComponent },
 
     // Fallback
     { path: '**', redirectTo: '' }

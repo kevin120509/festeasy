@@ -6,8 +6,9 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-proveedor-dashboard',
     standalone: true,
-    imports: [RouterLink, HeaderComponent],
-    templateUrl: './dashboard.html'
+    imports: [RouterLink],
+    templateUrl: './dashboard.html',
+    styleUrl: './dashboard.css'
 })
 export class ProveedorDashboardComponent {
     auth = inject(AuthService);

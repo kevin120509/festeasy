@@ -1,0 +1,149 @@
+
+<aside class="hidden md:flex flex-col w-64 bg-white dark:bg-zinc-900 border-r border-slate-200 dark:border-zinc-800 sticky top-0 h-screen">
+<div class="p-6">
+<div class="flex items-center gap-2">
+<img alt="FESTEASY Logo" class="w-10 h-10 rounded-full object-contain bg-white" src="assets/festeasy.jpeg"/>
+<span class="font-bold text-xl tracking-tight text-primary">FESTEASY</span>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-2 mt-4">
+<a routerLink="/proveedor/dashboard" class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" >
+<span class="material-icons-outlined">dashboard</span>
+<span class="font-medium">Dashboard</span>
+</a>
+<a routerLink="/proveedor/paquetes" class="flex items-center gap-3 px-4 py-3 bg-primary/10 text-primary rounded-xl transition-all">
+<span class="material-icons-outlined">inventory_2</span>
+<span class="font-medium text-primary">Mis Paquetes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined">calendar_today</span>
+<span class="font-medium">Reservas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined">insights</span>
+<span class="font-medium">Estadísticas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-zinc-800 rounded-xl transition-all" href="#">
+<span class="material-icons-outlined">settings</span>
+<span class="font-medium">Configuración</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-200 dark:border-zinc-800">
+<button class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-zinc-800 rounded-lg hover:bg-slate-200 dark:hover:bg-zinc-700 transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+<span>Modo Oscuro</span>
+<span class="material-icons-outlined text-base">dark_mode</span>
+</button>
+</div>
+</aside>
+<main class="flex-1 flex flex-col">
+<header class="h-16 flex items-center justify-between px-6 md:px-10 bg-white/80 dark:bg-zinc-900/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 dark:border-zinc-800">
+<div class="flex items-center md:hidden">
+<button class="p-2 -ml-2 text-slate-600 dark:text-slate-400">
+<span class="material-icons-outlined">menu</span>
+</button>
+<span class="ml-2 font-bold text-primary">FESTEASY</span>
+</div>
+<div class="hidden md:block flex-1 max-w-xl">
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-icons-outlined text-xl">search</span>
+</span>
+<input class="w-full pl-10 pr-4 py-2 bg-slate-100 dark:bg-zinc-800 border-transparent rounded-xl focus:ring-2 focus:ring-primary focus:bg-white dark:focus:bg-zinc-900 text-sm transition-all" placeholder="Buscar en mis paquetes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-600 dark:text-slate-400 relative">
+<span class="material-icons-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full ring-2 ring-white dark:ring-zinc-900"></span>
+</button>
+<div class="flex items-center gap-3 border-l border-slate-200 dark:border-zinc-800 pl-4">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-semibold">Eventos Magic S.A.</p>
+<p class="text-[10px] text-slate-500">Proveedor Premium</p>
+</div>
+<img alt="User Avatar" class="w-8 h-8 rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYsk7iIWh2jOKPa_gWeECFhYtwadCythx3a-fujKws6QRdC7tGfHcXQNRViEfrpklaf8vtLmXDj_hVdnvc2UuPX8OvxUnjwnZeCkBzzlf1vLWQ1AsTkiSMmzwWy76brzO17qJyhg2DtOAlHselsajlWA5bONT2k6d7DNifk3dL-dOr1V3rqY-EbvBd4S1HWRkJOdgCTE-7SK0hyyLKWqvMQfsXcO4zmuA87bjfv2_ma3EJYKeBdNiGy_w1dcgTswYfW3OPrUnqWvM"/>
+</div>
+</div>
+</header>
+<div class="p-6 md:p-10 max-w-7xl mx-auto w-full">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+<div>
+<h1 class="text-3xl font-bold text-slate-900 dark:text-white">Mis Paquetes</h1>
+<p class="text-slate-500 mt-1">Gestiona y personaliza tu oferta de servicios.</p>
+</div>
+<button class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 transition-all transform active:scale-95">
+<span class="material-icons-outlined">add</span>
+                        Nuevo Paquete
+                    </button>
+</div>
+<div class="bg-gradient-to-r from-primary/5 to-accent/10 border border-primary/10 rounded-2xl p-4 md:p-6 mb-10 flex items-start gap-4">
+<div class="bg-primary/10 p-2 rounded-lg text-primary">
+<span class="material-icons-outlined">info</span>
+</div>
+<div>
+<h3 class="font-bold text-slate-900 dark:text-white">Aviso importante</h3>
+<p class="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
+                            Este paquete define a qué solicitudes accedes. Asegúrate de categorizar correctamente tus servicios para recibir las mejores oportunidades de contratación.
+                        </p>
+</div>
+</div>
+<div class="flex items-center gap-4 mb-8 overflow-x-auto pb-2 scrollbar-hide">
+<button class="whitespace-nowrap px-4 py-2 bg-slate-900 dark:bg-white dark:text-slate-900 text-white rounded-full text-sm font-semibold">Todos (12)</button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors">Activos (8)</button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors">Borradores (4)</button>
+<button class="whitespace-nowrap px-4 py-2 bg-white dark:bg-zinc-800 border border-slate-200 dark:border-zinc-700 rounded-full text-sm font-medium hover:bg-slate-50 dark:hover:bg-zinc-700 transition-colors">Archivados</button>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+
+@for (paquete of paquetes(); track paquete.id) {
+    <div class="group bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col">
+        <div class="relative aspect-video overflow-hidden">
+        <img alt="{{ paquete.nombre }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="assets/image.png"/>
+        <div class="absolute top-3 right-3">
+            <span class="bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wider">{{ paquete.estado }}</span>
+        </div>
+        </div>
+        <div class="p-5 flex-1 flex flex-col">
+        <div class="flex items-center justify-between mb-2">
+            <span class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">{{ paquete.categoria_servicio_id }}</span>
+            <span class="text-sm font-bold text-slate-900 dark:text-white">${{ paquete.precio_base.toLocaleString() }}</span>
+        </div>
+        <h3 class="font-bold text-lg mb-2 line-clamp-1 dark:text-white">{{ paquete.nombre }}</h3>
+        <p class="text-xs text-slate-500 mb-6 line-clamp-2">{{ paquete.descripcion }}</p>
+        <div class="mt-auto pt-4 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
+            <div class="flex items-center gap-1 text-slate-400">
+            <span class="material-icons-outlined text-sm">visibility</span>
+            <span class="text-[10px] font-semibold tracking-tighter">0 Vistas</span>
+            </div>
+            <div class="flex items-center gap-2">
+            <button class="p-2 text-slate-400 hover:text-primary transition-colors">
+                <span class="material-icons-outlined text-lg">edit</span>
+            </button>
+            <button class="p-2 text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                <span class="material-icons-outlined text-lg">more_vert</span>
+            </button>
+            </div>
+        </div>
+        </div>
+    </div>
+}
+
+
+<button class="border-2 border-dashed border-slate-200 dark:border-zinc-800 rounded-2xl p-6 flex flex-col items-center justify-center gap-4 hover:border-primary/50 hover:bg-white dark:hover:bg-zinc-800 transition-all group">
+<div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-zinc-800 flex items-center justify-center text-slate-400 group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-icons-outlined">add</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-slate-900 dark:text-white">Agregar Nuevo</p>
+<p class="text-xs text-slate-400">Haz crecer tu catálogo</p>
+</div>
+</button>
+</div>
+<div class="mt-12 flex justify-center">
+<button class="text-slate-600 dark:text-slate-400 font-semibold flex items-center gap-2 hover:text-primary transition-colors">
+                        Ver más paquetes
+                        <span class="material-icons-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</main>
