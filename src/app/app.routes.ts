@@ -11,6 +11,7 @@ import { MarketplaceComponent } from './cliente/marketplace/marketplace';
 import { ProveedorDetalleComponent } from './cliente/proveedor-detalle/proveedor-detalle';
 import { CarritoComponent } from './cliente/carrito/carrito';
 import { ClienteDashboardComponent } from './cliente/dashboard/dashboard';
+import { CrearSolicitudComponent } from './cliente/solicitudes/crear-solicitud.component';
 
 // Proveedor
 import { ProveedorRegistroComponent } from './proveedor/registro/registro';
@@ -28,10 +29,18 @@ export const routes: Routes = [
 
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
+<<<<<<< HEAD
     { path: 'cliente/marketplace', component: MarketplaceComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/carrito', component: CarritoComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/dashboard', component: ClienteDashboardComponent, canActivate: [roleGuard], data: { role: 'client' } },
+=======
+    { path: 'cliente/marketplace', component: MarketplaceComponent },
+    { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent },
+    { path: 'cliente/carrito', component: CarritoComponent },
+    { path: 'cliente/dashboard', component: ClienteDashboardComponent },
+    { path: 'cliente/solicitudes', component: CrearSolicitudComponent },
+>>>>>>> 935be22e51c82e0b258eb3f02368fee274b5d828
 
     // Proveedor
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },
