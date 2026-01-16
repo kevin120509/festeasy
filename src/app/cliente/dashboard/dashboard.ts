@@ -1,12 +1,13 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-cliente-dashboard',
     standalone: true,
-    imports: [RouterLink],
+    imports: [RouterLink, CommonModule],
     templateUrl: './dashboard.html'
 })
 export class ClienteDashboardComponent implements OnInit {
@@ -25,6 +26,9 @@ export class ClienteDashboardComponent implements OnInit {
 
     // Actividad reciente (solicitudes)
     actividades = signal<any[]>([]);
+
+    // Todas las solicitudes del cliente
+    misSolicitudes = signal<any[]>([]);
 
     // Proveedores recomendados
     recomendados = signal([
@@ -50,6 +54,9 @@ export class ClienteDashboardComponent implements OnInit {
     cargarDatos(): void {
         this.api.getClientRequests().subscribe({
             next: (requests) => {
+                // Guardar todas las solicitudes
+                this.misSolicitudes.set(requests);
+
                 // Mapear solicitudes a actividades
                 const actividades = requests.slice(0, 5).map(req => ({
                     id: req.id,
@@ -89,7 +96,7 @@ export class ClienteDashboardComponent implements OnInit {
         });
     }
 
-    private formatEstado(estado: string): string {
+    formatEstado(estado: string): string {
         const estados: Record<string, string> = {
             'pendiente_aprobacion': 'Pendiente',
             'negociacion': 'En negociación',

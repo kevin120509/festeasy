@@ -49,4 +49,36 @@ export class AuthService {
   isProvider(): boolean {
     return this.currentUser()?.rol === 'provider';
   }
+
+  getUserRole(): string | null {
+    // Intenta obtener del signal primero
+    const user = this.currentUser();
+    if (user?.rol) {
+      return user.rol;
+    }
+
+    // Si no está en el signal, intenta leer de localStorage
+    const storedUser = this.getStoredUser();
+    if (storedUser?.rol) {
+      // Actualiza el signal para sincronizar
+      this.currentUser.set(storedUser);
+      return storedUser.rol;
+    }
+
+    return null;
+  }
+
+  // Método mejorado para verificar autenticación
+  checkAuth(): boolean {
+    const hasToken = this.hasToken();
+    const hasUser = !!this.getStoredUser();
+
+    // Sincronizar signals con localStorage
+    this.isLoggedIn.set(hasToken && hasUser);
+    if (hasUser) {
+      this.currentUser.set(this.getStoredUser());
+    }
+
+    return hasToken && hasUser;
+  }
 }

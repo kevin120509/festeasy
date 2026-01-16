@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { roleGuard } from './guards/role.guard';
 
 // Shared
 import { LandingComponent } from './shared/landing/landing';
@@ -27,19 +28,19 @@ export const routes: Routes = [
 
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
-    { path: 'cliente/marketplace', component: MarketplaceComponent },
-    { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent },
-    { path: 'cliente/carrito', component: CarritoComponent },
-    { path: 'cliente/dashboard', component: ClienteDashboardComponent },
+    { path: 'cliente/marketplace', component: MarketplaceComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/carrito', component: CarritoComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/dashboard', component: ClienteDashboardComponent, canActivate: [roleGuard], data: { role: 'client' } },
 
     // Proveedor
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },
-    { path: 'proveedor/dashboard', component: ProveedorDashboardComponent },
-    { path: 'proveedor/solicitudes', component: SolicitudesComponent },
-    { path: 'proveedor/agenda', component: AgendaComponent },
-    { path: 'proveedor/notificaciones', component: NotificacionesComponent },
-    { path: 'proveedor/paquetes', component: PaquetesComponent },
-    { path: 'proveedor/configuracion', component: ProveedorConfiguracionComponent },
+    { path: 'proveedor/dashboard', component: ProveedorDashboardComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    { path: 'proveedor/solicitudes', component: SolicitudesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    { path: 'proveedor/agenda', component: AgendaComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    { path: 'proveedor/notificaciones', component: NotificacionesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    { path: 'proveedor/paquetes', component: PaquetesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    { path: 'proveedor/configuracion', component: ProveedorConfiguracionComponent, canActivate: [roleGuard], data: { role: 'provider' } },
 
     // Fallback
     { path: '**', redirectTo: '' }
