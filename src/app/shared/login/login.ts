@@ -40,7 +40,8 @@ export class LoginComponent {
                 }
             },
             error: (err) => {
-                this.error = err.error?.message || 'Error al iniciar sesión';
+                console.error('Login error details:', err);
+                this.error = err.error?.message || `Error al iniciar sesión (${err.status} - ${err.statusText})`;
                 this.loading = false;
             }
         });

@@ -275,7 +275,7 @@
                             <p>{{ pkg.descripcion }}</p>
                         </div>
                         <div class="paquete-precio">
-                            <strong>${{ pkg.precio.toLocaleString() }}</strong>
+                            <strong>${{ pkg.precio_base.toLocaleString() }}</strong>
                             <button class="btn-add" (click)="addToCart(pkg)">Agregar</button>
                         </div>
                     </div>
@@ -286,7 +286,7 @@
             <div class="proveedor-card">
                 <h2 class="section-title">Galería</h2>
                 <div class="galeria-grid">
-                    @for (item of galeria; track item) {
+                    @for (item of galeria(); track item) {
                     <div class="galeria-item">{{ item }}</div>
                     }
                 </div>

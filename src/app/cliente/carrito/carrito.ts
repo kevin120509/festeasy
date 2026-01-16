@@ -1,7 +1,8 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../shared/header/header';
 import { ApiService } from '../../services/api.service';
+import { Cart } from '../../models';
 
 @Component({
     selector: 'app-carrito',
@@ -9,16 +10,26 @@ import { ApiService } from '../../services/api.service';
     imports: [RouterLink, HeaderComponent],
     templateUrl: './carrito.html'
 })
-export class CarritoComponent {
+export class CarritoComponent implements OnInit {
     private api = inject(ApiService);
 
     currentStep = signal(2); // 1: Selección, 2: Revisión, 3: Pago, 4: Confirmación
 
-    items = signal([
-        { id: 1, nombre: 'Paquete Premium DJ', proveedor: 'Sonic Audio Visuals', precio: 8500, cantidad: 1 },
-        { id: 2, nombre: 'Catering 50 personas', proveedor: 'Delicias Gourmet', precio: 12000, cantidad: 1 },
-        { id: 3, nombre: 'Fotografía 6 horas', proveedor: 'Foto Momentos', precio: 5500, cantidad: 1 }
-    ]);
+    items = signal<any[]>([]);
+
+    ngOnInit(): void {
+        this.api.getCart().subscribe(cart => {
+            // Assuming the backend returns the cart with items and populated package/provider info
+            const mappedItems = (cart.items || []).map((item: any) => ({
+                id: item.id,
+                nombre: item.paquete?.nombre || 'Nombre no disponible',
+                proveedor: item.paquete?.proveedor?.nombre_negocio || 'Proveedor no disponible',
+                precio: item.precio_unitario_momento,
+                cantidad: item.cantidad
+            }));
+            this.items.set(mappedItems);
+        });
+    }
 
     get subtotal() {
         return this.items().reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
@@ -32,8 +43,10 @@ export class CarritoComponent {
         return this.subtotal + this.comision;
     }
 
-    removeItem(id: number) {
-        this.items.update(items => items.filter(i => i.id !== id));
+    removeItem(id: string) {
+        this.api.deleteCartItem(id.toString()).subscribe(() => {
+            this.items.update(items => items.filter(i => i.id !== id));
+        });
     }
 
     checkout() {

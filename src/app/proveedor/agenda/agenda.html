@@ -227,8 +227,8 @@
                 <div class="calendario-header">
                     <h2 class="calendario-title">{{ currentMonth() }}</h2>
                     <div class="nav-buttons">
-                        <button class="nav-btn">←</button>
-                        <button class="nav-btn">→</button>
+                        <button class="nav-btn" (click)="changeMonth(-1)">←</button>
+                        <button class="nav-btn" (click)="changeMonth(1)">→</button>
                     </div>
                 </div>
 
@@ -244,8 +244,11 @@
 
                 <div class="dias-grid">
                     @for (dia of dias(); track dia.num; let i = $index) {
-                    <div class="dia-cell" [class.disponible]="dia.disponible" [class.ocupado]="!dia.disponible"
-                        (click)="toggleDisponibilidad(i)">
+                    <div class="dia-cell" 
+                         [class.disponible]="dia.disponible" 
+                         [class.ocupado]="!dia.disponible"
+                         [class.dia-today]="dia.isToday"
+                         (click)="toggleDisponibilidad(i)">
                         {{ dia.num }}
                     </div>
                     }

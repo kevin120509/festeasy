@@ -1,10 +1,64 @@
 <style>
+    /* ========================================
+       Landing Page Styles
+       ======================================== */
+
+    /* Header de Landing */
+    .landing-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 60px;
+        background: white;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+
+    .landing-logo {
+        display: flex;
+        align-items: center;
+    }
+
+    .landing-logo img {
+        height: 50px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .landing-logo-text {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-primary);
+        margin-left: 8px;
+    }
+
+    .landing-access-btn {
+        padding: 14px 36px;
+        background: var(--color-primary);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 15px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+    }
+
+    .landing-access-btn:hover {
+        background: #d81b60;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(233, 30, 99, 0.4);
+    }
+
+    /* Hero Section */
     .hero {
-        min-height: 90vh;
+        min-height: 85vh;
         display: flex;
         align-items: center;
         background: linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%);
-        padding: 60px 40px;
+        padding: 60px 60px;
     }
 
     .hero-content {
@@ -12,14 +66,14 @@
         margin: 0 auto;
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 60px;
+        gap: 80px;
         align-items: center;
     }
 
     .hero-text h1 {
-        font-size: 56px;
+        font-size: 52px;
         font-weight: 700;
-        line-height: 1.1;
+        line-height: 1.15;
         color: var(--color-dark);
         margin-bottom: 24px;
     }
@@ -31,7 +85,7 @@
     .hero-text p {
         font-size: 18px;
         color: var(--color-gray);
-        margin-bottom: 32px;
+        margin-bottom: 36px;
         line-height: 1.7;
     }
 
@@ -40,36 +94,126 @@
         gap: 16px;
     }
 
-    .hero-image {
+    .hero-buttons .btn-primary {
+        padding: 16px 32px;
+        background: var(--color-primary);
+        color: white;
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 16px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
+    }
+
+    .hero-buttons .btn-primary:hover {
+        background: #d81b60;
+        transform: translateY(-2px);
+    }
+
+    .hero-buttons .btn-outline {
+        padding: 16px 32px;
+        background: transparent;
+        color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 16px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .hero-buttons .btn-outline:hover {
+        background: var(--color-primary);
+        color: white;
+    }
+
+    /* Hero Media (Video/Image) */
+    .hero-media {
         position: relative;
     }
 
-    .hero-image img {
+    .hero-video-container {
         width: 100%;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-lg);
+        height: 420px;
+        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(233, 30, 99, 0.3);
+    }
+
+    .hero-video-container video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .hero-video-container:hover video {
+        opacity: 1;
+    }
+
+    .hero-video-placeholder {
+        position: absolute;
+        font-size: 100px;
+        transition: opacity 0.3s ease;
+    }
+
+    .hero-video-container:hover .hero-video-placeholder {
+        opacity: 0;
+    }
+
+    .hero-play-hint {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 13px;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+    }
+
+    .hero-video-container:hover .hero-play-hint {
+        opacity: 0;
     }
 
     .hero-card {
         position: absolute;
         background: var(--color-white);
-        padding: 20px;
-        border-radius: var(--border-radius-sm);
-        box-shadow: var(--shadow);
+        padding: 16px 20px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        font-size: 14px;
+    }
+
+    .hero-card strong {
+        color: var(--color-primary);
+        font-size: 18px;
     }
 
     .hero-card-1 {
-        bottom: -20px;
-        left: -20px;
+        bottom: -15px;
+        left: -15px;
     }
 
     .hero-card-2 {
         top: 20px;
-        right: -20px;
+        right: -15px;
+        background: white;
     }
 
+    /* Features Section */
     .features {
-        padding: 100px 40px;
+        padding: 100px 60px;
         background: var(--color-white);
     }
 
@@ -95,14 +239,14 @@
     .feature-card {
         text-align: center;
         padding: 40px;
-        border-radius: var(--border-radius);
+        border-radius: 20px;
         background: var(--color-gray-light);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
     .feature-card:hover {
         transform: translateY(-10px);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     }
 
     .feature-icon {
@@ -114,7 +258,7 @@
         align-items: center;
         justify-content: center;
         margin: 0 auto 24px;
-        font-size: 32px;
+        font-size: 36px;
     }
 
     .feature-card h3 {
@@ -128,9 +272,10 @@
         line-height: 1.6;
     }
 
+    /* CTA Section */
     .cta-section {
-        background: var(--color-primary);
-        padding: 80px 40px;
+        background: linear-gradient(135deg, var(--color-primary) 0%, #ff6b6b 100%);
+        padding: 80px 60px;
         text-align: center;
     }
 
@@ -147,29 +292,65 @@
     }
 
     .cta-section .btn {
+        padding: 16px 40px;
         background: var(--color-white);
         color: var(--color-primary);
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 16px;
+        text-decoration: none;
+        transition: all 0.3s ease;
     }
 
     .cta-section .btn:hover {
         background: var(--color-dark);
         color: var(--color-white);
+        transform: translateY(-2px);
     }
 
+    /* Footer */
     .footer {
         background: var(--color-dark);
         color: var(--color-white);
-        padding: 40px;
+        padding: 40px 60px;
         text-align: center;
     }
 
     .footer p {
         color: rgba(255, 255, 255, 0.7);
     }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .hero-content {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .hero-buttons {
+            justify-content: center;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero-text h1 {
+            font-size: 36px;
+        }
+    }
 </style>
 
-<app-header></app-header>
+<!-- Header -->
+<header class="landing-header">
+    <a routerLink="/" class="landing-logo">
+        <img src="festeasy.jpeg" alt="FestEasy" onerror="this.style.display='none'">
+        <span class="landing-logo-text">FestEasy</span>
+    </a>
+    <a routerLink="/login" class="landing-access-btn">Acceso</a>
+</header>
 
+<!-- Hero Section -->
 <section class="hero">
     <div class="hero-content">
         <div class="hero-text">
@@ -177,14 +358,17 @@
             <p>Conectamos a los mejores proveedores de eventos con personas que buscan crear momentos inolvidables. DJs,
                 catering, fotografía y mucho más.</p>
             <div class="hero-buttons">
-                <a routerLink="/cliente/marketplace" class="btn btn-primary">Solicitar un servicio</a>
-                <a routerLink="/proveedor/registro" class="btn btn-outline">Soy proveedor</a>
+                <a routerLink="/cliente/registro" class="btn-primary">Solicitar un servicio</a>
+                <a routerLink="/proveedor/registro" class="btn-outline">Soy proveedor</a>
             </div>
         </div>
-        <div class="hero-image">
-            <div
-                style="width: 100%; height: 400px; background: linear-gradient(135deg, #E53935 0%, #FF7043 100%); border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; color: white; font-size: 120px;">
-                🎉
+        <div class="hero-media">
+            <div class="hero-video-container" (mouseenter)="playVideo()" (mouseleave)="pauseVideo()">
+                <span class="hero-video-placeholder">🎉</span>
+                <video #heroVideo muted loop>
+                    <source src="assets/festeasy-promo.mp4" type="video/mp4">
+                </video>
+                <span class="hero-play-hint">▶ Pasa el mouse para ver</span>
             </div>
             <div class="hero-card hero-card-1">
                 <strong>4.9★</strong> Rating promedio
@@ -196,10 +380,11 @@
     </div>
 </section>
 
+<!-- Features Section -->
 <section class="features">
     <div class="features-header">
         <h2>¿Por qué FestEasy?</h2>
-        <p class="text-gray">Todo lo que necesitas para tu evento en un solo lugar</p>
+        <p style="color: var(--color-gray);">Todo lo que necesitas para tu evento en un solo lugar</p>
     </div>
     <div class="features-grid">
         <div class="feature-card">
@@ -220,12 +405,14 @@
     </div>
 </section>
 
+<!-- CTA Section -->
 <section class="cta-section">
     <h2>¿Eres un proveedor de servicios?</h2>
     <p>Únete a nuestra plataforma y conecta con miles de clientes potenciales</p>
     <a routerLink="/proveedor/registro" class="btn">Registrarme como proveedor</a>
 </section>
 
+<!-- Footer -->
 <footer class="footer">
     <p>© 2026 FestEasy. Todos los derechos reservados.</p>
 </footer>

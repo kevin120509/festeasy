@@ -23,7 +23,7 @@ export class ClienteRegistroComponent {
     error = '';
     loading = false;
 
-    register() {
+    async register() {
         if (!this.nombre || !this.email || !this.password) {
             this.error = 'Por favor completa todos los campos obligatorios';
             return;
@@ -32,20 +32,31 @@ export class ClienteRegistroComponent {
         this.loading = true;
         this.error = '';
 
-        this.api.register({
-            correo_electronico: this.email,
-            contrasena: this.password,
-            rol: 'client',
-            nombre: this.nombre
-        }).subscribe({
-            next: (response) => {
-                this.auth.login(response.token, response.user);
-                this.router.navigate(['/cliente/dashboard']);
-            },
-            error: (err) => {
-                this.error = err.error?.message || 'Error al registrarse';
-                this.loading = false;
-            }
-        });
+        try {
+            // 1. Register User
+            await this.api.register({
+                correo_electronico: this.email,
+                contrasena: this.password,
+                rol: 'client'
+            }).toPromise();
+
+            // 2. Login to get token
+            const loginResponse = await this.api.login(this.email, this.password).toPromise();
+            this.auth.login(loginResponse.token, loginResponse.user);
+
+            // 3. Create Profile
+            await this.api.createClientProfile({
+                usuario_id: loginResponse.user.id,
+                nombre_completo: this.nombre,
+                telefono: this.telefono // Assuming telefono is bound in the template
+            }).toPromise();
+
+            this.router.navigate(['/cliente/dashboard']);
+
+        } catch (err: any) {
+            console.error('Registration error details:', err);
+            this.error = err.error?.message || `Error al registrarse (${err.status} - ${err.statusText})`;
+            this.loading = false;
+        }
     }
 }

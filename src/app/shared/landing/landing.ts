@@ -1,11 +1,26 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HeaderComponent } from '../header/header';
 
 @Component({
     selector: 'app-landing',
     standalone: true,
-    imports: [RouterLink, HeaderComponent],
+    imports: [RouterLink],
     templateUrl: './landing.html'
 })
-export class LandingComponent { }
+export class LandingComponent {
+    @ViewChild('heroVideo') heroVideo!: ElementRef<HTMLVideoElement>;
+
+    playVideo(): void {
+        if (this.heroVideo?.nativeElement) {
+            this.heroVideo.nativeElement.play().catch(() => {
+                // Video might not be available, ignore error
+            });
+        }
+    }
+
+    pauseVideo(): void {
+        if (this.heroVideo?.nativeElement) {
+            this.heroVideo.nativeElement.pause();
+        }
+    }
+}

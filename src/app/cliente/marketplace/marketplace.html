@@ -168,7 +168,7 @@
                     [(ngModel)]="searchQuery" />
                 <select class="filter-select" [(ngModel)]="selectedCategory">
                     <option value="">Todas las categorías</option>
-                    @for (cat of categories; track cat) {
+                    @for (cat of categories(); track cat) {
                     <option [value]="cat">{{ cat }}</option>
                     }
                 </select>

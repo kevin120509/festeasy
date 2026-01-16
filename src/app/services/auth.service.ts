@@ -16,7 +16,12 @@ export class AuthService {
 
   private getStoredUser(): any {
     const user = localStorage.getItem(this.USER_KEY);
-    return user ? JSON.parse(user) : null;
+    try {
+      return user ? JSON.parse(user) : null;
+    } catch (e) {
+      console.error('Error parsing stored user', e);
+      return null;
+    }
   }
 
   getToken(): string | null {

@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { HeaderComponent } from '../../shared/header/header';
+import { ApiService } from '../../services/api.service';
+import { ServiceRequest } from '../../models';
 
 @Component({
     selector: 'app-solicitudes',
@@ -7,47 +9,39 @@ import { HeaderComponent } from '../../shared/header/header';
     imports: [HeaderComponent],
     templateUrl: './solicitudes.html'
 })
-export class SolicitudesComponent {
-    solicitudes = signal([
-        {
-            id: 1,
-            cliente: 'María García',
-            evento: 'Boda',
-            fecha: '15 Mar 2026',
-            paquete: 'Paquete Premium DJ',
-            precio: 8500,
-            tiempoRestante: '04:42:05',
-            estado: 'pendiente'
-        },
-        {
-            id: 2,
-            cliente: 'Carlos López',
-            evento: 'Corporativo',
-            fecha: '28 Feb 2026',
-            paquete: 'Paquete Completo',
-            precio: 12000,
-            tiempoRestante: '18:30:00',
-            estado: 'pendiente'
-        },
-        {
-            id: 3,
-            cliente: 'Ana Martínez',
-            evento: 'Cumpleaños',
-            fecha: '10 Feb 2026',
-            paquete: 'Paquete Básico',
-            precio: 5000,
-            tiempoRestante: null,
-            estado: 'confirmado'
-        }
-    ]);
+export class SolicitudesComponent implements OnInit {
+    private api = inject(ApiService);
 
-    aceptar(id: number) {
-        this.solicitudes.update(items =>
-            items.map(s => s.id === id ? { ...s, estado: 'confirmado', tiempoRestante: null } : s)
-        );
+    solicitudes = signal<any[]>([]);
+
+    ngOnInit(): void {
+        this.api.getProviderRequests().subscribe(requests => {
+            const mappedSolicitudes = requests.map(req => ({
+                id: req.id,
+                // TODO: Populate with real data
+                cliente: `Cliente ID: ${req.cliente_usuario_id}`,
+                evento: req.titulo_evento || 'Evento sin título',
+                fecha: new Date(req.fecha_servicio).toLocaleDateString(),
+                paquete: 'Paquete no especificado',
+                precio: 0, // Comes from quote,
+                tiempoRestante: '00:00:00', // Placeholder
+                estado: req.estado
+            }));
+            this.solicitudes.set(mappedSolicitudes);
+        });
     }
 
-    rechazar(id: number) {
-        this.solicitudes.update(items => items.filter(s => s.id !== id));
+    aceptar(id: string) {
+        this.api.updateRequestStatus(id.toString(), 'aceptada').subscribe(() => {
+            this.solicitudes.update(items =>
+                items.map(s => s.id === id ? { ...s, estado: 'aceptada', tiempoRestante: null } : s)
+            );
+        });
+    }
+
+    rechazar(id: string) {
+        this.api.updateRequestStatus(id.toString(), 'rechazada').subscribe(() => {
+            this.solicitudes.update(items => items.filter(s => s.id !== id));
+        });
     }
 }

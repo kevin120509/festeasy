@@ -1,8 +1,10 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../shared/header/header';
 import { MapaComponent } from '../../shared/mapa/mapa.component';
+import { ApiService } from '../../services/api.service';
+import { ProviderPackage } from '../../models';
 
 @Component({
     selector: 'app-marketplace',
@@ -10,21 +12,35 @@ import { MapaComponent } from '../../shared/mapa/mapa.component';
     imports: [RouterLink, FormsModule, HeaderComponent, MapaComponent],
     templateUrl: './marketplace.html'
 })
-export class MarketplaceComponent {
+export class MarketplaceComponent implements OnInit {
     searchQuery = '';
     selectedCategory = '';
     priceRange = '';
 
-    providers = signal([
-        { id: 1, nombre: 'Sonic Audio Visuals', categoria: 'DJ / Sonido', precio: 5000, rating: 4.9, ubicacion: 'Ciudad de México', imagen: '🎧' },
-        { id: 2, nombre: 'Delicias Gourmet', categoria: 'Catering', precio: 8000, rating: 4.8, ubicacion: 'Guadalajara', imagen: '🍽️' },
-        { id: 3, nombre: 'Foto Momentos', categoria: 'Fotografía', precio: 3500, rating: 4.7, ubicacion: 'Monterrey', imagen: '📷' },
-        { id: 4, nombre: 'Flores del Valle', categoria: 'Decoración', precio: 4500, rating: 4.9, ubicacion: 'Ciudad de México', imagen: '🌸' },
-        { id: 5, nombre: 'Luz y Magia', categoria: 'Iluminación', precio: 6000, rating: 4.6, ubicacion: 'Puebla', imagen: '💡' },
-        { id: 6, nombre: 'Sweet Dreams Pasteles', categoria: 'Pastelería', precio: 2500, rating: 4.8, ubicacion: 'Querétaro', imagen: '🎂' }
-    ]);
+    private api = inject(ApiService);
 
-    categories = ['DJ / Sonido', 'Catering', 'Fotografía', 'Decoración', 'Iluminación', 'Pastelería'];
+    providers = signal<any[]>([]);
+    categories = signal<string[]>([]);
+
+    ngOnInit(): void {
+        this.api.getProviderPackages().subscribe(packages => {
+            const providersData = packages.map(p => ({
+                id: p.id,
+                nombre: p.nombre,
+                // TODO: The backend ProviderPackage model does not have category, rating, location or image.
+                // These are placeholder values.
+                categoria: 'Categoría no especificada', 
+                precio: p.precio_base,
+                rating: 4.5, 
+                ubicacion: 'Ubicación no especificada', 
+                imagen: '📦' 
+            }));
+            this.providers.set(providersData);
+        });
+
+        // TODO: Implement a real endpoint for categories in the backend
+        this.categories.set(['DJ / Sonido', 'Catering', 'Fotografía', 'Decoración', 'Iluminación', 'Pastelería']);
+    }
 
     get filteredProviders() {
         return this.providers().filter(p => {

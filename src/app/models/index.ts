@@ -107,6 +107,7 @@ export interface ProviderPackage {
     estado: 'borrador' | 'publicado' | 'archivado';
     creado_en: string;
     actualizado_en: string;
+    proveedor?: ProviderProfile; // Joined data
 }
 
 export interface AuthResponse {

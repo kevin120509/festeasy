@@ -85,20 +85,12 @@ export class ApiService {
     // ==========================================
     // 4. Carrito (/carrito)
     // ==========================================
-    createCart(data: Partial<Cart>): Observable<Cart> {
-        return this.http.post<Cart>(`${this.API_URL}/carrito`, data, { headers: this.getHeaders() });
-    }
-
-    getCarts(): Observable<Cart[]> {
-        return this.http.get<Cart[]>(`${this.API_URL}/carrito`, { headers: this.getHeaders() });
-    }
-
-    getCart(id: string): Observable<Cart> {
-        return this.http.get<Cart>(`${this.API_URL}/carrito/${id}`, { headers: this.getHeaders() });
-    }
-
     updateCart(id: string, data: Partial<Cart>): Observable<Cart> {
         return this.http.put<Cart>(`${this.API_URL}/carrito/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    getCart(): Observable<Cart> {
+        return this.http.get<Cart>(`${this.API_URL}/carrito`, { headers: this.getHeaders() });
     }
 
     // ==========================================
@@ -121,6 +113,18 @@ export class ApiService {
     // ==========================================
     createRequest(data: Partial<ServiceRequest>): Observable<ServiceRequest> {
         return this.http.post<ServiceRequest>(`${this.API_URL}/solicitudes`, data, { headers: this.getHeaders() });
+    }
+
+    getClientRequests(): Observable<ServiceRequest[]> {
+        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes/client`, { headers: this.getHeaders() });
+    }
+
+    getProviderRequests(): Observable<ServiceRequest[]> {
+        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes/provider`, { headers: this.getHeaders() });
+    }
+
+    updateRequestStatus(id: string, status: string): Observable<ServiceRequest> {
+        return this.http.put<ServiceRequest>(`${this.API_URL}/solicitudes/${id}/status`, { status }, { headers: this.getHeaders() });
     }
 
     getRequests(): Observable<ServiceRequest[]> {
@@ -187,6 +191,32 @@ export class ApiService {
 
     deleteProviderPackage(id: string): Observable<any> {
         return this.http.delete(`${this.API_URL}/paquetes-proveedor/${id}`, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 10. Reseñas (/resenas)
+    // ==========================================
+    getReviews(proveedorId?: string): Observable<any[]> {
+        let params = new HttpParams();
+        if (proveedorId) {
+            params = params.append('proveedor_id', proveedorId);
+        }
+        return this.http.get<any[]>(`${this.API_URL}/resenas`, { headers: this.getHeaders(), params });
+    }
+
+    // ==========================================
+    // 11. Bloqueo Calendario (/bloqueos-calendario)
+    // ==========================================
+    getCalendarBlocks(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/bloqueos-calendario`, { headers: this.getHeaders() });
+    }
+
+    createCalendarBlock(data: { fecha: string; motivo?: string }): Observable<any> {
+        return this.http.post<any>(`${this.API_URL}/bloqueos-calendario`, data, { headers: this.getHeaders() });
+    }
+
+    deleteCalendarBlock(id: string): Observable<any> {
+        return this.http.delete(`${this.API_URL}/bloqueos-calendario/${id}`, { headers: this.getHeaders() });
     }
 }
 

@@ -1,36 +1,130 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HeaderComponent } from '../../shared/header/header';
 import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-cliente-dashboard',
     standalone: true,
-    imports: [RouterLink, HeaderComponent],
+    imports: [RouterLink],
     templateUrl: './dashboard.html'
 })
-export class ClienteDashboardComponent {
+export class ClienteDashboardComponent implements OnInit {
     auth = inject(AuthService);
+    api = inject(ApiService);
 
-    eventos = signal([
-        { id: 1, nombre: 'Boda Javier & Elena', fecha: '15 Mar 2026', progreso: 75, estado: 'En proceso' },
-        { id: 2, nombre: 'Cumpleaños María', fecha: '20 Feb 2026', progreso: 40, estado: 'Planificando' }
-    ]);
-
-    solicitudes = signal([
-        { id: 1, proveedor: 'Sonic Audio Visuals', servicio: 'DJ Premium', estado: 'Confirmado', precio: 8500 },
-        { id: 2, proveedor: 'Delicias Gourmet', servicio: 'Catering 50 pax', estado: 'Pendiente', precio: 12000 },
-        { id: 3, proveedor: 'Foto Momentos', servicio: 'Fotografía 6hrs', estado: 'Confirmado', precio: 5500 }
-    ]);
-
-    presupuesto = signal({
-        total: 50000,
-        gastado: 26000,
-        categorias: [
-            { nombre: 'Música', porcentaje: 30, color: '#E53935' },
-            { nombre: 'Catering', porcentaje: 40, color: '#FF7043' },
-            { nombre: 'Foto', porcentaje: 20, color: '#FFC107' },
-            { nombre: 'Otros', porcentaje: 10, color: '#757575' }
-        ]
+    // Métricas
+    metricas = signal({
+        eventosActivos: 0,
+        cotizacionesPendientes: 0,
+        inversionTotal: 0
     });
+
+    // Evento activo (el más próximo)
+    eventoActivo = signal<any>(null);
+
+    // Actividad reciente (solicitudes)
+    actividades = signal<any[]>([]);
+
+    // Proveedores recomendados
+    recomendados = signal([
+        { id: '1', nombre: 'Artes Florales', rating: 4.9, resenas: 120, icono: '🌸' },
+        { id: '2', nombre: 'Pastelería Royal', rating: 4.7, resenas: 85, icono: '🎂' },
+        { id: '3', nombre: 'DJ Sounds Pro', rating: 4.8, resenas: 92, icono: '🎵' }
+    ]);
+
+    // Tareas pendientes
+    tareas = signal([
+        { id: '1', texto: 'Confirmar lista de invitados', completada: false },
+        { id: '2', texto: 'Revisar cotizaciones pendientes', completada: false },
+        { id: '3', texto: 'Elegir paleta de colores', completada: false }
+    ]);
+
+    loading = signal(true);
+    darkMode = signal(false);
+
+    ngOnInit(): void {
+        this.cargarDatos();
+    }
+
+    cargarDatos(): void {
+        this.api.getClientRequests().subscribe({
+            next: (requests) => {
+                // Mapear solicitudes a actividades
+                const actividades = requests.slice(0, 5).map(req => ({
+                    id: req.id,
+                    proveedor: 'Proveedor',
+                    servicio: req.titulo_evento || 'Servicio',
+                    fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX'),
+                    estado: req.estado,
+                    estadoLabel: this.formatEstado(req.estado),
+                    monto: 0,
+                    icono: '📋'
+                }));
+                this.actividades.set(actividades);
+
+                // Métricas
+                const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
+                this.metricas.set({
+                    eventosActivos: requests.filter(r => ['aceptada', 'negociacion'].includes(r.estado)).length,
+                    cotizacionesPendientes: pendientes,
+                    inversionTotal: 0
+                });
+
+                // Evento activo (primera solicitud aceptada)
+                const activo = requests.find(r => r.estado === 'aceptada');
+                if (activo) {
+                    this.eventoActivo.set({
+                        id: activo.id,
+                        titulo: activo.titulo_evento || 'Mi Evento',
+                        ubicacion: activo.direccion_servicio,
+                        fecha: new Date(activo.fecha_servicio).toLocaleDateString('es-MX'),
+                        progreso: 65
+                    });
+                }
+
+                this.loading.set(false);
+            },
+            error: () => this.loading.set(false)
+        });
+    }
+
+    private formatEstado(estado: string): string {
+        const estados: Record<string, string> = {
+            'pendiente_aprobacion': 'Pendiente',
+            'negociacion': 'En negociación',
+            'aceptada': 'Aceptado',
+            'rechazada': 'Rechazado',
+            'completada': 'Completado',
+            'cancelada': 'Cancelado'
+        };
+        return estados[estado] || estado;
+    }
+
+    getEstadoClass(estado: string): string {
+        const clases: Record<string, string> = {
+            'pendiente_aprobacion': 'estado-pendiente',
+            'negociacion': 'estado-negociacion',
+            'aceptada': 'estado-aceptado',
+            'rechazada': 'estado-rechazado',
+            'completada': 'estado-completado',
+            'cancelada': 'estado-cancelado'
+        };
+        return clases[estado] || 'estado-pendiente';
+    }
+
+    toggleTarea(id: string): void {
+        this.tareas.update(tareas =>
+            tareas.map(t => t.id === id ? { ...t, completada: !t.completada } : t)
+        );
+    }
+
+    toggleDarkMode(): void {
+        this.darkMode.update(v => !v);
+    }
+
+    getUserName(): string {
+        const user = this.auth.currentUser();
+        return user?.nombre || user?.correo_electronico?.split('@')[0] || 'Usuario';
+    }
 }
