@@ -1,13 +1,18 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
+import { environment } from '../../environments/environment';
+import {
+    User, ClientProfile, ProviderProfile, Cart, CartItem,
+    ServiceRequest, Quote, Payment, ProviderPackage
+} from '../models';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ApiService {
-    private readonly API_URL = 'http://localhost:3000/api';
+    private readonly API_URL = environment.apiUrl;
 
     private http = inject(HttpClient);
     private auth = inject(AuthService);
@@ -20,55 +25,168 @@ export class ApiService {
         });
     }
 
-    // Auth
-    register(data: { correo_electronico: string; contrasena: string; rol: string; nombre?: string; nombre_negocio?: string }): Observable<any> {
-        return this.http.post(`${this.API_URL}/auth/register`, data);
+    // ==========================================
+    // 1. Autenticación (/users)
+    // ==========================================
+    register(data: { correo_electronico: string; contrasena: string; rol: string }): Observable<any> {
+        return this.http.post(`${this.API_URL}/users/register`, data);
     }
 
     login(correo_electronico: string, contrasena: string): Observable<any> {
-        return this.http.post(`${this.API_URL}/auth/login`, { correo_electronico, contrasena });
+        return this.http.post(`${this.API_URL}/users/login`, { correo_electronico, contrasena });
     }
 
-    // Provider
-    getProviderProfile(): Observable<any> {
-        return this.http.get(`${this.API_URL}/provider/profile`, { headers: this.getHeaders() });
+    getUser(id: string): Observable<User> {
+        return this.http.get<User>(`${this.API_URL}/users/${id}`, { headers: this.getHeaders() });
     }
 
-    updateProviderProfile(data: any): Observable<any> {
-        return this.http.put(`${this.API_URL}/provider/profile`, data, { headers: this.getHeaders() });
+    updateUser(id: string, data: Partial<User>): Observable<User> {
+        return this.http.put<User>(`${this.API_URL}/users/${id}`, data, { headers: this.getHeaders() });
     }
 
-    getProviderPackages(): Observable<any> {
-        return this.http.get(`${this.API_URL}/provider/packages`, { headers: this.getHeaders() });
+    // ==========================================
+    // 2. Perfil Cliente (/perfil-cliente)
+    // ==========================================
+    createClientProfile(data: Partial<ClientProfile>): Observable<ClientProfile> {
+        return this.http.post<ClientProfile>(`${this.API_URL}/perfil-cliente`, data, { headers: this.getHeaders() });
     }
 
-    createPackage(data: any): Observable<any> {
-        return this.http.post(`${this.API_URL}/provider/packages`, data, { headers: this.getHeaders() });
+    getClientProfiles(): Observable<ClientProfile[]> {
+        return this.http.get<ClientProfile[]>(`${this.API_URL}/perfil-cliente`, { headers: this.getHeaders() });
     }
 
-    // Cart
-    getCart(): Observable<any> {
-        return this.http.get(`${this.API_URL}/cart`, { headers: this.getHeaders() });
+    getClientProfile(id: string): Observable<ClientProfile> {
+        return this.http.get<ClientProfile>(`${this.API_URL}/perfil-cliente/${id}`, { headers: this.getHeaders() });
     }
 
-    addToCart(packageId: number, quantity: number): Observable<any> {
-        return this.http.post(`${this.API_URL}/cart`, { packageId, quantity }, { headers: this.getHeaders() });
+    updateClientProfile(id: string, data: Partial<ClientProfile>): Observable<ClientProfile> {
+        return this.http.put<ClientProfile>(`${this.API_URL}/perfil-cliente/${id}`, data, { headers: this.getHeaders() });
     }
 
-    checkout(): Observable<any> {
-        return this.http.post(`${this.API_URL}/checkout`, {}, { headers: this.getHeaders() });
+    // ==========================================
+    // 3. Perfil Proveedor (/perfil-proveedor)
+    // ==========================================
+    createProviderProfile(data: Partial<ProviderProfile>): Observable<ProviderProfile> {
+        return this.http.post<ProviderProfile>(`${this.API_URL}/perfil-proveedor`, data, { headers: this.getHeaders() });
     }
 
-    // Requests
-    getClientRequests(): Observable<any> {
-        return this.http.get(`${this.API_URL}/requests/client`, { headers: this.getHeaders() });
+    getProviderProfiles(): Observable<ProviderProfile[]> {
+        return this.http.get<ProviderProfile[]>(`${this.API_URL}/perfil-proveedor`, { headers: this.getHeaders() });
     }
 
-    getProviderRequests(): Observable<any> {
-        return this.http.get(`${this.API_URL}/requests/provider`, { headers: this.getHeaders() });
+    getProviderProfile(id: string): Observable<ProviderProfile> {
+        return this.http.get<ProviderProfile>(`${this.API_URL}/perfil-proveedor/${id}`, { headers: this.getHeaders() });
     }
 
-    updateRequestStatus(requestId: number, status: string): Observable<any> {
-        return this.http.put(`${this.API_URL}/requests/${requestId}/status`, { status }, { headers: this.getHeaders() });
+    updateProviderProfile(id: string, data: Partial<ProviderProfile>): Observable<ProviderProfile> {
+        return this.http.put<ProviderProfile>(`${this.API_URL}/perfil-proveedor/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 4. Carrito (/carrito)
+    // ==========================================
+    createCart(data: Partial<Cart>): Observable<Cart> {
+        return this.http.post<Cart>(`${this.API_URL}/carrito`, data, { headers: this.getHeaders() });
+    }
+
+    getCarts(): Observable<Cart[]> {
+        return this.http.get<Cart[]>(`${this.API_URL}/carrito`, { headers: this.getHeaders() });
+    }
+
+    getCart(id: string): Observable<Cart> {
+        return this.http.get<Cart>(`${this.API_URL}/carrito/${id}`, { headers: this.getHeaders() });
+    }
+
+    updateCart(id: string, data: Partial<Cart>): Observable<Cart> {
+        return this.http.put<Cart>(`${this.API_URL}/carrito/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 5. Items Carrito (/items-carrito)
+    // ==========================================
+    addItemToCart(data: Partial<CartItem>): Observable<CartItem> {
+        return this.http.post<CartItem>(`${this.API_URL}/items-carrito`, data, { headers: this.getHeaders() });
+    }
+
+    getCartItems(): Observable<CartItem[]> {
+        return this.http.get<CartItem[]>(`${this.API_URL}/items-carrito`, { headers: this.getHeaders() });
+    }
+
+    deleteCartItem(id: string): Observable<any> {
+        return this.http.delete(`${this.API_URL}/items-carrito/${id}`, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 6. Solicitudes (/solicitudes)
+    // ==========================================
+    createRequest(data: Partial<ServiceRequest>): Observable<ServiceRequest> {
+        return this.http.post<ServiceRequest>(`${this.API_URL}/solicitudes`, data, { headers: this.getHeaders() });
+    }
+
+    getRequests(): Observable<ServiceRequest[]> {
+        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes`, { headers: this.getHeaders() });
+    }
+
+    getRequest(id: string): Observable<ServiceRequest> {
+        return this.http.get<ServiceRequest>(`${this.API_URL}/solicitudes/${id}`, { headers: this.getHeaders() });
+    }
+
+    updateRequest(id: string, data: Partial<ServiceRequest>): Observable<ServiceRequest> {
+        return this.http.put<ServiceRequest>(`${this.API_URL}/solicitudes/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 7. Cotizaciones (/cotizaciones)
+    // ==========================================
+    createQuote(data: Partial<Quote>): Observable<Quote> {
+        return this.http.post<Quote>(`${this.API_URL}/cotizaciones`, data, { headers: this.getHeaders() });
+    }
+
+    getQuotes(): Observable<Quote[]> {
+        return this.http.get<Quote[]>(`${this.API_URL}/cotizaciones`, { headers: this.getHeaders() });
+    }
+
+    updateQuote(id: string, data: Partial<Quote>): Observable<Quote> {
+        return this.http.put<Quote>(`${this.API_URL}/cotizaciones/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 8. Pagos (/pagos)
+    // ==========================================
+    createPayment(data: Partial<Payment>): Observable<Payment> {
+        return this.http.post<Payment>(`${this.API_URL}/pagos`, data, { headers: this.getHeaders() });
+    }
+
+    getPayments(): Observable<Payment[]> {
+        return this.http.get<Payment[]>(`${this.API_URL}/pagos`, { headers: this.getHeaders() });
+    }
+
+    updatePayment(id: string, data: Partial<Payment>): Observable<Payment> {
+        return this.http.put<Payment>(`${this.API_URL}/pagos/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 9. Paquetes Proveedor (/paquetes-proveedor)
+    // ==========================================
+    createProviderPackage(data: Partial<ProviderPackage>): Observable<ProviderPackage> {
+        return this.http.post<ProviderPackage>(`${this.API_URL}/paquetes-proveedor`, data, { headers: this.getHeaders() });
+    }
+
+    getProviderPackages(): Observable<ProviderPackage[]> {
+        // Public endpoint
+        return this.http.get<ProviderPackage[]>(`${this.API_URL}/paquetes-proveedor`);
+    }
+
+    getProviderPackage(id: string): Observable<ProviderPackage> {
+        return this.http.get<ProviderPackage>(`${this.API_URL}/paquetes-proveedor/${id}`);
+    }
+
+    updateProviderPackage(id: string, data: Partial<ProviderPackage>): Observable<ProviderPackage> {
+        return this.http.put<ProviderPackage>(`${this.API_URL}/paquetes-proveedor/${id}`, data, { headers: this.getHeaders() });
+    }
+
+    deleteProviderPackage(id: string): Observable<any> {
+        return this.http.delete(`${this.API_URL}/paquetes-proveedor/${id}`, { headers: this.getHeaders() });
     }
 }
+
