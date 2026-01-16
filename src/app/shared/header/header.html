@@ -87,10 +87,10 @@
 
   <nav class="nav">
     <a routerLink="/">Inicio</a>
-    <a routerLink="/cliente/marketplace">Servicios</a>
   </nav>
 
   <div class="auth-buttons">
+    @if (!isAuthPage()) {
     @if (auth.isLoggedIn()) {
     <div class="user-menu">
       <span class="user-name">{{ auth.currentUser()?.nombre || 'Usuario' }}</span>
@@ -103,6 +103,7 @@
     </div>
     } @else {
     <a routerLink="/login" class="btn-login">Acceso</a>
+    }
     }
   </div>
 </header>

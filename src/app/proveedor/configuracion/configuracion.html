@@ -1,0 +1,258 @@
+<aside
+    class="w-64 fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700 z-50 transition-colors duration-200">
+    <div class="p-6">
+        <div class="flex items-center gap-2 mb-8">
+            <img alt="FESTEASY Logo" class="h-8 w-auto" src="assets/festeasy.jpeg" />
+        </div>
+        <nav class="space-y-1">
+            <a routerLink="/proveedor/dashboard"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+            <a routerLink="/proveedor/paquetes"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">inventory_2</span>
+                Paquetes
+            </a>
+            <a routerLink="/proveedor/solicitudes"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">notifications_active</span>
+                Solicitudes
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+                href="#">
+                <span class="material-icons-outlined text-[20px]">request_quote</span>
+                Cotizaciones
+            </a>
+            <a routerLink="/proveedor/agenda"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">calendar_today</span>
+                Calendario
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all"
+                href="#">
+                <span class="material-icons-outlined text-[20px]">account_balance_wallet</span>
+                Pagos
+            </a>
+            <a routerLink="/proveedor/configuracion"
+                class="sidebar-item-active flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">settings</span>
+                Configuración
+            </a>
+        </nav>
+        <div class="absolute bottom-8 left-6 right-6">
+            <div class="bg-slate-50 dark:bg-gray-700/50 p-4 rounded-xl border border-slate-100 dark:border-gray-700">
+                <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
+                    Soporte</p>
+                <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-primary"
+                    href="#">
+                    <span class="material-icons-outlined text-[18px]">help_outline</span>
+                    Centro de ayuda
+                </a>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<div class="flex-1 ml-64 min-h-screen">
+    <header
+        class="h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between px-8">
+        <div class="flex items-center gap-4">
+            <h1 class="text-xl font-bold text-slate-800 dark:text-white">Configuración del Perfil</h1>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-full transition-all"
+                onclick="document.documentElement.classList.toggle('dark')">
+                <span class="material-icons-outlined">dark_mode</span>
+            </button>
+            <div class="relative">
+                <span class="material-icons-outlined text-slate-400">notifications</span>
+                <span
+                    class="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full ring-2 ring-white dark:ring-gray-800"></span>
+            </div>
+            <div class="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-gray-700">
+                <div class="text-right">
+                    <p class="text-sm font-semibold text-slate-800 dark:text-white leading-none">
+                        {{ formData().nombre_negocio || 'Proveedor' }}
+                    </p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">{{ auth.currentUser() &&
+                        auth.currentUser().correo_electronico }}</p>
+                </div>
+                <img *ngIf="formData().avatar_url" [src]="formData().avatar_url" alt="Avatar"
+                    class="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-gray-700" />
+                <div *ngIf="!formData().avatar_url"
+                    class="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold">
+                    {{ formData().nombre_negocio && formData().nombre_negocio.charAt(0) || 'P' }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="p-8 max-w-5xl mx-auto">
+        <!-- Mensajes de éxito/error -->
+        <div *ngIf="successMessage()"
+            class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 text-green-800 dark:text-green-200 px-4 py-3 rounded-xl flex items-center gap-3">
+            <span class="material-icons-outlined text-green-600">check_circle</span>
+            <span>{{ successMessage() }}</span>
+        </div>
+
+        <div *ngIf="errorMessage()"
+            class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl flex items-center gap-3">
+            <span class="material-icons-outlined text-red-600">error</span>
+            <span>{{ errorMessage() }}</span>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading()" class="text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <p class="mt-4 text-slate-600 dark:text-slate-400">Cargando perfil...</p>
+        </div>
+
+        <!-- Profile Form -->
+        <div *ngIf="!loading()" class="space-y-8">
+            <!-- Avatar Section -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-gray-700">
+                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-outlined text-primary">account_circle</span>
+                        Foto de Perfil
+                    </h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Esta imagen aparecerá en tus paquetes y
+                        perfil público</p>
+                </div>
+                <div class="p-6">
+                    <div class="flex items-center gap-6">
+                        <div class="avatar-preview relative">
+                            <div *ngIf="formData().avatar_url"
+                                class="h-24 w-24 rounded-full overflow-hidden border-4 border-slate-100 dark:border-gray-700">
+                                <img [src]="formData().avatar_url" alt="Avatar" class="h-full w-full object-cover" />
+                                <div class="avatar-overlay">
+                                    <span class="material-icons-outlined text-white text-3xl">photo_camera</span>
+                                </div>
+                            </div>
+                            <div *ngIf="!formData().avatar_url"
+                                class="h-24 w-24 rounded-full bg-primary/10 flex items-center justify-center text-primary text-3xl font-bold border-4 border-slate-100 dark:border-gray-700">
+                                {{ formData().nombre_negocio && formData().nombre_negocio.charAt(0) || 'P' }}
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <label for="avatar-upload"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-gray-700 text-slate-700 dark:text-slate-200 rounded-lg font-semibold text-sm cursor-pointer hover:bg-slate-200 dark:hover:bg-gray-600 transition-colors">
+                                <span class="material-icons-outlined text-[18px]">upload</span>
+                                {{ uploadingAvatar() ? 'Subiendo...' : 'Cambiar Foto' }}
+                            </label>
+                            <input id="avatar-upload" type="file" accept="image/*" (change)="onAvatarChange($event)"
+                                class="file-input-hidden" [disabled]="uploadingAvatar()" />
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">JPG, PNG o GIF. Máximo 2MB.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Information -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-gray-700">
+                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-outlined text-primary">business</span>
+                        Información del Negocio
+                    </h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    <!-- Nombre del Negocio -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="nombre_negocio">
+                            Nombre del Negocio <span class="text-primary">*</span>
+                        </label>
+                        <input type="text" id="nombre_negocio" [value]="formData().nombre_negocio"
+                            (input)="updateField('nombre_negocio', $any($event.target).value)"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
+                            placeholder="Ej: Eventos Magic S.A." />
+                    </div>
+
+                    <!-- Descripción -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="descripcion">
+                            Descripción del Negocio
+                        </label>
+                        <textarea id="descripcion" [value]="formData().descripcion"
+                            (input)="updateField('descripcion', $any($event.target).value)" rows="4"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white resize-none"
+                            placeholder="Describe tu negocio, servicios que ofreces, años de experiencia..."></textarea>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Esta descripción aparecerá en tu perfil
+                            público</p>
+                    </div>
+
+                    <!-- Teléfono -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="telefono">
+                            Teléfono de Contacto
+                        </label>
+                        <input type="tel" id="telefono" [value]="formData().telefono"
+                            (input)="updateField('telefono', $any($event.target).value)"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
+                            placeholder="Ej: +52 123 456 7890" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location & Coverage -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-gray-700">
+                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-outlined text-primary">location_on</span>
+                        Ubicación y Cobertura
+                    </h3>
+                </div>
+                <div class="p-6 space-y-6">
+                    <!-- Dirección -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="direccion">
+                            Dirección
+                        </label>
+                        <input type="text" id="direccion" [value]="formData().direccion_formato"
+                            (input)="updateField('direccion_formato', $any($event.target).value)"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
+                            placeholder="Ej: Av. Principal 123, Colonia Centro, Ciudad" />
+                    </div>
+
+                    <!-- Radio de Cobertura -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="radio_cobertura">
+                            Radio de Cobertura (km)
+                        </label>
+                        <div class="flex items-center gap-4">
+                            <input type="range" id="radio_cobertura" min="1" max="100"
+                                [value]="formData().radio_cobertura_km"
+                                (input)="updateField('radio_cobertura_km', +$any($event.target).value)"
+                                class="flex-1 h-2 bg-slate-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary" />
+                            <span
+                                class="text-lg font-bold text-primary bg-primary/10 px-4 py-2 rounded-lg min-w-[80px] text-center">
+                                {{ formData().radio_cobertura_km }} km
+                            </span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Define el área donde ofreces tus servicios
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center justify-between pt-4">
+                <button routerLink="/proveedor/dashboard"
+                    class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors">
+                    Cancelar
+                </button>
+                <button (click)="saveProfile()" [disabled]="saving()"
+                    class="px-8 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <span class="material-icons-outlined" *ngIf="!saving()">save</span>
+                    <span class="material-icons-outlined animate-spin" *ngIf="saving()">sync</span>
+                    {{ saving() ? 'Guardando...' : 'Guardar Cambios' }}
+                </button>
+            </div>
+        </div>
+    </main>
+</div>
