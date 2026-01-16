@@ -1,47 +1,63 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../shared/header/header';
 import { ApiService } from '../../services/api.service';
-import { ServiceRequest } from '../../models';
+import { ServiceRequest } from '../../models'; //
 
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [HeaderComponent],
+    imports: [HeaderComponent, CommonModule],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
     private api = inject(ApiService);
 
-    solicitudes = signal<any[]>([]);
+    // Usamos la interfaz ServiceRequest para mayor seguridad
+    solicitudes = signal<ServiceRequest[]>([]);
+    isLoading = signal<boolean>(false);
 
     ngOnInit(): void {
-        this.api.getProviderRequests().subscribe(requests => {
-            const mappedSolicitudes = requests.map(req => ({
-                id: req.id,
-                // TODO: Populate with real data
-                cliente: `Cliente ID: ${req.cliente_usuario_id}`,
-                evento: req.titulo_evento || 'Evento sin título',
-                fecha: new Date(req.fecha_servicio).toLocaleDateString(),
-                paquete: 'Paquete no especificado',
-                precio: 0, // Comes from quote,
-                tiempoRestante: '00:00:00', // Placeholder
-                estado: req.estado
-            }));
-            this.solicitudes.set(mappedSolicitudes);
+        this.cargarSolicitudes();
+    }
+
+    cargarSolicitudes() {
+        this.isLoading.set(true);
+        // Usamos el método específico del servicio
+        this.api.getProviderRequests().subscribe({
+            next: (requests) => {
+                this.solicitudes.set(requests);
+                this.isLoading.set(false);
+            },
+            error: (err) => {
+                console.error('Error al cargar solicitudes:', err);
+                this.isLoading.set(false);
+            }
         });
     }
 
     aceptar(id: string) {
-        this.api.updateRequestStatus(id.toString(), 'aceptada').subscribe(() => {
-            this.solicitudes.update(items =>
-                items.map(s => s.id === id ? { ...s, estado: 'aceptada', tiempoRestante: null } : s)
-            );
+        // Actualizamos al estado definido en el modelo
+        this.api.updateRequestStatus(id, 'aceptada').subscribe({
+            next: () => {
+                this.solicitudes.update(items =>
+                    items.map(s => s.id === id ? { ...s, estado: 'aceptada' as const } : s)
+                );
+            },
+            error: (err) => {
+                console.error('Error al aceptar solicitud:', err);
+            }
         });
     }
 
     rechazar(id: string) {
-        this.api.updateRequestStatus(id.toString(), 'rechazada').subscribe(() => {
-            this.solicitudes.update(items => items.filter(s => s.id !== id));
+        this.api.updateRequestStatus(id, 'rechazada').subscribe({
+            next: () => {
+                this.solicitudes.update(items => items.filter(s => s.id !== id));
+            },
+            error: (err) => {
+                console.error('Error al rechazar solicitud:', err);
+            }
         });
     }
 }
