@@ -1,0 +1,34 @@
+/* Estilos adicionales si Tailwind no cubre algo específico */
+:host {
+    display: block;
+}
+
+/* Transiciones suaves para los inputs */
+input, select, textarea {
+    transition: all 0.2s ease-in-out;
+}
+
+/* Custom scrollbar para textareas si es necesario */
+textarea::-webkit-scrollbar {
+    width: 8px;
+}
+textarea::-webkit-scrollbar-track {
+    background: #f1f1f1; 
+}
+textarea::-webkit-scrollbar-thumb {
+    background: #d1d5db; 
+    border-radius: 4px;
+}
+textarea::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af; 
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+form {
+    animation: fadeIn 0.3s ease-out;
+}

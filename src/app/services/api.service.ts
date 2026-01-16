@@ -45,6 +45,25 @@ export class ApiService {
     }
 
     // ==========================================
+    // 1B. Autenticación Proveedores Independientes
+    // ==========================================
+    registerProvider(data: {
+        correo_electronico: string;
+        contrasena: string;
+        nombre_negocio: string;
+        descripcion?: string;
+        telefono?: string;
+        direccion_formato?: string;
+        categoria_principal_id?: string;
+    }): Observable<any> {
+        return this.http.post(`${this.API_URL}/perfil-proveedor/register`, data);
+    }
+
+    loginProvider(correo_electronico: string, contrasena: string): Observable<any> {
+        return this.http.post(`${this.API_URL}/perfil-proveedor/login`, { correo_electronico, contrasena });
+    }
+
+    // ==========================================
     // 2. Perfil Cliente (/perfil-cliente)
     // ==========================================
     createClientProfile(data: Partial<ClientProfile>): Observable<ClientProfile> {

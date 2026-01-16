@@ -77,9 +77,12 @@
             </div>
             <div class="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-gray-700">
                 <div class="text-right">
-                    <p class="text-sm font-semibold text-slate-800 dark:text-white leading-none">Mobiliarios Eventos
-                        S.A.</p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Proveedor Premium</p>
+                    <p class="text-sm font-semibold text-slate-800 dark:text-white leading-none">
+                        {{ auth.currentUser()?.nombre_negocio || 'Proveedor' }}
+                    </p>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+                        {{ auth.currentUser()?.correo_electronico || 'Proveedor' }}
+                    </p>
                 </div>
                 <img alt="Avatar"
                     class="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-gray-700"
