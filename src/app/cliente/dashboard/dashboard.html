@@ -1,0 +1,335 @@
+<style>
+    .dashboard-page {
+        min-height: 100vh;
+        background: var(--color-gray-light);
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .dashboard-header {
+        margin-bottom: 32px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .dashboard-header p {
+        color: var(--color-gray);
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+
+    .dashboard-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 28px;
+        box-shadow: var(--shadow);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+    }
+
+    .card-link {
+        color: var(--color-primary);
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .eventos-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .evento-item {
+        padding: 20px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .evento-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .evento-nombre {
+        font-weight: 600;
+        font-size: 18px;
+    }
+
+    .evento-fecha {
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .evento-progress {
+        height: 8px;
+        background: var(--color-gray-border);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+
+    .evento-progress-bar {
+        height: 100%;
+        background: var(--color-primary);
+        border-radius: 4px;
+    }
+
+    .evento-estado {
+        font-size: 14px;
+        color: var(--color-gray);
+    }
+
+    .solicitudes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .solicitud-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .solicitud-info h4 {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .solicitud-info p {
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .solicitud-estado {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+    }
+
+    .estado-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .estado-badge.confirmado {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .estado-badge.pendiente {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+
+    .solicitud-precio {
+        font-weight: 600;
+        color: var(--color-primary);
+    }
+
+    .presupuesto-chart {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .chart-circle {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: conic-gradient(#E53935 0% 30%,
+                #FF7043 30% 70%,
+                #FFC107 70% 90%,
+                #757575 90% 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chart-inner {
+        width: 120px;
+        height: 120px;
+        background: var(--color-white);
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .chart-percentage {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    .chart-label {
+        font-size: 12px;
+        color: var(--color-gray);
+    }
+
+    .presupuesto-legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        justify-content: center;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .quick-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .action-btn {
+        padding: 16px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        text-align: center;
+        transition: background 0.3s ease;
+    }
+
+    .action-btn:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .action-btn.outline {
+        background: var(--color-white);
+        color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+    }
+</style>
+
+<div class="dashboard-page">
+    <app-header></app-header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>Hola, {{ auth.currentUser()?.nombre || 'Usuario' }} 👋</h1>
+            <p>Gestiona tus eventos y solicitudes desde aquí</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="main-content">
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Mis Eventos</h2>
+                        <a class="card-link">Ver todos</a>
+                    </div>
+                    <div class="eventos-list">
+                        @for (evento of eventos(); track evento.id) {
+                        <div class="evento-item">
+                            <div class="evento-header">
+                                <span class="evento-nombre">{{ evento.nombre }}</span>
+                                <span class="evento-fecha">📅 {{ evento.fecha }}</span>
+                            </div>
+                            <div class="evento-progress">
+                                <div class="evento-progress-bar" [style.width.%]="evento.progreso"></div>
+                            </div>
+                            <span class="evento-estado">{{ evento.progreso }}% completado - {{ evento.estado }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="dashboard-card" style="margin-top: 24px;">
+                    <div class="card-header">
+                        <h2 class="card-title">Solicitudes Recientes</h2>
+                        <a class="card-link">Ver todas</a>
+                    </div>
+                    <div class="solicitudes-list">
+                        @for (sol of solicitudes(); track sol.id) {
+                        <div class="solicitud-item">
+                            <div class="solicitud-info">
+                                <h4>{{ sol.servicio }}</h4>
+                                <p>{{ sol.proveedor }}</p>
+                            </div>
+                            <div class="solicitud-estado">
+                                <span class="estado-badge" [class.confirmado]="sol.estado === 'Confirmado'"
+                                    [class.pendiente]="sol.estado === 'Pendiente'">
+                                    {{ sol.estado }}
+                                </span>
+                                <span class="solicitud-precio">${{ sol.precio.toLocaleString() }}</span>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar">
+                <div class="dashboard-card">
+                    <h2 class="card-title">Presupuesto</h2>
+                    <div class="presupuesto-chart">
+                        <div class="chart-circle">
+                            <div class="chart-inner">
+                                <span class="chart-percentage">52%</span>
+                                <span class="chart-label">utilizado</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="presupuesto-legend">
+                        @for (cat of presupuesto().categorias; track cat.nombre) {
+                        <div class="legend-item">
+                            <span class="legend-color" [style.background]="cat.color"></span>
+                            <span>{{ cat.nombre }} ({{ cat.porcentaje }}%)</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="quick-actions">
+                    <a routerLink="/cliente/marketplace" class="action-btn">Buscar servicios</a>
+                    <a routerLink="/cliente/carrito" class="action-btn outline">Ver carrito</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

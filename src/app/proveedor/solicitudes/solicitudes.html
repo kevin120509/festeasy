@@ -1,0 +1,242 @@
+<style>
+    .solicitudes-page {
+        min-height: 100vh;
+        background: var(--color-gray-light);
+    }
+
+    .solicitudes-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .page-header {
+        margin-bottom: 32px;
+    }
+
+    .page-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .page-header p {
+        color: var(--color-gray);
+    }
+
+    .tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 24px;
+    }
+
+    .tab {
+        padding: 10px 24px;
+        background: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .tab.active {
+        background: var(--color-primary);
+        color: var(--color-white);
+    }
+
+    .solicitudes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .solicitud-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 28px;
+        box-shadow: var(--shadow);
+    }
+
+    .solicitud-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .solicitud-cliente {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .solicitud-evento {
+        color: var(--color-gray);
+    }
+
+    .solicitud-timer {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .timer-label {
+        font-size: 12px;
+        color: var(--color-gray);
+        margin-bottom: 4px;
+    }
+
+    .timer-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--color-primary);
+        font-family: monospace;
+    }
+
+    .solicitud-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+        padding: 20px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 20px;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .detail-label {
+        font-size: 12px;
+        color: var(--color-gray);
+        text-transform: uppercase;
+    }
+
+    .detail-value {
+        font-weight: 600;
+    }
+
+    .detail-value.price {
+        color: var(--color-primary);
+        font-size: 18px;
+    }
+
+    .solicitud-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+    }
+
+    .btn-accept {
+        padding: 12px 32px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-accept:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .btn-reject {
+        padding: 12px 32px;
+        background: var(--color-white);
+        color: var(--color-gray);
+        border: 1px solid var(--color-gray-border);
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-reject:hover {
+        background: #FFEBEE;
+        border-color: #EF9A9A;
+        color: #C62828;
+    }
+
+    .estado-badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .estado-badge.confirmado {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .estado-badge.pendiente {
+        background: #FFF3E0;
+        color: #E65100;
+    }
+</style>
+
+<div class="solicitudes-page">
+    <app-header></app-header>
+
+    <div class="solicitudes-container">
+        <div class="page-header">
+            <h1>Bandeja de Solicitudes 📥</h1>
+            <p>Gestiona las solicitudes de tus clientes</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active">Pendientes (2)</button>
+            <button class="tab">Confirmadas (1)</button>
+            <button class="tab">Historial</button>
+        </div>
+
+        <div class="solicitudes-list">
+            @for (solicitud of solicitudes(); track solicitud.id) {
+            <div class="solicitud-card">
+                <div class="solicitud-header">
+                    <div>
+                        <h3 class="solicitud-cliente">{{ solicitud.cliente }}</h3>
+                        <p class="solicitud-evento">{{ solicitud.evento }}</p>
+                    </div>
+                    @if (solicitud.tiempoRestante) {
+                    <div class="solicitud-timer">
+                        <span class="timer-label">Tiempo para responder</span>
+                        <span class="timer-value">{{ solicitud.tiempoRestante }}</span>
+                    </div>
+                    } @else {
+                    <span class="estado-badge confirmado">✓ Confirmado</span>
+                    }
+                </div>
+
+                <div class="solicitud-details">
+                    <div class="detail-item">
+                        <span class="detail-label">Fecha del Evento</span>
+                        <span class="detail-value">📅 {{ solicitud.fecha }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Paquete Solicitado</span>
+                        <span class="detail-value">{{ solicitud.paquete }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Precio</span>
+                        <span class="detail-value price">${{ solicitud.precio.toLocaleString() }}</span>
+                    </div>
+                </div>
+
+                @if (solicitud.estado === 'pendiente') {
+                <div class="solicitud-actions">
+                    <button class="btn-reject" (click)="rechazar(solicitud.id)">Rechazar</button>
+                    <button class="btn-accept" (click)="aceptar(solicitud.id)">Aceptar Solicitud</button>
+                </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,207 @@
+<style>
+    .registro-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%);
+    }
+
+    .registro-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 80px);
+        padding: 40px;
+    }
+
+    .registro-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        padding: 48px;
+        width: 100%;
+        max-width: 520px;
+    }
+
+    .registro-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .registro-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .registro-header p {
+        color: var(--color-gray);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+        padding: 14px 20px;
+        border: 1px solid var(--color-gray-border);
+        border-radius: var(--border-radius-sm);
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+        background: var(--color-white);
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        border-color: var(--color-primary);
+        outline: none;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .btn-submit:disabled {
+        background: var(--color-gray);
+        cursor: not-allowed;
+    }
+
+    .error-message {
+        background: #FFEBEE;
+        color: #C62828;
+        padding: 12px 16px;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 24px;
+        color: var(--color-gray);
+    }
+
+    .login-link a {
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+
+    .benefits {
+        background: var(--color-gray-light);
+        padding: 20px;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 24px;
+    }
+
+    .benefits h4 {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    .benefits ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .benefits li {
+        padding: 6px 0;
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .benefits li::before {
+        content: '✓';
+        color: var(--color-success);
+        margin-right: 8px;
+    }
+</style>
+
+<div class="registro-page">
+    <app-header></app-header>
+
+    <div class="registro-container">
+        <div class="registro-card">
+            <div class="registro-header">
+                <h1>Registro de Proveedor</h1>
+                <p>Únete y conecta con miles de clientes</p>
+            </div>
+
+            <div class="benefits">
+                <h4>🎉 Beneficios de unirte</h4>
+                <ul>
+                    <li>Acceso a miles de clientes potenciales</li>
+                    <li>Panel de gestión de solicitudes</li>
+                    <li>Calendario integrado de disponibilidad</li>
+                    <li>Pagos seguros garantizados</li>
+                </ul>
+            </div>
+
+            @if (error) {
+            <div class="error-message">{{ error }}</div>
+            }
+
+            <form (ngSubmit)="register()">
+                <div class="form-group">
+                    <label for="nombreNegocio">Nombre del Negocio *</label>
+                    <input type="text" id="nombreNegocio" [(ngModel)]="nombreNegocio" name="nombreNegocio"
+                        placeholder="Ej: Sonic Audio Visuals" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoría de Servicio *</label>
+                    <select id="categoria" [(ngModel)]="categoria" name="categoria" required>
+                        <option value="">Selecciona una categoría</option>
+                        @for (cat of categorias; track cat) {
+                        <option [value]="cat">{{ cat }}</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="ubicacion">Ubicación</label>
+                    <input type="text" id="ubicacion" [(ngModel)]="ubicacion" name="ubicacion"
+                        placeholder="Ciudad de México" />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo electrónico *</label>
+                    <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="contacto@tunegocio.com"
+                        required />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña *</label>
+                    <input type="password" id="password" [(ngModel)]="password" name="password"
+                        placeholder="Mínimo 6 caracteres" required />
+                </div>
+
+                <button type="submit" class="btn-submit" [disabled]="loading">
+                    {{ loading ? 'Registrando...' : 'Empezar como Proveedor' }}
+                </button>
+            </form>
+
+            <div class="login-link">
+                ¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a>
+            </div>
+        </div>
+    </div>
+</div>

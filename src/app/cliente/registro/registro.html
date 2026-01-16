@@ -1,0 +1,173 @@
+<style>
+    .registro-page {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%);
+    }
+
+    .registro-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 80px);
+        padding: 40px;
+    }
+
+    .registro-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+        padding: 48px;
+        width: 100%;
+        max-width: 480px;
+    }
+
+    .registro-header {
+        text-align: center;
+        margin-bottom: 32px;
+    }
+
+    .registro-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .registro-header p {
+        color: var(--color-gray);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 14px 20px;
+        border: 1px solid var(--color-gray-border);
+        border-radius: var(--border-radius-sm);
+        font-size: 16px;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+        border-color: var(--color-primary);
+        outline: none;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 16px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-submit:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .btn-submit:disabled {
+        background: var(--color-gray);
+        cursor: not-allowed;
+    }
+
+    .error-message {
+        background: #FFEBEE;
+        color: #C62828;
+        padding: 12px 16px;
+        border-radius: var(--border-radius-sm);
+        margin-bottom: 20px;
+        font-size: 14px;
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 24px;
+        color: var(--color-gray);
+    }
+
+    .login-link a {
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+
+    .proveedor-link {
+        text-align: center;
+        margin-top: 16px;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-gray-border);
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .proveedor-link a {
+        color: var(--color-primary);
+        font-weight: 500;
+    }
+</style>
+
+<div class="registro-page">
+    <app-header></app-header>
+
+    <div class="registro-container">
+        <div class="registro-card">
+            <div class="registro-header">
+                <h1>Registro de Cliente</h1>
+                <p>Crea tu cuenta y encuentra los mejores servicios</p>
+            </div>
+
+            @if (error) {
+            <div class="error-message">{{ error }}</div>
+            }
+
+            <form (ngSubmit)="register()">
+                <div class="form-group">
+                    <label for="nombre">Nombre completo *</label>
+                    <input type="text" id="nombre" [(ngModel)]="nombre" name="nombre" placeholder="Juan Pérez"
+                        required />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo electrónico *</label>
+                    <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="tu@email.com"
+                        required />
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" [(ngModel)]="telefono" name="telefono"
+                        placeholder="+52 555 123 4567" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Contraseña *</label>
+                    <input type="password" id="password" [(ngModel)]="password" name="password"
+                        placeholder="Mínimo 6 caracteres" required />
+                </div>
+
+                <button type="submit" class="btn-submit" [disabled]="loading">
+                    {{ loading ? 'Registrando...' : 'Registrarme como Cliente' }}
+                </button>
+            </form>
+
+            <div class="login-link">
+                ¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a>
+            </div>
+
+            <div class="proveedor-link">
+                ¿Ofreces servicios para eventos? <a routerLink="/proveedor/registro">Registrarme como proveedor</a>
+            </div>
+        </div>
+    </div>
+</div>

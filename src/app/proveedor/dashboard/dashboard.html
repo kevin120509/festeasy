@@ -1,0 +1,324 @@
+<style>
+    .dashboard-page {
+        min-height: 100vh;
+        background: var(--color-gray-light);
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    .dashboard-header h1 {
+        font-size: 32px;
+        font-weight: 700;
+    }
+
+    .dashboard-header p {
+        color: var(--color-gray);
+        margin-top: 4px;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .metric-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 28px;
+        box-shadow: var(--shadow);
+    }
+
+    .metric-label {
+        color: var(--color-gray);
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+
+    .metric-value {
+        font-size: 36px;
+        font-weight: 700;
+    }
+
+    .metric-value.primary {
+        color: var(--color-primary);
+    }
+
+    .metric-change {
+        display: inline-block;
+        margin-top: 8px;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .metric-change.positive {
+        background: #E8F5E9;
+        color: #2E7D32;
+    }
+
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+
+    .dashboard-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 28px;
+        box-shadow: var(--shadow);
+    }
+
+    .card-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 24px;
+    }
+
+    .chart-container {
+        height: 200px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        padding-top: 20px;
+        border-bottom: 2px solid var(--color-gray-border);
+    }
+
+    .chart-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .bar {
+        width: 50px;
+        background: linear-gradient(180deg, #E53935 0%, #FF7043 100%);
+        border-radius: 8px 8px 0 0;
+        transition: height 0.3s ease;
+    }
+
+    .bar-label {
+        font-size: 14px;
+        color: var(--color-gray);
+        margin-top: 8px;
+    }
+
+    .bar-value {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--color-dark);
+    }
+
+    .donut-chart {
+        display: flex;
+        justify-content: center;
+        margin: 20px 0;
+    }
+
+    .donut {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        background: conic-gradient(#E53935 0% 45%,
+                #FF7043 45% 75%,
+                #FFC107 75% 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .donut-inner {
+        width: 100px;
+        height: 100px;
+        background: var(--color-white);
+        border-radius: 50%;
+    }
+
+    .legend {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 16px;
+    }
+
+    .legend-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        margin-right: 8px;
+    }
+
+    .legend-label {
+        display: flex;
+        align-items: center;
+    }
+
+    .clientes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .cliente-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .cliente-info h4 {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .cliente-info p {
+        font-size: 14px;
+        color: var(--color-gray);
+    }
+
+    .cliente-eventos {
+        background: var(--color-primary);
+        color: var(--color-white);
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .quick-links {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin-top: 24px;
+    }
+
+    .quick-link {
+        padding: 16px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border-radius: var(--border-radius-sm);
+        text-align: center;
+        font-weight: 600;
+        transition: background 0.3s ease;
+    }
+
+    .quick-link:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .quick-link.outline {
+        background: var(--color-white);
+        color: var(--color-primary);
+        border: 2px solid var(--color-primary);
+    }
+</style>
+
+<div class="dashboard-page">
+    <app-header></app-header>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h1>Panel de Control 📊</h1>
+                <p>Resumen del rendimiento de tu negocio</p>
+            </div>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <p class="metric-label">Ticket Promedio</p>
+                <p class="metric-value">${{ metricas().ticketPromedio.toLocaleString() }}</p>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Ingresos Este Mes</p>
+                <p class="metric-value primary">${{ metricas().ingresosMes.toLocaleString() }}</p>
+                <span class="metric-change positive">↑ {{ metricas().crecimiento }}% vs mes anterior</span>
+            </div>
+            <div class="metric-card">
+                <p class="metric-label">Rating Promedio</p>
+                <p class="metric-value">⭐ {{ metricas().rating }}</p>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <h2 class="card-title">Tendencia de Ingresos</h2>
+                <div class="chart-container">
+                    @for (mes of ingresosMensuales(); track mes.mes) {
+                    <div class="chart-bar">
+                        <span class="bar-value">${{ (mes.valor / 1000) }}k</span>
+                        <div class="bar" [style.height.px]="mes.valor / 1000"></div>
+                        <span class="bar-label">{{ mes.mes }}</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h2 class="card-title">Popularidad de Servicios</h2>
+                <div class="donut-chart">
+                    <div class="donut">
+                        <div class="donut-inner"></div>
+                    </div>
+                </div>
+                <div class="legend">
+                    @for (servicio of serviciosPopulares(); track servicio.nombre) {
+                    <div class="legend-item">
+                        <div class="legend-label">
+                            <span class="legend-color" [style.background]="servicio.color"></span>
+                            {{ servicio.nombre }}
+                        </div>
+                        <span>{{ servicio.porcentaje }}%</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="dashboard-card">
+                <h2 class="card-title">Clientes Recurrentes</h2>
+                <div class="clientes-list">
+                    @for (cliente of clientesRecurrentes(); track cliente.nombre) {
+                    <div class="cliente-item">
+                        <div class="cliente-info">
+                            <h4>{{ cliente.nombre }}</h4>
+                            <p>{{ cliente.ultimoEvento }}</p>
+                        </div>
+                        <span class="cliente-eventos">{{ cliente.eventos }} eventos</span>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="sidebar-actions">
+                <div class="quick-links">
+                    <a routerLink="/proveedor/solicitudes" class="quick-link">Ver Solicitudes</a>
+                    <a routerLink="/proveedor/agenda" class="quick-link outline">Mi Agenda</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

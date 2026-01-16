@@ -1,0 +1,231 @@
+<style>
+    .hero {
+        min-height: 90vh;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(135deg, #FFFFFF 0%, #FFF5F5 100%);
+        padding: 60px 40px;
+    }
+
+    .hero-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+    }
+
+    .hero-text h1 {
+        font-size: 56px;
+        font-weight: 700;
+        line-height: 1.1;
+        color: var(--color-dark);
+        margin-bottom: 24px;
+    }
+
+    .hero-text h1 span {
+        color: var(--color-primary);
+    }
+
+    .hero-text p {
+        font-size: 18px;
+        color: var(--color-gray);
+        margin-bottom: 32px;
+        line-height: 1.7;
+    }
+
+    .hero-buttons {
+        display: flex;
+        gap: 16px;
+    }
+
+    .hero-image {
+        position: relative;
+    }
+
+    .hero-image img {
+        width: 100%;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .hero-card {
+        position: absolute;
+        background: var(--color-white);
+        padding: 20px;
+        border-radius: var(--border-radius-sm);
+        box-shadow: var(--shadow);
+    }
+
+    .hero-card-1 {
+        bottom: -20px;
+        left: -20px;
+    }
+
+    .hero-card-2 {
+        top: 20px;
+        right: -20px;
+    }
+
+    .features {
+        padding: 100px 40px;
+        background: var(--color-white);
+    }
+
+    .features-header {
+        text-align: center;
+        margin-bottom: 60px;
+    }
+
+    .features-header h2 {
+        font-size: 40px;
+        font-weight: 700;
+        margin-bottom: 16px;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        text-align: center;
+        padding: 40px;
+        border-radius: var(--border-radius);
+        background: var(--color-gray-light);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+        width: 80px;
+        height: 80px;
+        background: var(--color-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        font-size: 32px;
+    }
+
+    .feature-card h3 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .feature-card p {
+        color: var(--color-gray);
+        line-height: 1.6;
+    }
+
+    .cta-section {
+        background: var(--color-primary);
+        padding: 80px 40px;
+        text-align: center;
+    }
+
+    .cta-section h2 {
+        font-size: 36px;
+        color: var(--color-white);
+        margin-bottom: 16px;
+    }
+
+    .cta-section p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 18px;
+        margin-bottom: 32px;
+    }
+
+    .cta-section .btn {
+        background: var(--color-white);
+        color: var(--color-primary);
+    }
+
+    .cta-section .btn:hover {
+        background: var(--color-dark);
+        color: var(--color-white);
+    }
+
+    .footer {
+        background: var(--color-dark);
+        color: var(--color-white);
+        padding: 40px;
+        text-align: center;
+    }
+
+    .footer p {
+        color: rgba(255, 255, 255, 0.7);
+    }
+</style>
+
+<app-header></app-header>
+
+<section class="hero">
+    <div class="hero-content">
+        <div class="hero-text">
+            <h1>El arte de transformar <span>celebraciones</span> en recuerdos</h1>
+            <p>Conectamos a los mejores proveedores de eventos con personas que buscan crear momentos inolvidables. DJs,
+                catering, fotografía y mucho más.</p>
+            <div class="hero-buttons">
+                <a routerLink="/cliente/marketplace" class="btn btn-primary">Solicitar un servicio</a>
+                <a routerLink="/proveedor/registro" class="btn btn-outline">Soy proveedor</a>
+            </div>
+        </div>
+        <div class="hero-image">
+            <div
+                style="width: 100%; height: 400px; background: linear-gradient(135deg, #E53935 0%, #FF7043 100%); border-radius: var(--border-radius); display: flex; align-items: center; justify-content: center; color: white; font-size: 120px;">
+                🎉
+            </div>
+            <div class="hero-card hero-card-1">
+                <strong>4.9★</strong> Rating promedio
+            </div>
+            <div class="hero-card hero-card-2">
+                <strong>500+</strong> Proveedores
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <div class="features-header">
+        <h2>¿Por qué FestEasy?</h2>
+        <p class="text-gray">Todo lo que necesitas para tu evento en un solo lugar</p>
+    </div>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🔍</div>
+            <h3>Búsqueda Inteligente</h3>
+            <p>Encuentra proveedores por ubicación, precio, categoría y disponibilidad.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">💳</div>
+            <h3>Pagos Seguros</h3>
+            <p>Transacciones protegidas con garantía de devolución si algo sale mal.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Respuesta Garantizada</h3>
+            <p>Los proveedores responden en máximo 24 horas o te notificamos.</p>
+        </div>
+    </div>
+</section>
+
+<section class="cta-section">
+    <h2>¿Eres un proveedor de servicios?</h2>
+    <p>Únete a nuestra plataforma y conecta con miles de clientes potenciales</p>
+    <a routerLink="/proveedor/registro" class="btn">Registrarme como proveedor</a>
+</section>
+
+<footer class="footer">
+    <p>© 2026 FestEasy. Todos los derechos reservados.</p>
+</footer>

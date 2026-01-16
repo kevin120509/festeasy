@@ -1,0 +1,210 @@
+<style>
+    .marketplace-page {
+        min-height: 100vh;
+        background: var(--color-gray-light);
+    }
+
+    .search-section {
+        background: var(--color-white);
+        padding: 40px;
+        box-shadow: var(--shadow);
+    }
+
+    .search-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .search-title {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .search-input {
+        flex: 2;
+        min-width: 300px;
+        padding: 16px 24px;
+        border: 2px solid var(--color-gray-border);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+    }
+
+    .search-input:focus {
+        border-color: var(--color-primary);
+        outline: none;
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 200px;
+        padding: 16px 24px;
+        border: 2px solid var(--color-gray-border);
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        background: var(--color-white);
+        cursor: pointer;
+    }
+
+    .results-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .results-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .results-count {
+        color: var(--color-gray);
+    }
+
+    .providers-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 24px;
+    }
+
+    .provider-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .provider-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .provider-image {
+        height: 180px;
+        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 64px;
+    }
+
+    .provider-content {
+        padding: 24px;
+    }
+
+    .provider-category {
+        display: inline-block;
+        background: var(--color-gray-light);
+        color: var(--color-gray);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 12px;
+    }
+
+    .provider-name {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .provider-location {
+        color: var(--color-gray);
+        font-size: 14px;
+        margin-bottom: 16px;
+    }
+
+    .provider-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 16px;
+        border-top: 1px solid var(--color-gray-border);
+    }
+
+    .provider-price {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    .provider-price span {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--color-gray);
+    }
+
+    .provider-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+    }
+
+    .provider-rating span {
+        color: #FFC107;
+    }
+</style>
+
+<div class="marketplace-page">
+    <app-header></app-header>
+
+    <section class="search-section">
+        <div class="search-container">
+            <h1 class="search-title">Encuentra el servicio perfecto</h1>
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Buscar DJs, catering, fotografía..."
+                    [(ngModel)]="searchQuery" />
+                <select class="filter-select" [(ngModel)]="selectedCategory">
+                    <option value="">Todas las categorías</option>
+                    @for (cat of categories; track cat) {
+                    <option [value]="cat">{{ cat }}</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </section>
+
+    <!-- Geolocation Map Section -->
+    <section class="map-section" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+        <app-mapa></app-mapa>
+    </section>
+
+    <section class="results-section">
+        <div class="results-header">
+            <p class="results-count">{{ filteredProviders.length }} proveedores encontrados</p>
+        </div>
+
+        <div class="providers-grid">
+            @for (provider of filteredProviders; track provider.id) {
+            <a [routerLink]="['/cliente/proveedor', provider.id]" class="provider-card">
+                <div class="provider-image">{{ provider.imagen }}</div>
+                <div class="provider-content">
+                    <span class="provider-category">{{ provider.categoria }}</span>
+                    <h3 class="provider-name">{{ provider.nombre }}</h3>
+                    <p class="provider-location">📍 {{ provider.ubicacion }}</p>
+                    <div class="provider-footer">
+                        <div class="provider-price">
+                            ${{ provider.precio.toLocaleString() }} <span>desde</span>
+                        </div>
+                        <div class="provider-rating">
+                            <span>★</span> {{ provider.rating }}
+                        </div>
+                    </div>
+                </div>
+            </a>
+            }
+        </div>
+    </section>
+</div>

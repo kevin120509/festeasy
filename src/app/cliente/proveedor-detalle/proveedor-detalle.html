@@ -1,0 +1,333 @@
+<style>
+    .proveedor-page {
+        min-height: 100vh;
+        background: var(--color-gray-light);
+    }
+
+    .proveedor-hero {
+        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 100px;
+    }
+
+    .proveedor-content {
+        max-width: 1200px;
+        margin: -80px auto 40px;
+        padding: 0 20px;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 32px;
+    }
+
+    .proveedor-main {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .proveedor-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 32px;
+        box-shadow: var(--shadow);
+    }
+
+    .proveedor-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .proveedor-name {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+
+    .proveedor-meta {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        color: var(--color-gray);
+    }
+
+    .proveedor-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        background: #FFF8E1;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .proveedor-rating span {
+        color: #FFC107;
+    }
+
+    .proveedor-descripcion {
+        color: var(--color-gray);
+        line-height: 1.8;
+    }
+
+    .section-title {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .paquetes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .paquete-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+        transition: background 0.3s ease;
+    }
+
+    .paquete-item:hover {
+        background: #FFEBEE;
+    }
+
+    .paquete-info h4 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .paquete-info p {
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .paquete-precio {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .paquete-precio strong {
+        font-size: 20px;
+        color: var(--color-primary);
+    }
+
+    .btn-add {
+        padding: 10px 20px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn-add:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .galeria-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .galeria-item {
+        height: 120px;
+        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
+        border-radius: var(--border-radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+    }
+
+    .reviews-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .review-item {
+        padding: 20px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .review-autor {
+        font-weight: 600;
+    }
+
+    .review-fecha {
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .review-stars {
+        color: #FFC107;
+        margin-bottom: 8px;
+    }
+
+    .review-texto {
+        color: var(--color-gray);
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 100px;
+        height: fit-content;
+    }
+
+    .contact-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 32px;
+        box-shadow: var(--shadow);
+    }
+
+    .contact-card h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid var(--color-gray-border);
+        border-radius: var(--border-radius-sm);
+        font-size: 14px;
+    }
+
+    .btn-contact {
+        width: 100%;
+        padding: 14px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+</style>
+
+<div class="proveedor-page">
+    <app-header></app-header>
+
+    <div class="proveedor-hero">{{ provider().imagen }}</div>
+
+    <div class="proveedor-content">
+        <div class="proveedor-main">
+            <div class="proveedor-card">
+                <div class="proveedor-header">
+                    <div>
+                        <h1 class="proveedor-name">{{ provider().nombre }}</h1>
+                        <div class="proveedor-meta">
+                            <span>{{ provider().categoria }}</span>
+                            <span>📍 {{ provider().ubicacion }}</span>
+                            <span>{{ provider().reviews }} reseñas</span>
+                        </div>
+                    </div>
+                    <div class="proveedor-rating">
+                        <span>★</span> {{ provider().rating }}
+                    </div>
+                </div>
+                <p class="proveedor-descripcion">{{ provider().descripcion }}</p>
+            </div>
+
+            <div class="proveedor-card">
+                <h2 class="section-title">Mis Servicios</h2>
+                <div class="paquetes-list">
+                    @for (pkg of packages(); track pkg.id) {
+                    <div class="paquete-item">
+                        <div class="paquete-info">
+                            <h4>{{ pkg.nombre }}</h4>
+                            <p>{{ pkg.descripcion }}</p>
+                        </div>
+                        <div class="paquete-precio">
+                            <strong>${{ pkg.precio.toLocaleString() }}</strong>
+                            <button class="btn-add" (click)="addToCart(pkg)">Agregar</button>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="proveedor-card">
+                <h2 class="section-title">Galería</h2>
+                <div class="galeria-grid">
+                    @for (item of galeria; track item) {
+                    <div class="galeria-item">{{ item }}</div>
+                    }
+                </div>
+            </div>
+
+            <div class="proveedor-card">
+                <h2 class="section-title">Reseñas</h2>
+                <div class="reviews-list">
+                    @for (review of reviews(); track review.autor) {
+                    <div class="review-item">
+                        <div class="review-header">
+                            <span class="review-autor">{{ review.autor }}</span>
+                            <span class="review-fecha">{{ review.fecha }}</span>
+                        </div>
+                        <div class="review-stars">★★★★★</div>
+                        <p class="review-texto">{{ review.comentario }}</p>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="contact-card">
+                <h3>Solicitar Presupuesto</h3>
+                <form>
+                    <div class="form-group">
+                        <label>Tipo de evento</label>
+                        <input type="text" placeholder="Ej: Boda, Cumpleaños...">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha del evento</label>
+                        <input type="date">
+                    </div>
+                    <div class="form-group">
+                        <label>Mensaje</label>
+                        <textarea rows="3" placeholder="Cuéntanos sobre tu evento..."></textarea>
+                    </div>
+                    <button type="submit" class="btn-contact">Enviar Solicitud</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

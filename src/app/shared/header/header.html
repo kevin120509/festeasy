@@ -1,0 +1,108 @@
+<style>
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 40px;
+    background: var(--color-white);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+  }
+
+  .logo img {
+    height: 40px;
+    width: auto;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .nav a {
+    font-weight: 500;
+    color: var(--color-dark);
+    transition: color 0.3s ease;
+  }
+
+  .nav a:hover {
+    color: var(--color-primary);
+  }
+
+  .auth-buttons {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .btn-login {
+    padding: 10px 24px;
+    background: var(--color-primary);
+    color: var(--color-white);
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-login:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .user-name {
+    font-weight: 500;
+  }
+
+  .btn-logout {
+    padding: 8px 16px;
+    background: transparent;
+    color: var(--color-gray);
+    border: 1px solid var(--color-gray-border);
+    border-radius: var(--border-radius-sm);
+    font-size: 14px;
+  }
+
+  .btn-logout:hover {
+    background: var(--color-gray-light);
+  }
+</style>
+
+<header class="header">
+  <a routerLink="/" class="logo">
+    <img src="festeasy.jpeg" alt="FestEasy Logo" />
+  </a>
+
+  <nav class="nav">
+    <a routerLink="/">Inicio</a>
+    <a routerLink="/cliente/marketplace">Servicios</a>
+  </nav>
+
+  <div class="auth-buttons">
+    @if (auth.isLoggedIn()) {
+    <div class="user-menu">
+      <span class="user-name">{{ auth.currentUser()?.nombre || 'Usuario' }}</span>
+      @if (auth.isClient()) {
+      <a routerLink="/cliente/dashboard" class="btn-login">Mi Panel</a>
+      } @else {
+      <a routerLink="/proveedor/dashboard" class="btn-login">Mi Panel</a>
+      }
+      <button class="btn-logout" (click)="logout()">Salir</button>
+    </div>
+    } @else {
+    <a routerLink="/login" class="btn-login">Acceso</a>
+    }
+  </div>
+</header>

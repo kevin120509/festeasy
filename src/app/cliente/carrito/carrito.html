@@ -1,0 +1,290 @@
+<style>
+    .carrito-page {
+        min-height: 100vh;
+        background: var(--color-gray-light);
+    }
+
+    .carrito-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .steps {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 40px;
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--color-gray);
+    }
+
+    .step.active {
+        color: var(--color-primary);
+    }
+
+    .step.completed {
+        color: var(--color-success);
+    }
+
+    .step-number {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--color-gray-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .step.active .step-number {
+        background: var(--color-primary);
+        color: var(--color-white);
+    }
+
+    .step.completed .step-number {
+        background: var(--color-success);
+        color: var(--color-white);
+    }
+
+    .carrito-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 32px;
+    }
+
+    .carrito-card {
+        background: var(--color-white);
+        border-radius: var(--border-radius);
+        padding: 32px;
+        box-shadow: var(--shadow);
+    }
+
+    .carrito-header {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+    .carrito-items {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .carrito-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        background: var(--color-gray-light);
+        border-radius: var(--border-radius-sm);
+    }
+
+    .item-info h4 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .item-info p {
+        color: var(--color-gray);
+        font-size: 14px;
+    }
+
+    .item-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .item-precio {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-primary);
+    }
+
+    .btn-remove {
+        background: none;
+        border: none;
+        color: var(--color-gray);
+        cursor: pointer;
+        font-size: 20px;
+    }
+
+    .btn-remove:hover {
+        color: var(--color-primary);
+    }
+
+    .summary-card {
+        position: sticky;
+        top: 100px;
+    }
+
+    .summary-title {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 24px;
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--color-gray-border);
+    }
+
+    .summary-row.total {
+        border-bottom: none;
+        padding-top: 20px;
+        font-size: 20px;
+        font-weight: 700;
+    }
+
+    .summary-row.total span:last-child {
+        color: var(--color-primary);
+    }
+
+    .btn-checkout {
+        width: 100%;
+        padding: 16px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 24px;
+        transition: background 0.3s ease;
+    }
+
+    .btn-checkout:hover {
+        background: var(--color-primary-dark);
+    }
+
+    .empty-cart {
+        text-align: center;
+        padding: 60px;
+    }
+
+    .empty-cart-icon {
+        font-size: 80px;
+        margin-bottom: 20px;
+    }
+
+    .empty-cart h2 {
+        margin-bottom: 12px;
+    }
+
+    .empty-cart p {
+        color: var(--color-gray);
+        margin-bottom: 24px;
+    }
+
+    .confirmation {
+        text-align: center;
+        padding: 60px;
+    }
+
+    .confirmation-icon {
+        font-size: 100px;
+        margin-bottom: 24px;
+    }
+
+    .confirmation h2 {
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+
+    .confirmation p {
+        color: var(--color-gray);
+        margin-bottom: 32px;
+    }
+</style>
+
+<div class="carrito-page">
+    <app-header></app-header>
+
+    <div class="carrito-container">
+        <div class="steps">
+            <div class="step completed">
+                <span class="step-number">✓</span>
+                <span>Selección</span>
+            </div>
+            <div class="step" [class.active]="currentStep() === 2" [class.completed]="currentStep() > 2">
+                <span class="step-number">{{ currentStep() > 2 ? '✓' : '2' }}</span>
+                <span>Revisión</span>
+            </div>
+            <div class="step" [class.active]="currentStep() === 3" [class.completed]="currentStep() > 3">
+                <span class="step-number">{{ currentStep() > 3 ? '✓' : '3' }}</span>
+                <span>Pago</span>
+            </div>
+            <div class="step" [class.active]="currentStep() === 4">
+                <span class="step-number">4</span>
+                <span>Confirmación</span>
+            </div>
+        </div>
+
+        @if (currentStep() === 4) {
+        <div class="carrito-card confirmation">
+            <div class="confirmation-icon">🎉</div>
+            <h2>¡Pedido Confirmado!</h2>
+            <p>Tu solicitud ha sido enviada a los proveedores. Recibirás confirmación en breve.</p>
+            <a routerLink="/cliente/dashboard" class="btn btn-primary">Ir a mi panel</a>
+        </div>
+        } @else if (items().length === 0) {
+        <div class="carrito-card empty-cart">
+            <div class="empty-cart-icon">🛒</div>
+            <h2>Tu carrito está vacío</h2>
+            <p>Explora nuestros proveedores y agrega servicios a tu carrito</p>
+            <a routerLink="/cliente/marketplace" class="btn btn-primary">Explorar servicios</a>
+        </div>
+        } @else {
+        <div class="carrito-content">
+            <div class="carrito-card">
+                <h2 class="carrito-header">Tu Carrito</h2>
+                <div class="carrito-items">
+                    @for (item of items(); track item.id) {
+                    <div class="carrito-item">
+                        <div class="item-info">
+                            <h4>{{ item.nombre }}</h4>
+                            <p>{{ item.proveedor }}</p>
+                        </div>
+                        <div class="item-actions">
+                            <span class="item-precio">${{ item.precio.toLocaleString() }}</span>
+                            <button class="btn-remove" (click)="removeItem(item.id)">✕</button>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+
+            <div class="carrito-card summary-card">
+                <h3 class="summary-title">Resumen del Pedido</h3>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>${{ subtotal.toLocaleString() }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Comisión de servicio (5%)</span>
+                    <span>${{ comision.toLocaleString() }}</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span>${{ total.toLocaleString() }}</span>
+                </div>
+                <button class="btn-checkout" (click)="checkout()">
+                    {{ currentStep() === 3 ? 'Procesando...' : 'Confirmar y Pagar' }}
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>
