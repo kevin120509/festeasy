@@ -18,7 +18,7 @@ interface Day {
 })
 export class AgendaComponent implements OnInit {
     private api = inject(ApiService);
-    
+
     currentDate = new Date();
     currentMonth = signal(this.currentDate.toLocaleString('es-ES', { month: 'long', year: 'numeric' }));
     dias = signal<Day[]>([]);
@@ -36,7 +36,7 @@ export class AgendaComponent implements OnInit {
             blocks: this.api.getCalendarBlocks(),
             requests: this.api.getProviderRequests()
         }).subscribe(({ blocks, requests }) => {
-            const acceptedRequests = requests.filter(r => r.estado === 'aceptada');
+            const acceptedRequests = requests.filter(r => r.estado === 'reservado');
             this.generateCalendar(year, month, blocks, acceptedRequests);
 
             const proximos = acceptedRequests
@@ -59,7 +59,7 @@ export class AgendaComponent implements OnInit {
         for (let i = 1; i <= daysInMonth; i++) {
             const date = new Date(year, month, i);
             const dateString = date.toISOString().split('T')[0];
-            
+
             const block = blocks.find(b => b.fecha === dateString);
             const request = requests.find(r => r.fecha_servicio.startsWith(dateString));
 

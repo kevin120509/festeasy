@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { SupabaseAuthService } from '../../services/supabase-auth.service';
 
 @Component({
     selector: 'app-proveedor-registro',
@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
     templateUrl: './registro.html'
 })
 export class ProveedorRegistroComponent {
-    private api = inject(ApiService);
+    private supabaseAuth = inject(SupabaseAuthService);
     private auth = inject(AuthService);
     private router = inject(Router);
 
@@ -36,60 +36,53 @@ export class ProveedorRegistroComponent {
         this.error = '';
 
         try {
-            console.log('🔵 Registrando proveedor independiente...');
+            console.log('🔵 Registrando proveedor vía Supabase...', this.email);
 
-            // 1. Registrar proveedor (TODO en un solo paso!)
-            const registerData = {
-                correo_electronico: this.email,
-                contrasena: this.password,
+            // 1. Registrar usuario en Supabase Auth
+            const { user, session } = await this.supabaseAuth.signUp(
+                this.email,
+                this.password,
+                {
+                    nombre_negocio: this.nombreNegocio,
+                    rol: 'provider'
+                }
+            );
+
+            if (!user) throw new Error('No se pudo crear el usuario');
+
+            console.log('✅ Usuario Auth creado:', user.id);
+
+            // 2. Crear perfil de proveedor en la BD
+            // Nota: Dependiendo de tu configuración de RLS (Row Level Security) en Supabase,
+            // esto podría fallar si el usuario no tiene permisos inmediatos.
+            // Si falla, el usuario ya existe en Auth, habría que manejar ese "estado intermedio".
+            await this.supabaseAuth.createProviderProfile({
+                usuario_id: user.id,
                 nombre_negocio: this.nombreNegocio,
                 descripcion: `Categoría: ${this.categoria}`,
-                direccion_formato: this.ubicacion || undefined
-            };
-            console.log('📤 Datos de registro:', registerData);
-
-            const registerResponse = await this.api.registerProvider(registerData).toPromise();
-            console.log('✅ Proveedor registrado:', registerResponse);
-
-            console.log('🔵 Iniciando sesión automáticamente...');
-
-            // 2. Login automático
-            const loginResponse = await this.api.loginProvider(this.email, this.password).toPromise();
-            console.log('✅ Login exitoso:', {
-                token: loginResponse.token ? 'Token recibido' : 'No token',
-                proveedorId: loginResponse.proveedor?.id,
-                nombreNegocio: loginResponse.proveedor?.nombre_negocio
+                direccion_formato: this.ubicacion
             });
 
-            // 3. Guardar sesión
-            this.auth.login(loginResponse.token, loginResponse.proveedor);
+            console.log('✅ Perfil proveedor creado');
 
-            console.log('🎉 Registro completado, redirigiendo al dashboard...');
-            this.router.navigate(['/proveedor/dashboard']);
-
-        } catch (err: any) {
-            console.error('❌ Error en el registro de proveedor:', err);
-            console.error('📋 Detalles completos del error:', {
-                status: err.status,
-                statusText: err.statusText,
-                message: err.message,
-                error: err.error,
-                url: err.url
-            });
-
-            // Mensajes de error más específicos
-            if (err.status === 500) {
-                this.error = `Error del servidor: ${err.error?.error || err.error?.message || 'Error interno del servidor'}. Revisa la consola para más detalles.`;
-            } else if (err.status === 401) {
-                this.error = 'Credenciales inválidas. Por favor verifica tu email y contraseña.';
-            } else if (err.status === 409) {
-                this.error = 'Este email ya está registrado. Por favor usa otro email o inicia sesión.';
-            } else if (err.status === 400) {
-                this.error = `Datos inválidos: ${err.error?.error || 'Verifica que todos los campos estén correctos'}`;
+            // 3. Auto-Login en la app (AuthService)
+            // Si el registro retorna sesión (usualmente sí, si no hay confirmación de email obligatoria)
+            if (session) {
+                this.auth.login(session.access_token, {
+                    id: user.id,
+                    email: user.email,
+                    rol: 'provider',
+                    nombre: this.nombreNegocio
+                });
+                this.router.navigate(['/proveedor/dashboard']);
             } else {
-                this.error = err.error?.message || err.error?.error || `Error al registrarse (${err.status} - ${err.statusText})`;
+                this.error = 'Registro exitoso. Por favor revisa tu correo para confirmar tu cuenta antes de iniciar sesión.';
             }
 
+        } catch (err: any) {
+            console.error('❌ Error en el registro:', err);
+            this.error = err.message || 'Error al registrarse';
+        } finally {
             this.loading = false;
         }
     }

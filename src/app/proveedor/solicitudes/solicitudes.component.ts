@@ -1,7 +1,8 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../shared/header/header';
-import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ServiceRequest } from '../../models'; //
 
 @Component({
@@ -11,7 +12,8 @@ import { ServiceRequest } from '../../models'; //
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
-    private api = inject(ApiService);
+    private auth = inject(AuthService);
+    private supabaseData = inject(SupabaseDataService);
 
     // Usamos la interfaz ServiceRequest para mayor seguridad
     solicitudes = signal<ServiceRequest[]>([]);
@@ -22,9 +24,12 @@ export class SolicitudesComponent implements OnInit {
     }
 
     cargarSolicitudes() {
+        const user = this.auth.currentUser();
+        if (!user || !user.id) return;
+
         this.isLoading.set(true);
         // Usamos el método específico del servicio
-        this.api.getProviderRequests().subscribe({
+        this.supabaseData.getRequestsByProvider(user.id).subscribe({
             next: (requests) => {
                 this.solicitudes.set(requests);
                 this.isLoading.set(false);
@@ -38,26 +43,26 @@ export class SolicitudesComponent implements OnInit {
 
     aceptar(id: string) {
         // Actualizamos al estado definido en el modelo
-        this.api.updateRequestStatus(id, 'reservado').subscribe({
-            next: () => {
+        this.supabaseData.updateRequestStatus(id, 'reservado').then(
+            () => {
                 this.solicitudes.update(items =>
                     items.map(s => s.id === id ? { ...s, estado: 'reservado' as const } : s)
                 );
             },
-            error: (err) => {
+            (err) => {
                 console.error('Error al aceptar solicitud:', err);
             }
-        });
+        );
     }
 
     rechazar(id: string) {
-        this.api.updateRequestStatus(id, 'rechazada').subscribe({
-            next: () => {
+        this.supabaseData.updateRequestStatus(id, 'rechazada').then(
+            () => {
                 this.solicitudes.update(items => items.filter(s => s.id !== id));
             },
-            error: (err) => {
+            (err) => {
                 console.error('Error al rechazar solicitud:', err);
             }
-        });
+        );
     }
 }

@@ -7,7 +7,7 @@ import { Cart } from '../../models';
 @Component({
     selector: 'app-carrito',
     standalone: true,
-    imports: [RouterLink, HeaderComponent],
+    imports: [RouterLink],
     templateUrl: './carrito.html'
 })
 export class CarritoComponent implements OnInit {

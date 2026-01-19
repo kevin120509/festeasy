@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HeaderComponent } from '../../shared/header/header';
-import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { SupabaseAuthService } from '../../services/supabase-auth.service';
 
 @Component({
     selector: 'app-cliente-registro',
@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth.service';
     templateUrl: './registro.html'
 })
 export class ClienteRegistroComponent {
-    private api = inject(ApiService);
+    private supabaseAuth = inject(SupabaseAuthService);
     private auth = inject(AuthService);
     private router = inject(Router);
 
@@ -33,29 +33,42 @@ export class ClienteRegistroComponent {
         this.error = '';
 
         try {
-            // 1. Register User
-            await this.api.register({
-                correo_electronico: this.email,
-                contrasena: this.password,
-                rol: 'client'
-            }).toPromise();
+            // 1. Register User in Supabase Auth
+            const { user, session } = await this.supabaseAuth.signUp(
+                this.email,
+                this.password,
+                {
+                    nombre: this.nombre,
+                    rol: 'client'
+                }
+            );
 
-            // 2. Login to get token
-            const loginResponse = await this.api.login(this.email, this.password).toPromise();
-            this.auth.login(loginResponse.token, loginResponse.user);
+            if (!user) throw new Error('Error al crear usuario');
 
-            // 3. Create Profile
-            await this.api.createClientProfile({
-                usuario_id: loginResponse.user.id,
+            // 2. Create Profile in DB
+            await this.supabaseAuth.createClientProfile({
+                usuario_id: user.id,
                 nombre_completo: this.nombre,
-                telefono: this.telefono // Assuming telefono is bound in the template
-            }).toPromise();
+                telefono: this.telefono
+            });
 
-            this.router.navigate(['/cliente/dashboard']);
+            // 3. Login
+            if (session) {
+                this.auth.login(session.access_token, {
+                    id: user.id,
+                    email: user.email,
+                    rol: 'client',
+                    nombre: this.nombre
+                });
+                this.router.navigate(['/cliente/dashboard']);
+            } else {
+                this.error = 'Registro exitoso. Por favor confirma tu correo.';
+            }
 
         } catch (err: any) {
-            console.error('Registration error details:', err);
-            this.error = err.error?.message || `Error al registrarse (${err.status} - ${err.statusText})`;
+            console.error('Registration error:', err);
+            this.error = err.message || 'Error al registrarse';
+        } finally {
             this.loading = false;
         }
     }

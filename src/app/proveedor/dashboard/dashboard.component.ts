@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { HeaderComponent } from '../../shared/header/header';
 import { AuthService } from '../../services/auth.service';
-import { ApiService } from '../../services/api.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ServiceRequest, Payment } from '../../models';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 
@@ -15,7 +15,7 @@ import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 })
 export class ProveedorDashboardComponent implements OnInit {
     auth = inject(AuthService);
-    api = inject(ApiService);
+    supabaseData = inject(SupabaseDataService);
 
     metricas = signal({
         nuevasSolicitudes: 0,
@@ -25,7 +25,7 @@ export class ProveedorDashboardComponent implements OnInit {
         porcentajeIngresos: 0
     });
 
-    recentRequests = signal<ServiceRequest[]>([]);
+    recentRequests = signal<any[]>([]);
     recentPayments = signal<Payment[]>([]);
 
     ngOnInit() {
@@ -33,28 +33,30 @@ export class ProveedorDashboardComponent implements OnInit {
     }
 
     loadDashboardData() {
-        // 1. Métricas
-        this.api.getProviderDashboardMetrics().subscribe({
+        const user = this.auth.currentUser();
+        if (!user || !user.id) return;
+
+        // 1. Obtener solicitudes del proveedor
+        this.supabaseData.getRequestsByProvider(user.id).subscribe({
             next: (data) => {
-                this.metricas.set(data);
+                this.recentRequests.set(data.slice(0, 5));
+
+                // Calcular métricas simples
+                const nuevas = data.filter(r => r.estado === 'pendiente_aprobacion').length;
+                const activas = data.filter(r => ['negociacion', 'reservado', 'en_progreso'].includes(r.estado)).length;
+
+                this.metricas.set({
+                    nuevasSolicitudes: nuevas,
+                    cotizacionesActivas: activas,
+                    ingresosMensuales: 0, // TODO: Implementar tabla de pagos
+                    porcentajeSolicitudes: 5, // Mock calc
+                    porcentajeIngresos: 10
+                });
             },
-            error: (err) => console.error('Error loading metrics', err)
+            error: (err) => console.error('Error loading provider data', err)
         });
 
-        // 2. Solicitudes Recientes
-        this.api.getRecentRequests().subscribe({
-            next: (data) => {
-                this.recentRequests.set(data);
-            },
-            error: (err) => console.error('Error loading requests', err)
-        });
-
-        // 3. Pagos Recientes
-        this.api.getRecentPayments().subscribe({
-            next: (data) => {
-                this.recentPayments.set(data);
-            },
-            error: (err) => console.error('Error loading payments', err)
-        });
+        // 2. Pagos (Mock o futuro endpoint de Supabase)
+        // Por ahora lo dejamos vacío o mock hasta implementar tabla pagos
     }
 }

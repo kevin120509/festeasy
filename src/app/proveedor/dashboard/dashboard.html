@@ -193,11 +193,11 @@
                                         class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold"
                                         [class.bg-amber-50]="req.estado === 'pendiente_aprobacion'"
                                         [class.text-amber-600]="req.estado === 'pendiente_aprobacion'"
-                                        [class.bg-green-50]="req.estado === 'aceptada'"
-                                        [class.text-green-600]="req.estado === 'aceptada'">
+                                        [class.bg-green-50]="req.estado === 'reservado'"
+                                        [class.text-green-600]="req.estado === 'reservado'">
                                         <span class="h-1.5 w-1.5 rounded-full"
                                             [class.bg-amber-500]="req.estado === 'pendiente_aprobacion'"
-                                            [class.bg-green-500]="req.estado === 'aceptada'"></span>
+                                            [class.bg-green-500]="req.estado === 'reservado'"></span>
                                         {{ req.estado }}
                                     </span>
                                 </td>
