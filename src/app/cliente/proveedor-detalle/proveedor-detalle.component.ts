@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { switchMap, map, forkJoin } from 'rxjs';
 import { HeaderComponent } from '../../shared/header/header';
 import { ApiService } from '../../services/api.service';
@@ -8,7 +8,7 @@ import { ProviderProfile, ProviderPackage } from '../../models';
 @Component({
     selector: 'app-proveedor-detalle',
     standalone: true,
-    imports: [HeaderComponent],
+    imports: [HeaderComponent, RouterLink],
     templateUrl: './proveedor-detalle.html'
 })
 export class ProveedorDetalleComponent implements OnInit {

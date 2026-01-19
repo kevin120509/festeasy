@@ -29,11 +29,11 @@ export class ApiService {
     // 1. Autenticación (/users)
     // ==========================================
     register(data: { correo_electronico: string; contrasena: string; rol: string }): Observable<any> {
-        return this.http.post(`${this.API_URL}/users/register`, data);
+        return this.http.post(`${this.API_URL}/register`, data);
     }
 
     login(correo_electronico: string, contrasena: string): Observable<any> {
-        return this.http.post(`${this.API_URL}/users/login`, { correo_electronico, contrasena });
+        return this.http.post(`${this.API_URL}/login`, { correo_electronico, contrasena });
     }
 
     getUser(id: string): Observable<User> {
@@ -56,18 +56,19 @@ export class ApiService {
         direccion_formato?: string;
         categoria_principal_id?: string;
     }): Observable<any> {
-        return this.http.post(`${this.API_URL}/perfil-proveedor/register`, data);
+        return this.http.post(`${this.API_URL}/register`, { ...data, rol: 'provider' });
     }
 
     loginProvider(correo_electronico: string, contrasena: string): Observable<any> {
-        return this.http.post(`${this.API_URL}/perfil-proveedor/login`, { correo_electronico, contrasena });
+        return this.http.post(`${this.API_URL}/login`, { correo_electronico, contrasena });
     }
 
     // ==========================================
     // 2. Perfil Cliente (/perfil-cliente)
     // ==========================================
     createClientProfile(data: Partial<ClientProfile>): Observable<ClientProfile> {
-        return this.http.post<ClientProfile>(`${this.API_URL}/perfil-cliente`, data, { headers: this.getHeaders() });
+        // En backend el perfil se crea al registrar, usamos update para completar datos
+        return this.http.put<ClientProfile>(`${this.API_URL}/perfil`, data, { headers: this.getHeaders() });
     }
 
     getClientProfiles(): Observable<ClientProfile[]> {
@@ -79,26 +80,29 @@ export class ApiService {
     }
 
     updateClientProfile(id: string, data: Partial<ClientProfile>): Observable<ClientProfile> {
-        return this.http.put<ClientProfile>(`${this.API_URL}/perfil-cliente/${id}`, data, { headers: this.getHeaders() });
+        // Backend usa token para identificar usuario, ignoramos ID
+        return this.http.put<ClientProfile>(`${this.API_URL}/perfil`, data, { headers: this.getHeaders() });
     }
 
     // ==========================================
     // 3. Perfil Proveedor (/perfil-proveedor)
     // ==========================================
     createProviderProfile(data: Partial<ProviderProfile>): Observable<ProviderProfile> {
-        return this.http.post<ProviderProfile>(`${this.API_URL}/perfil-proveedor`, data, { headers: this.getHeaders() });
+        // Perfil se crea en registro, usamos PUT para actualizar
+        return this.http.put<ProviderProfile>(`${this.API_URL}/perfil`, data, { headers: this.getHeaders() });
     }
 
     getProviderProfiles(): Observable<ProviderProfile[]> {
-        return this.http.get<ProviderProfile[]>(`${this.API_URL}/perfil-proveedor`, { headers: this.getHeaders() });
+        return this.http.get<ProviderProfile[]>(`${this.API_URL}/proveedores`, { headers: this.getHeaders() });
     }
 
     getProviderProfile(id: string): Observable<ProviderProfile> {
-        return this.http.get<ProviderProfile>(`${this.API_URL}/perfil-proveedor/${id}`, { headers: this.getHeaders() });
+        return this.http.get<ProviderProfile>(`${this.API_URL}/proveedores/${id}`, { headers: this.getHeaders() });
     }
 
     updateProviderProfile(id: string, data: Partial<ProviderProfile>): Observable<ProviderProfile> {
-        return this.http.put<ProviderProfile>(`${this.API_URL}/perfil-proveedor/${id}`, data, { headers: this.getHeaders() });
+        // Backend usa token
+        return this.http.put<ProviderProfile>(`${this.API_URL}/perfil`, data, { headers: this.getHeaders() });
     }
 
     // ==========================================
@@ -135,11 +139,11 @@ export class ApiService {
     }
 
     getClientRequests(): Observable<ServiceRequest[]> {
-        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes/client`, { headers: this.getHeaders() });
+        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes`, { headers: this.getHeaders() });
     }
 
     getProviderRequests(): Observable<ServiceRequest[]> {
-        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes/provider`, { headers: this.getHeaders() });
+        return this.http.get<ServiceRequest[]>(`${this.API_URL}/solicitudes`, { headers: this.getHeaders() });
     }
 
     updateRequestStatus(id: string, status: string): Observable<ServiceRequest> {
@@ -192,23 +196,23 @@ export class ApiService {
     // 9. Paquetes Proveedor (/paquetes-proveedor)
     // ==========================================
     createProviderPackage(data: Partial<ProviderPackage>): Observable<ProviderPackage> {
-        return this.http.post<ProviderPackage>(`${this.API_URL}/paquetes-proveedor`, data, { headers: this.getHeaders() });
+        return this.http.post<ProviderPackage>(`${this.API_URL}/paquetes`, data, { headers: this.getHeaders() });
     }
 
     getProviderPackages(): Observable<ProviderPackage[]> {
-        return this.http.get<ProviderPackage[]>(`${this.API_URL}/paquetes-proveedor`, { headers: this.getHeaders() });
+        return this.http.get<ProviderPackage[]>(`${this.API_URL}/paquetes`, { headers: this.getHeaders() });
     }
 
     getProviderPackage(id: string): Observable<ProviderPackage> {
-        return this.http.get<ProviderPackage>(`${this.API_URL}/paquetes-proveedor/${id}`);
+        return this.http.get<ProviderPackage>(`${this.API_URL}/paquetes/${id}`);
     }
 
     updateProviderPackage(id: string, data: Partial<ProviderPackage>): Observable<ProviderPackage> {
-        return this.http.put<ProviderPackage>(`${this.API_URL}/paquetes-proveedor/${id}`, data, { headers: this.getHeaders() });
+        return this.http.put<ProviderPackage>(`${this.API_URL}/paquetes/${id}`, data, { headers: this.getHeaders() });
     }
 
     deleteProviderPackage(id: string): Observable<any> {
-        return this.http.delete(`${this.API_URL}/paquetes-proveedor/${id}`, { headers: this.getHeaders() });
+        return this.http.delete(`${this.API_URL}/paquetes/${id}`, { headers: this.getHeaders() });
     }
 
     // ==========================================
@@ -257,7 +261,7 @@ export class ApiService {
     // 13. Categorías (/categorias-servicio)
     // ==========================================
     getServiceCategories(): Observable<any[]> {
-        return this.http.get<any[]>(`${this.API_URL}/categorias-servicio`);
+        return this.http.get<any[]>(`${this.API_URL}/categorias-servicios`);
     }
 }
 
