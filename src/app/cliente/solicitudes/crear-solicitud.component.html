@@ -25,7 +25,6 @@
                 <h1 class="text-3xl font-bold text-gray-900">Crear Nueva Solicitud</h1>
                 <div class="flex items-center gap-2 mt-2 text-sm">
                     <span class="bg-red-100 text-red-600 px-2 py-0.5 rounded font-medium">Decoración</span>
-                    <span class="text-gray-500">Paso {{currentStep}} de 2</span>
                 </div>
             </div>
             <button
@@ -39,96 +38,8 @@
             <!-- Left Column: Form -->
             <div class="lg:col-span-2 space-y-6">
 
-                <!-- Stepper Progress (Visual) -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                    <div class="relative">
-                        <!-- Connecting Line -->
-                        <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gray-100"></div>
-
-                        <!-- Step 1 Indicator -->
-                        <div class="relative flex gap-4 mb-8">
-                            <div class="relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 transition-colors"
-                                [ngClass]="currentStep >= 1 ? 'bg-red-500 border-red-500 text-white' : 'bg-white border-gray-300 text-gray-400'">
-                                <span class="material-icons-outlined text-xl" *ngIf="currentStep > 1">check</span>
-                                <span class="text-lg font-bold" *ngIf="currentStep === 1">1</span>
-                            </div>
-                            <div class="pt-1">
-                                <h3 class="font-bold text-gray-900" [ngClass]="{'text-red-600': currentStep === 1}">1.
-                                    Detalles del Evento</h3>
-                                <p class="text-sm text-gray-500" *ngIf="currentStep === 1">Paso actual</p>
-                                <p class="text-sm text-green-600" *ngIf="currentStep > 1">Completado</p>
-                            </div>
-                        </div>
-
-                        <!-- Step 2 Indicator -->
-                        <div class="relative flex gap-4 mb-8">
-                            <div class="relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 transition-colors"
-                                [ngClass]="currentStep === 2 ? 'bg-red-500 border-red-500 text-white' : (currentStep > 2 ? 'bg-red-500 border-red-500 text-white' : 'bg-white border-gray-300 text-gray-400')">
-                                <span class="text-lg font-bold">2</span>
-                            </div>
-                            <div class="pt-1">
-                                <h3 class="font-bold text-gray-900" [ngClass]="{'text-red-600': currentStep === 2}">2.
-                                    Requerimientos Específicos</h3>
-                                <p class="text-sm text-gray-500">{{ currentStep === 2 ? 'Paso actual' : 'Pendiente' }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Step 3 Indicator (Visual only as per design) -->
-                        <div class="relative flex gap-4">
-                            <div
-                                class="relative z-10 flex items-center justify-center w-12 h-12 rounded-full border-2 bg-white border-gray-300 text-gray-400">
-                                <span class="text-lg font-bold">3</span>
-                            </div>
-                            <div class="pt-1">
-                                <h3 class="font-bold text-gray-400">3. Revisión y Envío</h3>
-                                <p class="text-sm text-gray-400">Pendiente</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- FORM CONTENT: STEP 1 -->
-                <form [formGroup]="solicitudForm" *ngIf="currentStep === 1" class="space-y-6">
-
-                    <!-- Event Selection -->
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Vincular a un Evento</h3>
-                        <p class="text-gray-500 text-sm mb-6">Selecciona un evento de tu lista o crea uno nuevo para
-                            esta solicitud.</p>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <!-- Option 1: Existing -->
-                            <label
-                                class="relative border-2 rounded-xl p-4 cursor-pointer hover:border-red-200 transition-colors"
-                                [class.border-red-500]="true" [class.bg-red-50]="true">
-                                <div class="flex justify-between items-start mb-2">
-                                    <span class="font-bold text-gray-900">Evento Existente</span>
-                                    <input type="radio" name="evtType" checked
-                                        class="text-red-600 focus:ring-red-500 h-4 w-4">
-                                </div>
-                                <select formControlName="titulo_evento"
-                                    class="mt-2 w-full border-gray-300 rounded-lg text-sm shadow-sm focus:border-red-500 focus:ring-red-500">
-                                    <option value="" disabled>Selecciona un evento</option>
-                                    <option *ngFor="let evt of eventos" [value]="evt.nombre">{{evt.nombre}}</option>
-                                </select>
-                                <p class="text-red-500 text-xs mt-1"
-                                    *ngIf="solicitudForm.get('titulo_evento')?.touched && solicitudForm.get('titulo_evento')?.invalid">
-                                    Selecciona un evento
-                                </p>
-                            </label>
-
-                            <!-- Option 2: New -->
-                            <label
-                                class="relative border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-red-200 transition-colors">
-                                <div class="flex justify-between items-start mb-2">
-                                    <span class="font-bold text-gray-900">Crear Evento Nuevo</span>
-                                    <input type="radio" name="evtType" class="text-red-600 focus:ring-red-500 h-4 w-4">
-                                </div>
-                                <p class="text-xs text-gray-500 mt-2">Define un nuevo contexto de evento</p>
-                            </label>
-                        </div>
-                    </div>
+                <!-- FORM CONTENT: STEP 1 (Now the only step) -->
+                <form [formGroup]="solicitudForm" class="space-y-6">
 
                     <!-- Logistics -->
                     <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
@@ -141,20 +52,20 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Fecha y Hora</label>
                                 <div class="flex gap-2">
                                     <input type="date" formControlName="fecha_servicio"
-                                        class="w-full border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring-red-500">
+                                        class="w-full border-gray-300 rounded-xl shadow-sm focus:border-red-500 focus:ring-red-500 py-3 px-4 text-gray-900 bg-gray-50 hover:bg-white transition-colors">
                                     <input type="time" formControlName="hora_servicio"
-                                        class="w-24 border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring-red-500">
+                                        class="w-32 border-gray-300 rounded-xl shadow-sm focus:border-red-500 focus:ring-red-500 py-3 px-4 text-gray-900 bg-gray-50 hover:bg-white transition-colors">
                                 </div>
                             </div>
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Nro. de Invitados <span
                                         class="material-icons-outlined text-xs text-gray-400 align-middle">info</span></label>
                                 <div class="relative">
-                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                         <span class="material-icons-outlined text-gray-400">groups</span>
                                     </div>
                                     <input type="number" formControlName="invitados" placeholder="Ej: 150"
-                                        class="pl-10 w-full border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring-red-500">
+                                        class="pl-12 w-full border-gray-300 rounded-xl shadow-sm focus:border-red-500 focus:ring-red-500 py-3 text-gray-900 bg-gray-50 hover:bg-white transition-colors placeholder-gray-400">
                                 </div>
                             </div>
                         </div>
@@ -162,13 +73,13 @@
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-2">Ubicación del Servicio</label>
                             <div class="relative">
-                                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                                     <span class="material-icons-outlined text-red-500">location_on</span>
                                 </div>
                                 <input type="text" formControlName="ubicacion"
                                     placeholder="Buscar dirección o recinto..."
-                                    class="pl-10 w-full border-gray-300 rounded-lg shadow-sm focus:border-red-500 focus:ring-red-500">
-                                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                    class="pl-12 w-full border-gray-300 rounded-xl shadow-sm focus:border-red-500 focus:ring-red-500 py-3 text-gray-900 bg-gray-50 hover:bg-white transition-colors placeholder-gray-400">
+                                <div class="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
                                     <span class="material-icons-outlined text-gray-400">search</span>
                                 </div>
                             </div>
@@ -187,174 +98,15 @@
                     </div>
                 </form>
 
-                <!-- FORM CONTENT: STEP 2 -->
-                <form [formGroup]="solicitudForm" *ngIf="currentStep === 2" class="space-y-6">
-                    <div class="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 class="text-lg font-bold text-gray-900 mb-2">Describe lo que necesitas</h3>
-
-                        <textarea formControlName="descripcion" rows="4"
-                            class="w-full border-gray-300 rounded-xl shadow-sm focus:border-red-500 focus:ring-red-500 text-sm"
-                            placeholder="Ej. Estilo vintage, colores pastel, ambiente íntimo para 50 personas..."></textarea>
-                        <p class="text-xs text-gray-400 mt-2 text-right">Sé lo más detallado posible para que podamos
-                            encontrar el mejor proveedor.</p>
-
-
-                        <h3 class="text-lg font-bold text-gray-900 mt-8 mb-4">Servicios específicos adicionales</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" formGroupName="servicios_adicionales">
-                            <label
-                                class="flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors bg-white">
-                                <input type="checkbox" formControlName="montaje"
-                                    class="rounded text-red-600 focus:ring-red-500 h-5 w-5 mr-3">
-                                <span class="text-sm font-medium text-gray-700">Montaje y Decoración</span>
-                            </label>
-                            <label
-                                class="flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors bg-white">
-                                <input type="checkbox" formControlName="limpieza"
-                                    class="rounded text-red-600 focus:ring-red-500 h-5 w-5 mr-3">
-                                <span class="text-sm font-medium text-gray-700">Desmontaje y Limpieza</span>
-                            </label>
-                            <label
-                                class="flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors bg-white">
-                                <input type="checkbox" formControlName="iluminacion"
-                                    class="rounded text-red-600 focus:ring-red-500 h-5 w-5 mr-3">
-                                <span class="text-sm font-medium text-gray-700">Iluminación Ambiental</span>
-                            </label>
-                            <label
-                                class="flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors bg-white">
-                                <input type="checkbox" formControlName="sonido"
-                                    class="rounded text-red-600 focus:ring-red-500 h-5 w-5 mr-3">
-                                <span class="text-sm font-medium text-gray-700">Sonido y DJ</span>
-                            </label>
-                            <label
-                                class="flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors bg-white">
-                                <input type="checkbox" formControlName="foto"
-                                    class="rounded text-red-600 focus:ring-red-500 h-5 w-5 mr-3">
-                                <span class="text-sm font-medium text-gray-700">Fotografía y Video</span>
-                            </label>
-                            <label
-                                class="flex items-center p-4 border border-gray-200 rounded-xl hover:bg-gray-50 cursor-pointer transition-colors bg-white">
-                                <input type="checkbox" formControlName="catering"
-                                    class="rounded text-red-600 focus:ring-red-500 h-5 w-5 mr-3">
-                                <span class="text-sm font-medium text-gray-700">Catering / Banquetes</span>
-                            </label>
-                        </div>
-
-                        <h3 class="text-lg font-bold text-gray-900 mt-8 mb-4">Presupuesto Estimado (Opcional)</h3>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <span class="text-gray-500 font-bold">$</span>
-                            </div>
-                            <input type="number" formControlName="presupuesto" placeholder="0.00"
-                                class="pl-8 w-full border-gray-300 rounded-xl shadow-sm focus:border-red-500 focus:ring-red-500 py-3">
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2">Esto nos ayuda a filtrar proveedores que se ajusten a tu
-                            rango.</p>
-
-                        <h3 class="text-lg font-bold text-gray-900 mt-8 mb-4">Inspiración y Moodboards</h3>
-                        <div
-                            class="border-2 border-dashed border-gray-300 rounded-2xl p-8 text-center hover:bg-gray-50 transition-colors cursor-pointer bg-white">
-                            <div
-                                class="h-12 w-12 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-3">
-                                <span class="material-icons-outlined">cloud_upload</span>
-                            </div>
-                            <h4 class="font-bold text-gray-900 text-sm">Haz clic o arrastra archivos aquí</h4>
-                            <p class="text-xs text-gray-500 mt-1">Sube tus imágenes de referencia o documentos PDF (Máx.
-                                5MB cada una)</p>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2 italic">No se han seleccionado archivos.</p>
-
-                    </div>
-                </form>
-
                 <!-- Navigation Buttons -->
                 <div class="flex justify-end pt-4">
-                    <button *ngIf="currentStep > 1" (click)="prevStep()"
-                        class="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-bold rounded-xl mr-4 hover:bg-gray-50 transition-colors">
-                        ← Atrás
-                    </button>
-
-                    <button *ngIf="currentStep < 2" (click)="nextStep()"
-                        class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-transform transform hover:-translate-y-0.5">
-                        Siguiente →
-                    </button>
-
-                    <button *ngIf="currentStep === 2" (click)="submit()" [disabled]="isLoading"
-                        class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-transform transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                        <span *ngIf="isLoading"
-                            class="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></span>
-                        {{ isLoading ? 'Enviando...' : 'Confirmar Solicitud' }}
+                    <button (click)="goToMarketplace()"
+                        class="px-8 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 shadow-lg shadow-red-200 transition-transform transform hover:-translate-y-0.5 flex items-center gap-2">
+                        Ver Proveedores
+                        <span class="material-icons-outlined">storefront</span>
                     </button>
                 </div>
 
-            </div>
-
-            <!-- Right Column: Summary -->
-            <div class="hidden lg:block">
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
-                    <div class="bg-red-600 p-4 flex items-center gap-2 text-white">
-                        <span class="material-icons-outlined">shopping_basket</span>
-                        <h3 class="font-bold">Resumen de Solicitud</h3>
-                    </div>
-
-                    <div class="p-6">
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Categoría</p>
-                        <h4 class="text-lg font-bold text-gray-900 mb-6">Decoración de Eventos</h4>
-
-                        <div class="space-y-6">
-                            <div class="flex gap-3">
-                                <div class="mt-1">
-                                    <span class="material-icons-outlined text-red-500 text-sm">event</span>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-500">Evento</p>
-                                    <p class="text-sm font-medium text-gray-800">{{
-                                        solicitudForm.get('titulo_evento')?.value || 'Selecciona un evento' }}</p>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-3">
-                                <div class="mt-1">
-                                    <span class="material-icons-outlined text-red-500 text-sm">schedule</span>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-500">Fecha y Hora</p>
-                                    <p class="text-sm font-medium text-gray-800 italic"
-                                        *ngIf="!solicitudForm.get('fecha_servicio')?.value">Pendiente de completar</p>
-                                    <p class="text-sm font-medium text-gray-800"
-                                        *ngIf="solicitudForm.get('fecha_servicio')?.value">
-                                        {{ solicitudForm.get('fecha_servicio')?.value | date:'mediumDate' }}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div class="flex gap-3">
-                                <div class="mt-1">
-                                    <span class="material-icons-outlined text-red-500 text-sm">location_on</span>
-                                </div>
-                                <div>
-                                    <p class="text-xs font-bold text-gray-500">Ubicación</p>
-                                    <p class="text-sm font-medium text-gray-800 italic"
-                                        *ngIf="!solicitudForm.get('ubicacion')?.value">No especificada</p>
-                                    <p class="text-sm font-medium text-gray-800"
-                                        *ngIf="solicitudForm.get('ubicacion')?.value">
-                                        {{ solicitudForm.get('ubicacion')?.value }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mt-8 bg-gray-50 p-4 rounded-xl flex gap-3 text-xs text-gray-600">
-                            <span class="material-icons-outlined text-gray-400 text-lg">lightbulb</span>
-                            <p>Completa estos detalles para que podamos sugerirte los mejores decoradores disponibles.
-                            </p>
-                        </div>
-
-                        <div
-                            class="mt-6 pt-6 border-t border-gray-100 text-[10px] text-center text-gray-400 leading-relaxed">
-                            Al continuar, aceptas nuestros términos de servicio para solicitudes de proveedores.
-                        </div>
-                    </div>
-                </div>
             </div>
 
         </div>

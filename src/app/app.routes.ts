@@ -31,22 +31,13 @@ export const routes: Routes = [
 
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
-<<<<<<< HEAD
     { path: 'cliente/marketplace', component: MarketplaceComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/carrito', component: CarritoComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/dashboard', component: ClienteDashboardComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitudes', component: CrearSolicitudComponent, canActivate: [roleGuard], data: { role: 'client' } },
-
-=======
-    { path: 'cliente/marketplace', component: MarketplaceComponent },
-    { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent },
-    { path: 'cliente/carrito', component: CarritoComponent },
-    { path: 'cliente/dashboard', component: ClienteDashboardComponent },
-    { path: 'cliente/solicitudes', component: MisSolicitudesComponent },
-    { path: 'cliente/solicitudes/crear', component: CrearSolicitudComponent },
-    { path: 'cliente/configuracion', component: ClienteConfiguracionComponent },
->>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83
+    { path: 'cliente/solicitudes', component: MisSolicitudesComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/solicitudes/crear', component: CrearSolicitudComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/configuracion', component: ClienteConfiguracionComponent, canActivate: [roleGuard], data: { role: 'client' } },
 
     // Proveedor
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },

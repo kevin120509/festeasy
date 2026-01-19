@@ -12,7 +12,6 @@ import { SupabaseDataService } from '../../services/supabase-data.service';
 })
 export class ClienteDashboardComponent implements OnInit {
     auth = inject(AuthService);
-    // api = inject(ApiService); // Removed
     supabaseData = inject(SupabaseDataService);
 
     // Métricas
@@ -80,22 +79,13 @@ export class ClienteDashboardComponent implements OnInit {
                 // Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
                 this.metricas.set({
-<<<<<<< HEAD:src/app/cliente/dashboard/dashboard.ts
-                    eventosActivos: requests.filter(r => ['reservado', 'en_progreso'].includes(r.estado)).length,
-=======
                     eventosActivos: requests.filter(r => ['reservado', 'negociacion', 'en_progreso'].includes(r.estado)).length,
->>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/cliente/dashboard/dashboard.component.ts
                     cotizacionesPendientes: pendientes,
                     inversionTotal: 0 // TODO: Calcular de pagos reales
                 });
 
-<<<<<<< HEAD:src/app/cliente/dashboard/dashboard.ts
-                // Evento activo (primera solicitud reservada)
-                const activo = requests.find(r => r.estado === 'reservado');
-=======
                 // Evento activo (primera solicitud aceptada/reservada)
                 const activo = requests.find(r => r.estado === 'reservado' || r.estado === 'en_progreso');
->>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/cliente/dashboard/dashboard.component.ts
                 if (activo) {
                     this.eventoActivo.set({
                         id: activo.id,

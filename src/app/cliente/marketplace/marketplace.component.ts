@@ -1,5 +1,6 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { FormsModule, RouterLink } from '@angular/forms';
+import { RouterLink } from '@angular/router'; // Fixed import
+import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { HeaderComponent } from '../../shared/header/header';
 import { MapaComponent } from '../../shared/mapa/mapa.component';
@@ -25,7 +26,7 @@ export class MarketplaceComponent implements OnInit {
                 usuario_id: p.usuario_id,
                 nombre: p.nombre_negocio,
                 categoria: p.descripcion || 'Servicios',
-                precio: p.precio_base || 0,
+                precio: p.precio_base || 0, // precio_base is now expected in ProviderProfile
                 rating: 5.0,
                 ubicacion: p.direccion_formato || 'Ciudad de México',
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60'

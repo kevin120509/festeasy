@@ -1,15 +1,10 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HeaderComponent } from '../../shared/header/header';
-<<<<<<< HEAD:src/app/proveedor/solicitudes/solicitudes.ts
-import { ApiService } from '../../services/api.service';
-import { AuthService } from '../../services/auth.service';
-import { ServiceRequest, Quote } from '../../models';
-=======
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
-import { ServiceRequest } from '../../models'; //
->>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/proveedor/solicitudes/solicitudes.component.ts
+import { ServiceRequest, Quote } from '../../models';
+import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-solicitudes',
@@ -18,13 +13,9 @@ import { ServiceRequest } from '../../models'; //
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
-<<<<<<< HEAD:src/app/proveedor/solicitudes/solicitudes.ts
-    private api = inject(ApiService);
-    private auth = inject(AuthService);
-=======
     private auth = inject(AuthService);
     private supabaseData = inject(SupabaseDataService);
->>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/proveedor/solicitudes/solicitudes.component.ts
+    private api = inject(ApiService);
 
     // Usamos la interfaz ServiceRequest para mayor seguridad
     solicitudes = signal<ServiceRequest[]>([]);
@@ -54,7 +45,7 @@ export class SolicitudesComponent implements OnInit {
                 this.solicitudes.set(requests);
                 this.isLoading.set(false);
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('Error al cargar solicitudes:', err);
                 this.isLoading.set(false);
             }
@@ -62,7 +53,6 @@ export class SolicitudesComponent implements OnInit {
     }
 
     aceptar(id: string) {
-<<<<<<< HEAD:src/app/proveedor/solicitudes/solicitudes.ts
         // Solicitar precio al proveedor usando prompt nativo
         const precioInput = window.prompt('Ingresa el precio total propuesto para este servicio:', '');
 
@@ -96,7 +86,7 @@ export class SolicitudesComponent implements OnInit {
         };
 
         this.api.createQuote(quoteData).subscribe({
-            next: (quote) => {
+            next: (quote: any) => {
                 // Actualizar el estado de la solicitud a 'reservado' (estado válido)
                 this.api.updateRequestStatus(id, 'reservado').subscribe({
                     next: () => {
@@ -106,30 +96,19 @@ export class SolicitudesComponent implements OnInit {
                         this.mensajeExito.set('Cotización enviada exitosamente');
                         setTimeout(() => this.mensajeExito.set(''), 3000);
                     },
-                    error: (err) => {
+                    error: (err: any) => {
                         console.error('Error al actualizar estado:', err);
                         this.mensajeError.set('Error al actualizar el estado de la solicitud');
                         setTimeout(() => this.mensajeError.set(''), 3000);
                     }
                 });
             },
-            error: (err) => {
+            error: (err: any) => {
                 console.error('Error al crear cotización:', err);
                 this.mensajeError.set('Error al crear la cotización');
                 setTimeout(() => this.mensajeError.set(''), 3000);
-=======
-        // Actualizamos al estado definido en el modelo
-        this.supabaseData.updateRequestStatus(id, 'reservado').then(
-            () => {
-                this.solicitudes.update(items =>
-                    items.map(s => s.id === id ? { ...s, estado: 'reservado' as const } : s)
-                );
-            },
-            (err) => {
-                console.error('Error al aceptar solicitud:', err);
->>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/proveedor/solicitudes/solicitudes.component.ts
             }
-        );
+        });
     }
 
     rechazar(id: string) {

@@ -36,6 +36,7 @@ export interface ProviderProfile {
     correo_electronico?: string;
     estado?: 'active' | 'blocked';
     datos_bancarios_json?: any;
+    precio_base?: number; // Added property
     // contrasena is not included in the frontend model
 }
 
@@ -127,6 +128,7 @@ export interface ServiceRequest {
     provider?: ProviderProfile; // Joined data
     client?: ClientProfile; // Joined data
     items?: RequestItem[]; // Joined data
+    presupuesto_max?: number;
 }
 
 export interface RequestItem {

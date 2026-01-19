@@ -20,123 +20,37 @@ export class CrearSolicitudComponent implements OnInit {
     private auth = inject(AuthService);
     private supabase = inject(SupabaseService);
 
-    currentStep = 1;
     isLoading = false;
 
     // Formulario principal que agrupa todo
     solicitudForm: FormGroup = this.fb.group({
-        // Paso 1: Detalles
-        titulo_evento: ['', Validators.required],
+        // Paso 1: Detalles (Ahora único paso)
         fecha_servicio: ['', Validators.required],
         hora_servicio: ['12:00', Validators.required],
         ubicacion: ['', Validators.required],
-        invitados: [50, [Validators.required, Validators.min(1)]],
-
-        // Paso 2: Requerimientos
-        descripcion: ['', Validators.required],
-        presupuesto: [0],
-        servicios_adicionales: this.fb.group({
-            montaje: [false],
-            limpieza: [false],
-            iluminacion: [false],
-            sonido: [false],
-            foto: [false],
-            catering: [false]
-        })
+        invitados: [50, [Validators.required, Validators.min(1)]]
     });
 
-    // Datos simulados para "Evento Existente" (Dropdown)
-    eventos = [
-        { id: 1, nombre: 'Graduación 2024 - Junio 15' },
-        { id: 2, nombre: 'Cumpleaños Mariana' },
-        { id: 3, nombre: 'Boda Civil' }
-    ];
-
-    nextStep() {
-        // Validar paso actual antes de avanzar
-        if (this.currentStep === 1) {
-            const controls = ['titulo_evento', 'fecha_servicio', 'hora_servicio', 'ubicacion', 'invitados'];
-            const valid = controls.every(c => this.solicitudForm.get(c)?.valid);
-
-            if (!valid) {
-                this.solicitudForm.markAllAsTouched();
-                return;
-            }
-        }
-
-        this.currentStep++;
-        window.scrollTo(0, 0);
-    }
-
-    prevStep() {
-        this.currentStep--;
-        window.scrollTo(0, 0);
-    }
-
     private route = inject(ActivatedRoute);
-    private targetProviderId = '9851a62f-92db-41e8-b430-b68a3d46b578'; // Default/Fallback
 
     ngOnInit() {
         // Leer ID del proveedor de la URL si existe (ej: /cliente/solicitudes/crear?providerId=123)
         this.route.queryParams.subscribe(params => {
-            if (params['providerId']) {
-                this.targetProviderId = params['providerId'];
-            }
+            // Logic if needed in future
         });
     }
 
-    async submit() {
+    goToMarketplace() {
+        // Validar antes de ir (opcional, pero buena práctica)
         if (this.solicitudForm.invalid) {
             this.solicitudForm.markAllAsTouched();
             return;
         }
 
-        this.isLoading = true;
-        const formValue = this.solicitudForm.value;
-
-        try {
-            // Obtener el usuario autenticado desde Supabase
-            const { data: { user }, error: authError } = await this.supabase.getClient().auth.getUser();
-            
-            if (authError || !user) {
-                alert('Error: No estás autenticado. Por favor inicia sesión.');
-                this.router.navigate(['/login']);
-                this.isLoading = false;
-                return;
-            }
-
-            console.log('Usuario autenticado desde Supabase:', user);
-
-            // Construir objeto para el backend
-            const solicitudData = {
-                cliente_usuario_id: user.id, // Usar el ID real de auth.users
-                proveedor_usuario_id: this.targetProviderId,
-                titulo_evento: formValue.titulo_evento,
-                fecha_servicio: new Date(`${formValue.fecha_servicio}T${formValue.hora_servicio}`).toISOString(),
-                direccion_servicio: formValue.ubicacion,
-                longitud_servicio: 0,
-                latitud_servicio: 0
-            };
-
-            console.log('Enviando solicitud:', solicitudData);
-
-            this.api.createRequest(solicitudData).subscribe({
-                next: (res) => {
-                    console.log('Solicitud creada:', res);
-                    this.isLoading = false;
-                    // Redirigir a "Mis Solicitudes"
-                    this.router.navigate(['/cliente/solicitudes']);
-                },
-                error: (err) => {
-                    console.error('Error:', err);
-                    this.isLoading = false;
-                    alert('Error al enviar la solicitud: ' + (err?.message || JSON.stringify(err)));
-                }
-            });
-        } catch (err: any) {
-            console.error('Error obteniendo usuario:', err);
-            this.isLoading = false;
-            alert('Error de autenticación: ' + err.message);
-        }
+        // Aquí podríamos guardar los datos del evento en un servicio para usarlos en el marketplace
+        // Por ejemplo: this.eventService.setCurrentEvent(this.solicitudForm.value);
+        
+        console.log('Navegando al marketplace con contexto:', this.solicitudForm.value);
+        this.router.navigate(['/cliente/marketplace']);
     }
 }

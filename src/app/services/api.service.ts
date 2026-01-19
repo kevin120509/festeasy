@@ -130,10 +130,10 @@ export class ApiService {
     // 2. Perfil Cliente (/perfil-cliente)
     // ==========================================
     createClientProfile(data: Partial<ClientProfile>): Observable<ClientProfile> {
-        return this.fromSupabase(
+        return this.fromSupabase<ClientProfile>( // Explicit Generic
             this.supabase.from('perfil_cliente').insert(data).select().single()
         ).pipe(
-            tap(response => console.log('✅ Perfil cliente creado:', response)),
+            tap((response: ClientProfile) => console.log('✅ Perfil cliente creado:', response)), // Explicit type
             catchError(error => {
                 console.error('❌ Error en createClientProfile():', error);
                 return throwError(() => error);
@@ -159,10 +159,10 @@ export class ApiService {
     // ==========================================
     createProviderProfile(data: Partial<ProviderProfile>): Observable<ProviderProfile> {
         console.log('📤 Creando perfil proveedor con datos:', data);
-        return this.fromSupabase(
+        return this.fromSupabase<ProviderProfile>( // Explicit Generic
             this.supabase.from('perfil_proveedor').insert(data).select().single()
         ).pipe(
-            tap(response => console.log('✅ Perfil proveedor creado:', response)),
+            tap((response: ProviderProfile) => console.log('✅ Perfil proveedor creado:', response)), // Explicit type
             catchError(error => {
                 console.error('❌ Error en createProviderProfile():', error);
                 return throwError(() => error);
@@ -192,6 +192,16 @@ export class ApiService {
     createRequest(data: any): Observable<any> {
         return this.fromSupabase(this.supabase.from('solicitudes').insert(data).select().single());
     }
+    
+    // MISSING METHODS ADDED HERE
+    createQuote(data: Partial<Quote>): Observable<Quote> {
+        return this.fromSupabase(this.supabase.from('cotizaciones').insert(data).select().single());
+    }
+
+    updateRequestStatus(id: string, status: string): Observable<any> {
+        return this.fromSupabase(this.supabase.from('solicitudes').update({ estado: status }).eq('id', id).select().single());
+    }
+
 
     getClientRequests(): Observable<any[]> {
         return from(this.supabase.auth.getUser()).pipe(map(u => {
@@ -204,6 +214,10 @@ export class ApiService {
     getCart(): Observable<any> { return this.fromSupabase(this.supabase.from('carrito').select('*, items:items_carrito(*)').eq('estado', 'activo').limit(1)); }
     
     // Métodos para carrito
+    addToCart(item: Partial<CartItem>): Observable<any> {
+        return this.fromSupabase(this.supabase.from('items_carrito').insert(item).select().single());
+    }
+
     deleteCartItem(id: string): Observable<any> {
         return this.fromSupabase(this.supabase.from('items_carrito').delete().eq('id', id));
     }

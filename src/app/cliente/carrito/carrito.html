@@ -329,7 +329,7 @@
                                 <div class="relative">
                                     <input
                                         class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
-                                        placeholder="dd/mm/aaaa" type="text" value="12/08/2024" />
+                                        placeholder="dd/mm/aaaa" type="text" [value]="requestInfo().fecha" readonly />
                                     <span
                                         class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">calendar_today</span>
                                 </div>
@@ -340,7 +340,7 @@
                                 <div class="relative">
                                     <input
                                         class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
-                                        placeholder="--:--" type="text" value="19:00 hrs" />
+                                        placeholder="--:--" type="text" [value]="requestInfo().hora" readonly />
                                     <span
                                         class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">schedule</span>
                                 </div>
@@ -353,7 +353,7 @@
                                 <input
                                     class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
                                     placeholder="Buscar calle, número, colonia..." type="text"
-                                    value="Av. Paseo de la Reforma 500, CDMX" />
+                                    [value]="requestInfo().direccion" readonly />
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">location_on</span>
                             </div>

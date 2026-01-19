@@ -6,18 +6,13 @@
     </div>
 </div>
 <!-- Main Content Wrapper -->
-<main class="flex min-h-screen flex-col pb-20 bg-background-light dark:bg-background-dark font-display text-text-main">
+<main class="flex min-h-screen flex-col pb-24 bg-background-light dark:bg-background-dark font-display text-text-main">
     <!-- Hero Section -->
     <div class="relative w-full h-[320px] md:h-[400px] bg-gray-100 overflow-hidden">
         <div class="absolute inset-0 bg-cover bg-center"
             [style.background-image]="'url(' + (provider().imagen || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDP0XIVbCOglaiQktFkL9xQZnJX5YHorNuVwwu9paoAVnG7v35DYSwTtHo8egy9PZ0AjDyv9uyIkNyBJiwOKaabfuPQbx4mgVM-NLrv2HpXG-z8HGMUhgmzUIjkgcEj4LKmRDFJjwShbVJqldpw_11Sz5IBGV9D-HwThCdWTJrLUe-n7y3rfi7SflHod9vgfYHvUpVgRSlwp03y0KWjRMewlwYPyGMveonJsxjebLZrq0_cbho_3up6Fa8wjbdMjorQt25emWRov2k') + ')'">
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
-        <!-- Hero Content overlay (Mobile mainly, desktop sees it in content flow usually, but let's keep it decorative here) -->
-        <div class="absolute bottom-6 left-6 md:hidden text-white">
-            <span
-                class="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-white">Premium</span>
-        </div>
     </div>
     <!-- Provider Detail Container -->
     <div class="layout-container flex justify-center px-4 md:px-10 lg:px-40 -mt-16 md:-mt-20 relative z-10">
@@ -46,27 +41,10 @@
                                 <span class="material-symbols-outlined text-primary">location_on</span>
                                 <p>{{ provider().ubicacion || 'Ubicación no disponible' }}</p>
                             </div>
-                            <span class="hidden md:inline text-gray-300">|</span>
-                            <div class="flex items-center gap-2 text-green-600 font-medium">
-                                <span class="material-symbols-outlined text-[20px]">verified</span>
-                                <span>Verificado por FestEasy</span>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Mini Map Preview -->
-                    <div
-                        class="hidden md:block w-[140px] h-[100px] shrink-0 rounded-lg overflow-hidden relative group cursor-pointer border border-gray-100 shadow-sm">
-                        <div class="w-full h-full bg-cover bg-center transition transform group-hover:scale-110 duration-500"
-                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDcY29VLpNBDiZ_weYUxcnJF0Ihuf6NPjuW2d0k6RX1CLykhAztcZhe0OvcJHEcfhUJA2361oIgzYyIjrNUSTKivr2VYxBlpvXLDNZqpqvtwAg4JvE7w4XnxUj3TVKMgkRL8RMsgcU9P6tb1cJnWeVKJAgXc48evR8z-rNzQRilqVypsRIUK9j7D0_7Hy5C6Q9hmpGA8UZIpGh_UTWjPosh2yQsC9B8mjzejckuY7WMEBVYvfw1yrrJ0byHQBbpFV4qd5cMlF5olbg');">
-                        </div>
-                        <div
-                            class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition flex items-center justify-center">
-                            <div class="bg-white/90 p-1.5 rounded-full shadow-md text-primary">
-                                <span class="material-symbols-outlined text-[20px]">map</span>
-                            </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- Navigation Tabs -->
                 <div
                     class="bg-surface rounded-lg shadow-soft px-2 sticky top-[73px] z-20 border-b border-gray-100 bg-white dark:bg-[#1a1a1a]">
@@ -79,20 +57,11 @@
                         <button
                             class="px-4 py-4 text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
                             <span class="material-symbols-outlined text-[20px]">photo_library</span>
-                            Galería de fotos
-                        </button>
-                        <button
-                            class="px-4 py-4 text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                            <span class="material-symbols-outlined text-[20px]">reviews</span>
-                            Reseñas
-                        </button>
-                        <button
-                            class="px-4 py-4 text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
-                            <span class="material-symbols-outlined text-[20px]">info</span>
-                            Políticas
+                            Galería
                         </button>
                     </div>
                 </div>
+
                 <!-- Content Grid (Services) -->
                 <div>
                     <h3 class="text-xl font-bold text-text-main mb-6 px-1 dark:text-white">Paquetes Disponibles</h3>
@@ -101,7 +70,11 @@
                         @for (pkg of packages(); track pkg.id) {
                         <!-- Dynamic Package Card -->
                         <div
-                            class="bg-surface border border-[#f4f0f0] rounded-lg p-6 hover:shadow-hover transition-all duration-300 group flex flex-col h-full bg-white dark:bg-[#1a1a1a] dark:border-gray-800">
+                            class="bg-surface border border-[#f4f0f0] rounded-lg p-6 hover:shadow-hover transition-all duration-300 group flex flex-col h-full bg-white dark:bg-[#1a1a1a] dark:border-gray-800"
+                            [class.border-primary]="getQuantity(pkg.id) > 0"
+                            [class.ring-1]="getQuantity(pkg.id) > 0"
+                            [class.ring-primary]="getQuantity(pkg.id) > 0">
+                            
                             <div class="flex justify-between items-start mb-4">
                                 <h4
                                     class="text-lg font-bold text-text-main group-hover:text-primary transition-colors dark:text-white">
@@ -121,10 +94,27 @@
                                             pkg.precio_base }} <span
                                                 class="text-sm font-normal text-text-secondary">MXN</span></p>
                                     </div>
-                                    <button (click)="addToCart(pkg)"
-                                        class="bg-primary hover:bg-red-700 text-white p-3 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center justify-center">
-                                        <span class="material-symbols-outlined">add_shopping_cart</span>
-                                    </button>
+                                    
+                                    <!-- Quantity Controls -->
+                                    <div class="flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700" *ngIf="getQuantity(pkg.id) > 0; else addButton">
+                                        <button (click)="updateQuantity(pkg, -1)" 
+                                            class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
+                                            <span class="material-symbols-outlined text-sm">remove</span>
+                                        </button>
+                                        <span class="w-8 text-center font-bold text-sm">{{ getQuantity(pkg.id) }}</span>
+                                        <button (click)="updateQuantity(pkg, 1)"
+                                            class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-gray-700 text-primary transition-colors">
+                                            <span class="material-symbols-outlined text-sm">add</span>
+                                        </button>
+                                    </div>
+                                    
+                                    <ng-template #addButton>
+                                        <button (click)="updateQuantity(pkg, 1)"
+                                            class="bg-gray-100 hover:bg-primary hover:text-white text-gray-700 p-3 rounded-lg transition-all active:scale-95 flex items-center justify-center dark:bg-gray-800 dark:text-white">
+                                            <span class="material-symbols-outlined">add_shopping_cart</span>
+                                        </button>
+                                    </ng-template>
+
                                 </div>
                             </div>
                         </div>
@@ -136,8 +126,9 @@
                     </div>
                 </div>
 
-                <!-- Reviews Preview -->
+                <!-- Reviews Section -->
                 <div class="bg-surface rounded-lg p-8 shadow-soft mt-4 bg-white dark:bg-[#1a1a1a]">
+                   <!-- ... (Reviews content kept same) ... -->
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-xl font-bold text-text-main dark:text-white">Lo que dicen los clientes</h3>
                         <button class="text-primary text-sm font-bold hover:underline">Ver todas ({{ provider().reviews
@@ -166,7 +157,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Sticky Sidebar -->
+            <!-- Right Column -->
             <div class="relative hidden lg:block">
                 <div class="sticky top-28 space-y-4">
                     <!-- Helper Widget -->
@@ -188,14 +179,22 @@
         </div>
     </div>
 </main>
-<!-- Mobile Sticky Cart CTA -->
-<div
-    class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-gray-200 p-4 shadow-xl z-50 flex items-center justify-between bg-white dark:bg-[#1a1a1a] dark:border-gray-800">
-    <div>
-        <p class="text-xs text-text-secondary dark:text-gray-400">Total estimado</p>
-        <p class="text-xl font-extrabold text-text-main dark:text-white">$0.00</p>
+
+<!-- Sticky Footer for Cart Checkout -->
+<div *ngIf="totalSelection().count > 0" 
+    class="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#1a1a1a] border-t border-gray-200 dark:border-gray-800 p-4 shadow-[0_-5px_20px_rgba(0,0,0,0.1)] z-50 animate-slide-up">
+    <div class="max-w-[1280px] mx-auto flex items-center justify-between">
+        <div class="flex flex-col">
+            <span class="text-sm text-gray-500 dark:text-gray-400">Total a pagar</span>
+            <div class="flex items-baseline gap-2">
+                <span class="text-2xl font-extrabold text-primary">${{ totalSelection().total }}</span>
+                <span class="text-sm font-medium text-gray-500">({{ totalSelection().count }} paquetes)</span>
+            </div>
+        </div>
+        <button (click)="goToCheckout()"
+            class="bg-primary hover:bg-red-700 text-white px-8 py-3 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 transition-transform transform active:scale-95 flex items-center gap-2">
+            Confirmar y Pagar
+            <span class="material-symbols-outlined">arrow_forward</span>
+        </button>
     </div>
-    <button class="bg-primary text-white font-bold px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
-        Ver Carrito (0)
-    </button>
 </div>
