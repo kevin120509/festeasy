@@ -24,10 +24,15 @@ export class SupabaseAuthService {
   }
 
   // Registro de usuario
+  // Registro de usuario
   async signUp(email: string, password: string, metadata: any) {
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      throw new Error('Email y contraseña deben ser texto válido');
+    }
+
     const { data, error } = await this.supabase.auth.signUp({
-      email,
-      password,
+      email: email.trim(),
+      password: password,
       options: {
         data: metadata // nombre_negocio, rol, etc.
       }
@@ -69,26 +74,26 @@ export class SupabaseAuthService {
 
   // Crear perfil de cliente en la tabla 'perfil_cliente'
   async createClientProfile(profile: any) {
-      const { data, error } = await this.supabase
-        .from('perfil_cliente')
-        .insert([profile])
-        .select()
-        .single();
-  
-      if (error) throw error;
-      return data;
-    }
+    const { data, error } = await this.supabase
+      .from('perfil_cliente')
+      .insert([profile])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
 
   // Obtener perfil del usuario (proveedor o cliente)
   async getUserProfile(userId: string, role: 'provider' | 'client') {
-      const table = role === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
-      const { data, error } = await this.supabase
-          .from(table)
-          .select('*')
-          .eq('usuario_id', userId)
-          .single();
-      
-      if (error) return null;
-      return data;
+    const table = role === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
+    const { data, error } = await this.supabase
+      .from(table)
+      .select('*')
+      .eq('usuario_id', userId)
+      .single();
+
+    if (error) return null;
+    return data;
   }
 }

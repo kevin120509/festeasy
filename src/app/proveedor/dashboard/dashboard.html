@@ -1,215 +1,184 @@
-<aside
-    class="w-64 fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700 z-50 transition-colors duration-200">
-    <div class="p-6">
+<!-- Sidebar Izquierdo con Sombra Sutil -->
+<aside class="w-64 fixed inset-y-0 left-0 bg-white border-r border-slate-200 z-50 shadow-sm">
+    <div class="p-6 flex flex-col h-full">
+        <!-- Logo -->
         <div class="flex items-center gap-2 mb-8">
-            <img alt="FESTEASY Logo" class="h-8 w-auto" src="assets/festeasy.jpeg" />
+            <div
+                class="h-10 w-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-md">
+                F
+            </div>
+            <span class="text-xl font-bold text-slate-800">FestEasy</span>
         </div>
-        <nav class="space-y-1">
+
+        <!-- Navegación Principal -->
+        <nav class="space-y-1 flex-1">
+            <!-- Dashboard - Estado Activo -->
             <a routerLink="/proveedor/dashboard"
-                class="sidebar-item-active flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl transition-all">
+                class="flex items-center gap-3 px-4 py-3 text-sm font-semibold bg-red-50 text-red-600 rounded-xl transition-all">
                 <span class="material-icons-outlined text-[20px]">dashboard</span>
-                Dashboard
+                <span>Dashboard</span>
             </a>
+
+            <!-- Mis Paquetes -->
             <a routerLink="/proveedor/paquetes"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
                 <span class="material-icons-outlined text-[20px]">inventory_2</span>
-                Paquetes
+                <span>Mis Paquetes</span>
             </a>
-            <a routerLink="/proveedor/solicitudes"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">notifications_active</span>
-                Solicitudes
-                <span class="ml-auto bg-primary text-white text-[10px] px-2 py-0.5 rounded-full">3</span>
-            </a>
-            <a routerLink="/proveedor/cotizaciones"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">request_quote</span>
-                Cotizaciones
-            </a>
+
+            <!-- Calendario -->
             <a routerLink="/proveedor/agenda"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
                 <span class="material-icons-outlined text-[20px]">calendar_today</span>
-                Calendario
+                <span>Calendario</span>
             </a>
+
+            <!-- Pagos -->
             <a routerLink="/proveedor/pagos"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">account_balance_wallet</span>
-                Pagos
-            </a>
-            <a routerLink="/proveedor/configuracion"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">settings</span>
-                Configuración
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">payments</span>
+                <span>Pagos</span>
             </a>
         </nav>
-        <div class="absolute bottom-8 left-6 right-6">
-            <div class="bg-slate-50 dark:bg-gray-700/50 p-4 rounded-xl border border-slate-100 dark:border-gray-700">
-                <p class="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
-                    Soporte</p>
-                <a class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-300 hover:text-primary"
-                    href="#">
-                    <span class="material-icons-outlined text-[18px]">help_outline</span>
-                    Centro de ayuda
-                </a>
-            </div>
+
+        <!-- Configuración (parte inferior) -->
+        <div class="border-t border-slate-200 pt-4 mt-4">
+            <a routerLink="/proveedor/configuracion"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">settings</span>
+                <span>Configuración</span>
+            </a>
         </div>
     </div>
 </aside>
-<div class="flex-1 ml-64 min-h-screen">
-    <header
-        class="h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between px-8">
-        <div class="flex items-center gap-4">
-            <h1 class="text-xl font-bold text-slate-800 dark:text-white">Panel de Control</h1>
-            <span
-                class="bg-red-50 dark:bg-red-900/30 text-primary text-xs font-semibold px-3 py-1 rounded-full border border-red-100 dark:border-red-900/50">
-                Categoría: Mobiliario
-            </span>
-        </div>
-        <div class="flex items-center gap-6">
-            <button class="p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-full transition-all"
-                onclick="document.documentElement.classList.toggle('dark')">
-                <span class="material-icons-outlined">dark_mode</span>
-            </button>
-            <div class="relative">
-                <span class="material-icons-outlined text-slate-400">notifications</span>
-                <span
-                    class="absolute top-0 right-0 h-2 w-2 bg-primary rounded-full ring-2 ring-white dark:ring-gray-800"></span>
-            </div>
-            <div class="flex items-center gap-3 border-l pl-6 border-slate-200 dark:border-gray-700">
-                <div class="text-right">
-                    <p class="text-sm font-semibold text-slate-800 dark:text-white leading-none">
-                        {{ auth.currentUser()?.nombre_negocio || 'Proveedor' }}
-                    </p>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        {{ auth.currentUser()?.correo_electronico || 'Proveedor' }}
-                    </p>
-                </div>
-                <img alt="Avatar"
-                    class="h-10 w-10 rounded-full object-cover border-2 border-slate-100 dark:border-gray-700"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAmvBwBXLzFb6s0QvjTIElFkE97zBN3Gc_4Xzolkjw2neBrhCvKkCJ_uiz3uxjGZ5nzpiPs5W7o7WmcunMOAklj2jdQeCL38V_Whbs5lxJ0uwq06bxv7oO52hhOadJJnIwDf39GOKdmJOznRALKzYE75DOJWQfM6IExU3tkvbJhKH6j1eqe1HZ3gH-lYGAYOH6EUx0pVPOtdoxHJ-7ShrxDq33-S8i1SRZK9PMhedxD8zZMHPbKvRRLABnfI-E-feu6sO4vbAtl-I" />
-            </div>
-        </div>
-    </header>
+
+<!-- Contenido Principal -->
+<div class="ml-64 min-h-screen bg-slate-50">
     <main class="p-8 max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-8">
-            <div>
-                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">¡Hola de nuevo!</h2>
-                <p class="text-slate-500 dark:text-slate-400">Aquí tienes un resumen de tu actividad hoy.</p>
-            </div>
-            <a routerLink="/proveedor/paquetes"
-                class="bg-primary hover:bg-red-600 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                <span class="material-icons-outlined">add_circle</span>
-                Crear Nuevo Paquete
-            </a>
+        <!-- Cabecera -->
+        <div class="mb-8">
+            <p class="text-sm text-slate-500 mb-1">{{ fechaHoy | date:'EEEE, d \'de\' MMMM \'de\' y':'es-MX' }}</p>
+            <h1 class="text-3xl font-bold text-slate-800">Hola, {{ getNombreNegocio() }}</h1>
         </div>
-        <!-- Stats Cards -->
+
+        <!-- Grid de Tarjetas de Estadísticas (3 columnas) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div
-                class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <div
-                        class="h-12 w-12 bg-blue-50 dark:bg-blue-900/20 rounded-xl flex items-center justify-center text-blue-500">
-                        <span class="material-icons-outlined">mail</span>
+            <!-- Nuevas Solicitudes -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <!-- Icono circular con fondo pastel -->
+                    <div class="h-12 w-12 bg-blue-50 rounded-full flex items-center justify-center">
+                        <span class="material-icons-outlined text-blue-500 text-[24px]">mail</span>
                     </div>
+                    <!-- Badge de crecimiento -->
                     <span
-                        class="text-green-500 text-xs font-bold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">+{{metricas().porcentajeSolicitudes}}%</span>
+                        class="text-xs font-bold text-green-600 bg-green-50 px-2.5 py-1 rounded-lg border border-green-100">
+                        +{{ stats().nuevasSolicitudesHoy }} hoy
+                    </span>
                 </div>
-                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Nuevas Solicitudes</p>
-                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ metricas().nuevasSolicitudes }}
-                </h3>
+                <p class="text-sm text-slate-500 font-medium mb-1">Nuevas Solicitudes</p>
+                <h3 class="text-3xl font-bold text-slate-800">{{ stats().nuevasSolicitudes }}</h3>
             </div>
 
-            <div
-                class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <div
-                        class="h-12 w-12 bg-amber-50 dark:bg-amber-900/20 rounded-xl flex items-center justify-center text-amber-500">
-                        <span class="material-icons-outlined">history_edu</span>
+            <!-- Eventos Confirmados -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="h-12 w-12 bg-emerald-50 rounded-full flex items-center justify-center">
+                        <span class="material-icons-outlined text-emerald-500 text-[24px]">event_available</span>
                     </div>
-                    <span class="text-slate-400 text-xs font-bold">Estable</span>
                 </div>
-                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Cotizaciones Activas</p>
-                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ metricas().cotizacionesActivas }}
-                </h3>
+                <p class="text-sm text-slate-500 font-medium mb-1">Eventos Confirmados</p>
+                <h3 class="text-3xl font-bold text-slate-800">{{ stats().eventosConfirmados }}</h3>
             </div>
 
-            <div
-                class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm transition-all hover:shadow-md">
-                <div class="flex items-center justify-between mb-4">
-                    <div
-                        class="h-12 w-12 bg-green-50 dark:bg-green-900/20 rounded-xl flex items-center justify-center text-green-500">
-                        <span class="material-icons-outlined">payments</span>
+            <!-- Ganancias Totales -->
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="h-12 w-12 bg-purple-50 rounded-full flex items-center justify-center">
+                        <span class="material-icons-outlined text-purple-500 text-[24px]">account_balance_wallet</span>
                     </div>
-                    <span
-                        class="text-green-500 text-xs font-bold bg-green-50 dark:bg-green-900/20 px-2 py-1 rounded-lg">+{{
-                        metricas().porcentajeIngresos }}%</span>
                 </div>
-                <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">Ingresos Mensuales</p>
-                <h3 class="text-3xl font-bold text-slate-800 dark:text-white mt-1">{{ metricas().ingresosMensuales |
-                    currency }}</h3>
+                <p class="text-sm text-slate-500 font-medium mb-1">Ganancias Totales</p>
+                <h3 class="text-3xl font-bold text-slate-800">{{ stats().gananciasTotales |
+                    currency:'MXN':'symbol-narrow':'1.0-0' }}</h3>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Solicitudes Section -->
-            <div
-                class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
-                <div class="p-6 border-b border-slate-100 dark:border-gray-700 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-800 dark:text-white">Solicitudes Pendientes</h3>
-                    <a routerLink="/proveedor/solicitudes"
-                        class="text-sm text-primary font-semibold hover:underline">Ver todas</a>
+        <!-- Layout: Tabla + Panel Derecho -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Tabla de Solicitudes Recientes (2/3) -->
+            <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800">Solicitudes Recientes</h3>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead
-                            class="bg-slate-50/50 dark:bg-gray-700/50 text-slate-500 dark:text-slate-400 text-[11px] uppercase tracking-wider font-bold">
+                    <table class="w-full">
+                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-semibold">
                             <tr>
-                                <th class="px-6 py-4">Cliente</th>
-                                <th class="px-6 py-4">Evento</th>
-                                <th class="px-6 py-4">Fecha</th>
-                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4 text-left">Evento</th>
+                                <th class="px-6 py-4 text-left">Fecha Servicio</th>
+                                <th class="px-6 py-4 text-left">Estado</th>
                                 <th class="px-6 py-4 text-right">Acción</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-gray-700">
-                            @for (req of recentRequests(); track req.id) {
-                            <tr class="hover:bg-slate-50 dark:hover:bg-gray-700/30 transition-colors">
+                        <tbody class="divide-y divide-slate-100">
+                            @for (solicitud of solicitudesRecientes(); track solicitud.id) {
+                            <tr class="hover:bg-slate-50 transition-colors">
                                 <td class="px-6 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="h-8 w-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center text-indigo-600 text-xs font-bold">
-                                            C
-                                        </div>
-                                        <span class="text-sm font-medium dark:text-slate-200">Cliente #{{
-                                            req.cliente_usuario_id.substring(0,4) }}</span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-slate-800">{{ solicitud.evento }}</p>
+                                        <p class="text-xs text-slate-500">{{ solicitud.ubicacion }}</p>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ req.titulo_evento ||
-                                    'Evento General' }}</td>
-                                <td class="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{{ req.fecha_servicio |
-                                    date:'mediumDate' }}</td>
+                                <td class="px-6 py-4 text-sm text-slate-600">
+                                    {{ solicitud.fechaServicio | date:'d MMM y':'es-MX' }}
+                                </td>
                                 <td class="px-6 py-4">
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold"
-                                        [class.bg-amber-50]="req.estado === 'pendiente_aprobacion'"
-                                        [class.text-amber-600]="req.estado === 'pendiente_aprobacion'"
-                                        [class.bg-green-50]="req.estado === 'reservado'"
-                                        [class.text-green-600]="req.estado === 'reservado'">
-                                        <span class="h-1.5 w-1.5 rounded-full"
-                                            [class.bg-amber-500]="req.estado === 'pendiente_aprobacion'"
-                                            [class.bg-green-500]="req.estado === 'reservado'"></span>
-                                        {{ req.estado }}
+                                    <!-- Badges redondeados con colores específicos -->
+                                    <span [class]="getEstadoClasses(solicitud.estado)"
+                                        class="inline-flex px-3 py-1.5 rounded-full text-xs font-semibold">
+                                        {{ getEstadoTexto(solicitud.estado) }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-right">
-                                    <button class="text-primary text-sm font-bold hover:text-red-600">Cotizar</button>
+                                <td class="px-6 py-4 text-right relative">
+                                    <!-- Botón tres puntos -->
+                                    <button (click)="toggleMenu(solicitud.id)"
+                                        class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
+                                        <span
+                                            class="material-icons-outlined text-slate-400 text-[20px]">more_vert</span>
+                                    </button>
+
+                                    <!-- Menú desplegable -->
+                                    @if (menuAbierto() === solicitud.id) {
+                                    <div
+                                        class="absolute right-6 top-12 bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-44 z-10">
+                                        <button (click)="verDetalles(solicitud.id)"
+                                            class="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors">
+                                            <span class="material-icons-outlined text-[18px]">visibility</span>
+                                            <span>Ver detalles</span>
+                                        </button>
+                                        <button (click)="editarSolicitud(solicitud.id)"
+                                            class="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors">
+                                            <span class="material-icons-outlined text-[18px]">edit</span>
+                                            <span>Editar</span>
+                                        </button>
+                                        <div class="border-t border-slate-100 my-1"></div>
+                                        <button (click)="rechazarSolicitud(solicitud.id)"
+                                            class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
+                                            <span class="material-icons-outlined text-[18px]">close</span>
+                                            <span>Rechazar</span>
+                                        </button>
+                                    </div>
+                                    }
                                 </td>
                             </tr>
                             }
-                            @if (recentRequests().length === 0) {
+                            @if (solicitudesRecientes().length === 0) {
                             <tr>
-                                <td colspan="5" class="px-6 py-8 text-center text-slate-500">
-                                    No hay solicitudes pendientes
+                                <td colspan="4" class="px-6 py-12 text-center">
+                                    <span
+                                        class="material-icons-outlined text-slate-300 text-[48px] mb-2 block">inbox</span>
+                                    <p class="text-slate-500 text-sm">No hay solicitudes pendientes</p>
                                 </td>
                             </tr>
                             }
@@ -218,63 +187,59 @@
                 </div>
             </div>
 
-            <!-- Pagos Section -->
-            <div
-                class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden flex flex-col">
-                <div class="p-6 border-b border-slate-100 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-1">
-                        <h3 class="font-bold text-slate-800 dark:text-white">Pagos Recientes</h3>
-                        <span class="text-[10px] font-bold text-slate-400 flex items-center gap-1 uppercase">
-                            <span class="material-icons-outlined text-[12px]">security</span>
-                            Vía {{ recentPayments()[0]?.metodo_pago || 'Metodo' }}
-                        </span>
-                    </div>
+            <!-- Panel Derecho: Próxima Cita (1/3) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="p-6 border-b border-slate-100">
+                    <h3 class="text-lg font-bold text-slate-800">Próxima Cita</h3>
                 </div>
-                <div class="p-6 flex-1 custom-scrollbar overflow-y-auto space-y-6">
-                    @for (payment of recentPayments(); track payment.id) {
-                    <div class="flex items-start gap-4">
-                        <div
-                            class="h-10 w-10 rounded-full bg-green-50 dark:bg-green-900/20 flex-shrink-0 flex items-center justify-center text-green-600">
-                            <span class="material-icons-outlined text-[20px]">add</span>
+                <div class="p-6">
+                    <!-- Mini mapa o imagen -->
+                    <div class="relative h-32 bg-slate-100 rounded-xl overflow-hidden mb-4">
+                        <img [src]="proximaCita().imagenMapa" alt="Ubicación" class="w-full h-full object-cover">
+                        <!-- Pin de ubicación -->
+                        <div class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md">
+                            <span class="material-icons-outlined text-red-500 text-[20px]">location_on</span>
                         </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-semibold text-slate-800 dark:text-white truncate">Pago Cotización</p>
-                            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Ref: {{
-                                payment.id.substring(0,8) }}</p>
+                    </div>
+
+                    <!-- Detalles del evento -->
+                    <h4 class="text-base font-bold text-slate-800 mb-3">{{ proximaCita().titulo }}</h4>
+
+                    <div class="space-y-2.5 mb-4">
+                        <div class="flex items-start gap-2">
+                            <span class="material-icons-outlined text-slate-400 text-[20px]">place</span>
+                            <p class="text-sm text-slate-600 flex-1">{{ proximaCita().ubicacion }}</p>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold text-slate-800 dark:text-white">+{{ payment.monto | currency }}
+
+                        <div class="flex items-center gap-2">
+                            <span class="material-icons-outlined text-slate-400 text-[20px]">event</span>
+                            <p class="text-sm text-slate-600">
+                                {{ proximaCita().fecha | date:'d MMMM y, h:mm a':'es-MX' }}
                             </p>
-                            <p class="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">{{ payment.creado_en |
-                                date:'shortTime' }}</p>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <span class="material-icons-outlined text-slate-400 text-[20px]">payments</span>
+                            <p class="text-sm font-bold text-slate-800">
+                                {{ proximaCita().montoTotal | currency:'MXN':'symbol-narrow':'1.0-0' }}
+                            </p>
                         </div>
                     </div>
-                    }
-                    @if (recentPayments().length === 0) {
-                    <div class="text-center text-slate-500 py-4">No hay pagos recientes</div>
-                    }
-                </div>
-                <div class="p-4 bg-slate-50 dark:bg-gray-700/30 text-center">
+
+                    <!-- Botón Ver detalles -->
                     <button
-                        class="text-xs font-bold text-slate-500 dark:text-slate-400 hover:text-primary uppercase tracking-widest">
-                        Descargar Reporte Mensual
+                        class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-semibold text-sm transition-colors shadow-sm hover:shadow-md">
+                        Ver detalles completos
                     </button>
                 </div>
             </div>
         </div>
-        <div class="mt-8 bg-gradient-to-r from-red-500 to-rose-600 rounded-2xl p-8 text-white relative overflow-hidden">
-            <div class="relative z-10 max-w-lg">
-                <h4 class="text-xl font-bold mb-2">¡Sube de nivel tu perfil!</h4>
-                <p class="text-red-100 text-sm mb-4">Completa la descripción de tus 3 paquetes más populares para
-                    aparecer en
-                    los resultados destacados de la próxima semana.</p>
-                <button
-                    class="bg-white text-primary px-5 py-2.5 rounded-lg font-bold text-sm shadow-md hover:bg-red-50 transition-colors">
-                    Optimizar Paquetes
-                </button>
-            </div>
-            <span
-                class="material-icons-outlined absolute right-[-20px] bottom-[-20px] text-[200px] text-white/10 select-none">celebration</span>
-        </div>
     </main>
+
+    <!-- Botón de Acción Flotante (FAB) -->
+    <button routerLink="/proveedor/paquetes"
+        class="fixed bottom-8 right-8 bg-red-500 hover:bg-red-600 text-white px-6 py-4 rounded-full font-bold text-sm shadow-2xl flex items-center gap-2 transition-all transform hover:scale-105 z-50">
+        <span class="material-icons-outlined text-[24px]">add</span>
+        <span>Crear Nuevo Paquete</span>
+    </button>
 </div>

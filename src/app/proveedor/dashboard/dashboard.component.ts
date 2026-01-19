@@ -1,10 +1,19 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { HeaderComponent } from '../../shared/header/header';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
-import { ServiceRequest, Payment } from '../../models';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+
+// Interface para las solicitudes de la tabla
+interface RequestRow {
+    id: string;
+    evento: string;
+    ubicacion: string;
+    fechaServicio: Date;
+    estado: 'esperando_anticipo' | 'reservado' | 'pendiente';
+    monto?: number;
+    cliente_nombre?: string;
+}
 
 @Component({
     selector: 'app-proveedor-dashboard',
@@ -14,49 +23,314 @@ import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
     styleUrl: './dashboard.css'
 })
 export class ProveedorDashboardComponent implements OnInit {
-    auth = inject(AuthService);
-    supabaseData = inject(SupabaseDataService);
+    // Servicios
+    private auth = inject(AuthService);
+    private supabaseData = inject(SupabaseDataService);
 
-    metricas = signal({
+    // Fecha actual formateada
+    fechaHoy = new Date();
+
+    // Estado de carga
+    isLoading = signal(true);
+    hasError = signal(false);
+    errorMessage = signal('');
+
+    // Estadísticas calculadas desde Supabase
+    stats = signal({
         nuevasSolicitudes: 0,
-        cotizacionesActivas: 0,
-        ingresosMensuales: 0,
-        porcentajeSolicitudes: 0,
-        porcentajeIngresos: 0
+        nuevasSolicitudesHoy: 0,
+        eventosConfirmados: 0,
+        gananciasTotales: 0
     });
 
-    recentRequests = signal<any[]>([]);
-    recentPayments = signal<Payment[]>([]);
+    // Próxima cita destacada (calculada desde las solicitudes)
+    proximaCita = signal<any>(null);
 
-    ngOnInit() {
-        this.loadDashboardData();
+    // Solicitudes recientes desde Supabase
+    solicitudesRecientes = signal<RequestRow[]>([]);
+
+    // Control del menú desplegable
+    menuAbierto = signal<string | null>(null);
+
+    async ngOnInit() {
+        await this.cargarDatosDashboard();
     }
 
-    loadDashboardData() {
-        const user = this.auth.currentUser();
-        if (!user || !user.id) return;
+    /**
+     * Método principal para cargar todos los datos del dashboard
+     */
+    async cargarDatosDashboard() {
+        try {
+            this.isLoading.set(true);
+            this.hasError.set(false);
 
-        // 1. Obtener solicitudes del proveedor
-        this.supabaseData.getRequestsByProvider(user.id).subscribe({
-            next: (data) => {
-                this.recentRequests.set(data.slice(0, 5));
+            // 1. Obtener el usuario actual (proveedor)
+            const user = this.auth.currentUser();
+            if (!user || !user.id) {
+                throw new Error('Usuario no autenticado. Por favor inicia sesión.');
+            }
 
-                // Calcular métricas simples
-                const nuevas = data.filter(r => r.estado === 'pendiente_aprobacion').length;
-                const activas = data.filter(r => ['negociacion', 'reservado', 'en_progreso'].includes(r.estado)).length;
+            console.log('📊 Cargando dashboard para proveedor:', user.id);
 
-                this.metricas.set({
-                    nuevasSolicitudes: nuevas,
-                    cotizacionesActivas: activas,
-                    ingresosMensuales: 0, // TODO: Implementar tabla de pagos
-                    porcentajeSolicitudes: 5, // Mock calc
-                    porcentajeIngresos: 10
-                });
-            },
-            error: (err) => console.error('Error loading provider data', err)
+            // 2. Obtener todas las solicitudes del proveedor desde Supabase
+            const solicitudes = await this.obtenerSolicitudesProveedor(user.id);
+
+            // 3. Calcular métricas
+            this.calcularMetricas(solicitudes);
+
+            // 4. Procesar solicitudes para la tabla
+            this.procesarSolicitudesTabla(solicitudes);
+
+            // 5. Calcular próxima cita
+            this.calcularProximaCita(solicitudes);
+
+            // 6. Opcional: Obtener ganancias desde tabla pagos
+            await this.calcularGanancias(user.id);
+
+            console.log('✅ Dashboard cargado exitosamente');
+
+        } catch (error: any) {
+            console.error('❌ Error al cargar dashboard:', error);
+            this.hasError.set(true);
+            this.errorMessage.set(error.message || 'Error al cargar los datos del dashboard');
+        } finally {
+            this.isLoading.set(false);
+        }
+    }
+
+    /**
+     * Obtener solicitudes del proveedor desde Supabase
+     */
+    private async obtenerSolicitudesProveedor(providerId: string): Promise<any[]> {
+        return new Promise((resolve, reject) => {
+            this.supabaseData.getRequestsByProvider(providerId).subscribe({
+                next: (data) => {
+                    console.log(`📋 Solicitudes obtenidas: ${data.length}`);
+                    resolve(data || []);
+                },
+                error: (err) => {
+                    console.error('Error al obtener solicitudes:', err);
+                    reject(err);
+                }
+            });
         });
+    }
 
-        // 2. Pagos (Mock o futuro endpoint de Supabase)
-        // Por ahora lo dejamos vacío o mock hasta implementar tabla pagos
+    /**
+     * Calcular métricas desde las solicitudes
+     */
+    private calcularMetricas(solicitudes: any[]) {
+        // Nuevas solicitudes: estado 'pendiente_aprobacion' o 'pendiente'
+        const nuevas = solicitudes.filter(s =>
+            s.estado === 'pendiente_aprobacion' || s.estado === 'pendiente'
+        ).length;
+
+        // Solicitudes nuevas de hoy
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const nuevasHoy = solicitudes.filter(s => {
+            const fechaCreacion = new Date(s.created_at);
+            fechaCreacion.setHours(0, 0, 0, 0);
+            return fechaCreacion.getTime() === hoy.getTime() &&
+                (s.estado === 'pendiente_aprobacion' || s.estado === 'pendiente');
+        }).length;
+
+        // Eventos confirmados: estado 'reservado' o 'aceptado'
+        const confirmados = solicitudes.filter(s =>
+            s.estado === 'reservado' || s.estado === 'aceptado' || s.estado === 'en_progreso'
+        ).length;
+
+        this.stats.update(stats => ({
+            ...stats,
+            nuevasSolicitudes: nuevas,
+            nuevasSolicitudesHoy: nuevasHoy,
+            eventosConfirmados: confirmados
+        }));
+
+        console.log('📊 Métricas calculadas:', this.stats());
+    }
+
+    /**
+     * Procesar solicitudes para mostrar en la tabla
+     */
+    private procesarSolicitudesTabla(solicitudes: any[]) {
+        const solicitudesFormateadas: RequestRow[] = solicitudes
+            .slice(0, 5) // Últimas 5 solicitudes
+            .map(req => ({
+                id: req.id || '',
+                evento: req.titulo_evento || 'Evento General',
+                ubicacion: req.direccion_servicio || 'Ubicación no especificada',
+                fechaServicio: new Date(req.fecha_servicio),
+                estado: this.mapEstado(req.estado),
+                monto: req.presupuesto_max || req.monto,
+                cliente_nombre: req.perfil_cliente?.nombre_completo || 'Cliente'
+            }));
+
+        this.solicitudesRecientes.set(solicitudesFormateadas);
+        console.log('📋 Solicitudes para tabla:', solicitudesFormateadas.length);
+    }
+
+    /**
+     * Calcular la próxima cita (evento más cercano)
+     */
+    private calcularProximaCita(solicitudes: any[]) {
+        const ahora = new Date();
+
+        // Filtrar solicitudes confirmadas con fecha futura
+        const proximosEventos = solicitudes
+            .filter(s => {
+                const esConfirmado = s.estado === 'reservado' || s.estado === 'aceptado';
+                const fechaFutura = new Date(s.fecha_servicio) > ahora;
+                return esConfirmado && fechaFutura;
+            })
+            .sort((a, b) => new Date(a.fecha_servicio).getTime() - new Date(b.fecha_servicio).getTime());
+
+        if (proximosEventos.length > 0) {
+            const proximo = proximosEventos[0];
+            this.proximaCita.set({
+                titulo: proximo.titulo_evento || 'Evento Próximo',
+                ubicacion: proximo.direccion_servicio || 'Ubicación por confirmar',
+                fecha: new Date(proximo.fecha_servicio),
+                montoTotal: proximo.presupuesto_max || proximo.monto || 0,
+                imagenMapa: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=200&fit=crop'
+            });
+        } else {
+            // Fallback: Próxima cita ficticia si no hay eventos confirmados
+            this.proximaCita.set({
+                titulo: 'Sin eventos próximos',
+                ubicacion: 'No hay citas confirmadas',
+                fecha: new Date(),
+                montoTotal: 0,
+                imagenMapa: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=200&fit=crop'
+            });
+        }
+
+        console.log('📅 Próxima cita:', this.proximaCita());
+    }
+
+    /**
+     * Calcular ganancias totales desde la tabla pagos
+     * (Si la tabla pagos existe en tu BD)
+     */
+    private async calcularGanancias(providerId: string) {
+        try {
+            // Esta consulta asume que tienes una tabla 'pagos' con una columna 'proveedor_id' y 'monto'
+            // Si no tienes esta tabla, puedes comentar este método o calcular desde solicitudes
+
+            // Por ahora, simulamos las ganancias sumando los montos de solicitudes confirmadas
+            const solicitudes = this.solicitudesRecientes();
+            const gananciasTotales = solicitudes
+                .filter(s => s.estado === 'reservado')
+                .reduce((sum, s) => sum + (s.monto || 0), 0);
+
+            this.stats.update(stats => ({
+                ...stats,
+                gananciasTotales: gananciasTotales
+            }));
+
+            // TODO: Implementar consulta real a tabla 'pagos' cuando esté disponible
+            // const { data, error } = await this.supabase
+            //     .from('pagos')
+            //     .select('monto')
+            //     .eq('proveedor_id', providerId)
+            //     .eq('estado', 'completado');
+            // 
+            // if (!error && data) {
+            //     const total = data.reduce((sum, pago) => sum + pago.monto, 0);
+            //     this.stats.update(stats => ({ ...stats, gananciasTotales: total }));
+            // }
+
+        } catch (error) {
+            console.warn('⚠️ No se pudieron calcular las ganancias:', error);
+            // No lanzamos error para no romper el dashboard
+        }
+    }
+
+    /**
+     * Mapear estado de Supabase a estado de la UI
+     */
+    private mapEstado(estado: string): 'esperando_anticipo' | 'reservado' | 'pendiente' {
+        const estadosMap: Record<string, 'esperando_anticipo' | 'reservado' | 'pendiente'> = {
+            'reservado': 'reservado',
+            'aceptado': 'reservado',
+            'pendiente_aprobacion': 'pendiente',
+            'pendiente': 'pendiente',
+            'en_negociacion': 'esperando_anticipo',
+            'esperando_anticipo': 'esperando_anticipo'
+        };
+        return estadosMap[estado] || 'pendiente';
+    }
+
+    /**
+     * Obtener clases CSS para badges de estado
+     */
+    getEstadoClasses(estado: string): string {
+        const clases = {
+            'esperando_anticipo': 'bg-orange-50 text-orange-600 border border-orange-100',
+            'reservado': 'bg-blue-50 text-blue-600 border border-blue-100',
+            'pendiente': 'bg-yellow-50 text-yellow-600 border border-yellow-100'
+        };
+        return clases[estado as keyof typeof clases] || clases.pendiente;
+    }
+
+    /**
+     * Obtener texto legible para estados
+     */
+    getEstadoTexto(estado: string): string {
+        const textos = {
+            'esperando_anticipo': 'Esperando Anticipo',
+            'reservado': 'Reservado',
+            'pendiente': 'Pendiente'
+        };
+        return textos[estado as keyof typeof textos] || 'Pendiente';
+    }
+
+    /**
+     * Toggle menú desplegable de acciones
+     */
+    toggleMenu(id: string) {
+        this.menuAbierto.set(this.menuAbierto() === id ? null : id);
+    }
+
+    /**
+     * Ver detalles de una solicitud
+     */
+    verDetalles(id: string) {
+        console.log('Ver detalles de solicitud:', id);
+        // TODO: Navegar a página de detalles o abrir modal
+        this.menuAbierto.set(null);
+    }
+
+    /**
+     * Editar solicitud
+     */
+    editarSolicitud(id: string) {
+        console.log('Editar solicitud:', id);
+        // TODO: Navegar a formulario de edición
+        this.menuAbierto.set(null);
+    }
+
+    /**
+     * Rechazar solicitud
+     */
+    async rechazarSolicitud(id: string) {
+        try {
+            console.log('Rechazando solicitud:', id);
+            await this.supabaseData.updateRequestStatus(id, 'rechazada');
+            // Recargar datos
+            await this.cargarDatosDashboard();
+            this.menuAbierto.set(null);
+        } catch (error) {
+            console.error('Error al rechazar solicitud:', error);
+            alert('Error al rechazar la solicitud. Intenta de nuevo.');
+        }
+    }
+
+    /**
+     * Obtener nombre del negocio del proveedor
+     */
+    getNombreNegocio(): string {
+        const user = this.auth.currentUser();
+        return user?.nombre_negocio || user?.nombre || 'Proveedor';
     }
 }

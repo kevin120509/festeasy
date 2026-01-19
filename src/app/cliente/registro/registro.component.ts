@@ -24,8 +24,20 @@ export class ClienteRegistroComponent {
     loading = false;
 
     async register() {
-        if (!this.nombre || !this.email || !this.password) {
+        // 1. Sanitización estricta de datos
+        const nombreClean = String(this.nombre || '').trim();
+        const emailClean = String(this.email || '').trim().toLowerCase();
+        const passwordClean = String(this.password || '').trim();
+        const telefonoClean = String(this.telefono || '').trim();
+
+        // 2. Validación local
+        if (!nombreClean || !emailClean || !passwordClean) {
             this.error = 'Por favor completa todos los campos obligatorios';
+            return;
+        }
+
+        if (passwordClean.length < 6) {
+            this.error = 'La contraseña debe tener al menos 6 caracteres';
             return;
         }
 
@@ -33,12 +45,14 @@ export class ClienteRegistroComponent {
         this.error = '';
 
         try {
-            // 1. Register User in Supabase Auth
+            console.log('Intentando registrar:', { email: emailClean, nombre: nombreClean }); // Debug
+
+            // 3. Register User in Supabase Auth
             const { user, session } = await this.supabaseAuth.signUp(
-                this.email,
-                this.password,
+                emailClean,
+                passwordClean,
                 {
-                    nombre: this.nombre,
+                    nombre: nombreClean,
                     rol: 'client'
                 }
             );
@@ -48,17 +62,17 @@ export class ClienteRegistroComponent {
             // 2. Create Profile in DB
             await this.supabaseAuth.createClientProfile({
                 usuario_id: user.id,
-                nombre_completo: this.nombre,
-                telefono: this.telefono
+                nombre_completo: nombreClean,
+                telefono: telefonoClean
             });
 
             // 3. Login
             if (session) {
                 this.auth.login(session.access_token, {
                     id: user.id,
-                    email: user.email,
+                    email: user.email!, // Email confirmado desde Supabase
                     rol: 'client',
-                    nombre: this.nombre
+                    nombre: nombreClean
                 });
                 this.router.navigate(['/cliente/dashboard']);
             } else {
