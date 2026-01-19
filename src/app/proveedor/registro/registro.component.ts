@@ -17,10 +17,24 @@ export class ProveedorRegistroComponent {
 
     nombreNegocio = '';
     categoria = '';
+    ubicacion = '';
     email = '';
     password = '';
     error = '';
     loading = false;
+    
+    // Lista de categorías disponibles
+    categorias = [
+        'DJ / Sonido',
+        'Catering',
+        'Fotografía',
+        'Decoración',
+        'Iluminación',
+        'Pastelería',
+        'Salones',
+        'Animación',
+        'Transporte'
+    ];
 
     async register() {
         if (!this.nombreNegocio || !this.email || !this.password) {
