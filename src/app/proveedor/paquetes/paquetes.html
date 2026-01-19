@@ -182,11 +182,7 @@
                             (change)="updateField('categoria_servicio_id', $any($event.target).value)"
                             class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
                             <option value="">Selecciona una categoría</option>
-                            <option value="musica">Música y Sonido</option>
-                            <option value="decoracion">Decoración</option>
-                            <option value="catering">Catering</option>
-                            <option value="fotografia">Fotografía y Video</option>
-                            <option value="mobiliario">Alquiler de Mobiliario</option>
+                            <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.nombre }}</option>
                         </select>
                     </div>
 
@@ -234,7 +230,7 @@
                             <div class="flex items-center justify-between mb-2">
                                 <span
                                     class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">
-                                    {{ packageData().categoria_servicio_id || 'CATEGORÍA' }}
+                                    {{ getCategoryName(packageData().categoria_servicio_id) || 'CATEGORÍA' }}
                                 </span>
                                 <span class="text-sm font-bold text-slate-900 dark:text-white">
                                     ${{ packageData().precio_base || 0 | number:'1.2-2' }}
@@ -571,7 +567,7 @@
                             <div class="flex items-center justify-between mb-2">
                                 <span
                                     class="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded uppercase">
-                                    {{ packageData().categoria_servicio_id || 'CATEGORÍA' }}
+                                    {{ getCategoryName(packageData().categoria_servicio_id) || 'CATEGORÍA' }}
                                 </span>
                                 <span class="text-sm font-bold text-slate-900 dark:text-white">
                                     ${{ totalEstimado | number:'1.2-2' }}
@@ -662,7 +658,7 @@
                         <div>
                             <p class="text-xs text-slate-500 dark:text-slate-400 uppercase mb-1">Categoría</p>
                             <p class="font-semibold text-slate-800 dark:text-white">
-                                {{ packageData().categoria_servicio_id || 'Sin categoría' }}
+                                {{ getCategoryName(packageData().categoria_servicio_id) || 'Sin categoría' }}
                             </p>
                         </div>
                         <div>
@@ -789,7 +785,7 @@
                             <div class="absolute top-3 right-3">
                                 <span
                                     class="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-slate-800 dark:text-white">
-                                    {{ packageData().categoria_servicio_id || 'CATEGORÍA' }}
+                                    {{ getCategoryName(packageData().categoria_servicio_id) || 'CATEGORÍA' }}
                                 </span>
                             </div>
                         </div>

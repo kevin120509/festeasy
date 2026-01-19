@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -30,7 +30,7 @@ interface PackageImage {
   templateUrl: './paquetes.html',
   styleUrl: './paquetes.css'
 })
-export class PaquetesComponent {
+export class PaquetesComponent implements OnInit {
   private apiService = inject(ApiService);
   private supabaseService = inject(SupabaseService);
   public authService = inject(AuthService);
@@ -43,6 +43,9 @@ export class PaquetesComponent {
   uploadingImages = signal(false);
   successMessage = signal('');
   errorMessage = signal('');
+
+  // Categorías
+  categories = signal<any[]>([]);
 
   // Datos del paquete
   packageData = signal({
@@ -57,6 +60,17 @@ export class PaquetesComponent {
   items = signal<PackageItem[]>([]);
   newItemName = signal('');
   newItemQuantity = signal(1);
+
+  ngOnInit() {
+    this.apiService.getServiceCategories().subscribe({
+      next: (response: any) => {
+        if (response.data) {
+          this.categories.set(response.data);
+        }
+      },
+      error: (err) => console.error('Error fetching categories:', err)
+    });
+  }
 
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
@@ -81,6 +95,12 @@ export class PaquetesComponent {
   // Helper: Obtener URL de imagen de portada
   get portadaUrl(): string | undefined {
     return this.portadaImage?.url;
+  }
+
+  // Helper: Obtener nombre de categoría
+  getCategoryName(id: string): string {
+    const cat = this.categories().find(c => c.id === id);
+    return cat ? cat.nombre : '';
   }
 
   // Navegación entre pasos
@@ -252,6 +272,7 @@ export class PaquetesComponent {
     try {
       // Preparar datos del paquete con toda la información
       const packageToSave: any = {
+        proveedor_usuario_id: this.authService.currentUser()?.id,
         nombre: this.packageData().nombre,
         categoria_servicio_id: this.packageData().categoria_servicio_id,
         descripcion: this.packageData().descripcion,
@@ -259,7 +280,8 @@ export class PaquetesComponent {
         estado: this.packageData().estado,
         // Guardar datos adicionales en un campo JSON (si el backend lo soporta)
         // Si el backend no tiene este campo, puedes crear tablas separadas para items e imágenes
-        detalles_json: JSON.stringify({
+        // Guardar datos adicionales en un campo JSON
+        detalles_json: {
           items: this.items(),
           cargos_adicionales: this.extraCharges(),
           imagenes: this.images().map(img => ({
@@ -267,7 +289,7 @@ export class PaquetesComponent {
             isPortada: img.isPortada
           })),
           total_estimado: this.totalEstimado
-        })
+        }
       };
 
       console.log('📦 Guardando paquete:', packageToSave);

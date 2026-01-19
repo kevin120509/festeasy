@@ -73,13 +73,13 @@ export class ClienteDashboardComponent implements OnInit {
                 // Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
                 this.metricas.set({
-                    eventosActivos: requests.filter(r => ['aceptada', 'negociacion'].includes(r.estado)).length,
+                    eventosActivos: requests.filter(r => ['reservado', 'en_progreso'].includes(r.estado)).length,
                     cotizacionesPendientes: pendientes,
                     inversionTotal: 0
                 });
 
-                // Evento activo (primera solicitud aceptada)
-                const activo = requests.find(r => r.estado === 'aceptada');
+                // Evento activo (primera solicitud reservada)
+                const activo = requests.find(r => r.estado === 'reservado');
                 if (activo) {
                     this.eventoActivo.set({
                         id: activo.id,
@@ -99,10 +99,10 @@ export class ClienteDashboardComponent implements OnInit {
     formatEstado(estado: string): string {
         const estados: Record<string, string> = {
             'pendiente_aprobacion': 'Pendiente',
-            'negociacion': 'En negociación',
-            'aceptada': 'Aceptado',
+            'reservado': 'Reservado',
+            'en_progreso': 'En progreso',
             'rechazada': 'Rechazado',
-            'completada': 'Completado',
+            'finalizado': 'Completado',
             'cancelada': 'Cancelado'
         };
         return estados[estado] || estado;
@@ -111,10 +111,10 @@ export class ClienteDashboardComponent implements OnInit {
     getEstadoClass(estado: string): string {
         const clases: Record<string, string> = {
             'pendiente_aprobacion': 'estado-pendiente',
-            'negociacion': 'estado-negociacion',
-            'aceptada': 'estado-aceptado',
+            'reservado': 'estado-reservado',
+            'en_progreso': 'estado-progreso',
             'rechazada': 'estado-rechazado',
-            'completada': 'estado-completado',
+            'finalizado': 'estado-completado',
             'cancelada': 'estado-cancelado'
         };
         return clases[estado] || 'estado-pendiente';

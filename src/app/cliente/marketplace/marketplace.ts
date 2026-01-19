@@ -1,15 +1,12 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../shared/header/header';
-import { MapaComponent } from '../../shared/mapa/mapa.component';
 import { ApiService } from '../../services/api.service';
-import { ProviderPackage } from '../../models';
+
 
 @Component({
     selector: 'app-marketplace',
     standalone: true,
-    imports: [RouterLink, FormsModule, HeaderComponent, MapaComponent],
+    imports: [FormsModule],
     templateUrl: './marketplace.html'
 })
 export class MarketplaceComponent implements OnInit {
@@ -29,11 +26,11 @@ export class MarketplaceComponent implements OnInit {
                 nombre: p.nombre,
                 // TODO: The backend ProviderPackage model does not have category, rating, location or image.
                 // These are placeholder values.
-                categoria: 'Categoría no especificada', 
+                categoria: 'Categoría no especificada',
                 precio: p.precio_base,
-                rating: 4.5, 
-                ubicacion: 'Ubicación no especificada', 
-                imagen: '📦' 
+                rating: 4.5,
+                ubicacion: 'Ubicación no especificada',
+                imagen: '📦'
             }));
             this.providers.set(providersData);
         });

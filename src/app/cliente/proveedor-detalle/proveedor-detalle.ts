@@ -42,7 +42,8 @@ export class ProveedorDetalleComponent implements OnInit {
                         reviews: reviews.length
                     };
                     this.provider.set(providerData);
-                    this.reviews.set(reviews);
+                    // Add simple ID to reviews if missing for UI tracking
+                    this.reviews.set(reviews.map((r: any, i: number) => ({ ...r, id: r.id || i })));
 
                     return this.api.getProviderPackages().pipe(
                         map(allPackages => allPackages.filter(p => p.proveedor_usuario_id === profile.usuario_id))

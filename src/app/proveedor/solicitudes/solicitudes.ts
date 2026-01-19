@@ -82,11 +82,11 @@ export class SolicitudesComponent implements OnInit {
 
         this.api.createQuote(quoteData).subscribe({
             next: (quote) => {
-                // Actualizar el estado de la solicitud a 'negociacion'
-                this.api.updateRequestStatus(id, 'negociacion').subscribe({
+                // Actualizar el estado de la solicitud a 'reservado' (estado válido)
+                this.api.updateRequestStatus(id, 'reservado').subscribe({
                     next: () => {
                         this.solicitudes.update(items =>
-                            items.map(s => s.id === id ? { ...s, estado: 'negociacion' as const } : s)
+                            items.map(s => s.id === id ? { ...s, estado: 'reservado' as const } : s)
                         );
                         this.mensajeExito.set('Cotización enviada exitosamente');
                         setTimeout(() => this.mensajeExito.set(''), 3000);

@@ -32,17 +32,26 @@ export class LoginComponent {
 
         this.api.login(this.email, this.password).subscribe({
             next: (response) => {
+                console.log('✅ Login response:', response);
                 this.auth.login(response.token, response.user);
+
+                // Navegar según el rol
                 if (response.user.rol === 'provider') {
-                    this.router.navigate(['/proveedor/dashboard']);
+                    console.log('🔄 Redirigiendo a dashboard de proveedor...');
+                    window.location.href = '/proveedor/dashboard';
                 } else {
-                    this.router.navigate(['/cliente/dashboard']);
+                    console.log('🔄 Redirigiendo a dashboard de cliente...');
+                    window.location.href = '/cliente/dashboard';
                 }
             },
             error: (err) => {
-                console.error('Login error details:', err);
+                console.error('❌ Login error details:', err);
                 this.error = err.error?.message || `Error al iniciar sesión (${err.status} - ${err.statusText})`;
                 this.loading = false;
+            },
+            complete: () => {
+                // Este callback se ejecuta siempre al final
+                console.log('🔵 Login request completed');
             }
         });
     }

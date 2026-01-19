@@ -8,34 +8,39 @@
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&amp;family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&amp;display=swap"
+    rel="stylesheet" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+    rel="stylesheet" />
   <script>
-        tailwind.config = {
-          darkMode: "class",
-          theme: {
-            extend: {
-              colors: {
-                primary: "#FF3D3D",
-                secondary: "#FFD54F",
-                "background-light": "#FFFBF7",
-                "background-dark": "#111827",
-                "card-light": "#FFFFFF",
-                "card-dark": "#1F2937",
-              },
-              fontFamily: {
-                display: ["Lexend", "sans-serif"],
-                sans: ["Lexend", "sans-serif"],
-              },
-              borderRadius: {
-                DEFAULT: "0.75rem",
-                'xl': '1rem',
-              },
-            },
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#E01D25",
+            "primary-hover": "#c01820",
+            "background-light": "#f8f6f6",
+            "background-dark": "#221011",
+            "glacial": "#F8FFFF",
+            "badge-pink": "#FFE5E7",
           },
-        };
-      </script>
+          fontFamily: {
+            "display": ["Plus Jakarta Sans", "Manrope", "sans-serif"],
+            "serif": ["Noto Serif", "serif"],
+          },
+          borderRadius: { "DEFAULT": "0.5rem", "lg": "1rem", "xl": "1.5rem", "full": "9999px" },
+        },
+      },
+    }
+  </script>
 </head>
 
 <body>

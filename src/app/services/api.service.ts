@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
 import {
@@ -29,11 +30,34 @@ export class ApiService {
     // 1. Autenticación (/users)
     // ==========================================
     register(data: { correo_electronico: string; contrasena: string; rol: string }): Observable<any> {
-        return this.http.post(`${this.API_URL}/users/register`, data);
+        return this.http.post(`${this.API_URL}/users/register`, data).pipe(
+            tap(response => console.log('✅ Usuario registrado:', response)),
+            catchError(error => {
+                console.error('❌ Error en register():', {
+                    status: error.status,
+                    message: error.message,
+                    body: error.error
+                });
+                return throwError(() => error);
+            })
+        );
     }
 
     login(correo_electronico: string, contrasena: string): Observable<any> {
-        return this.http.post(`${this.API_URL}/users/login`, { correo_electronico, contrasena });
+        return this.http.post(`${this.API_URL}/users/login`, { correo_electronico, contrasena }).pipe(
+            tap(response => console.log('✅ Login exitoso:', response)),
+            catchError(error => {
+                console.error('❌ Error en login():', {
+                    status: error.status,
+                    message: error.message,
+                    body: error.error
+                });
+                if (error.status === 401) {
+                    console.error('⚠️ Credenciales incorrectas o cuenta no activada');
+                }
+                return throwError(() => error);
+            })
+        );
     }
 
     getUser(id: string): Observable<User> {
@@ -56,18 +80,52 @@ export class ApiService {
         direccion_formato?: string;
         categoria_principal_id?: string;
     }): Observable<any> {
-        return this.http.post(`${this.API_URL}/perfil-proveedor/register`, data);
+        return this.http.post(`${this.API_URL}/perfil-proveedor/register`, data).pipe(
+            tap(response => console.log('✅ Proveedor registrado:', response)),
+            catchError(error => {
+                console.error('❌ Error en registerProvider():', {
+                    status: error.status,
+                    message: error.message,
+                    body: error.error,
+                    url: error.url
+                });
+                return throwError(() => error);
+            })
+        );
     }
 
     loginProvider(correo_electronico: string, contrasena: string): Observable<any> {
-        return this.http.post(`${this.API_URL}/perfil-proveedor/login`, { correo_electronico, contrasena });
+        return this.http.post(`${this.API_URL}/perfil-proveedor/login`, { correo_electronico, contrasena }).pipe(
+            tap(response => console.log('✅ Login proveedor exitoso:', response)),
+            catchError(error => {
+                console.error('❌ Error en loginProvider():', {
+                    status: error.status,
+                    message: error.message,
+                    body: error.error
+                });
+                if (error.status === 401) {
+                    console.error('⚠️ Credenciales incorrectas o cuenta no activada');
+                }
+                return throwError(() => error);
+            })
+        );
     }
 
     // ==========================================
     // 2. Perfil Cliente (/perfil-cliente)
     // ==========================================
     createClientProfile(data: Partial<ClientProfile>): Observable<ClientProfile> {
-        return this.http.post<ClientProfile>(`${this.API_URL}/perfil-cliente`, data, { headers: this.getHeaders() });
+        return this.http.post<ClientProfile>(`${this.API_URL}/perfil-cliente`, data, { headers: this.getHeaders() }).pipe(
+            tap(response => console.log('✅ Perfil cliente creado:', response)),
+            catchError(error => {
+                console.error('❌ Error en createClientProfile():', {
+                    status: error.status,
+                    message: error.message,
+                    body: error.error
+                });
+                return throwError(() => error);
+            })
+        );
     }
 
     getClientProfiles(): Observable<ClientProfile[]> {
@@ -86,7 +144,20 @@ export class ApiService {
     // 3. Perfil Proveedor (/perfil-proveedor)
     // ==========================================
     createProviderProfile(data: Partial<ProviderProfile>): Observable<ProviderProfile> {
-        return this.http.post<ProviderProfile>(`${this.API_URL}/perfil-proveedor`, data, { headers: this.getHeaders() });
+        console.log('📤 Creando perfil proveedor con datos:', data);
+        return this.http.post<ProviderProfile>(`${this.API_URL}/perfil-proveedor`, data, { headers: this.getHeaders() }).pipe(
+            tap(response => console.log('✅ Perfil proveedor creado:', response)),
+            catchError(error => {
+                console.error('❌ Error en createProviderProfile():', {
+                    status: error.status,
+                    statusText: error.statusText,
+                    message: error.message,
+                    body: error.error,
+                    url: error.url
+                });
+                return throwError(() => error);
+            })
+        );
     }
 
     getProviderProfiles(): Observable<ProviderProfile[]> {
@@ -251,6 +322,13 @@ export class ApiService {
 
     getRecentPayments(): Observable<Payment[]> {
         return this.http.get<Payment[]>(`${this.API_URL}/dashboard/proveedor/recent-payments`, { headers: this.getHeaders() });
+    }
+
+    // ==========================================
+    // 13. Categorías (/categorias-servicio)
+    // ==========================================
+    getServiceCategories(): Observable<any[]> {
+        return this.http.get<any[]>(`${this.API_URL}/categorias-servicio`);
     }
 }
 

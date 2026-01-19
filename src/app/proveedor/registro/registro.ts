@@ -36,36 +36,58 @@ export class ProveedorRegistroComponent {
         this.error = '';
 
         try {
-            console.log('🔵 Registrando proveedor independiente...');
+            console.log('🔵 PASO 1: Registrando usuario en tabla users...');
 
-            // 1. Registrar proveedor (TODO en un solo paso!)
-            const registerData = {
+            // PASO 1: Crear usuario en tabla users
+            const userData = {
                 correo_electronico: this.email,
                 contrasena: this.password,
+                rol: 'provider'  // Importante: marcar como proveedor
+            };
+            console.log('📤 Datos de usuario:', userData);
+
+            const userResponse = await this.api.register(userData).toPromise();
+            console.log('✅ Usuario creado:', userResponse);
+
+            // Validar que recibimos el ID del usuario
+            if (!userResponse?.user?.id) {
+                throw new Error('No se recibió ID de usuario del servidor');
+            }
+
+            const userId = userResponse.user.id;
+            console.log('🆔 ID de usuario obtenido:', userId);
+
+            console.log('🔵 PASO 2: Creando perfil de proveedor...');
+
+            // PASO 2: Crear perfil en tabla perfil_proveedor
+            const profileData = {
+                usuario_id: userId,  // Vincular con el usuario recién creado
                 nombre_negocio: this.nombreNegocio,
                 descripcion: `Categoría: ${this.categoria}`,
-                direccion_formato: this.ubicacion || undefined
+                direccion_formato: this.ubicacion || undefined,
+                categoria_principal: this.categoria
             };
-            console.log('📤 Datos de registro:', registerData);
+            console.log('📤 Datos de perfil:', profileData);
 
-            const registerResponse = await this.api.registerProvider(registerData).toPromise();
-            console.log('✅ Proveedor registrado:', registerResponse);
+            const profileResponse = await this.api.createProviderProfile(profileData).toPromise();
+            console.log('✅ Perfil de proveedor creado:', profileResponse);
 
-            console.log('🔵 Iniciando sesión automáticamente...');
+            console.log('🔵 PASO 3: Iniciando sesión automáticamente...');
 
-            // 2. Login automático
-            const loginResponse = await this.api.loginProvider(this.email, this.password).toPromise();
+            // PASO 3: Login automático con las credenciales
+            const loginResponse = await this.api.login(this.email, this.password).toPromise();
             console.log('✅ Login exitoso:', {
                 token: loginResponse.token ? 'Token recibido' : 'No token',
-                proveedorId: loginResponse.proveedor?.id,
-                nombreNegocio: loginResponse.proveedor?.nombre_negocio
+                userId: loginResponse.user?.id,
+                rol: loginResponse.user?.rol
             });
 
-            // 3. Guardar sesión
-            this.auth.login(loginResponse.token, loginResponse.proveedor);
+            // PASO 4: Guardar sesión
+            this.auth.login(loginResponse.token, loginResponse.user);
 
-            console.log('🎉 Registro completado, redirigiendo al dashboard...');
-            this.router.navigate(['/proveedor/dashboard']);
+            console.log('🎉 Registro completado exitosamente, redirigiendo...');
+            // Forzar recarga completa para asegurar estado limpio
+            window.location.href = '/proveedor/dashboard';
 
         } catch (err: any) {
             console.error('❌ Error en el registro de proveedor:', err);
@@ -78,14 +100,16 @@ export class ProveedorRegistroComponent {
             });
 
             // Mensajes de error más específicos
-            if (err.status === 500) {
+            if (err.status === 404) {
+                this.error = `Endpoint no encontrado (404): ${err.url}. Verifica que el backend esté corriendo.`;
+            } else if (err.status === 500) {
                 this.error = `Error del servidor: ${err.error?.error || err.error?.message || 'Error interno del servidor'}. Revisa la consola para más detalles.`;
             } else if (err.status === 401) {
                 this.error = 'Credenciales inválidas. Por favor verifica tu email y contraseña.';
             } else if (err.status === 409) {
                 this.error = 'Este email ya está registrado. Por favor usa otro email o inicia sesión.';
             } else if (err.status === 400) {
-                this.error = `Datos inválidos: ${err.error?.error || 'Verifica que todos los campos estén correctos'}`;
+                this.error = `Datos inválidos: ${err.error?.error || err.error?.message || 'Verifica que todos los campos estén correctos'}`;
             } else {
                 this.error = err.error?.message || err.error?.error || `Error al registrarse (${err.status} - ${err.statusText})`;
             }

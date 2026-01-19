@@ -1,333 +1,201 @@
-<style>
-    .proveedor-page {
-        min-height: 100vh;
-        background: var(--color-gray-light);
-    }
-
-    .proveedor-hero {
-        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
-        height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 100px;
-    }
-
-    .proveedor-content {
-        max-width: 1200px;
-        margin: -80px auto 40px;
-        padding: 0 20px;
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 32px;
-    }
-
-    .proveedor-main {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    .proveedor-card {
-        background: var(--color-white);
-        border-radius: var(--border-radius);
-        padding: 32px;
-        box-shadow: var(--shadow);
-    }
-
-    .proveedor-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 16px;
-    }
-
-    .proveedor-name {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .proveedor-meta {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        color: var(--color-gray);
-    }
-
-    .proveedor-rating {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        background: #FFF8E1;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-weight: 600;
-    }
-
-    .proveedor-rating span {
-        color: #FFC107;
-    }
-
-    .proveedor-descripcion {
-        color: var(--color-gray);
-        line-height: 1.8;
-    }
-
-    .section-title {
-        font-size: 22px;
-        font-weight: 600;
-        margin-bottom: 20px;
-    }
-
-    .paquetes-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .paquete-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px;
-        background: var(--color-gray-light);
-        border-radius: var(--border-radius-sm);
-        transition: background 0.3s ease;
-    }
-
-    .paquete-item:hover {
-        background: #FFEBEE;
-    }
-
-    .paquete-info h4 {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .paquete-info p {
-        color: var(--color-gray);
-        font-size: 14px;
-    }
-
-    .paquete-precio {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-    }
-
-    .paquete-precio strong {
-        font-size: 20px;
-        color: var(--color-primary);
-    }
-
-    .btn-add {
-        padding: 10px 20px;
-        background: var(--color-primary);
-        color: var(--color-white);
-        border: none;
-        border-radius: var(--border-radius-sm);
-        font-weight: 600;
-        cursor: pointer;
-        transition: background 0.3s ease;
-    }
-
-    .btn-add:hover {
-        background: var(--color-primary-dark);
-    }
-
-    .galeria-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 16px;
-    }
-
-    .galeria-item {
-        height: 120px;
-        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
-        border-radius: var(--border-radius-sm);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 40px;
-    }
-
-    .reviews-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-
-    .review-item {
-        padding: 20px;
-        background: var(--color-gray-light);
-        border-radius: var(--border-radius-sm);
-    }
-
-    .review-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-    }
-
-    .review-autor {
-        font-weight: 600;
-    }
-
-    .review-fecha {
-        color: var(--color-gray);
-        font-size: 14px;
-    }
-
-    .review-stars {
-        color: #FFC107;
-        margin-bottom: 8px;
-    }
-
-    .review-texto {
-        color: var(--color-gray);
-    }
-
-    .sidebar {
-        position: sticky;
-        top: 100px;
-        height: fit-content;
-    }
-
-    .contact-card {
-        background: var(--color-white);
-        border-radius: var(--border-radius);
-        padding: 32px;
-        box-shadow: var(--shadow);
-    }
-
-    .contact-card h3 {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 20px;
-    }
-
-    .form-group {
-        margin-bottom: 16px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-weight: 500;
-        font-size: 14px;
-    }
-
-    .form-group input,
-    .form-group textarea {
-        width: 100%;
-        padding: 12px 16px;
-        border: 1px solid var(--color-gray-border);
-        border-radius: var(--border-radius-sm);
-        font-size: 14px;
-    }
-
-    .btn-contact {
-        width: 100%;
-        padding: 14px;
-        background: var(--color-primary);
-        color: var(--color-white);
-        border: none;
-        border-radius: var(--border-radius);
-        font-size: 16px;
-        font-weight: 600;
-        cursor: pointer;
-    }
-</style>
-
-<div class="proveedor-page">
-    <app-header></app-header>
-
-    <div class="proveedor-hero">{{ provider().imagen }}</div>
-
-    <div class="proveedor-content">
-        <div class="proveedor-main">
-            <div class="proveedor-card">
-                <div class="proveedor-header">
-                    <div>
-                        <h1 class="proveedor-name">{{ provider().nombre }}</h1>
-                        <div class="proveedor-meta">
-                            <span>{{ provider().categoria }}</span>
-                            <span>📍 {{ provider().ubicacion }}</span>
-                            <span>{{ provider().reviews }} reseñas</span>
-                        </div>
-                    </div>
-                    <div class="proveedor-rating">
-                        <span>★</span> {{ provider().rating }}
-                    </div>
-                </div>
-                <p class="proveedor-descripcion">{{ provider().descripcion }}</p>
-            </div>
-
-            <div class="proveedor-card">
-                <h2 class="section-title">Mis Servicios</h2>
-                <div class="paquetes-list">
-                    @for (pkg of packages(); track pkg.id) {
-                    <div class="paquete-item">
-                        <div class="paquete-info">
-                            <h4>{{ pkg.nombre }}</h4>
-                            <p>{{ pkg.descripcion }}</p>
-                        </div>
-                        <div class="paquete-precio">
-                            <strong>${{ pkg.precio_base.toLocaleString() }}</strong>
-                            <button class="btn-add" (click)="addToCart(pkg)">Agregar</button>
-                        </div>
-                    </div>
-                    }
-                </div>
-            </div>
-
-            <div class="proveedor-card">
-                <h2 class="section-title">Galería</h2>
-                <div class="galeria-grid">
-                    @for (item of galeria(); track item) {
-                    <div class="galeria-item">{{ item }}</div>
-                    }
-                </div>
-            </div>
-
-            <div class="proveedor-card">
-                <h2 class="section-title">Reseñas</h2>
-                <div class="reviews-list">
-                    @for (review of reviews(); track review.autor) {
-                    <div class="review-item">
-                        <div class="review-header">
-                            <span class="review-autor">{{ review.autor }}</span>
-                            <span class="review-fecha">{{ review.fecha }}</span>
-                        </div>
-                        <div class="review-stars">★★★★★</div>
-                        <p class="review-texto">{{ review.comentario }}</p>
-                    </div>
-                    }
-                </div>
-            </div>
+<div class="sticky top-0 z-50 bg-surface/90 backdrop-blur-md border-b border-[#f4f0f0]">
+    <div class="layout-container flex w-full flex-col">
+        <div class="px-4 md:px-10 lg:px-40 flex flex-1 justify-center py-3">
+            <app-header></app-header>
         </div>
+    </div>
+</div>
+<!-- Main Content Wrapper -->
+<main class="flex min-h-screen flex-col pb-20 bg-background-light dark:bg-background-dark font-display text-text-main">
+    <!-- Hero Section -->
+    <div class="relative w-full h-[320px] md:h-[400px] bg-gray-100 overflow-hidden">
+        <div class="absolute inset-0 bg-cover bg-center"
+            [style.background-image]="'url(' + (provider().imagen || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDP0XIVbCOglaiQktFkL9xQZnJX5YHorNuVwwu9paoAVnG7v35DYSwTtHo8egy9PZ0AjDyv9uyIkNyBJiwOKaabfuPQbx4mgVM-NLrv2HpXG-z8HGMUhgmzUIjkgcEj4LKmRDFJjwShbVJqldpw_11Sz5IBGV9D-HwThCdWTJrLUe-n7y3rfi7SflHod9vgfYHvUpVgRSlwp03y0KWjRMewlwYPyGMveonJsxjebLZrq0_cbho_3up6Fa8wjbdMjorQt25emWRov2k') + ')'">
+        </div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+        <!-- Hero Content overlay (Mobile mainly, desktop sees it in content flow usually, but let's keep it decorative here) -->
+        <div class="absolute bottom-6 left-6 md:hidden text-white">
+            <span
+                class="inline-flex items-center rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-white">Premium</span>
+        </div>
+    </div>
+    <!-- Provider Detail Container -->
+    <div class="layout-container flex justify-center px-4 md:px-10 lg:px-40 -mt-16 md:-mt-20 relative z-10">
+        <div class="w-full max-w-[1280px] grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
+            <!-- Left Column: Info & Services -->
+            <div class="flex flex-col gap-8">
+                <!-- Header Card -->
+                <div
+                    class="bg-surface rounded-lg shadow-soft p-6 md:p-8 flex flex-col md:flex-row gap-6 items-start md:items-end justify-between bg-white dark:bg-[#1a1a1a]">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span
+                                class="bg-primary/10 text-primary text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">{{
+                                provider().categoria || 'Servicios Generales' }}</span>
+                            <span class="flex items-center gap-1 text-yellow-500 text-sm font-bold">
+                                <span class="material-symbols-outlined text-[18px] fill-current">star</span>
+                                {{ provider().rating }} ({{ provider().reviews }})
+                            </span>
+                        </div>
+                        <h1
+                            class="text-3xl md:text-4xl font-extrabold text-text-main leading-tight mb-4 dark:text-white">
+                            {{ provider().nombre }}</h1>
+                        <div
+                            class="flex flex-col md:flex-row gap-4 md:items-center text-text-secondary text-sm md:text-base">
+                            <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+                                <span class="material-symbols-outlined text-primary">location_on</span>
+                                <p>{{ provider().ubicacion || 'Ubicación no disponible' }}</p>
+                            </div>
+                            <span class="hidden md:inline text-gray-300">|</span>
+                            <div class="flex items-center gap-2 text-green-600 font-medium">
+                                <span class="material-symbols-outlined text-[20px]">verified</span>
+                                <span>Verificado por FestEasy</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Mini Map Preview -->
+                    <div
+                        class="hidden md:block w-[140px] h-[100px] shrink-0 rounded-lg overflow-hidden relative group cursor-pointer border border-gray-100 shadow-sm">
+                        <div class="w-full h-full bg-cover bg-center transition transform group-hover:scale-110 duration-500"
+                            style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDcY29VLpNBDiZ_weYUxcnJF0Ihuf6NPjuW2d0k6RX1CLykhAztcZhe0OvcJHEcfhUJA2361oIgzYyIjrNUSTKivr2VYxBlpvXLDNZqpqvtwAg4JvE7w4XnxUj3TVKMgkRL8RMsgcU9P6tb1cJnWeVKJAgXc48evR8z-rNzQRilqVypsRIUK9j7D0_7Hy5C6Q9hmpGA8UZIpGh_UTWjPosh2yQsC9B8mjzejckuY7WMEBVYvfw1yrrJ0byHQBbpFV4qd5cMlF5olbg');">
+                        </div>
+                        <div
+                            class="absolute inset-0 bg-black/10 group-hover:bg-black/20 transition flex items-center justify-center">
+                            <div class="bg-white/90 p-1.5 rounded-full shadow-md text-primary">
+                                <span class="material-symbols-outlined text-[20px]">map</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Navigation Tabs -->
+                <div
+                    class="bg-surface rounded-lg shadow-soft px-2 sticky top-[73px] z-20 border-b border-gray-100 bg-white dark:bg-[#1a1a1a]">
+                    <div class="flex items-center gap-8 overflow-x-auto no-scrollbar">
+                        <button
+                            class="px-4 py-4 text-sm font-bold flex items-center gap-2 whitespace-nowrap text-primary border-b-2 border-primary">
+                            <span class="material-symbols-outlined text-[20px]">restaurant_menu</span>
+                            Servicios
+                        </button>
+                        <button
+                            class="px-4 py-4 text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                            <span class="material-symbols-outlined text-[20px]">photo_library</span>
+                            Galería de fotos
+                        </button>
+                        <button
+                            class="px-4 py-4 text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                            <span class="material-symbols-outlined text-[20px]">reviews</span>
+                            Reseñas
+                        </button>
+                        <button
+                            class="px-4 py-4 text-sm font-medium flex items-center gap-2 whitespace-nowrap transition-colors text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white">
+                            <span class="material-symbols-outlined text-[20px]">info</span>
+                            Políticas
+                        </button>
+                    </div>
+                </div>
+                <!-- Content Grid (Services) -->
+                <div>
+                    <h3 class="text-xl font-bold text-text-main mb-6 px-1 dark:text-white">Paquetes Disponibles</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div class="sidebar">
-            <div class="contact-card">
-                <h3>Solicitar Presupuesto</h3>
-                <form>
-                    <div class="form-group">
-                        <label>Tipo de evento</label>
-                        <input type="text" placeholder="Ej: Boda, Cumpleaños...">
+                        @for (pkg of packages(); track pkg.id) {
+                        <!-- Dynamic Package Card -->
+                        <div
+                            class="bg-surface border border-[#f4f0f0] rounded-lg p-6 hover:shadow-hover transition-all duration-300 group flex flex-col h-full bg-white dark:bg-[#1a1a1a] dark:border-gray-800">
+                            <div class="flex justify-between items-start mb-4">
+                                <h4
+                                    class="text-lg font-bold text-text-main group-hover:text-primary transition-colors dark:text-white">
+                                    {{ pkg.nombre }}</h4>
+                                <span
+                                    class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded dark:bg-gray-800 dark:text-gray-300">Disponible</span>
+                            </div>
+                            <p class="text-text-secondary text-sm mb-6 leading-relaxed dark:text-gray-400">{{
+                                pkg.descripcion || 'Sin descripción detallada.' }}</p>
+
+                            <div class="border-t border-gray-100 pt-5 mt-auto dark:border-gray-700">
+                                <div class="flex items-end justify-between gap-4">
+                                    <div>
+                                        <p class="text-xs text-text-secondary font-medium dark:text-gray-500">Precio
+                                            base</p>
+                                        <p class="text-2xl font-extrabold text-text-main dark:text-white">${{
+                                            pkg.precio_base }} <span
+                                                class="text-sm font-normal text-text-secondary">MXN</span></p>
+                                    </div>
+                                    <button (click)="addToCart(pkg)"
+                                        class="bg-primary hover:bg-red-700 text-white p-3 rounded-lg shadow-lg shadow-primary/20 transition-all active:scale-95 flex items-center justify-center">
+                                        <span class="material-symbols-outlined">add_shopping_cart</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        } @empty {
+                        <p class="col-span-2 text-center text-gray-500 py-8">No hay paquetes disponibles por el momento.
+                        </p>
+                        }
+
                     </div>
-                    <div class="form-group">
-                        <label>Fecha del evento</label>
-                        <input type="date">
+                </div>
+
+                <!-- Reviews Preview -->
+                <div class="bg-surface rounded-lg p-8 shadow-soft mt-4 bg-white dark:bg-[#1a1a1a]">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-text-main dark:text-white">Lo que dicen los clientes</h3>
+                        <button class="text-primary text-sm font-bold hover:underline">Ver todas ({{ provider().reviews
+                            }})</button>
                     </div>
-                    <div class="form-group">
-                        <label>Mensaje</label>
-                        <textarea rows="3" placeholder="Cuéntanos sobre tu evento..."></textarea>
+                    <div class="space-y-6">
+                        @for (review of reviews(); track review.id) {
+                        <div class="flex gap-4">
+                            <div class="size-10 rounded-full bg-gray-200 overflow-hidden flex-shrink-0">
+                                <div
+                                    class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-600 font-bold">
+                                    {{ review.autor[0] }}</div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-text-main dark:text-white">{{ review.autor }}</p>
+                                <div class="flex text-yellow-500 text-xs mb-1">
+                                    @for (star of [1,2,3,4,5]; track star) {
+                                    <span class="material-symbols-outlined text-[16px] fill-current">star</span>
+                                    }
+                                </div>
+                                <p class="text-sm text-text-secondary dark:text-gray-400">{{ review.comentario }}</p>
+                            </div>
+                        </div>
+                        }
                     </div>
-                    <button type="submit" class="btn-contact">Enviar Solicitud</button>
-                </form>
+                </div>
+            </div>
+
+            <!-- Right Column: Sticky Sidebar -->
+            <div class="relative hidden lg:block">
+                <div class="sticky top-28 space-y-4">
+                    <!-- Helper Widget -->
+                    <div
+                        class="bg-surface rounded-lg p-5 border border-gray-100 text-center bg-white dark:bg-[#1a1a1a] dark:border-gray-800">
+                        <div
+                            class="size-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <span class="material-symbols-outlined">support_agent</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-text-main mb-1 dark:text-white">¿Tienes dudas?</h4>
+                        <p class="text-xs text-text-secondary mb-3 dark:text-gray-400">Contacta al proveedor antes de
+                            reservar.</p>
+                        <button
+                            class="text-primary text-xs font-bold border border-primary/20 rounded-lg px-4 py-2 hover:bg-primary/5 w-full">Enviar
+                            Mensaje</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+</main>
+<!-- Mobile Sticky Cart CTA -->
+<div
+    class="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-gray-200 p-4 shadow-xl z-50 flex items-center justify-between bg-white dark:bg-[#1a1a1a] dark:border-gray-800">
+    <div>
+        <p class="text-xs text-text-secondary dark:text-gray-400">Total estimado</p>
+        <p class="text-xl font-extrabold text-text-main dark:text-white">$0.00</p>
+    </div>
+    <button class="bg-primary text-white font-bold px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
+        Ver Carrito (0)
+    </button>
 </div>

@@ -344,7 +344,8 @@
 <!-- Header -->
 <header class="landing-header">
     <a routerLink="/" class="landing-logo">
-        <img src="festeasy.jpeg" alt="FestEasy" onerror="this.style.display='none'">
+        <img src="festeasy.jpeg" alt="FestEasy" loading="eager" fetchpriority="high"
+            onerror="this.style.display='none'">
         <span class="landing-logo-text">FestEasy</span>
     </a>
     <a routerLink="/login" class="landing-access-btn">Acceso</a>
@@ -366,7 +367,8 @@
             <div class="hero-video-container" (mouseenter)="playVideo()" (mouseleave)="pauseVideo()">
                 <span class="hero-video-placeholder">🎉</span>
                 <video #heroVideo muted loop>
-                    <source src="assets/festeasy-promo.mp4" type="video/mp4">
+                    <!-- Video temporalmente deshabilitado para evitar error 404 -->
+                    <!-- <source src="assets/festeasy-promo.mp4" type="video/mp4"> -->
                 </video>
                 <span class="hero-play-hint">▶ Pasa el mouse para ver</span>
             </div>
