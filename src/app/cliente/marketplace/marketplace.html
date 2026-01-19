@@ -1,210 +1,465 @@
-<style>
-    .marketplace-page {
-        min-height: 100vh;
-        background: var(--color-gray-light);
-    }
-
-    .search-section {
-        background: var(--color-white);
-        padding: 40px;
-        box-shadow: var(--shadow);
-    }
-
-    .search-container {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-
-    .search-title {
-        font-size: 32px;
-        font-weight: 700;
-        margin-bottom: 24px;
-        text-align: center;
-    }
-
-    .search-bar {
-        display: flex;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
-
-    .search-input {
-        flex: 2;
-        min-width: 300px;
-        padding: 16px 24px;
-        border: 2px solid var(--color-gray-border);
-        border-radius: var(--border-radius);
-        font-size: 16px;
-    }
-
-    .search-input:focus {
-        border-color: var(--color-primary);
-        outline: none;
-    }
-
-    .filter-select {
-        flex: 1;
-        min-width: 200px;
-        padding: 16px 24px;
-        border: 2px solid var(--color-gray-border);
-        border-radius: var(--border-radius);
-        font-size: 16px;
-        background: var(--color-white);
-        cursor: pointer;
-    }
-
-    .results-section {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 40px 20px;
-    }
-
-    .results-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-    }
-
-    .results-count {
-        color: var(--color-gray);
-    }
-
-    .providers-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 24px;
-    }
-
-    .provider-card {
-        background: var(--color-white);
-        border-radius: var(--border-radius);
-        overflow: hidden;
-        box-shadow: var(--shadow);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .provider-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--shadow-lg);
-    }
-
-    .provider-image {
-        height: 180px;
-        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 64px;
-    }
-
-    .provider-content {
-        padding: 24px;
-    }
-
-    .provider-category {
-        display: inline-block;
-        background: var(--color-gray-light);
-        color: var(--color-gray);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        margin-bottom: 12px;
-    }
-
-    .provider-name {
-        font-size: 20px;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .provider-location {
-        color: var(--color-gray);
-        font-size: 14px;
-        margin-bottom: 16px;
-    }
-
-    .provider-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding-top: 16px;
-        border-top: 1px solid var(--color-gray-border);
-    }
-
-    .provider-price {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--color-primary);
-    }
-
-    .provider-price span {
-        font-size: 14px;
-        font-weight: 400;
-        color: var(--color-gray);
-    }
-
-    .provider-rating {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        font-weight: 600;
-    }
-
-    .provider-rating span {
-        color: #FFC107;
-    }
-</style>
-
-<div class="marketplace-page">
-    <app-header></app-header>
-
-    <section class="search-section">
-        <div class="search-container">
-            <h1 class="search-title">Encuentra el servicio perfecto</h1>
-            <div class="search-bar">
-                <input type="text" class="search-input" placeholder="Buscar DJs, catering, fotografía..."
-                    [(ngModel)]="searchQuery" />
-                <select class="filter-select" [(ngModel)]="selectedCategory">
-                    <option value="">Todas las categorías</option>
-                    @for (cat of categories(); track cat) {
-                    <option [value]="cat">{{ cat }}</option>
-                    }
-                </select>
+<header
+    class="sticky top-0 z-50 bg-white/80 dark:bg-[#1a1a1a]/90 backdrop-blur-md border-b border-[#f4f0f0] dark:border-gray-800">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-20 gap-8">
+            <div class="flex items-center gap-3 shrink-0 cursor-pointer">
+                <div class="size-8 text-primary">
+                    <svg fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+                        <path
+                            d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z"
+                            fill="currentColor"></path>
+                    </svg>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-white hidden sm:block">FestEasy
+                </h1>
+            </div>
+            <div class="hidden md:flex flex-1 max-w-xl mx-4">
+                <div class="relative w-full group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span
+                            class="material-symbols-outlined text-gray-400 group-focus-within:text-primary transition-colors">search</span>
+                    </div>
+                    <input
+                        class="block w-full pl-10 pr-3 py-2.5 border-none rounded-xl bg-[#f4f0f0] dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:bg-white dark:focus:bg-gray-900 transition-all shadow-inner"
+                        placeholder="¿Qué servicio buscas hoy?" type="text" />
+                </div>
+            </div>
+            <div class="flex items-center gap-3 sm:gap-6 shrink-0">
+                <nav class="hidden lg:flex items-center gap-6">
+                    <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary transition-colors"
+                        href="#">Servicios</a>
+                    <a class="text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-primary transition-colors"
+                        href="#">Paquetes</a>
+                </nav>
+                <div class="h-6 w-px bg-gray-200 dark:bg-gray-700 hidden lg:block"></div>
+                <div class="flex gap-2">
+                    <button
+                        class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 relative">
+                        <span class="material-symbols-outlined text-[24px]">shopping_cart</span>
+                        <span
+                            class="absolute top-1 right-1 size-2.5 bg-primary rounded-full border-2 border-white dark:border-[#1a1a1a]"></span>
+                    </button>
+                    <button
+                        class="flex items-center justify-center size-10 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300">
+                        <span class="material-symbols-outlined text-[24px]">notifications</span>
+                    </button>
+                </div>
+                <button
+                    class="size-10 rounded-full overflow-hidden border-2 border-transparent hover:border-primary transition-all">
+                    <div class="bg-cover bg-center w-full h-full" data-alt="User profile picture with a smiling woman"
+                        style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuD-ieSE_tTcnd7FVSKptzeqbGcXF0zjQKaEBCO-tnGGlLeCR52q7MKBh1YTZC-4H-Xl-iVfwWZ0Uhw1K2tzPWE6xRpSYXzpIMhpPkrgea0ERan6Mtiftt84MCzlvb_XmJY-YurYT30N5VCZ_tCmCpcAec4d8vgYS2K1xDzXty4Zm5lcehKwqKWeimvxcf2m_KG0qYXeCbTCn8qL_f3SqKa3JyY6X0GLTDUOuoq-myzPqxYoovS11iUSMx8QzytKj7hCkzc8je8sh1s');">
+                    </div>
+                </button>
             </div>
         </div>
-    </section>
-
-    <!-- Geolocation Map Section -->
-    <section class="map-section" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-        <app-mapa></app-mapa>
-    </section>
-
-    <section class="results-section">
-        <div class="results-header">
-            <p class="results-count">{{ filteredProviders.length }} proveedores encontrados</p>
+    </div>
+</header>
+<main class="flex-grow flex flex-col w-full h-full">
+    <section
+        class="relative w-full h-[400px] bg-map-pattern overflow-hidden border-b border-gray-200 dark:border-gray-800 shadow-inner">
+        <div class="absolute inset-0 opacity-80 mix-blend-multiply pointer-events-none"></div>
+        <div
+            class="absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group cursor-pointer z-10 hover:z-20">
+            <div
+                class="bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-lg text-xs font-bold text-gray-800 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1 whitespace-nowrap pointer-events-none">
+                Banquetes Deliciosos
+            </div>
+            <span
+                class="material-symbols-outlined text-primary text-[40px] drop-shadow-md transition-transform group-hover:scale-110">location_on</span>
         </div>
-
-        <div class="providers-grid">
-            @for (provider of filteredProviders; track provider.id) {
-            <a [routerLink]="['/cliente/proveedor', provider.id]" class="provider-card">
-                <div class="provider-image">{{ provider.imagen }}</div>
-                <div class="provider-content">
-                    <span class="provider-category">{{ provider.categoria }}</span>
-                    <h3 class="provider-name">{{ provider.nombre }}</h3>
-                    <p class="provider-location">📍 {{ provider.ubicacion }}</p>
-                    <div class="provider-footer">
-                        <div class="provider-price">
-                            ${{ provider.precio.toLocaleString() }} <span>desde</span>
-                        </div>
-                        <div class="provider-rating">
-                            <span>★</span> {{ provider.rating }}
+        <div
+            class="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group cursor-pointer z-10 hover:z-20">
+            <div
+                class="bg-white dark:bg-gray-800 px-3 py-1.5 rounded-lg shadow-lg text-xs font-bold text-gray-800 dark:text-white opacity-0 group-hover:opacity-100 transition-opacity mb-1 whitespace-nowrap pointer-events-none">
+                DJ Party Mix
+            </div>
+            <span
+                class="material-symbols-outlined text-primary text-[40px] drop-shadow-md transition-transform group-hover:scale-110">location_on</span>
+        </div>
+        <div
+            class="absolute bottom-1/3 right-1/4 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group cursor-pointer z-10 hover:z-20">
+            <span
+                class="material-symbols-outlined text-primary text-[40px] drop-shadow-md transition-transform group-hover:scale-110">location_on</span>
+        </div>
+        <div
+            class="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-1 group cursor-pointer z-10 hover:z-20">
+            <span
+                class="material-symbols-outlined text-primary text-[40px] drop-shadow-md transition-transform group-hover:scale-110">location_on</span>
+        </div>
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+            <button
+                class="bg-primary hover:bg-primary-hover text-white px-6 py-3 rounded-full shadow-xl hover:shadow-2xl transition-all font-bold flex items-center gap-2 text-sm md:text-base animate-pulse hover:animate-none">
+                <span class="material-symbols-outlined">near_me</span>
+                Ver proveedores cerca de mí
+            </button>
+        </div>
+        <div class="absolute right-4 bottom-4 flex flex-col gap-2">
+            <button
+                class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md hover:bg-gray-50 text-gray-600 dark:text-gray-300">
+                <span class="material-symbols-outlined block">add</span>
+            </button>
+            <button
+                class="bg-white dark:bg-gray-800 p-2 rounded-lg shadow-md hover:bg-gray-50 text-gray-600 dark:text-gray-300">
+                <span class="material-symbols-outlined block">remove</span>
+            </button>
+        </div>
+    </section>
+    <div class="max-w-[1440px] mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div class="flex flex-col lg:flex-row gap-8">
+            <aside class="w-full lg:w-72 shrink-0 space-y-8">
+                <div
+                    class="lg:hidden flex justify-between items-center bg-white dark:bg-[#1a1a1a] p-4 rounded-xl shadow-sm mb-4">
+                    <span class="font-bold text-lg">Filtros</span>
+                    <button class="text-primary font-medium flex items-center gap-1">
+                        <span class="material-symbols-outlined">tune</span> Mostrar
+                    </button>
+                </div>
+                <div
+                    class="hidden lg:block sticky top-24 bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white">Filtros</h3>
+                        <button
+                            class="text-xs font-semibold text-gray-400 hover:text-primary transition-colors">Limpiar</button>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Categoría</h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <span
+                                    class="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">Catering
+                                    &amp; Comida</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <span
+                                    class="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">Música
+                                    &amp; DJ</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input checked=""
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <span
+                                    class="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">Decoración</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <span
+                                    class="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">Fotografía</span>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <span
+                                    class="text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">Logística</span>
+                            </label>
                         </div>
                     </div>
+                    <div class="mb-8">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Rango de Precio</h4>
+                        <div class="px-2">
+                            <div class="relative h-1.5 w-full bg-gray-200 dark:bg-gray-700 rounded-full mb-6">
+                                <div class="absolute left-[20%] right-[30%] top-0 bottom-0 bg-primary rounded-full">
+                                </div>
+                                <div
+                                    class="absolute left-[20%] top-1/2 -translate-y-1/2 size-4 bg-white border-2 border-primary rounded-full shadow cursor-grab active:cursor-grabbing">
+                                </div>
+                                <div
+                                    class="absolute right-[30%] top-1/2 -translate-y-1/2 size-4 bg-white border-2 border-primary rounded-full shadow cursor-grab active:cursor-grabbing">
+                                </div>
+                            </div>
+                            <div
+                                class="flex items-center justify-between text-sm font-medium text-gray-600 dark:text-gray-400">
+                                <span>$100</span>
+                                <span>$5,000+</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-8">
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Reseñas</h4>
+                        <div class="space-y-3">
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex gap-0.5">
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                    </div>
+                                    <span
+                                        class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">5
+                                        estrellas</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex gap-0.5">
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-gray-200 dark:text-gray-700 fill-current">star</span>
+                                    </div>
+                                    <span
+                                        class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">4
+                                        o más</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-3 group cursor-pointer">
+                                <input
+                                    class="size-5 rounded border-gray-300 text-primary focus:ring-primary/20 transition-all checked:bg-primary checked:border-primary"
+                                    type="checkbox" />
+                                <div class="flex items-center gap-1.5">
+                                    <div class="flex gap-0.5">
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-primary fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-gray-200 dark:text-gray-700 fill-current">star</span>
+                                        <span
+                                            class="material-symbols-outlined text-[18px] text-gray-200 dark:text-gray-700 fill-current">star</span>
+                                    </div>
+                                    <span
+                                        class="text-sm text-gray-700 dark:text-gray-300 group-hover:text-primary transition-colors">3
+                                        o más</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4">Distancia</h4>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <span class="material-symbols-outlined text-gray-400 text-[20px]">location_on</span>
+                            </div>
+                            <input
+                                class="block w-full pl-10 pr-10 py-2.5 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all"
+                                placeholder="Código Postal o Ciudad" type="text" value="CDMX, Centro" />
+                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
+                                <span class="material-symbols-outlined text-primary text-[20px]">my_location</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center justify-between text-sm text-gray-500">
+                            <span>Radio</span>
+                            <span class="font-bold text-gray-900 dark:text-white">10 km</span>
+                        </div>
+                        <input
+                            class="w-full h-1.5 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-2 accent-primary"
+                            max="50" min="1" type="range" value="10" />
+                    </div>
                 </div>
-            </a>
-            }
+            </aside>
+            <section class="flex-1">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Explorar Servicios</h2>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Mostrando 24 resultados cerca de ti</p>
+                    </div>
+                    <div
+                        class="flex items-center gap-2 bg-white dark:bg-[#1a1a1a] rounded-lg p-1 border border-gray-200 dark:border-gray-800 shadow-sm">
+                        <span class="text-xs font-semibold text-gray-500 px-2 hidden sm:inline">Ordenar por:</span>
+                        <select
+                            class="text-sm font-medium text-gray-900 dark:text-white border-none bg-transparent focus:ring-0 py-1 pl-2 pr-8 cursor-pointer">
+                            <option>Relevancia</option>
+                            <option>Precio: Menor a Mayor</option>
+                            <option>Precio: Mayor a Menor</option>
+                            <option>Calificación</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <article
+                        class="flex flex-col bg-white dark:bg-[#1a1a1a] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] border border-transparent hover:border-gray-100 dark:hover:border-gray-700 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                                data-alt="Elegant table setup for catering with gourmet food"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAnSy6IARdd8wHEF_Ps8CaRlyhqB8SNcq5tCGwU0QC4h7aBIbE1e4vnqwd6xoGm2dJR9pGjhK6TKaCN359bbt65RpIAHgHvXUppFkUvMszWPvilDkiDtVL2TUpf4HhdNZiEaG3itGClvS6LLV91CkQPC4ynUx2bqOIQgROydpsWPK0Bugq1Cf_G_JBIr_JgCWn_phWoQ0Nyto8wQ0HAuU53PlFU_Nm08wTgrmcmx0VmV9CVDGPsMhWTcg4xGSHnXvd0mce1t9iI6GY');">
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60">
+                            </div>
+                            <div
+                                class="absolute bottom-3 left-3 bg-badge-pink/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-pink-200">
+                                <span
+                                    class="material-symbols-outlined text-primary text-[16px] fill-current">verified</span>
+                                <span class="text-primary text-[10px] font-bold uppercase tracking-wider">Proveedor
+                                    Verificado</span>
+                            </div>
+                            <button
+                                class="absolute top-3 right-3 bg-white/90 p-2 rounded-full text-gray-400 hover:text-primary transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+                                <span class="material-symbols-outlined text-[20px]">favorite</span>
+                            </button>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3
+                                    class="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    Banquetes Deliciosos</h3>
+                                <div
+                                    class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-1.5 py-0.5 rounded text-yellow-700 dark:text-yellow-400">
+                                    <span class="material-symbols-outlined text-[16px] fill-current">star</span>
+                                    <span class="text-xs font-bold">4.8</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1 mb-3">
+                                <p class="text-xs text-gray-400">Catering • Ciudad de México</p>
+                                <div class="flex items-center gap-1 text-primary/80">
+                                    <span class="material-symbols-outlined text-[14px]">near_me</span>
+                                    <span class="text-xs font-medium">A 2.5 km de tu ubicación</span>
+                                </div>
+                            </div>
+                            <div
+                                class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wide">Precio
+                                        base</span>
+                                    <span class="text-lg font-extrabold text-gray-900 dark:text-white">$500<span
+                                            class="text-xs font-normal text-gray-500 ml-1">/ persona</span></span>
+                                </div>
+                                <button
+                                    class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95">
+                                    Ver paquetes
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                    <article
+                        class="flex flex-col bg-white dark:bg-[#1a1a1a] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] border border-transparent hover:border-gray-100 dark:hover:border-gray-700 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                                data-alt="DJ mixing music at a party with colorful lights"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAFytAs1bWtcIF4f1QdMmcSAkjn4-p6s_SGE1Q9GTObOonJldidvXphZ_wkKZMSEkHyaEbIEOxT2VgQq-AKTEVQDx2e7kF0qlOOOMyTNA1d-ESjFhjdtdJJzWptyWmaDmZxP3mRy5O3E_Ar-GcLf1Yn3S3k_fxT8IINFXkdCgnAtKpJk_cPPo0ahAbbD2yjXcc3WlF9iX0Y_pExGXJwF4MsG-5MpNdpUDe5g2RuRb1ZCpd2dFVO8OPl8qZHZubBlz0v7nWVM9gixcg');">
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60">
+                            </div>
+                            <button
+                                class="absolute top-3 right-3 bg-white/90 p-2 rounded-full text-gray-400 hover:text-primary transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+                                <span class="material-symbols-outlined text-[20px]">favorite</span>
+                            </button>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3
+                                    class="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    DJ Party Mix</h3>
+                                <div
+                                    class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-1.5 py-0.5 rounded text-yellow-700 dark:text-yellow-400">
+                                    <span class="material-symbols-outlined text-[16px] fill-current">star</span>
+                                    <span class="text-xs font-bold">4.9</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1 mb-3">
+                                <p class="text-xs text-gray-400">Música • Polanco</p>
+                                <div class="flex items-center gap-1 text-primary/80">
+                                    <span class="material-symbols-outlined text-[14px]">near_me</span>
+                                    <span class="text-xs font-medium">A 1.2 km de tu ubicación</span>
+                                </div>
+                            </div>
+                            <div
+                                class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wide">Precio
+                                        base</span>
+                                    <span class="text-lg font-extrabold text-gray-900 dark:text-white">$300<span
+                                            class="text-xs font-normal text-gray-500 ml-1">/ hora</span></span>
+                                </div>
+                                <button
+                                    class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95">
+                                    Ver paquetes
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                    <article
+                        class="flex flex-col bg-white dark:bg-[#1a1a1a] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.08)] border border-transparent hover:border-gray-100 dark:hover:border-gray-700 overflow-hidden group transition-all duration-300 transform hover:-translate-y-1">
+                        <div class="relative h-48 overflow-hidden">
+                            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                                data-alt="Beautiful floral arrangement for wedding decoration"
+                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDLm7HrDXITGqADgsHHP4x2iD9M99Zt9YS11Az-wTIlVjgVBQOaux916noPZl7ESMovJN3w2uR0m7HGJuvUrH39o6x-Av7laAdOcEbIDpmZTYwk5rR_yBAx3yx7VgSFtr9ojZeJw617qwTYw8tGFW89bZtRcppGJCDtAr0a-trBRMKJ05SGZYt2MXmPhUU8sfvPAV4Vl8RUgAsHzR2KL25PDM9bGEUoAieA-RhCxe80L8jEIwO2rgldyqoQO8nIbQ8UdA_o9piNX58');">
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60">
+                            </div>
+                            <div
+                                class="absolute bottom-3 left-3 bg-badge-pink/90 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm border border-pink-200">
+                                <span
+                                    class="material-symbols-outlined text-primary text-[16px] fill-current">verified</span>
+                                <span class="text-primary text-[10px] font-bold uppercase tracking-wider">Proveedor
+                                    Verificado</span>
+                            </div>
+                            <button
+                                class="absolute top-3 right-3 bg-white/90 p-2 rounded-full text-gray-400 hover:text-primary transition-colors shadow-sm opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 duration-300">
+                                <span class="material-symbols-outlined text-[20px]">favorite</span>
+                            </button>
+                        </div>
+                        <div class="p-5 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-1">
+                                <h3
+                                    class="text-lg font-bold text-gray-900 dark:text-white leading-tight group-hover:text-primary transition-colors">
+                                    Decoraciones Florales</h3>
+                                <div
+                                    class="flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-1.5 py-0.5 rounded text-yellow-700 dark:text-yellow-400">
+                                    <span class="material-symbols-outlined text-[16px] fill-current">star</span>
+                                    <span class="text-xs font-bold">4.5</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1 mb-3">
+                                <p class="text-xs text-gray-400">Decoración • Coyoacán</p>
+                                <div class="flex items-center gap-1 text-primary/80">
+                                    <span class="material-symbols-outlined text-[14px]">near_me</span>
+                                    <span class="text-xs font-medium">A 5.0 km de tu ubicación</span>
+                                </div>
+                            </div>
+                            <div
+                                class="mt-auto pt-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                                <div class="flex flex-col">
+                                    <span class="text-[10px] uppercase text-gray-400 font-bold tracking-wide">Precio
+                                        base</span>
+                                    <span class="text-lg font-extrabold text-gray-900 dark:text-white">$200<span
+                                            class="text-xs font-normal text-gray-500 ml-1">/ evento</span></span>
+                                </div>
+                                <button
+                                    class="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-lg shadow-primary/20 hover:shadow-primary/40 active:scale-95">
+                                    Ver paquetes
+                                </button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+                <div class="mt-10 flex justify-center">
+                    <button
+                        class="flex items-center gap-2 px-6 py-3 bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white font-bold rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                        Cargar más resultados
+                        <span class="material-symbols-outlined text-[20px]">expand_more</span>
+                    </button>
+                </div>
+            </section>
         </div>
-    </section>
-</div>
+    </div>
+</main>

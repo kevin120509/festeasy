@@ -38,10 +38,10 @@ export class SolicitudesComponent implements OnInit {
 
     aceptar(id: string) {
         // Actualizamos al estado definido en el modelo
-        this.api.updateRequestStatus(id, 'aceptada').subscribe({
+        this.api.updateRequestStatus(id, 'reservado').subscribe({
             next: () => {
                 this.solicitudes.update(items =>
-                    items.map(s => s.id === id ? { ...s, estado: 'aceptada' as const } : s)
+                    items.map(s => s.id === id ? { ...s, estado: 'reservado' as const } : s)
                 );
             },
             error: (err) => {

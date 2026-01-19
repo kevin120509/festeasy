@@ -53,9 +53,16 @@ export class SolicitudesService {
         // Mapeo simple de estados de DB a estados de UI
         switch (estadoDb) {
             case 'pendiente_aprobacion': return 'pendiente';
-            case 'negociacion': return 'cotizando';
-            case 'aceptada': return 'contratado';
-            case 'completada': return 'finalizado';
+            case 'esperando_anticipo': return 'cotizando'; // Asumimos que esperando anticipo es parte del proceso previo
+            case 'reservado':
+            case 'en_progreso':
+            case 'entregado_pendiente_liq':
+                return 'contratado';
+            case 'finalizado':
+            case 'rechazada':
+            case 'cancelada':
+            case 'abandonada':
+                return 'finalizado';
             default: return 'pendiente';
         }
     }
