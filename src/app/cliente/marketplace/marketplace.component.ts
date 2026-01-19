@@ -18,17 +18,21 @@ export class MarketplaceComponent implements OnInit {
     searchQuery = '';
 
     ngOnInit(): void {
-        this.api.getProviderProfiles().subscribe(profiles => {
-            this.providers.set(profiles.map(p => ({
-                id: p.id,
-                usuario_id: p.usuario_id,
-                nombre: p.nombre_negocio,
-                categoria: p.descripcion || 'Servicios',
-                precio: p.precio_base || 0, // precio_base is now expected in ProviderProfile
-                rating: 5.0,
-                ubicacion: p.direccion_formato || 'Ciudad de México',
-                imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60'
-            })));
+        this.api.getProviderProfiles().subscribe({
+            next: (profiles) => {
+                console.log('🏪 Proveedores obtenidos:', profiles);
+                this.providers.set(profiles.map(p => ({
+                    id: p.id,
+                    usuario_id: p.usuario_id,
+                    nombre: p.nombre_negocio,
+                    categoria: p.descripcion || 'Servicios',
+                    precio: p.precio_base || 0,
+                    rating: 5.0,
+                    ubicacion: p.direccion_formato || 'Ciudad de México',
+                    imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60'
+                })));
+            },
+            error: (err) => console.error('❌ Error cargando proveedores:', err)
         });
     }
 

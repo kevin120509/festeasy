@@ -230,9 +230,10 @@ export class ApiService {
                 const userId = res.data.user?.id;
                 if (!userId) return [];
                 
+                // Solicitudes sin JOIN - no hay FK directa a perfil_proveedor
                 return from(this.supabase
                     .from('solicitudes')
-                    .select('*, proveedor:perfil_proveedor!solicitudes_proveedor_usuario_id_fkey(nombre_negocio, avatar_url)')
+                    .select('*')
                     .eq('cliente_usuario_id', userId)
                     .order('creado_en', { ascending: false })
                 );
@@ -252,9 +253,10 @@ export class ApiService {
                 const userId = res.data.user?.id;
                 if (!userId) return [];
                 
+                // JOIN con perfil_cliente usando la nueva FK
                 return from(this.supabase
                     .from('solicitudes')
-                    .select('*, cliente:perfil_cliente!solicitudes_cliente_usuario_id_fkey(nombre_completo, telefono)')
+                    .select('*, cliente:perfil_cliente!solicitudes_cliente_perfil_fkey(nombre_completo, telefono, avatar_url)')
                     .eq('proveedor_usuario_id', userId)
                     .order('creado_en', { ascending: false })
                 );

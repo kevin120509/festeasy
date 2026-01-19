@@ -26,6 +26,7 @@ import { SeguimientoEventoComponent } from './cliente/seguimiento/seguimiento.co
 import { ProveedorRegistroComponent } from './proveedor/registro/registro.component';
 import { ProveedorDashboardComponent } from './proveedor/dashboard/dashboard.component';
 import { SolicitudesComponent } from './proveedor/solicitudes/solicitudes.component';
+import { BandejaSolicitudesComponent } from './proveedor/bandeja-solicitudes/bandeja-solicitudes.component';
 import { AgendaComponent } from './proveedor/agenda/agenda.component';
 import { NotificacionesComponent } from './proveedor/notificaciones/notificaciones.component';
 import { PaquetesComponent } from './proveedor/paquetes/paquetes.component';
@@ -61,6 +62,7 @@ export const routes: Routes = [
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },
     { path: 'proveedor/dashboard', component: ProveedorDashboardComponent, canActivate: [roleGuard], data: { role: 'provider' } },
     { path: 'proveedor/solicitudes', component: SolicitudesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    { path: 'proveedor/bandeja', component: BandejaSolicitudesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
     { path: 'proveedor/agenda', component: AgendaComponent, canActivate: [roleGuard], data: { role: 'provider' } },
     { path: 'proveedor/notificaciones', component: NotificacionesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
     { path: 'proveedor/paquetes', component: PaquetesComponent, canActivate: [roleGuard], data: { role: 'provider' } },

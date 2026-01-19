@@ -1,262 +1,229 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
+<html class="light" lang="es"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>FestEasy - Mis Solicitudes</title>
-<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;700;900&amp;family=Manrope:wght@400;500;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@400;500;600;700;800;900&amp;family=Noto+Sans:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#e21d24",
-                        "background-light": "#faffff",
-                        "background-dark": "#0f1315",
-                        "glacial": "#F8FFFF",
-                        "jet": "#010302",
+                        "primary": "#0a6e80",
+                        "background-light": "#F8FFFF",
+                        "background-dark": "#121820",
+                        "critical-red": "#E01D25",
+                        "success-green": "#22C55E",
+                        "warning-orange": "#F9B249",
+                        "technical-gray": "#F4F7F9"
                     },
                     fontFamily: {
-                        "display": ["Epilogue", "sans-serif"],
-                        "body": ["Manrope", "sans-serif"],
+                        "display": ["Epilogue", "sans-serif"]
                     },
                     borderRadius: {
-                        "DEFAULT": "1rem",
-                        "lg": "2rem",
-                        "xl": "3rem",
-                        "premium": "2rem", // 32px
+                        "DEFAULT": "0.5rem",
+                        "lg": "1rem",
+                        "xl": "1.5rem",
                         "full": "9999px"
                     },
-                    boxShadow: {
-                        "premium": "0 20px 40px -10px rgba(0,0,0,0.06)",
-                    }
                 },
             },
         }
     </script>
 <style>
-        body {
-            font-family: 'Manrope', sans-serif;
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        h1, h2, h3, h4, h5, h6 {
-            font-family: 'Epilogue', sans-serif;
+        .btn-success-gradient {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
         }
     </style>
 </head>
-<body class="bg-glacial min-h-screen text-jet">
-<!-- Top Navigation -->
-<header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
-<div class="max-w-[1280px] mx-auto px-6 h-20 flex items-center justify-between">
-<!-- Logo Area -->
-<div class="flex items-center gap-3">
-<div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-<span class="material-symbols-outlined">celebration</span>
+<body class="bg-background-light dark:bg-background-dark font-display min-h-screen">
+<div class="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden">
+<div class="layout-container flex h-full grow flex-col">
+<!-- Top Navigation Bar -->
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-primary/10 bg-white/70 backdrop-blur-md px-10 py-3 sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-4 text-primary">
+<div class="size-8">
+<svg fill="none" viewbox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.57829 8.57829C5.52816 11.6284 3.451 15.5145 2.60947 19.7452C1.76794 23.9758 2.19984 28.361 3.85056 32.3462C5.50128 36.3314 8.29667 39.7376 11.8832 42.134C15.4698 44.5305 19.6865 45.8096 24 45.8096C28.3135 45.8096 32.5302 44.5305 36.1168 42.134C39.7033 39.7375 42.4987 36.3314 44.1494 32.3462C45.8002 28.361 46.2321 23.9758 45.3905 19.7452C44.549 15.5145 42.4718 11.6284 39.4217 8.57829L24 24L8.57829 8.57829Z" fill="currentColor"></path>
+</svg>
 </div>
-<span class="text-xl font-bold tracking-tight text-jet font-display">FestEasy</span>
+<h2 class="text-[#0d191b] text-xl font-black leading-tight tracking-[-0.015em]">FestEasy</h2>
 </div>
-<!-- Desktop Menu -->
-<nav class="hidden md:flex items-center gap-10">
-<a class="text-sm font-semibold text-jet hover:text-primary transition-colors" href="#">Explorar Servicios</a>
-<a class="text-sm font-semibold text-primary" href="#">Mis Eventos</a>
-<a class="text-sm font-semibold text-jet hover:text-primary transition-colors" href="#">Ayuda</a>
+<nav class="flex items-center gap-6">
+<a class="text-[#4c8e9a] hover:text-primary text-sm font-semibold transition-colors" href="#">Dashboard</a>
+<a class="text-primary text-sm font-bold border-b-2 border-primary py-1" href="#">Solicitudes</a>
+<a class="text-[#4c8e9a] hover:text-primary text-sm font-semibold transition-colors" href="#">Calendario</a>
+<a class="text-[#4c8e9a] hover:text-primary text-sm font-semibold transition-colors" href="#">Perfil</a>
 </nav>
-<!-- Actions -->
-<div class="flex items-center gap-4">
-<button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors text-jet">
-<span class="material-symbols-outlined text-[20px]">notifications</span>
+</div>
+<div class="flex flex-1 justify-end gap-6 items-center">
+<label class="flex flex-col min-w-40 !h-10 max-w-64">
+<div class="flex w-full flex-1 items-stretch rounded-xl h-full bg-[#f0f5f6]">
+<div class="text-[#4c8e9a] flex items-center justify-center pl-4">
+<span class="material-symbols-outlined text-xl">search</span>
+</div>
+<input class="form-input flex w-full min-w-0 flex-1 border-none bg-transparent focus:ring-0 text-base font-normal px-4 pl-2" placeholder="Buscar solicitud..."/>
+</div>
+</label>
+<div class="flex gap-2">
+<button class="size-10 flex items-center justify-center rounded-xl bg-[#f0f5f6] text-primary relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-critical-red rounded-full"></span>
 </button>
-<div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-sm">
-<img alt="Profile portrait of a smiling woman" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA47RcQaCLdoCwi5WC-R8MFvRUg44jbJeczbw2rKO-DZKazBZsbt-ioAppLWdCyWH2qFBOJgC2MEMfaxnXoUVCUQBL0s2xZQVt0l3mXnMTlHs8EgmCMh9QfzQ2IIFE46q7QOwOR5Fh16G1h0L11ebUp7OR4NiydRB_TPGw8MGPr3tOPMRAv3bNso-rBdgpKrcS-ghK6NAIRyd506ZHolst3DtKogtPvWhKBWQIPg23Tyn2OGXGjyR_d5ts7zPClpS0XU_DrMHb-sAk"/>
+<button class="size-10 flex items-center justify-center rounded-xl bg-[#f0f5f6] text-primary">
+<span class="material-symbols-outlined">settings</span>
+</button>
 </div>
-</div>
+<div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary/20" data-alt="User profile avatar" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAX2yQonzN2O669JgZLqZJbcY30vnDsShA5T6VqiG6xD2EO9VbQW4JcHk105ca3HfnGF4P9ZI--hHo6h21IeSLoJ-4wlew18Ec2Z-HEw6kmowEBFzaR5YEBnKDEm-Q5SQqZJqwHPQpIC-bSYZ286qV5ij9tE5WBUVwOsSUqj8qk938Zf1rqnfKi4ODl30pV4PW49fwrXYDct0DUNgKmEtnpi9VeF8gNGDp29ymP-TW7xBESjo46Sw0jbyfvOTGKR9KTe2Sw9KXWxPM");'></div>
 </div>
 </header>
-<main class="max-w-[1024px] mx-auto px-6 py-12 pb-24">
-<!-- Page Heading & Tabs -->
-<div class="flex flex-col items-center gap-8 mb-12">
-<h1 class="text-4xl md:text-5xl font-black text-center text-jet tracking-tight">
-                Seguimiento de mi Evento
-            </h1>
-<!-- Tabs -->
-<div class="inline-flex items-center p-1 bg-white rounded-full shadow-sm border border-gray-100">
-<button class="px-8 py-2.5 rounded-full bg-jet text-white text-sm font-bold shadow-md transition-all">
-                    Activas
-                </button>
-<button class="px-8 py-2.5 rounded-full text-gray-500 hover:bg-gray-50 text-sm font-bold transition-all">
-                    Historial
-                </button>
+<main class="max-w-[1000px] mx-auto w-full px-6 py-10">
+<!-- Page Heading -->
+<div class="flex flex-wrap justify-between items-end gap-4 mb-8">
+<div class="flex flex-col gap-2">
+<h1 class="text-[#0d191b] text-4xl font-black leading-tight tracking-[-0.033em]">Solicitudes Recibidas</h1>
+<p class="text-[#4c8e9a] text-lg font-medium">Recuerda responder antes de 24h para mantener tu reputación.</p>
+</div>
+<button class="flex items-center gap-2 rounded-full h-11 px-6 bg-white border border-primary/20 text-primary text-sm font-bold shadow-sm hover:bg-[#f0f5f6] transition-all">
+<span class="material-symbols-outlined text-lg">tune</span>
+<span>Configurar Notificaciones</span>
+</button>
+</div>
+<!-- Modern Pill Tabs -->
+<div class="mb-8 overflow-x-auto">
+<div class="flex items-center gap-3 p-1.5 bg-[#f0f5f6] rounded-full w-fit">
+<a class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white text-primary shadow-sm font-bold text-sm" href="#">
+<span>Pendientes</span>
+<span class="flex items-center justify-center bg-critical-red text-white text-[10px] size-5 rounded-full">3</span>
+</a>
+<a class="flex items-center px-6 py-2.5 rounded-full text-[#4c8e9a] font-bold text-sm hover:text-primary transition-colors" href="#">
+                            Aceptadas
+                        </a>
+<a class="flex items-center px-6 py-2.5 rounded-full text-[#4c8e9a] font-bold text-sm hover:text-primary transition-colors" href="#">
+                            Historial
+                        </a>
 </div>
 </div>
-<!-- Cards Container -->
+<!-- Request Cards Grid -->
 <div class="flex flex-col gap-8">
-<!-- Card 1: Confirmed -->
-<article class="group bg-white rounded-premium p-6 shadow-premium transition-transform duration-300 hover:-translate-y-1 border border-transparent hover:border-gray-100">
-<div class="flex flex-col md:flex-row gap-6">
-<!-- Content -->
-<div class="flex-1 flex flex-col justify-between gap-6">
-<!-- Header -->
-<div class="flex items-start justify-between">
+<!-- Card 1 (CRITICAL) -->
+<div class="group relative bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-primary/5 overflow-hidden transition-all hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+<!-- Urgency Banner -->
+<div class="bg-critical-red px-6 py-2.5 flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-lg">schedule</span>
+<span>CRÍTICO: Quedan 04h 35m para responder</span>
+</div>
+<div class="p-8 flex flex-col md:flex-row gap-8">
+<!-- Left Column: Profile & Context -->
+<div class="flex-1 flex gap-6">
+<div class="size-20 rounded-2xl bg-center bg-no-repeat bg-cover border-4 border-[#f8fbfc]" data-alt="Client Mariana Rivera profile" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuD1mStytDOm16Xz_a9CYbQGPtapEwNE6bpzztFhSwrOZcOiXGkJTIOBbc83R3hL3AWoP2dxPQlbicyCb18zQmabG-b77ndcx2cOJQh76Lo_6-6DxZiSpXdP3kQLIeln3Uw0QGmcFIYFdDKct-MMrXR4usbdHv2oIWc57uUAp6DHxWF_p5f4ZW7EDWQt5qznKyLg3CF4Iv08twHZrLpROKWXBQrWhdaE-5cAxPSpKvsZUi15Rqhjyfr7p1dMU78380r8MhXUX8gtiiE");'></div>
+<div class="flex flex-col gap-2">
 <div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100">
-<img alt="Provider logo portrait" class="w-full h-full object-cover" data-alt="Provider logo portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBV3oUk6sYAMVng-pOMSgE2HO2GeJh3JDol7-rXp98-eyNOyD-0jRLXXkk9M2eShoSeoEaIJdi9Nhjjqd--_n_LyLbCYLUbJvh7wtzHNryMtks1WiLWPgRR7Den5qASbnoIrmvkMxLBYjVVug2mFdEm16xw_SDkozfFAuRCdUQvBzQwB9e4knWjXY6rcdP36SMM90_M-LdCydMSCDr8ylMiP6uSS0X4bOvYlqmbgZ0bnj6U0iHWdpGJIqxGtAeLoXFD3cLLhFqrqK4"/>
+<h3 class="text-[#0d191b] text-2xl font-black">Mariana Rivera</h3>
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-tighter">Boda</span>
 </div>
-<div>
-<p class="text-sm text-gray-500 font-medium">Proveedor</p>
-<h4 class="text-base font-bold text-jet leading-tight">DJ Sonic Boom</h4>
+<div class="flex flex-col gap-1 text-[#4c8e9a]">
+<div class="flex items-center gap-1.5 font-semibold text-sm">
+<span class="material-symbols-outlined text-base">calendar_today</span>
+<span>Sáb, 20 Oct 2024</span>
 </div>
-</div>
-<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-wider">
-<span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
-                                Confirmado
-                            </span>
-</div>
-<!-- Body -->
-<div>
-<h3 class="text-2xl font-bold text-jet mb-3 font-display">Paquete Sonido Premium</h3>
-<div class="flex flex-wrap gap-4 text-gray-600">
-<div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
-<span class="material-symbols-outlined text-[18px]">calendar_today</span>
-<span>Sáb, 24 Oct</span>
-</div>
-<div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
-<span class="material-symbols-outlined text-[18px]">schedule</span>
-<span>8:00 PM - 2:00 AM</span>
-</div>
-<div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
-<span class="material-symbols-outlined text-[18px]">location_on</span>
-<span>Salón Los Olivos</span>
-</div>
-</div>
-</div>
-<!-- Actions -->
-<div class="flex items-center gap-3 pt-2">
-<button aria-label="Chat" class="h-12 w-12 flex items-center justify-center rounded-full border border-gray-200 text-jet hover:bg-gray-50 transition-colors">
-<span class="material-symbols-outlined">chat_bubble</span>
-</button>
-<button class="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm shadow-lg shadow-red-200 hover:bg-red-700 transition-colors flex items-center gap-2">
-<span>Detalles</span>
-<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
-</button>
-</div>
-</div>
-<!-- Image -->
-<div class="w-full md:w-[320px] aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden relative">
-<div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-<img alt="DJ turning tables at a colorful party" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="DJ turning tables at a colorful party" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtcJUr-JtW20cyMFS3aDbjGtFWcEY_FTC0yyJeTCHRAZFj2Z67t3rOsxHkAkkIYj_5dexFQ3MeXRg8_s9aw74uckME30X6r3tGU-gn2a6NGvdroChex_0Q4-tFyAQL2qMjRKwWeJQ4lwILM9VrfQK-wRPF7ida3UaFA33B15sIVwCCg7nN1RvsJIfxxVYEYUXCUpSJsBT0uX2sLpULVchJxzpYRJS4BsX1AnqOSfOj_E_hZiadJ6xU8YNXnCcT7571ExIYAkjENs4"/>
-</div>
-</div>
-</article>
-<!-- Card 2: Pending -->
-<article class="group bg-white rounded-premium p-6 shadow-premium transition-transform duration-300 hover:-translate-y-1 border border-transparent hover:border-gray-100">
-<div class="flex flex-col md:flex-row gap-6">
-<div class="flex-1 flex flex-col justify-between gap-6">
-<div class="flex items-start justify-between">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded-full bg-orange-50 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center text-orange-400">
-<span class="material-symbols-outlined">restaurant</span>
-</div>
-<div>
-<p class="text-sm text-gray-500 font-medium">Proveedor</p>
-<h4 class="text-base font-bold text-jet leading-tight">Catering Delicioso</h4>
-</div>
-</div>
-<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-bold uppercase tracking-wider">
-<span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
-                                Esperando al Proveedor
-                            </span>
-</div>
-<div>
-<h3 class="text-2xl font-bold text-jet mb-3 font-display">Banquete Boda Gold</h3>
-<div class="flex flex-wrap gap-4 text-gray-600">
-<div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
-<span class="material-symbols-outlined text-[18px]">calendar_today</span>
-<span>Sáb, 24 Oct</span>
-</div>
-<div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
-<span class="material-symbols-outlined text-[18px]">schedule</span>
-<span>6:00 PM</span>
-</div>
-</div>
-</div>
-<div class="flex items-center gap-3 pt-2">
-<button class="h-12 w-12 flex items-center justify-center rounded-full border border-gray-200 text-gray-400 cursor-not-allowed" disabled="">
-<span class="material-symbols-outlined">chat_bubble</span>
-</button>
-<button class="h-12 px-6 rounded-full bg-gray-100 text-gray-500 font-bold text-sm flex items-center gap-2 hover:bg-gray-200 transition-colors">
-<span>Ver Solicitud</span>
-</button>
-</div>
-</div>
-<div class="w-full md:w-[320px] aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden relative grayscale-[30%] opacity-90">
-<img alt="Elegant catering food setup" class="w-full h-full object-cover" data-alt="Elegant catering food setup" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBMJLULNeLIXTUPeGlrwCzZ82n3QaVbg-mVNPbkimhIH_pSUXqRVX_mBQ6bdNvryBmKfucZmrs-5nYilSE4sHa2OkyDXUCnhZJeYAjB3b7wc0oX-t9oqVZcVvFgMWp8wkOgmd7kJCL6EtF79-Gt-NkTQzL_grnXoJuKOFfN7ugn5PfZsKpZ7w2B4LhC5ZOqS_i3Dx2-vizmURkH2zdEnf4z27Gv3RgfRRv7Q9LENBFXqCc8p-c9LxC2ZkRbyjmv5-B_qhfm55iseOM"/>
-</div>
-</div>
-</article>
-<!-- Card 3: Rejected/Unavailable -->
-<article class="group bg-white rounded-premium p-6 shadow-premium border border-red-50 relative overflow-hidden">
-<!-- Decorative background accent -->
-<div class="absolute -right-10 -top-10 w-40 h-40 bg-red-50 rounded-full blur-3xl opacity-50 pointer-events-none"></div>
-<div class="flex flex-col md:flex-row gap-6 relative z-10">
-<div class="flex-1 flex flex-col justify-between gap-6">
-<div class="flex items-start justify-between">
-<div class="flex items-center gap-3 opacity-60">
-<div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100">
-<img alt="Photographer logo" class="w-full h-full object-cover grayscale" data-alt="Photographer logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIamroPoFqZZJBpxRJC2MIWqIQEblHY2td1Y9CUmVkP-k43WNmf6sYFk7hSDpt-3zIm74-z1eIupF08hhQQ3jdnhrX5ElxmXHcj4jpHItx4itGeupkt3TDtoz-hcOM8mFF4gwj9Tsmr2UJvXcS6okuxIxzArn2ryzwGElcp_00JGSpaPft4kFJ7DoNZuXR74ZraARIGMZlaHd2C1y9DeEHwAj6Lqm7iUC-Pw729o85SBrL5919DZ3A53AYRWQAUaif_D3i1deH0NU"/>
-</div>
-<div>
-<p class="text-sm text-gray-500 font-medium">Proveedor</p>
-<h4 class="text-base font-bold text-jet leading-tight">Fotografía Luz</h4>
-</div>
-</div>
-<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-50 text-red-700 text-xs font-bold uppercase tracking-wider">
-<span class="material-symbols-outlined text-[14px]">close</span>
-                                No disponible
-                            </span>
-</div>
-<div>
-<h3 class="text-2xl font-bold text-gray-400 mb-3 font-display line-through decoration-red-300">Sesión Pre-Boda</h3>
-<!-- Helpful Alternative UI -->
-<div class="mt-4 p-4 rounded-xl bg-glacial border border-cyan-100 flex gap-4 items-start">
-<div class="p-2 bg-white rounded-full text-primary shrink-0 shadow-sm">
-<span class="material-symbols-outlined">support_agent</span>
-</div>
-<div>
-<p class="text-sm text-gray-700 font-medium leading-relaxed">
-                                        No te preocupes, estamos buscando al siguiente proveedor más cercano para ti.
-                                    </p>
-<a class="inline-flex items-center gap-1 text-sm font-bold text-primary mt-2 hover:underline" href="#">
-                                        Buscar alternativas
-                                        <span class="material-symbols-outlined text-[16px]">arrow_right_alt</span>
+<a class="flex items-center gap-1.5 font-semibold text-sm text-primary hover:underline underline-offset-4 decoration-2" href="#">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>Hacienda Los Arcángeles, CDMX</span>
 </a>
 </div>
 </div>
 </div>
-<div class="flex items-center gap-3 pt-2 opacity-50 pointer-events-none">
-<button class="h-12 w-12 flex items-center justify-center rounded-full border border-gray-200 text-jet">
-<span class="material-symbols-outlined">chat_bubble</span>
-</button>
-<button class="h-12 px-8 rounded-full bg-gray-100 text-gray-400 font-bold text-sm">
-                                Detalles
+<!-- Right Column: Service & Price -->
+<div class="flex-1 flex flex-col items-start md:items-end justify-between text-left md:text-right gap-4">
+<div>
+<p class="text-[#4c8e9a] text-sm font-bold uppercase tracking-widest mb-1">Servicio Solicitado</p>
+<p class="text-[#0d191b] text-lg font-bold">Paquete DJ Premium Gold (5 Horas)</p>
+</div>
+<div class="bg-[#f0f5f6] px-6 py-4 rounded-xl border border-primary/5">
+<p class="text-[#4c8e9a] text-xs font-bold uppercase tracking-widest mb-1">Precio Total</p>
+<p class="text-primary text-3xl font-black">$12,500 MXN</p>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex border-t border-primary/5">
+<button class="flex-1 py-5 bg-technical-gray hover:bg-[#ebf0f2] text-[#4c8e9a] font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-lg">close</span>
+                                Rechazar Solicitud
+                            </button>
+<button class="flex-1 py-5 btn-success-gradient text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+                                Aceptar y Agendar
                             </button>
 </div>
 </div>
-<div class="w-full md:w-[320px] aspect-video md:aspect-[4/3] rounded-2xl overflow-hidden relative grayscale opacity-60">
-<div class="absolute inset-0 flex items-center justify-center bg-black/10">
-<span class="material-symbols-outlined text-white/80 text-6xl">image_not_supported</span>
+<!-- Card 2 (NORMAL) -->
+<div class="group relative bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-primary/5 overflow-hidden transition-all hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+<!-- Urgency Banner (Warning) -->
+<div class="bg-warning-orange px-6 py-2.5 flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-lg">schedule</span>
+<span>Quedan 18h 20m para responder</span>
 </div>
-<img alt="Camera lens with soft bokeh" class="w-full h-full object-cover" data-alt="Camera lens with soft bokeh" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPmDm_sv6R0mOW2exX5R_Ycv8cAfwUXBHfVj1Fgp_L9BK1OJDr8JGNHY3_1-VQ7Am4W0Q-iB5Wl79f7j81aTPvPSayDiw_Dm56_oBlgnl8JwcVRdHyb9CM4rOL1BDxNjyuGt5JGACu5rgD_YzJhbUJaXOvb3LaRcybq5BBCuU8Ek_62Ej-lLNwyxEiPZO-vnLB5Q1rtRnGEnWfBpJdkalnRyPuX8R2td2rShxy5mR1JeVuuD6GF74TYIj4fbP9rTecr11iIs5N-hU"/>
+<div class="p-8 flex flex-col md:flex-row gap-8">
+<!-- Left Column -->
+<div class="flex-1 flex gap-6">
+<div class="size-20 rounded-2xl bg-center bg-no-repeat bg-cover border-4 border-[#f8fbfc]" data-alt="Client Roberto Galvan profile" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDSqPlLh7CASaCcu4UNJjNNqOR0tnpm0Gcru3F0k0CTaqGQrKVTYe6g-JfV4SoRSZYcO3zJs-kJxWdFEw-DZ4F_fyPfG0CSrIFyC1TB4nabl2KO7Gya09Y3dzvMC2m-uNYB418whWhpROXv6rNGsCHgVgm8ACDboavXYe0ld5zxn43c7Lenruna7WjCwyCXpQkIowy0l1_8a2VU0xZJ5AIHwZVHxDG621P7CQ4DxotolXnZbYpLgWw4L2IKhNGyfN74oplx4MoGpX4");'></div>
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<h3 class="text-[#0d191b] text-2xl font-black">Roberto Galván</h3>
+<span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-tighter">XV Años</span>
+</div>
+<div class="flex flex-col gap-1 text-[#4c8e9a]">
+<div class="flex items-center gap-1.5 font-semibold text-sm">
+<span class="material-symbols-outlined text-base">calendar_today</span>
+<span>Sáb, 15 Nov 2024</span>
+</div>
+<a class="flex items-center gap-1.5 font-semibold text-sm text-primary hover:underline underline-offset-4 decoration-2" href="#">
+<span class="material-symbols-outlined text-base">location_on</span>
+<span>Salón Los Cedros, CDMX</span>
+</a>
 </div>
 </div>
-</article>
 </div>
-<!-- Empty State Hint (Hidden for now, but contextually useful) -->
-<!-- 
-        <div class="mt-12 text-center text-gray-400">
-            <p class="text-sm">Mostrando 3 de 3 solicitudes</p>
-        </div>
-        -->
+<!-- Right Column -->
+<div class="flex-1 flex flex-col items-start md:items-end justify-between text-left md:text-right gap-4">
+<div>
+<p class="text-[#4c8e9a] text-sm font-bold uppercase tracking-widest mb-1">Servicio Solicitado</p>
+<p class="text-[#0d191b] text-lg font-bold">Iluminación Arquitectónica + Audio</p>
+</div>
+<div class="bg-[#f0f5f6] px-6 py-4 rounded-xl border border-primary/5">
+<p class="text-[#4c8e9a] text-xs font-bold uppercase tracking-widest mb-1">Precio Total</p>
+<p class="text-primary text-3xl font-black">$8,200 MXN</p>
+</div>
+</div>
+</div>
+<!-- Action Footer -->
+<div class="flex border-t border-primary/5">
+<button class="flex-1 py-5 bg-technical-gray hover:bg-[#ebf0f2] text-[#4c8e9a] font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-lg">close</span>
+                                Rechazar Solicitud
+                            </button>
+<button class="flex-1 py-5 btn-success-gradient text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-lg">check_circle</span>
+                                Aceptar y Agendar
+                            </button>
+</div>
+</div>
+</div>
 </main>
+</div>
+</div>
 </body></html>

@@ -1,0 +1,266 @@
+<div class="min-h-screen bg-[#F8FFFF]">
+    <!-- Notificaciones Toast -->
+    @if (mensajeExito()) {
+    <div class="fixed top-24 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+        <span class="material-symbols-outlined text-[24px]">check_circle</span>
+        <span class="font-semibold">{{ mensajeExito() }}</span>
+    </div>
+    }
+
+    @if (mensajeError()) {
+    <div class="fixed top-24 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+        <span class="material-symbols-outlined text-[24px]">error</span>
+        <span class="font-semibold">{{ mensajeError() }}</span>
+    </div>
+    }
+
+    <style>
+        @keyframes slide-in {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in { animation: slide-in 0.3s ease; }
+        .btn-success-gradient {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+        }
+    </style>
+
+    <!-- Header con navegación -->
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-primary/10 px-6 lg:px-10 py-3">
+        <div class="max-w-[1200px] mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
+                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+                        <span class="material-symbols-outlined">celebration</span>
+                    </div>
+                    <span class="text-xl font-black text-slate-800">FestEasy</span>
+                </div>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a routerLink="/proveedor/dashboard" class="text-slate-500 hover:text-primary text-sm font-semibold transition-colors">Dashboard</a>
+                    <span class="text-primary text-sm font-bold border-b-2 border-primary py-1">Solicitudes</span>
+                    <a routerLink="/proveedor/agenda" class="text-slate-500 hover:text-primary text-sm font-semibold transition-colors">Calendario</a>
+                    <a routerLink="/proveedor/configuracion" class="text-slate-500 hover:text-primary text-sm font-semibold transition-colors">Perfil</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <!-- Búsqueda -->
+                <div class="hidden lg:flex items-center bg-slate-100 rounded-xl px-4 py-2 min-w-[200px]">
+                    <span class="material-symbols-outlined text-slate-400 text-xl mr-2">search</span>
+                    <input type="text" placeholder="Buscar solicitud..." class="bg-transparent border-none focus:ring-0 text-sm w-full" />
+                </div>
+                <!-- Notificaciones -->
+                <button class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary relative hover:bg-slate-200 transition-colors">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                </button>
+                <!-- Configuración -->
+                <button class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary hover:bg-slate-200 transition-colors">
+                    <span class="material-symbols-outlined">settings</span>
+                </button>
+                <!-- Avatar -->
+                <div class="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/30 overflow-hidden">
+                    <img src="https://ui-avatars.com/api/?name=Proveedor&background=0a6e80&color=fff" alt="Avatar" class="w-full h-full object-cover" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="max-w-[1000px] mx-auto w-full px-6 py-10">
+        <!-- Encabezado de Página -->
+        <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
+            <div class="flex flex-col gap-2">
+                <h1 class="text-slate-800 text-4xl font-black leading-tight tracking-tight">Solicitudes Recibidas</h1>
+                <p class="text-slate-500 text-lg font-medium">Recuerda responder antes de 24h para mantener tu reputación.</p>
+            </div>
+            <button class="flex items-center gap-2 rounded-full h-11 px-6 bg-white border border-primary/20 text-primary text-sm font-bold shadow-sm hover:bg-slate-50 transition-all">
+                <span class="material-symbols-outlined text-lg">tune</span>
+                <span>Configurar Notificaciones</span>
+            </button>
+        </div>
+
+        <!-- Tabs de Navegación -->
+        <div class="mb-8 overflow-x-auto">
+            <div class="flex items-center gap-3 p-1.5 bg-slate-100 rounded-full w-fit">
+                <!-- Tab Pendientes -->
+                <button (click)="cambiarTab('pendientes')" 
+                    [class]="tabActivo() === 'pendientes' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'"
+                    class="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all">
+                    <span>Pendientes</span>
+                    @if (contadores().pendientes > 0) {
+                    <span class="flex items-center justify-center bg-red-500 text-white text-[10px] w-5 h-5 rounded-full font-bold">
+                        {{ contadores().pendientes }}
+                    </span>
+                    }
+                </button>
+                <!-- Tab Aceptadas -->
+                <button (click)="cambiarTab('aceptadas')" 
+                    [class]="tabActivo() === 'aceptadas' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'"
+                    class="flex items-center gap-2 px-6 py-2.5 rounded-full font-bold text-sm transition-all">
+                    <span>Aceptadas</span>
+                    @if (contadores().aceptadas > 0) {
+                    <span class="flex items-center justify-center bg-green-500 text-white text-[10px] w-5 h-5 rounded-full font-bold">
+                        {{ contadores().aceptadas }}
+                    </span>
+                    }
+                </button>
+                <!-- Tab Historial -->
+                <button (click)="cambiarTab('historial')" 
+                    [class]="tabActivo() === 'historial' ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'"
+                    class="flex items-center px-6 py-2.5 rounded-full font-bold text-sm transition-all">
+                    Historial
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+        <div class="flex flex-col gap-6">
+            @for (i of [1, 2, 3]; track i) {
+            <div class="bg-white rounded-xl p-8 animate-pulse">
+                <div class="flex gap-6">
+                    <div class="w-20 h-20 bg-slate-200 rounded-2xl"></div>
+                    <div class="flex-1 space-y-4">
+                        <div class="h-6 bg-slate-200 rounded w-1/3"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/2"></div>
+                        <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        } @else {
+
+        <!-- Lista de Solicitudes -->
+        <div class="flex flex-col gap-8">
+            @for (solicitud of solicitudesFiltradas(); track solicitud.id) {
+            <div class="group relative bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-primary/5 overflow-hidden transition-all hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+                
+                <!-- Banner de Urgencia (solo para pendientes) -->
+                @if (solicitud.estado === 'pendiente_aprobacion') {
+                <div [class]="solicitud.es_critico ? 'bg-red-500' : 'bg-amber-500'"
+                    class="px-6 py-2.5 flex items-center gap-2 text-white text-sm font-bold uppercase tracking-wider">
+                    <span class="material-symbols-outlined text-lg">schedule</span>
+                    @if (solicitud.es_critico) {
+                    <span>CRÍTICO: Quedan {{ formatearTiempoRestante(solicitud.horas_restantes) }} para responder</span>
+                    } @else {
+                    <span>Quedan {{ formatearTiempoRestante(solicitud.horas_restantes) }} para responder</span>
+                    }
+                </div>
+                }
+
+                <!-- Contenido de la Tarjeta -->
+                <div class="p-8 flex flex-col md:flex-row gap-8">
+                    <!-- Columna Izquierda: Perfil y Contexto -->
+                    <div class="flex-1 flex gap-6">
+                        <!-- Avatar del Cliente -->
+                        <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-teal-500 flex items-center justify-center text-white text-2xl font-black border-4 border-slate-50 shrink-0 overflow-hidden">
+                            @if (solicitud.cliente_avatar) {
+                            <img [src]="solicitud.cliente_avatar" alt="Cliente" class="w-full h-full object-cover" />
+                            } @else {
+                            {{ solicitud.cliente_nombre.charAt(0) }}
+                            }
+                        </div>
+                        
+                        <div class="flex flex-col gap-2">
+                            <!-- Nombre y Badge de Tipo -->
+                            <div class="flex items-center gap-3 flex-wrap">
+                                <h3 class="text-slate-800 text-2xl font-black">{{ solicitud.cliente_nombre }}</h3>
+                                <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase tracking-tight">
+                                    {{ solicitud.tipo_evento }}
+                                </span>
+                            </div>
+                            
+                            <!-- Fecha y Ubicación -->
+                            <div class="flex flex-col gap-1 text-slate-500">
+                                <div class="flex items-center gap-1.5 font-semibold text-sm">
+                                    <span class="material-symbols-outlined text-base">calendar_today</span>
+                                    <span>{{ formatearFecha(solicitud.fecha_servicio) }}</span>
+                                </div>
+                                <div class="flex items-center gap-1.5 font-semibold text-sm text-primary">
+                                    <span class="material-symbols-outlined text-base">location_on</span>
+                                    <span>{{ solicitud.direccion_servicio }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Columna Derecha: Servicio y Precio -->
+                    <div class="flex-1 flex flex-col items-start md:items-end justify-between text-left md:text-right gap-4">
+                        <div>
+                            <p class="text-slate-400 text-sm font-bold uppercase tracking-widest mb-1">Servicio Solicitado</p>
+                            <p class="text-slate-800 text-lg font-bold">{{ solicitud.titulo_evento }}</p>
+                        </div>
+                        <div class="bg-slate-50 px-6 py-4 rounded-xl border border-primary/5">
+                            <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Precio Total</p>
+                            <p class="text-primary text-3xl font-black">{{ solicitud.monto_total | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer con Acciones -->
+                @if (solicitud.estado === 'pendiente_aprobacion') {
+                <div class="flex border-t border-primary/5">
+                    <!-- Botón Rechazar -->
+                    <button (click)="rechazarSolicitud(solicitud)" 
+                        [disabled]="procesando() === solicitud.id"
+                        class="flex-1 py-5 bg-slate-50 hover:bg-slate-100 text-slate-500 font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+                        @if (procesando() === solicitud.id) {
+                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-slate-400 border-t-transparent"></div>
+                        } @else {
+                        <span class="material-symbols-outlined text-lg">close</span>
+                        <span>Rechazar Solicitud</span>
+                        }
+                    </button>
+                    <!-- Botón Aceptar -->
+                    <button (click)="aceptarSolicitud(solicitud)" 
+                        [disabled]="procesando() === solicitud.id"
+                        class="flex-1 py-5 btn-success-gradient text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50">
+                        @if (procesando() === solicitud.id) {
+                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                        } @else {
+                        <span class="material-symbols-outlined text-lg">check_circle</span>
+                        <span>Aceptar y Agendar</span>
+                        }
+                    </button>
+                </div>
+                }
+
+                <!-- Footer para Aceptadas -->
+                @if (solicitud.estado === 'esperando_anticipo' || solicitud.estado === 'reservado' || solicitud.estado === 'en_progreso') {
+                <div class="flex border-t border-primary/5">
+                    <button class="flex-1 py-5 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+                        <span class="material-symbols-outlined text-lg">chat</span>
+                        <span>Contactar Cliente</span>
+                    </button>
+                    <button class="flex-1 py-5 bg-slate-50 hover:bg-slate-100 text-primary font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+                        <span class="material-symbols-outlined text-lg">visibility</span>
+                        <span>Ver Detalles</span>
+                    </button>
+                </div>
+                }
+            </div>
+            } @empty {
+            <!-- Estado Vacío -->
+            <div class="bg-white rounded-xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+                @if (tabActivo() === 'pendientes') {
+                <span class="material-symbols-outlined text-slate-300 text-[64px]">inbox</span>
+                <p class="text-slate-500 font-medium text-lg">No hay solicitudes pendientes</p>
+                <p class="text-slate-400 text-sm">Las nuevas solicitudes de clientes aparecerán aquí</p>
+                }
+                @if (tabActivo() === 'aceptadas') {
+                <span class="material-symbols-outlined text-slate-300 text-[64px]">event_available</span>
+                <p class="text-slate-500 font-medium text-lg">No hay solicitudes aceptadas</p>
+                <p class="text-slate-400 text-sm">Las solicitudes que aceptes aparecerán aquí</p>
+                }
+                @if (tabActivo() === 'historial') {
+                <span class="material-symbols-outlined text-slate-300 text-[64px]">history</span>
+                <p class="text-slate-500 font-medium text-lg">No hay historial disponible</p>
+                <p class="text-slate-400 text-sm">Las solicitudes finalizadas o canceladas aparecerán aquí</p>
+                }
+            </div>
+            }
+        </div>
+        }
+    </main>
+</div>
