@@ -1,16 +1,14 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router'; // Fixed import
+import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
-import { HeaderComponent } from '../../shared/header/header';
-import { MapaComponent } from '../../shared/mapa/mapa.component';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ProviderPackage } from '../../models';
 
 @Component({
     selector: 'app-marketplace',
     standalone: true,
-    imports: [FormsModule, RouterLink, HeaderComponent, MapaComponent],
+    imports: [FormsModule, RouterLink],
     templateUrl: './marketplace.html'
 })
 export class MarketplaceComponent implements OnInit {

@@ -1,0 +1,198 @@
+<div class="min-h-screen bg-[#F8FFFF]">
+    <!-- Header -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+        <div class="max-w-[1280px] mx-auto px-6 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
+                <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined">celebration</span>
+                </div>
+                <span class="text-xl font-bold tracking-tight font-display">FestEasy</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-10">
+                <a class="text-sm font-semibold hover:text-primary transition-colors" routerLink="/cliente/dashboard">Explorar Servicios</a>
+                <span class="text-sm font-semibold text-primary">Mis Eventos</span>
+                <a class="text-sm font-semibold hover:text-primary transition-colors" href="#">Ayuda</a>
+            </nav>
+            <div class="flex items-center gap-4">
+                <button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center hover:bg-gray-100 transition-colors">
+                    <span class="material-symbols-outlined text-[20px]">notifications</span>
+                </button>
+                <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden border-2 border-white shadow-sm">
+                    <img class="w-full h-full object-cover" src="https://ui-avatars.com/api/?name=Cliente&background=e21d24&color=fff" alt="Avatar" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-[1024px] mx-auto px-6 py-12 pb-24">
+        <!-- Titulo y Tabs -->
+        <div class="flex flex-col items-center gap-8 mb-12">
+            <h1 class="text-4xl md:text-5xl font-black text-center tracking-tight font-display">
+                Seguimiento de mi Evento
+            </h1>
+            <div class="inline-flex items-center p-1 bg-white rounded-full shadow-sm border border-gray-100">
+                <button (click)="setTab('activas')"
+                    [class.bg-jet]="activeTab() === 'activas'"
+                    [class.text-white]="activeTab() === 'activas'"
+                    [class.shadow-md]="activeTab() === 'activas'"
+                    class="px-8 py-2.5 rounded-full text-sm font-bold transition-all">
+                    Activas
+                </button>
+                <button (click)="setTab('historial')"
+                    [class.bg-jet]="activeTab() === 'historial'"
+                    [class.text-white]="activeTab() === 'historial'"
+                    [class.shadow-md]="activeTab() === 'historial'"
+                    [class.text-gray-500]="activeTab() !== 'historial'"
+                    class="px-8 py-2.5 rounded-full text-sm font-bold transition-all hover:bg-gray-50">
+                    Historial
+                </button>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        @if (loading()) {
+        <div class="flex flex-col gap-6">
+            @for (i of [1,2,3]; track i) {
+            <div class="bg-white rounded-[2rem] p-6 animate-pulse">
+                <div class="flex gap-6">
+                    <div class="flex-1 space-y-4">
+                        <div class="h-4 bg-gray-200 rounded w-1/4"></div>
+                        <div class="h-6 bg-gray-200 rounded w-1/2"></div>
+                        <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+        }
+
+        <!-- Empty State -->
+        @if (!loading() && solicitudesFiltradas().length === 0) {
+        <div class="text-center py-16 bg-white rounded-[2rem] shadow-sm">
+            <span class="material-symbols-outlined text-6xl text-gray-300 mb-4">event_busy</span>
+            <h3 class="text-xl font-bold text-gray-700 mb-2">No hay solicitudes {{ activeTab() === 'activas' ? 'activas' : 'en historial' }}</h3>
+            <p class="text-gray-500 mb-6">{{ activeTab() === 'activas' ? 'Explora proveedores y contrata servicios para tu evento' : 'Tus solicitudes finalizadas apareceran aqui' }}</p>
+            @if (activeTab() === 'activas') {
+            <a routerLink="/cliente/dashboard" class="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-full hover:bg-red-700 transition-colors">
+                <span class="material-symbols-outlined">search</span>
+                Explorar Proveedores
+            </a>
+            }
+        </div>
+        }
+
+        <!-- Cards -->
+        @if (!loading() && solicitudesFiltradas().length > 0) {
+        <div class="flex flex-col gap-8">
+            @for (sol of solicitudesFiltradas(); track sol.id) {
+            <article class="group bg-white rounded-[2rem] p-6 shadow-[0_20px_40px_-10px_rgba(0,0,0,0.06)] transition-transform duration-300 hover:-translate-y-1 border border-transparent hover:border-gray-100"
+                [class.border-red-50]="sol.estado === 'rechazada' || sol.estado === 'cancelada'"
+                [class.opacity-75]="sol.estado === 'rechazada' || sol.estado === 'cancelada'">
+                <div class="flex flex-col gap-6">
+                    <!-- Header -->
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 overflow-hidden shrink-0 border border-gray-100 flex items-center justify-center"
+                                [class.bg-orange-50]="!sol.proveedor_avatar">
+                                @if (sol.proveedor_avatar) {
+                                    <img [src]="sol.proveedor_avatar" class="w-full h-full object-cover" alt="Proveedor" />
+                                } @else {
+                                    <span class="material-symbols-outlined text-orange-400">storefront</span>
+                                }
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500 font-medium">Proveedor</p>
+                                <h4 class="text-base font-bold leading-tight">{{ sol.proveedor_nombre }}</h4>
+                            </div>
+                        </div>
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                            [ngClass]="getEstadoClase(sol.estado)">
+                            @if (sol.estado === 'reservado' || sol.estado === 'esperando_anticipo') {
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                            } @else if (sol.estado === 'pendiente_aprobacion') {
+                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                            } @else if (sol.estado === 'rechazada' || sol.estado === 'cancelada') {
+                                <span class="material-symbols-outlined text-[14px]">close</span>
+                            }
+                            {{ getEstadoTexto(sol.estado) }}
+                        </span>
+                    </div>
+
+                    <!-- Body -->
+                    <div>
+                        <h3 class="text-2xl font-bold mb-3 font-display"
+                            [class.text-gray-400]="sol.estado === 'rechazada' || sol.estado === 'cancelada'"
+                            [class.line-through]="sol.estado === 'rechazada' || sol.estado === 'cancelada'">
+                            {{ sol.titulo_evento }}
+                        </h3>
+                        
+                        @if (sol.estado !== 'rechazada' && sol.estado !== 'cancelada') {
+                        <div class="flex flex-wrap gap-3 text-gray-600">
+                            <div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
+                                <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                                <span>{{ formatearFecha(sol.fecha_servicio) }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm bg-gray-50 px-3 py-1.5 rounded-lg">
+                                <span class="material-symbols-outlined text-[18px]">location_on</span>
+                                <span>{{ sol.direccion_servicio }}</span>
+                            </div>
+                            @if (sol.monto_total && sol.monto_total > 0) {
+                            <div class="flex items-center gap-2 text-sm bg-green-50 px-3 py-1.5 rounded-lg text-green-700">
+                                <span class="material-symbols-outlined text-[18px]">payments</span>
+                                <span>{{ sol.monto_total | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+                            </div>
+                            }
+                        </div>
+                        }
+
+                        <!-- Mensaje de rechazo -->
+                        @if (sol.estado === 'rechazada' || sol.estado === 'cancelada') {
+                        <div class="mt-4 p-4 rounded-xl bg-[#F8FFFF] border border-cyan-100 flex gap-4 items-start">
+                            <div class="p-2 bg-white rounded-full text-primary shrink-0 shadow-sm">
+                                <span class="material-symbols-outlined">support_agent</span>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-700 font-medium leading-relaxed">
+                                    No te preocupes, estamos buscando al siguiente proveedor mas cercano para ti.
+                                </p>
+                                <a class="inline-flex items-center gap-1 text-sm font-bold text-primary mt-2 hover:underline" routerLink="/cliente/dashboard">
+                                    Buscar alternativas
+                                    <span class="material-symbols-outlined text-[16px]">arrow_right_alt</span>
+                                </a>
+                            </div>
+                        </div>
+                        }
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-3 pt-2"
+                        [class.opacity-50]="sol.estado === 'rechazada' || sol.estado === 'cancelada'"
+                        [class.pointer-events-none]="sol.estado === 'rechazada' || sol.estado === 'cancelada'">
+                        <button class="h-12 w-12 flex items-center justify-center rounded-full border border-gray-200 hover:bg-gray-50 transition-colors"
+                            [class.text-gray-400]="sol.estado !== 'reservado'"
+                            [class.cursor-not-allowed]="sol.estado !== 'reservado'"
+                            [disabled]="sol.estado !== 'reservado'">
+                            <span class="material-symbols-outlined">chat_bubble</span>
+                        </button>
+                        @if (sol.estado === 'reservado' || sol.estado === 'esperando_anticipo') {
+                        <button class="h-12 px-8 rounded-full bg-primary text-white font-bold text-sm shadow-lg shadow-red-200 hover:bg-red-700 transition-colors flex items-center gap-2">
+                            <span>Detalles</span>
+                            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+                        </button>
+                        } @else if (sol.estado === 'pendiente_aprobacion') {
+                        <button class="h-12 px-6 rounded-full bg-gray-100 text-gray-500 font-bold text-sm flex items-center gap-2 hover:bg-gray-200 transition-colors">
+                            <span>Ver Solicitud</span>
+                        </button>
+                        } @else {
+                        <button class="h-12 px-8 rounded-full bg-gray-100 text-gray-400 font-bold text-sm">
+                            Detalles
+                        </button>
+                        }
+                    </div>
+                </div>
+            </article>
+            }
+        </div>
+        }
+    </main>
+</div>

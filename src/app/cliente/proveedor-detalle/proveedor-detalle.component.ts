@@ -1,6 +1,6 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterLink, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, switchMap, map } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { HeaderComponent } from '../../shared/header/header';
@@ -10,7 +10,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-proveedor-detalle',
     standalone: true,
-    imports: [CommonModule, HeaderComponent, RouterLink],
+    imports: [CommonModule, HeaderComponent],
     templateUrl: './proveedor-detalle.html'
 })
 export class ProveedorDetalleComponent implements OnInit {
@@ -52,8 +52,12 @@ export class ProveedorDetalleComponent implements OnInit {
     }
 
     cargarProveedor(id: string): void {
+        console.log('📦 Cargando proveedor con ID:', id);
+        
         this.api.getProviderProfile(id).pipe(
             switchMap(profile => {
+                console.log('👤 Perfil obtenido:', profile);
+                
                 const providerData = {
                     id: profile.id,
                     usuario_id: profile.usuario_id,
@@ -67,18 +71,25 @@ export class ProveedorDetalleComponent implements OnInit {
                 };
                 this.provider.set(providerData);
                 
+                // Usar profile.usuario_id porque paquetes_proveedor.proveedor_usuario_id guarda el usuario_id de auth
+                const providerUserId = profile.usuario_id || id;
+                console.log('📦 Buscando paquetes para usuario_id:', providerUserId);
+                
                 return forkJoin({
-                    packages: this.api.getPackagesByProviderId(profile.usuario_id || id),
+                    packages: this.api.getPackagesByProviderId(providerUserId!),
                     reviews: this.api.getReviews(id)
                 });
             })
         ).subscribe({
             next: ({ packages, reviews }) => {
+                console.log('📦 Paquetes obtenidos:', packages);
+                console.log('⭐ Reviews obtenidos:', reviews);
+                
                 this.packages.set(packages);
                 this.reviews.set(reviews.map((r: any, i: number) => ({ ...r, id: r.id || i, autor: r.autor || 'Cliente' })));
                 this.provider.update(p => ({ ...p, reviews: reviews.length }));
             },
-            error: (err) => console.error('Error cargando proveedor:', err)
+            error: (err) => console.error('❌ Error cargando proveedor:', err)
         });
 
         this.galeria.set([
@@ -104,18 +115,30 @@ export class ProveedorDetalleComponent implements OnInit {
         return this.selectedQuantities()[pkgId] || 0;
     }
 
+    // Helper para obtener imagen del paquete desde detalles_json
+    getPackageImage(pkg: ProviderPackage): string {
+        if (pkg.detalles_json?.imagenes?.length > 0) {
+            const portada = pkg.detalles_json.imagenes.find((img: any) => img.isPortada);
+            return portada?.url || pkg.detalles_json.imagenes[0].url;
+        }
+        return 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=400&q=60';
+    }
+
+    // Helper para obtener categoría del paquete
+    getPackageCategory(pkg: any): string {
+        return pkg.categoria?.nombre || 'Servicio';
+    }
+
     async goToCheckout() {
         const selection = this.selectedQuantities();
         const pkgIds = Object.keys(selection);
         
-        if (pkgIds.length === 0) return;
+        if (pkgIds.length === 0) {
+            alert('Selecciona al menos un paquete');
+            return;
+        }
 
-        // 1. Verificar si hay carrito activo, si no crear uno (Simplificado: asume que getCart maneja esto o creamos items directos)
-        // Para este prototipo, vamos a guardar en localStorage los items seleccionados para pasarlos al checkout
-        // o idealmente usar el backend. Vamos a intentar usar el backend si es posible, o simularlo.
-        
         try {
-            // Simulamos agregar al carrito backend uno por uno
             const user = this.auth.currentUser();
             if (!user) {
                 alert('Inicia sesión para continuar');
@@ -123,46 +146,30 @@ export class ProveedorDetalleComponent implements OnInit {
                 return;
             }
 
-            // Aquí idealmente obtendríamos el ID del carrito activo.
-            // Por simplicidad, vamos a suponer que el componente Carrito obtiene el carrito activo del usuario
-            // y nosotros solo insertamos items. Necesitamos el ID del carrito.
-            // Si no tenemos ID de carrito, quizás el backend lo crea automático al insertar item (si la lógica backend lo soporta)
-            // O obtenemos el carrito primero.
-            
-            this.api.getCart().subscribe({
-                next: (cart) => {
-                   this.addItemsToCart(cart.id, pkgIds, selection);
-                },
-                error: () => {
-                   // Si falla (no hay carrito), creamos uno o manejamos error.
-                   console.log('No cart found, creating logic implies backend handles it or we need createCart endpoint.');
-                   // Fallback: LocalStorage for demo purposes if backend isn't fully ready
-                   localStorage.setItem('temp_cart', JSON.stringify(selection));
-                   this.router.navigate(['/cliente/carrito']);
-                }
-            });
+            // Obtener o crear carrito
+            const cart = await this.api.getOrCreateCart();
+            await this.addItemsToCartAsync(cart.id, pkgIds, selection);
+            this.router.navigate(['/cliente/carrito']);
 
-        } catch (e) {
-            console.error(e);
+        } catch (e: any) {
+            console.error('Error al agregar al carrito:', e);
+            alert('Error al agregar al carrito: ' + (e.message || 'Error desconocido'));
         }
     }
 
-    private addItemsToCart(cartId: string, pkgIds: string[], selection: Record<string, number>) {
+    private async addItemsToCartAsync(cartId: string, pkgIds: string[], selection: Record<string, number>) {
         const pkgs = this.packages();
-        const promises = pkgIds.map(pid => {
+        
+        for (const pid of pkgIds) {
             const pkg = pkgs.find(p => p.id === pid);
-            if (!pkg) return null;
+            if (!pkg) continue;
             
-            return this.api.addToCart({
+            await this.api.addToCart({
                 carrito_id: cartId,
                 paquete_id: pid,
                 cantidad: selection[pid],
                 precio_unitario_momento: pkg.precio_base
             }).toPromise();
-        });
-
-        Promise.all(promises).then(() => {
-            this.router.navigate(['/cliente/carrito']);
-        });
+        }
     }
 }

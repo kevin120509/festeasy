@@ -5,12 +5,21 @@
         </div>
     </div>
 </div>
+
+<!-- Loading State -->
+<div *ngIf="!provider()" class="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+    <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p class="text-gray-500">Cargando proveedor...</p>
+    </div>
+</div>
+
 <!-- Main Content Wrapper -->
-<main class="flex min-h-screen flex-col pb-24 bg-background-light dark:bg-background-dark font-display text-text-main">
+<main *ngIf="provider()" class="flex min-h-screen flex-col pb-24 bg-background-light dark:bg-background-dark font-display text-text-main">
     <!-- Hero Section -->
     <div class="relative w-full h-[320px] md:h-[400px] bg-gray-100 overflow-hidden">
         <div class="absolute inset-0 bg-cover bg-center"
-            [style.background-image]="'url(' + (provider().imagen || 'https://lh3.googleusercontent.com/aida-public/AB6AXuDP0XIVbCOglaiQktFkL9xQZnJX5YHorNuVwwu9paoAVnG7v35DYSwTtHo8egy9PZ0AjDyv9uyIkNyBJiwOKaabfuPQbx4mgVM-NLrv2HpXG-z8HGMUhgmzUIjkgcEj4LKmRDFJjwShbVJqldpw_11Sz5IBGV9D-HwThCdWTJrLUe-n7y3rfi7SflHod9vgfYHvUpVgRSlwp03y0KWjRMewlwYPyGMveonJsxjebLZrq0_cbho_3up6Fa8wjbdMjorQt25emWRov2k') + ')'">
+            [style.background-image]="'url(' + (provider()?.imagen || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=60') + ')'">
         </div>
         <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
     </div>
@@ -70,30 +79,41 @@
                         @for (pkg of packages(); track pkg.id) {
                         <!-- Dynamic Package Card -->
                         <div
-                            class="bg-surface border border-[#f4f0f0] rounded-lg p-6 hover:shadow-hover transition-all duration-300 group flex flex-col h-full bg-white dark:bg-[#1a1a1a] dark:border-gray-800"
+                            class="bg-surface border border-[#f4f0f0] rounded-lg overflow-hidden hover:shadow-hover transition-all duration-300 group flex flex-col h-full bg-white dark:bg-[#1a1a1a] dark:border-gray-800"
                             [class.border-primary]="getQuantity(pkg.id) > 0"
                             [class.ring-1]="getQuantity(pkg.id) > 0"
                             [class.ring-primary]="getQuantity(pkg.id) > 0">
                             
-                            <div class="flex justify-between items-start mb-4">
-                                <h4
-                                    class="text-lg font-bold text-text-main group-hover:text-primary transition-colors dark:text-white">
-                                    {{ pkg.nombre }}</h4>
-                                <span
-                                    class="bg-gray-100 text-gray-600 text-xs font-bold px-2 py-1 rounded dark:bg-gray-800 dark:text-gray-300">Disponible</span>
+                            <!-- Package Image -->
+                            <div class="h-40 bg-gray-100 overflow-hidden relative">
+                                <img [src]="getPackageImage(pkg)" [alt]="pkg.nombre" 
+                                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    onerror="this.src='https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=400&q=60'">
+                                <span class="absolute top-3 left-3 bg-primary/90 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">
+                                    {{ getPackageCategory(pkg) }}
+                                </span>
                             </div>
-                            <p class="text-text-secondary text-sm mb-6 leading-relaxed dark:text-gray-400">{{
-                                pkg.descripcion || 'Sin descripción detallada.' }}</p>
+                            
+                            <div class="p-5 flex flex-col flex-1">
+                                <div class="flex justify-between items-start mb-3">
+                                    <h4
+                                        class="text-lg font-bold text-text-main group-hover:text-primary transition-colors dark:text-white">
+                                        {{ pkg.nombre }}</h4>
+                                    <span
+                                        class="bg-green-100 text-green-600 text-xs font-bold px-2 py-1 rounded dark:bg-green-900/30 dark:text-green-400">Disponible</span>
+                                </div>
+                                <p class="text-text-secondary text-sm mb-4 leading-relaxed dark:text-gray-400 line-clamp-2">{{
+                                    pkg.descripcion || 'Sin descripción detallada.' }}</p>
 
-                            <div class="border-t border-gray-100 pt-5 mt-auto dark:border-gray-700">
-                                <div class="flex items-end justify-between gap-4">
-                                    <div>
-                                        <p class="text-xs text-text-secondary font-medium dark:text-gray-500">Precio
-                                            base</p>
-                                        <p class="text-2xl font-extrabold text-text-main dark:text-white">${{
-                                            pkg.precio_base }} <span
-                                                class="text-sm font-normal text-text-secondary">MXN</span></p>
-                                    </div>
+                                <div class="border-t border-gray-100 pt-4 mt-auto dark:border-gray-700">
+                                    <div class="flex items-end justify-between gap-4">
+                                        <div>
+                                            <p class="text-xs text-text-secondary font-medium dark:text-gray-500">Precio
+                                                base</p>
+                                            <p class="text-2xl font-extrabold text-text-main dark:text-white">${{
+                                                pkg.precio_base }} <span
+                                                    class="text-sm font-normal text-text-secondary">MXN</span></p>
+                                        </div>
                                     
                                     <!-- Quantity Controls -->
                                     <div class="flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700" *ngIf="getQuantity(pkg.id) > 0; else addButton">
@@ -115,6 +135,7 @@
                                         </button>
                                     </ng-template>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>

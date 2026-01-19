@@ -1,12 +1,25 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
-// import { ApiService } from '../../services/api.service';
+import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
-import { ProviderPackage } from '../../models';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
+interface Paquete {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  precio_base: number;
+  estado: 'publicado' | 'borrador' | 'archivado';
+  categoria_servicio_id: string;
+  categoria?: { nombre: string };
+  detalles_json?: any;
+  creado_en: string;
+  actualizado_en: string;
+  vistas?: number;
+  reservas?: number;
+}
 
 interface PackageItem {
   nombre: string;
@@ -32,12 +45,50 @@ interface PackageImage {
   styleUrl: './paquetes.css'
 })
 export class PaquetesComponent implements OnInit {
-  // private apiService = inject(ApiService);
   private supabaseData = inject(SupabaseDataService);
   private supabaseService = inject(SupabaseService);
   public authService = inject(AuthService);
+  private router = inject(Router);
 
-  // Paso actual del stepper
+  // Vista actual: 'lista' o 'crear' o 'editar'
+  vistaActual = signal<'lista' | 'crear' | 'editar'>('lista');
+
+  // Paquetes del proveedor
+  paquetes = signal<Paquete[]>([]);
+  loading = signal(true);
+
+  // Tab activo: publicado, borrador, archivado
+  tabActivo = signal<'publicado' | 'borrador' | 'archivado'>('publicado');
+
+  // Paquete en edición
+  paqueteEditando = signal<Paquete | null>(null);
+
+  // Menú contextual
+  menuAbierto = signal<string | null>(null);
+
+  // Filtros
+  paquetesActivos = computed(() => 
+    this.paquetes().filter(p => p.estado === 'publicado')
+  );
+
+  paquetesBorradores = computed(() => 
+    this.paquetes().filter(p => p.estado === 'borrador')
+  );
+
+  paquetesArchivados = computed(() => 
+    this.paquetes().filter(p => p.estado === 'archivado')
+  );
+
+  paquetesFiltrados = computed(() => {
+    switch (this.tabActivo()) {
+      case 'publicado': return this.paquetesActivos();
+      case 'borrador': return this.paquetesBorradores();
+      case 'archivado': return this.paquetesArchivados();
+      default: return this.paquetes();
+    }
+  });
+
+  // Paso actual del stepper (para crear/editar)
   currentStep = signal(1);
 
   // Estados
@@ -63,15 +114,6 @@ export class PaquetesComponent implements OnInit {
   newItemName = signal('');
   newItemQuantity = signal(1);
 
-  ngOnInit() {
-    this.supabaseData.getServiceCategories().then(
-      (data) => {
-        this.categories.set(data);
-      },
-      (err) => console.error('Error fetching categories:', err)
-    );
-  }
-
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
   newChargeName = signal('');
@@ -79,6 +121,164 @@ export class PaquetesComponent implements OnInit {
 
   // Imágenes
   images = signal<PackageImage[]>([]);
+
+  async ngOnInit() {
+    await this.cargarPaquetes();
+    await this.cargarCategorias();
+  }
+
+  async cargarPaquetes() {
+    this.loading.set(true);
+    try {
+      const userId = this.authService.currentUser()?.id;
+      if (!userId) {
+        this.errorMessage.set('Usuario no autenticado');
+        return;
+      }
+
+      const { data, error } = await this.supabaseService.getClient()
+        .from('paquetes_proveedor')
+        .select(`
+          *,
+          categoria:categorias_servicio(nombre)
+        `)
+        .eq('proveedor_usuario_id', userId)
+        .order('creado_en', { ascending: false });
+
+      if (error) throw error;
+
+      this.paquetes.set(data || []);
+    } catch (error: any) {
+      console.error('Error cargando paquetes:', error);
+      this.errorMessage.set('Error al cargar paquetes: ' + error.message);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async cargarCategorias() {
+    try {
+      const data = await this.supabaseData.getServiceCategories();
+      this.categories.set(data);
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+    }
+  }
+
+  // Cambiar tab
+  cambiarTab(tab: 'publicado' | 'borrador' | 'archivado') {
+    this.tabActivo.set(tab);
+    this.menuAbierto.set(null);
+  }
+
+  // Toggle menú contextual
+  toggleMenu(paqueteId: string) {
+    if (this.menuAbierto() === paqueteId) {
+      this.menuAbierto.set(null);
+    } else {
+      this.menuAbierto.set(paqueteId);
+    }
+  }
+
+  // Cerrar menú
+  cerrarMenu() {
+    this.menuAbierto.set(null);
+  }
+
+  // Cambiar estado del paquete (toggle online/offline)
+  async toggleEstado(paquete: Paquete) {
+    const nuevoEstado = paquete.estado === 'publicado' ? 'archivado' : 'publicado';
+    
+    try {
+      const { error } = await this.supabaseService.getClient()
+        .from('paquetes_proveedor')
+        .update({ estado: nuevoEstado })
+        .eq('id', paquete.id);
+
+      if (error) throw error;
+
+      // Actualizar localmente
+      this.paquetes.update(paquetes => 
+        paquetes.map(p => p.id === paquete.id ? { ...p, estado: nuevoEstado } : p)
+      );
+
+      this.successMessage.set(`Paquete ${nuevoEstado === 'publicado' ? 'activado' : 'archivado'} exitosamente`);
+      setTimeout(() => this.successMessage.set(''), 3000);
+    } catch (error: any) {
+      this.errorMessage.set('Error al cambiar estado: ' + error.message);
+    }
+  }
+
+  // Eliminar paquete
+  async eliminarPaquete(paquete: Paquete) {
+    if (!confirm(`¿Estás seguro de eliminar "${paquete.nombre}"?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await this.supabaseService.getClient()
+        .from('paquetes_proveedor')
+        .delete()
+        .eq('id', paquete.id);
+
+      if (error) throw error;
+
+      // Eliminar localmente
+      this.paquetes.update(paquetes => paquetes.filter(p => p.id !== paquete.id));
+
+      this.successMessage.set('Paquete eliminado exitosamente');
+      setTimeout(() => this.successMessage.set(''), 3000);
+    } catch (error: any) {
+      this.errorMessage.set('Error al eliminar: ' + error.message);
+    }
+
+    this.menuAbierto.set(null);
+  }
+
+  // Editar paquete
+  editarPaquete(paquete: Paquete) {
+    this.paqueteEditando.set(paquete);
+    this.menuAbierto.set(null);
+
+    // Cargar datos en el formulario
+    this.packageData.set({
+      nombre: paquete.nombre,
+      categoria_servicio_id: paquete.categoria_servicio_id || '',
+      descripcion: paquete.descripcion || '',
+      precio_base: paquete.precio_base,
+      estado: paquete.estado
+    });
+
+    // Cargar detalles JSON si existe
+    if (paquete.detalles_json) {
+      this.items.set(paquete.detalles_json.items || []);
+      this.extraCharges.set(paquete.detalles_json.cargos_adicionales || []);
+      
+      if (paquete.detalles_json.imagenes) {
+        this.images.set(paquete.detalles_json.imagenes.map((img: any) => ({
+          url: img.url,
+          isPortada: img.isPortada
+        })));
+      }
+    }
+
+    this.currentStep.set(1);
+    this.vistaActual.set('editar');
+  }
+
+  // Crear nuevo paquete
+  crearNuevo() {
+    this.resetForm();
+    this.paqueteEditando.set(null);
+    this.vistaActual.set('crear');
+  }
+
+  // Volver a la lista
+  volverALista() {
+    this.vistaActual.set('lista');
+    this.resetForm();
+    this.cargarPaquetes();
+  }
 
   // Computed: Total estimado
   get totalEstimado(): number {
@@ -101,6 +301,29 @@ export class PaquetesComponent implements OnInit {
   getCategoryName(id: string): string {
     const cat = this.categories().find(c => c.id === id);
     return cat ? cat.nombre : '';
+  }
+
+  // Helper: Obtener color de categoría
+  getCategoryColor(categoria?: { nombre: string }): string {
+    if (!categoria) return 'bg-gray-50 text-gray-600';
+    
+    const nombre = categoria.nombre.toLowerCase();
+    if (nombre.includes('gastro') || nombre.includes('catering')) return 'bg-blue-50 text-blue-600';
+    if (nombre.includes('decora')) return 'bg-purple-50 text-purple-600';
+    if (nombre.includes('sonido') || nombre.includes('dj') || nombre.includes('luz')) return 'bg-orange-50 text-orange-600';
+    if (nombre.includes('foto')) return 'bg-pink-50 text-pink-600';
+    if (nombre.includes('pastel')) return 'bg-yellow-50 text-yellow-600';
+    if (nombre.includes('anima')) return 'bg-green-50 text-green-600';
+    return 'bg-gray-50 text-gray-600';
+  }
+
+  // Helper: Obtener imagen de paquete
+  getPackageImage(paquete: Paquete): string {
+    if (paquete.detalles_json?.imagenes?.length > 0) {
+      const portada = paquete.detalles_json.imagenes.find((img: any) => img.isPortada);
+      return portada?.url || paquete.detalles_json.imagenes[0].url;
+    }
+    return 'assets/placeholder-package.png';
   }
 
   // Navegación entre pasos
@@ -167,7 +390,6 @@ export class PaquetesComponent implements OnInit {
       return;
     }
 
-    // Validar que no se excedan 10 imágenes
     if (this.images().length + files.length > 10) {
       this.errorMessage.set('Máximo 10 imágenes permitidas');
       return;
@@ -178,25 +400,18 @@ export class PaquetesComponent implements OnInit {
 
     try {
       for (const file of files) {
-        // Validar tipo
-        if (!file.type.startsWith('image/')) {
-          continue;
-        }
-
-        // Validar tamaño (máx 5MB)
+        if (!file.type.startsWith('image/')) continue;
         if (file.size > 5 * 1024 * 1024) {
           this.errorMessage.set('Las imágenes no deben superar los 5MB');
           continue;
         }
 
-        // Subir a Supabase
         const fileExt = file.name.split('.').pop();
         const fileName = `${userId}-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `packages/${fileName}`;
 
         const publicUrl = await this.supabaseService.uploadFile('festeasy', filePath, file);
 
-        // Agregar a la lista de imágenes
         this.images.update(imgs => [
           ...imgs,
           { url: publicUrl, file, isPortada: imgs.length === 0 }
@@ -222,7 +437,6 @@ export class PaquetesComponent implements OnInit {
   removeImage(index: number) {
     this.images.update(imgs => {
       const newImgs = imgs.filter((_, i) => i !== index);
-      // Si se eliminó la portada, hacer que la primera imagen sea la portada
       if (newImgs.length > 0 && !newImgs.some(img => img.isPortada)) {
         newImgs[0].isPortada = true;
       }
@@ -238,7 +452,6 @@ export class PaquetesComponent implements OnInit {
 
   // Publicar paquete
   async publicar() {
-    // Validaciones
     if (!this.packageData().nombre) {
       this.errorMessage.set('El nombre del paquete es obligatorio');
       return;
@@ -263,15 +476,13 @@ export class PaquetesComponent implements OnInit {
     await this.savePackage();
   }
 
-  // Guardar paquete en el backend
-  // Guardar paquete en el backend
+  // Guardar paquete
   private async savePackage() {
     this.saving.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
 
     try {
-      // Preparar datos del paquete con toda la información
       const packageToSave: any = {
         proveedor_usuario_id: this.authService.currentUser()?.id,
         nombre: this.packageData().nombre,
@@ -279,7 +490,6 @@ export class PaquetesComponent implements OnInit {
         descripcion: this.packageData().descripcion,
         precio_base: this.packageData().precio_base,
         estado: this.packageData().estado,
-        // Guardar datos adicionales en un campo JSON
         detalles_json: {
           items: this.items(),
           cargos_adicionales: this.extraCharges(),
@@ -291,40 +501,39 @@ export class PaquetesComponent implements OnInit {
         }
       };
 
-      console.log('📦 Guardando paquete:', packageToSave);
+      if (this.paqueteEditando()) {
+        // Actualizar paquete existente
+        const { error } = await this.supabaseService.getClient()
+          .from('paquetes_proveedor')
+          .update(packageToSave)
+          .eq('id', this.paqueteEditando()!.id);
 
-      // Crear el paquete usando SupabaseDataService (Promise)
-      const createdPackage = await this.supabaseData.createProviderPackage(packageToSave);
+        if (error) throw error;
 
-      console.log('✅ Paquete creado exitosamente:', createdPackage);
-
-      this.successMessage.set(
-        this.packageData().estado === 'publicado'
-          ? '¡Paquete publicado exitosamente! 🎉'
-          : 'Borrador guardado exitosamente ✓'
-      );
+        this.successMessage.set('¡Paquete actualizado exitosamente! 🎉');
+      } else {
+        // Crear nuevo paquete
+        const createdPackage = await this.supabaseData.createProviderPackage(packageToSave);
+        this.successMessage.set(
+          this.packageData().estado === 'publicado'
+            ? '¡Paquete publicado exitosamente! 🎉'
+            : 'Borrador guardado exitosamente ✓'
+        );
+      }
 
       this.saving.set(false);
 
-      // Resetear formulario después de 2 segundos
+      // Volver a la lista después de 2 segundos
       setTimeout(() => {
-        this.resetForm();
+        this.volverALista();
       }, 2000);
 
     } catch (error: any) {
       console.error('❌ Error al guardar el paquete:', error);
-
-      // Mostrar mensaje de error más específico
       let errorMsg = 'Error al guardar el paquete. ';
-
       if (error.message) {
         errorMsg += error.message;
-      } else if (error.code) {
-        errorMsg += `Code: ${error.code}. `;
-      } else {
-        errorMsg += 'Por favor intenta de nuevo.';
       }
-
       this.errorMessage.set(errorMsg);
       this.saving.set(false);
     }
@@ -345,6 +554,7 @@ export class PaquetesComponent implements OnInit {
     this.currentStep.set(1);
     this.successMessage.set('');
     this.errorMessage.set('');
+    this.paqueteEditando.set(null);
   }
 
   // Actualizar campo del paquete

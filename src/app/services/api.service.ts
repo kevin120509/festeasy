@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, throwError, from, map } from 'rxjs';
+import { Observable, throwError, from, map, switchMap } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { environment } from '../../environments/environment';
@@ -181,7 +181,20 @@ export class ApiService {
 
     // PACKAGES
     getPackagesByProviderId(providerUserId: string): Observable<ProviderPackage[]> {
-        return this.fromSupabase(this.supabase.from('paquetes_proveedor').select('*').eq('proveedor_usuario_id', providerUserId));
+        console.log('🔍 API: Buscando paquetes para:', providerUserId);
+        return this.fromSupabase<ProviderPackage[]>(
+            this.supabase
+                .from('paquetes_proveedor')
+                .select('*, categoria:categorias_servicio(nombre)')
+                .eq('proveedor_usuario_id', providerUserId)
+        ).pipe(
+            map(packages => {
+                console.log('🔍 API: Paquetes encontrados (todos):', packages);
+                const published = packages.filter(p => p.estado === 'publicado');
+                console.log('🔍 API: Paquetes publicados:', published);
+                return published;
+            })
+        );
     }
 
     getServiceCategories(): Observable<any[]> {
@@ -208,10 +221,120 @@ export class ApiService {
             return this.supabase.from('solicitudes').select('*, provider:perfil_proveedor(*)').eq('cliente_usuario_id', u.data.user?.id);
         })) as any;
     }
+
+    // Obtener solicitudes del cliente con datos completos
+    getClientRequestsReal(): Observable<any[]> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap((res: any) => {
+                if (res.error) throw res.error;
+                const userId = res.data.user?.id;
+                if (!userId) return [];
+                
+                return from(this.supabase
+                    .from('solicitudes')
+                    .select('*, proveedor:perfil_proveedor!solicitudes_proveedor_usuario_id_fkey(nombre_negocio, avatar_url)')
+                    .eq('cliente_usuario_id', userId)
+                    .order('creado_en', { ascending: false })
+                );
+            }),
+            map((res: any) => {
+                if (res.error) throw res.error;
+                return res.data || [];
+            })
+        );
+    }
+
+    // Obtener solicitudes del proveedor (para que pueda aceptar/rechazar)
+    getProviderRequestsReal(): Observable<any[]> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap((res: any) => {
+                if (res.error) throw res.error;
+                const userId = res.data.user?.id;
+                if (!userId) return [];
+                
+                return from(this.supabase
+                    .from('solicitudes')
+                    .select('*, cliente:perfil_cliente!solicitudes_cliente_usuario_id_fkey(nombre_completo, telefono)')
+                    .eq('proveedor_usuario_id', userId)
+                    .order('creado_en', { ascending: false })
+                );
+            }),
+            map((res: any) => {
+                if (res.error) throw res.error;
+                return res.data || [];
+            })
+        );
+    }
+
+    // Actualizar estado de solicitud (para proveedor aceptar/rechazar)
+    updateSolicitudEstado(id: string, estado: string): Observable<any> {
+        return this.fromSupabase(
+            this.supabase
+                .from('solicitudes')
+                .update({ estado })
+                .eq('id', id)
+                .select()
+                .single()
+        );
+    }
     
     // ... (Agregando los demás métodos necesarios para que compile el resto de la app)
     updateProviderProfile(id: string, data: any): Observable<any> { return this.fromSupabase(this.supabase.from('perfil_proveedor').update(data).eq('id', id).select().single()); }
-    getCart(): Observable<any> { return this.fromSupabase(this.supabase.from('carrito').select('*, items:items_carrito(*)').eq('estado', 'activo').limit(1)); }
+    
+    // Obtener carrito activo del usuario actual
+    getCart(): Observable<any> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap((res: any) => {
+                if (res.error) throw res.error;
+                const userId = res.data.user?.id;
+                console.log('🛒 getCart: userId =', userId);
+                if (!userId) throw new Error('Usuario no autenticado');
+                
+                return from(this.supabase
+                    .from('carrito')
+                    .select('*, items:items_carrito(*, paquete:paquetes_proveedor(*))')
+                    .eq('cliente_usuario_id', userId)
+                    .eq('estado', 'activo')
+                    .maybeSingle()
+                );
+            }),
+            map((res: any) => {
+                console.log('🛒 getCart: resultado =', res);
+                if (res.error) throw res.error;
+                return res.data || { items: [] };
+            })
+        );
+    }
+
+    // Crear carrito si no existe
+    async getOrCreateCart(): Promise<any> {
+        const { data: { user } } = await this.supabase.auth.getUser();
+        if (!user) throw new Error('Usuario no autenticado');
+
+        // Buscar carrito activo
+        const { data: existingCart, error: findError } = await this.supabase
+            .from('carrito')
+            .select('*, items:items_carrito(*)')
+            .eq('cliente_usuario_id', user.id)
+            .eq('estado', 'activo')
+            .maybeSingle();
+
+        if (findError) throw findError;
+        
+        if (existingCart) {
+            return existingCart;
+        }
+
+        // Crear nuevo carrito
+        const { data: newCart, error: createError } = await this.supabase
+            .from('carrito')
+            .insert({ cliente_usuario_id: user.id, estado: 'activo' })
+            .select()
+            .single();
+
+        if (createError) throw createError;
+        return { ...newCart, items: [] };
+    }
     
     // Métodos para carrito
     addToCart(item: Partial<CartItem>): Observable<any> {

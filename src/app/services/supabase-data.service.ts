@@ -49,9 +49,9 @@ export class SupabaseDataService {
 
     getProviderPackages(providerId: string): Observable<any[]> {
         return from(this.supabase
-            .from('paquetes')
+            .from('paquetes_proveedor')
             .select('*')
-            .eq('proveedor_id', providerId)
+            .eq('proveedor_usuario_id', providerId)
         ).pipe(
             map(({ data, error }) => {
                 // Si la tabla no existe aún, retornamos vacío para no romper
@@ -67,7 +67,7 @@ export class SupabaseDataService {
     getAllPackages(): Observable<any[]> {
         // Para el marketplace general, si quisiéramos mostrar paquetes destacados
         return from(this.supabase
-            .from('paquetes')
+            .from('paquetes_proveedor')
             .select('*, perfil_proveedor(nombre_negocio)')
         ).pipe(
             map(({ data, error }) => {
@@ -85,8 +85,8 @@ export class SupabaseDataService {
         return from(this.supabase
             .from('solicitudes')
             .select('*, perfil_proveedor(*)')
-            .eq('cliente_id', clientId)
-            .order('created_at', { ascending: false })
+            .eq('cliente_usuario_id', clientId)
+            .order('creado_en', { ascending: false })
         ).pipe(
             map(({ data, error }) => {
                 if (error && error.code === '42P01') return [];
@@ -100,8 +100,8 @@ export class SupabaseDataService {
         return from(this.supabase
             .from('solicitudes')
             .select('*, perfil_cliente(*)')
-            .eq('proveedor_id', providerId)
-            .order('created_at', { ascending: false })
+            .eq('proveedor_usuario_id', providerId)
+            .order('creado_en', { ascending: false })
         ).pipe(
             map(({ data, error }) => {
                 if (error && error.code === '42P01') return [];
@@ -139,7 +139,7 @@ export class SupabaseDataService {
     // ==========================================
     async createProviderPackage(packageData: any) {
         const { data, error } = await this.supabase
-            .from('paquetes')
+            .from('paquetes_proveedor')
             .insert([packageData])
             .select()
             .single();

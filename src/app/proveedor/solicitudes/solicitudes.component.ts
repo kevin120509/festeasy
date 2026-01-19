@@ -1,214 +1,167 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ApiService } from '../../services/api.service';
 
-// Interface para las solicitudes de clientes
-interface ClienteSolicitud {
+interface SolicitudProveedor {
     id: string;
-    cliente: {
-        nombre: string;
-        avatar: string;
-        verificado: boolean;
-    };
-    evento: {
-        tipo: string; // 'BODA', 'XV AÑOS', 'CORPORATIVO', etc.
-        titulo: string;
-        fecha: Date;
-        ubicacion: string;
-    };
-    paquete: {
-        nombre: string;
-        presupuestoBase: number;
-    };
-    urgente: boolean;
-    horasRestantes?: number;
+    cliente_nombre: string;
+    cliente_telefono?: string;
+    titulo_evento?: string;
+    monto_total: number;
+    fecha_servicio: string;
+    direccion_servicio: string;
+    estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
+    creado_en?: string;
 }
 
-type TabType = 'nuevas' | 'activas' | 'historial';
+type TabType = 'pendientes' | 'confirmadas' | 'historial';
 
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe, RouterLink],
+    imports: [CommonModule, DatePipe, CurrencyPipe],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
     private auth = inject(AuthService);
-    private supabaseData = inject(SupabaseDataService);
     private api = inject(ApiService);
 
-    // Tab activo
-    tabActivo = signal<TabType>('nuevas');
-
-    // Estados
-    isLoading = signal(false);
+    tabActivo = signal<TabType>('pendientes');
+    isLoading = signal(true);
     mensajeExito = signal('');
     mensajeError = signal('');
+    procesando = signal<string | null>(null);
 
-    // Solicitudes reales desde Supabase
-    solicitudesReales = signal<any[]>([]);
+    solicitudes = signal<SolicitudProveedor[]>([]);
 
-    // Mock data para demostración (se reemplazará con datos reales)
-    solicitudesMock = signal<ClienteSolicitud[]>([
-        {
-            id: '1',
-            cliente: {
-                nombre: 'María González',
-                avatar: 'https://i.pravatar.cc/150?img=1',
-                verificado: true
-            },
-            evento: {
-                tipo: 'BODA',
-                titulo: 'Boda Romántica en Jardín',
-                fecha: new Date(2026, 3, 15, 18, 0),
-                ubicacion: 'Hacienda Vista Hermosa, Cuernavaca'
-            },
-            paquete: {
-                nombre: 'Paquete Premium Bodas',
-                presupuestoBase: 25000
-            },
-            urgente: true,
-            horasRestantes: 23
-        },
-        {
-            id: '2',
-            cliente: {
-                nombre: 'Carlos Ramírez',
-                avatar: 'https://i.pravatar.cc/150?img=12',
-                verificado: false
-            },
-            evento: {
-                tipo: 'XV AÑOS',
-                titulo: 'Quinceañera Elegante',
-                fecha: new Date(2026, 4, 20, 19, 0),
-                ubicacion: 'Salón Crystal, Ciudad de México'
-            },
-            paquete: {
-                nombre: 'Paquete Decoración XV Años',
-                presupuestoBase: 18000
-            },
-            urgente: false
+    solicitudesFiltradas = computed(() => {
+        const tab = this.tabActivo();
+        const all = this.solicitudes();
+
+        switch (tab) {
+            case 'pendientes':
+                return all.filter(s => s.estado === 'pendiente_aprobacion');
+            case 'confirmadas':
+                return all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado));
+            case 'historial':
+                return all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado));
+            default:
+                return all;
         }
-    ]);
+    });
+
+    contadores = computed(() => {
+        const all = this.solicitudes();
+        return {
+            pendientes: all.filter(s => s.estado === 'pendiente_aprobacion').length,
+            confirmadas: all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado)).length,
+            historial: all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado)).length
+        };
+    });
 
     ngOnInit(): void {
         this.cargarSolicitudes();
     }
 
     cargarSolicitudes() {
-        const user = this.auth.currentUser();
-        if (!user || !user.id) return;
-
         this.isLoading.set(true);
-        this.supabaseData.getRequestsByProvider(user.id).subscribe({
-            next: (requests) => {
-                this.solicitudesReales.set(requests);
-                console.log('Solicitudes cargadas:', requests);
-                // Aquí puedes mapear los datos reales al formato de la interfaz
+
+        this.api.getProviderRequestsReal().subscribe({
+            next: (data) => {
+                console.log('📋 Solicitudes proveedor:', data);
+                this.solicitudes.set(data.map(this.mapearSolicitud));
                 this.isLoading.set(false);
             },
-            error: (err: any) => {
-                console.error('Error al cargar solicitudes:', err);
+            error: (err) => {
+                console.error('Error cargando solicitudes:', err);
                 this.isLoading.set(false);
             }
         });
     }
 
-    // Cambiar tab
+    private mapearSolicitud(req: any): SolicitudProveedor {
+        return {
+            id: req.id,
+            cliente_nombre: req.cliente?.nombre_completo || 'Cliente',
+            cliente_telefono: req.cliente?.telefono,
+            titulo_evento: req.titulo_evento || 'Reservación',
+            monto_total: req.monto_total || 0,
+            fecha_servicio: req.fecha_servicio,
+            direccion_servicio: req.direccion_servicio || 'Por definir',
+            estado: req.estado || 'pendiente_aprobacion',
+            creado_en: req.creado_en
+        };
+    }
+
     cambiarTab(tab: TabType) {
         this.tabActivo.set(tab);
     }
 
-    // Obtener solicitudes filtradas por tab
-    get solicitudesFiltradas(): ClienteSolicitud[] {
-        const tab = this.tabActivo();
-        if (tab === 'nuevas') {
-            return this.solicitudesMock();
-        } else if (tab === 'activas') {
-            return []; // Implementar filtro para activas
-        } else {
-            return []; // Implementar filtro para historial
-        }
-    }
+    aceptarSolicitud(solId: string) {
+        if (this.procesando()) return;
+        this.procesando.set(solId);
 
-    // Contar solicitudes nuevas
-    get conteoNuevas(): number {
-        return this.solicitudesMock().length;
-    }
-
-    // Obtener clases CSS para badge de tipo de evento
-    getTipoEventoClasses(tipo: string): string {
-        const clases: Record<string, string> = {
-            'BODA': 'bg-purple-100 text-purple-700',
-            'XV AÑOS': 'bg-pink-100 text-pink-700',
-            'CORPORATIVO': 'bg-blue-100 text-blue-700',
-            'CUMPLEAÑOS': 'bg-yellow-100 text-yellow-700'
-        };
-        return clases[tipo] || 'bg-gray-100 text-gray-700';
-    }
-
-    // Responder a una solicitud (abrir modal de cotización)
-    responderSolicitud(id: string) {
-        console.log('Respondiendo a solicitud:', id);
-        // TODO: Abrir modal de cotización o navegar a formulario
-        const precioInput = window.prompt('Ingresa el precio total propuesto para este servicio:', '');
-
-        if (precioInput === null) return;
-
-        const precio = parseFloat(precioInput);
-
-        if (isNaN(precio) || precio <= 0) {
-            this.mensajeError.set('Por favor ingresa un precio válido');
-            setTimeout(() => this.mensajeError.set(''), 3000);
-            return;
-        }
-
-        const currentUser = this.auth.currentUser();
-        if (!currentUser || !currentUser.id) {
-            this.mensajeError.set('Error: No se pudo identificar el usuario');
-            setTimeout(() => this.mensajeError.set(''), 3000);
-            return;
-        }
-
-        const quoteData = {
-            solicitud_id: id,
-            proveedor_usuario_id: currentUser.id,
-            precio_total_propuesto: precio,
-            estado: 'pendiente'
-        };
-
-        this.api.createQuote(quoteData).subscribe({
-            next: (quote: any) => {
-                this.mensajeExito.set('Cotización enviada exitosamente');
+        // Cambiar a estado 'esperando_anticipo' cuando el proveedor acepta
+        this.api.updateSolicitudEstado(solId, 'esperando_anticipo').subscribe({
+            next: () => {
+                this.solicitudes.update(list => 
+                    list.map(s => s.id === solId ? { ...s, estado: 'esperando_anticipo' as const } : s)
+                );
+                this.procesando.set(null);
+                this.mensajeExito.set('¡Solicitud aceptada!');
                 setTimeout(() => this.mensajeExito.set(''), 3000);
-                this.cargarSolicitudes();
             },
-            error: (err: any) => {
-                console.error('Error al crear cotización:', err);
-                this.mensajeError.set('Error al crear la cotización');
+            error: (err) => {
+                console.error('Error aceptando solicitud:', err);
+                this.mensajeError.set('Error al aceptar la solicitud');
                 setTimeout(() => this.mensajeError.set(''), 3000);
+                this.procesando.set(null);
             }
         });
     }
 
-    // Rechazar una solicitud
-    rechazarSolicitud(id: string) {
-        if (!confirm('¿Estás seguro de que deseas rechazar esta solicitud?')) return;
+    rechazarSolicitud(solId: string) {
+        if (this.procesando()) return;
+        
+        if (!confirm('¿Estás seguro de rechazar esta solicitud?')) return;
+        
+        this.procesando.set(solId);
 
-        this.supabaseData.updateRequestStatus(id, 'rechazada').then(
-            () => {
+        this.api.updateSolicitudEstado(solId, 'rechazada').subscribe({
+            next: () => {
+                this.solicitudes.update(list => 
+                    list.map(s => s.id === solId ? { ...s, estado: 'rechazada' as const } : s)
+                );
+                this.procesando.set(null);
                 this.mensajeExito.set('Solicitud rechazada');
                 setTimeout(() => this.mensajeExito.set(''), 3000);
-                this.cargarSolicitudes();
             },
-            (err) => {
-                console.error('Error al rechazar solicitud:', err);
+            error: (err) => {
+                console.error('Error rechazando solicitud:', err);
                 this.mensajeError.set('Error al rechazar la solicitud');
                 setTimeout(() => this.mensajeError.set(''), 3000);
+                this.procesando.set(null);
             }
-        );
+        });
+    }
+
+    formatearFecha(fechaStr: string): string {
+        if (!fechaStr) return 'Por definir';
+        const fecha = new Date(fechaStr);
+        return fecha.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
+    }
+
+    tiempoDesdeCreacion(fechaStr: string): string {
+        if (!fechaStr) return '';
+        const fecha = new Date(fechaStr);
+        const ahora = new Date();
+        const diffMs = ahora.getTime() - fecha.getTime();
+        const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
+        
+        if (diffHoras < 1) return 'Hace unos minutos';
+        if (diffHoras < 24) return `Hace ${diffHoras}h`;
+        const diffDias = Math.floor(diffHoras / 24);
+        return `Hace ${diffDias} día${diffDias > 1 ? 's' : ''}`;
     }
 }

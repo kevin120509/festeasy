@@ -2,12 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HeaderComponent } from '../../shared/header/header';
 
 @Component({
     selector: 'app-crear-evento',
     standalone: true,
-    imports: [CommonModule, FormsModule, HeaderComponent],
+    imports: [CommonModule, FormsModule],
     templateUrl: './crear-evento.component.html'
 })
 export class CrearEventoComponent {

@@ -1,17 +1,15 @@
 <!-- Fondo global -->
 <div class="min-h-screen bg-slate-50">
-  <!-- Mensajes de notificación -->
+  <!-- Mensajes de notificacion -->
   @if (mensajeExito()) {
-  <div
-    class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+  <div class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
     <span class="material-icons-outlined text-[24px]">check_circle</span>
     <span class="font-semibold">{{ mensajeExito() }}</span>
   </div>
   }
 
   @if (mensajeError()) {
-  <div
-    class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+  <div class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
     <span class="material-icons-outlined text-[24px]">error</span>
     <span class="font-semibold">{{ mensajeError() }}</span>
   </div>
@@ -19,202 +17,179 @@
 
   <style>
     @keyframes slide-in {
-      from {
-        transform: translateX(400px);
-        opacity: 0;
-      }
-
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
+      from { transform: translateX(400px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-
-    .animate-slide-in {
-      animation: slide-in 0.3s ease;
-    }
+    .animate-slide-in { animation: slide-in 0.3s ease; }
   </style>
 
   <!-- Contenedor Principal -->
   <main class="max-w-7xl mx-auto p-8">
-    <!-- Cabecera con Título y Pestañas -->
+    <!-- Cabecera con Titulo y Pestanas -->
     <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
-      <!-- Título -->
       <div>
         <h1 class="text-3xl font-bold text-slate-800 mb-1">Solicitudes de Clientes</h1>
         <p class="text-sm text-slate-500">Gestiona las peticiones de tus servicios</p>
       </div>
 
-      <!-- Sistema de Pestañas -->
+      <!-- Sistema de Pestanas -->
       <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
-        <!-- Tab: Nuevas -->
-        <button (click)="cambiarTab('nuevas')" [class]="
-                    tabActivo() === 'nuevas'
-                        ? 'bg-white text-slate-800 shadow-sm'
-                        : 'text-slate-600 hover:text-slate-800'
-                " class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
-          <span>Nuevas</span>
-          @if (conteoNuevas > 0) {
-          <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-            {{ conteoNuevas }}
-          </span>
+        <button (click)="cambiarTab('pendientes')" [class]="tabActivo() === 'pendientes' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+          class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
+          <span>Pendientes</span>
+          @if (contadores().pendientes > 0) {
+          <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().pendientes }}</span>
           }
         </button>
 
-        <!-- Tab: Activas -->
-        <button (click)="cambiarTab('activas')" [class]="
-                    tabActivo() === 'activas'
-                        ? 'bg-white text-slate-800 shadow-sm'
-                        : 'text-slate-600 hover:text-slate-800'
-                " class="px-4 py-2.5 rounded-lg font-semibold text-sm transition-all">
-          Activas
+        <button (click)="cambiarTab('confirmadas')" [class]="tabActivo() === 'confirmadas' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+          class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
+          <span>Confirmadas</span>
+          @if (contadores().confirmadas > 0) {
+          <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().confirmadas }}</span>
+          }
         </button>
 
-        <!-- Tab: Historial -->
-        <button (click)="cambiarTab('historial')" [class]="
-                    tabActivo() === 'historial'
-                        ? 'bg-white text-slate-800 shadow-sm'
-                        : 'text-slate-600 hover:text-slate-800'
-                " class="px-4 py-2.5 rounded-lg font-semibold text-sm transition-all">
+        <button (click)="cambiarTab('historial')" [class]="tabActivo() === 'historial' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+          class="px-4 py-2.5 rounded-lg font-semibold text-sm transition-all">
           Historial
         </button>
       </div>
     </div>
 
-    <!-- Contenido según Tab Activo -->
+    <!-- Contenido segun Tab Activo -->
     @if (isLoading()) {
     <div class="flex justify-center py-20">
       <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-red-500"></div>
     </div>
     } @else {
 
-    <!-- Tab: Nuevas -->
-    @if (tabActivo() === 'nuevas') {
+    <!-- Listado de Solicitudes -->
     <div class="space-y-6">
-      @for (solicitud of solicitudesFiltradas; track solicitud.id; let first = $first) {
-
-      <!-- Barra de Alerta Urgente (solo primera tarjeta) -->
-      @if (first && solicitud.urgente) {
-      <div class="bg-red-50 border border-red-100 rounded-xl px-4 py-3 flex items-center gap-3 mb-4">
-        <span class="material-icons-outlined text-red-600 text-[20px]">schedule</span>
-        <p class="text-sm font-semibold text-red-800 flex-1">
-          Quedan {{ solicitud.horasRestantes }}h para responder y mantener tu insignia de respuesta rápida
-        </p>
-      </div>
-      }
-
-      <!-- Tarjeta de Solicitud -->
+      @for (solicitud of solicitudesFiltradas(); track solicitud.id) {
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hover:shadow-md transition-shadow">
-        <!-- Grid de dos columnas -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Columna Izquierda: Info del Cliente -->
           <div class="space-y-4">
-            <!-- Avatar y Nombre del Cliente -->
             <div class="flex items-center gap-3">
-              <div class="relative">
-                <img [src]="solicitud.cliente.avatar" [alt]="solicitud.cliente.nombre"
-                  class="h-12 w-12 rounded-full object-cover border-2 border-slate-100">
-                @if (solicitud.cliente.verificado) {
-                <div class="absolute -bottom-1 -right-1 bg-blue-500 rounded-full p-0.5 border-2 border-white">
-                  <span class="material-icons-outlined text-white text-[12px]">verified</span>
-                </div>
-                }
+              <div class="h-12 w-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
+                {{ solicitud.cliente_nombre.charAt(0) }}
               </div>
               <div class="flex-1">
-                <h3 class="text-base font-bold text-slate-800">{{ solicitud.cliente.nombre }}</h3>
-                <span [class]="getTipoEventoClasses(solicitud.evento.tipo)"
-                  class="inline-block px-2 py-0.5 rounded-md text-xs font-bold mt-1">
-                  {{ solicitud.evento.tipo }}
-                </span>
+                <h3 class="text-base font-bold text-slate-800">{{ solicitud.cliente_nombre }}</h3>
+                @if (solicitud.cliente_telefono) {
+                <p class="text-sm text-slate-500">{{ solicitud.cliente_telefono }}</p>
+                }
               </div>
+              <!-- Badge de Estado -->
+              <span [class]="{
+                'bg-amber-100 text-amber-700': solicitud.estado === 'pendiente_aprobacion',
+                'bg-orange-100 text-orange-700': solicitud.estado === 'esperando_anticipo',
+                'bg-green-100 text-green-700': solicitud.estado === 'reservado',
+                'bg-blue-100 text-blue-700': solicitud.estado === 'en_progreso',
+                'bg-purple-100 text-purple-700': solicitud.estado === 'entregado_pendiente_liq',
+                'bg-red-100 text-red-700': solicitud.estado === 'rechazada' || solicitud.estado === 'cancelada',
+                'bg-slate-100 text-slate-700': solicitud.estado === 'finalizado'
+              }" class="px-3 py-1 rounded-full text-xs font-semibold">
+                @switch (solicitud.estado) {
+                  @case ('pendiente_aprobacion') { Pendiente }
+                  @case ('esperando_anticipo') { Esperando Pago }
+                  @case ('reservado') { Reservado }
+                  @case ('en_progreso') { En Progreso }
+                  @case ('entregado_pendiente_liq') { Por Liquidar }
+                  @case ('rechazada') { Rechazada }
+                  @case ('cancelada') { Cancelada }
+                  @case ('finalizado') { Finalizado }
+                  @default { {{ solicitud.estado }} }
+                }
+              </span>
             </div>
 
-            <!-- Título del Evento -->
-            <div>
-              <p class="text-lg font-semibold text-slate-700">{{ solicitud.evento.titulo }}</p>
-            </div>
-
-            <!-- Fecha y Ubicación -->
+            <!-- Fecha y Ubicacion -->
             <div class="space-y-2">
               <div class="flex items-center gap-2 text-sm text-slate-600">
                 <span class="material-icons-outlined text-slate-400 text-[18px]">event</span>
-                <span>{{ solicitud.evento.fecha | date:'d MMMM y, h:mm a':'es-MX' }}</span>
+                <span>{{ solicitud.fecha_servicio | date:'d MMMM y' }}</span>
               </div>
               <div class="flex items-start gap-2 text-sm text-slate-600">
                 <span class="material-icons-outlined text-slate-400 text-[18px]">place</span>
-                <span class="flex-1">{{ solicitud.evento.ubicacion }}</span>
+                <span class="flex-1">{{ solicitud.direccion_servicio }}</span>
               </div>
             </div>
           </div>
 
-          <!-- Columna Derecha: Info del Paquete -->
+          <!-- Columna Derecha: Info del Evento -->
           <div class="space-y-4 lg:text-right">
-            <!-- Etiqueta -->
             <div>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Paquete
-                Solicitado</p>
-              <p class="text-base font-bold text-slate-800">{{ solicitud.paquete.nombre }}</p>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Evento</p>
+              <p class="text-base font-bold text-slate-800">{{ solicitud.titulo_evento }}</p>
             </div>
-
-            <!-- Presupuesto -->
             <div>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Presupuesto Base
-              </p>
-              <p class="text-3xl font-bold text-slate-800">
-                {{ solicitud.paquete.presupuestoBase | currency:'MXN':'symbol-narrow':'1.0-0' }}
-              </p>
+              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Monto Total</p>
+              <p class="text-3xl font-bold text-slate-800">{{ solicitud.monto_total | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
             </div>
           </div>
         </div>
 
-        <!-- Botones de Acción -->
+        <!-- Botones de Accion segun estado -->
+        @if (solicitud.estado === 'pendiente_aprobacion') {
         <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-          <!-- Botón Rechazar (Secundario) -->
-          <button (click)="rechazarSolicitud(solicitud.id)"
-            class="flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors">
+          <button (click)="rechazarSolicitud(solicitud.id)" [disabled]="procesando() === solicitud.id"
+            class="flex items-center justify-center gap-2 px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-colors disabled:opacity-50">
+            @if (procesando() === solicitud.id) {
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-slate-400 border-t-transparent"></div>
+            } @else {
             <span class="material-icons-outlined text-[20px]">close</span>
             <span>Rechazar</span>
+            }
           </button>
 
-          <!-- Botón Responder (Primario) -->
-          <button (click)="responderSolicitud(solicitud.id)"
-            class="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl transition-colors shadow-sm hover:shadow-md">
-            <span>Responder / Cotizar</span>
-            <span class="material-icons-outlined text-[20px]">arrow_forward</span>
+          <button (click)="aceptarSolicitud(solicitud.id)" [disabled]="procesando() === solicitud.id"
+            class="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl transition-colors shadow-sm hover:shadow-md disabled:opacity-50">
+            @if (procesando() === solicitud.id) {
+            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+            } @else {
+            <span class="material-icons-outlined text-[20px]">check</span>
+            <span>Aceptar</span>
+            }
           </button>
         </div>
+        }
+
+        @if (solicitud.estado === 'esperando_anticipo' || solicitud.estado === 'reservado' || solicitud.estado === 'en_progreso') {
+        <div class="flex justify-end pt-4 border-t border-slate-100">
+          <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+            <span class="material-icons-outlined text-[20px]">chat</span>
+            <span>Contactar Cliente</span>
+          </button>
+        </div>
+        }
       </div>
       } @empty {
-      <div
-        class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+      <!-- Estado vacio segun tab -->
+      @if (tabActivo() === 'pendientes') {
+      <div class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
         <span class="material-icons-outlined text-slate-300 text-[64px]">inbox</span>
-        <p class="text-slate-500 font-medium text-lg">No hay solicitudes nuevas en este momento</p>
-        <p class="text-slate-400 text-sm">Las nuevas peticiones aparecerán aquí</p>
+        <p class="text-slate-500 font-medium text-lg">No hay solicitudes pendientes</p>
+        <p class="text-slate-400 text-sm">Las nuevas peticiones apareceran aqui</p>
       </div>
       }
+      @if (tabActivo() === 'confirmadas') {
+      <div class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+        <span class="material-icons-outlined text-slate-300 text-[64px]">assignment</span>
+        <p class="text-slate-500 font-medium text-lg">No hay solicitudes confirmadas</p>
+        <p class="text-slate-400 text-sm">Las solicitudes aceptadas apareceran aqui</p>
+      </div>
+      }
+      @if (tabActivo() === 'historial') {
+      <div class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+        <span class="material-icons-outlined text-slate-300 text-[64px]">history</span>
+        <p class="text-slate-500 font-medium text-lg">No hay historial disponible</p>
+        <p class="text-slate-400 text-sm">Las solicitudes completadas o rechazadas apareceran aqui</p>
+      </div>
+      }
+      }
     </div>
-    }
-
-    <!-- Tab: Activas -->
-    @if (tabActivo() === 'activas') {
-    <div
-      class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
-      <span class="material-icons-outlined text-slate-300 text-[64px]">assignment</span>
-      <p class="text-slate-500 font-medium text-lg">No hay solicitudes activas</p>
-      <p class="text-slate-400 text-sm">Las solicitudes aceptadas aparecerán aquí</p>
-    </div>
-    }
-
-    <!-- Tab: Historial -->
-    @if (tabActivo() === 'historial') {
-    <div
-      class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
-      <span class="material-icons-outlined text-slate-300 text-[64px]">history</span>
-      <p class="text-slate-500 font-medium text-lg">No hay historial disponible</p>
-      <p class="text-slate-400 text-sm">Las solicitudes completadas o canceladas aparecerán aquí</p>
-    </div>
-    }
-
     }
   </main>
 </div>

@@ -292,7 +292,7 @@
                     <button (click)="currentStep.set(1)"
                         class="text-text-sub dark:text-gray-400 hover:text-primary transition-colors">Carrito</button>
                     <span class="material-symbols-outlined text-[16px] text-gray-300">chevron_right</span>
-                    <span class="text-primary">Pago</span>
+                    <span class="text-primary">Detalles</span>
                     <span class="material-symbols-outlined text-[16px] text-gray-300">chevron_right</span>
                     <span class="text-gray-300">Confirmación</span>
                 </div>
@@ -304,8 +304,8 @@
                 </div>
             </nav>
             <div class="flex items-center gap-2 text-text-sub dark:text-gray-400">
-                <span class="material-symbols-outlined text-[20px]">lock</span>
-                <span class="text-sm font-medium hidden sm:block">Pago Seguro</span>
+                <span class="material-symbols-outlined text-[20px]">verified_user</span>
+                <span class="text-sm font-medium hidden sm:block">Envío Seguro</span>
             </div>
         </div>
     </header>
@@ -325,141 +325,59 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <label class="flex flex-col group">
                                 <span class="text-sm font-semibold text-text-main dark:text-gray-200 mb-2 pl-1">Fecha
-                                    del Evento</span>
+                                    del Evento *</span>
                                 <div class="relative">
                                     <input
-                                        class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
-                                        placeholder="dd/mm/aaaa" type="text" [value]="requestInfo().fecha" readonly />
+                                        class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer text-gray-900 dark:text-white"
+                                        type="date" [value]="fechaEvento()" (change)="fechaEvento.set($any($event.target).value)" />
                                     <span
-                                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">calendar_today</span>
+                                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors pointer-events-none">calendar_today</span>
                                 </div>
                             </label>
                             <label class="flex flex-col group">
                                 <span class="text-sm font-semibold text-text-main dark:text-gray-200 mb-2 pl-1">Hora de
-                                    Inicio</span>
+                                    Inicio *</span>
                                 <div class="relative">
                                     <input
-                                        class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
-                                        placeholder="--:--" type="text" [value]="requestInfo().hora" readonly />
+                                        class="w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer text-gray-900 dark:text-white"
+                                        type="time" [value]="horaEvento()" (change)="horaEvento.set($any($event.target).value)" />
                                     <span
-                                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">schedule</span>
+                                        class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors pointer-events-none">schedule</span>
                                 </div>
                             </label>
                         </div>
                         <label class="flex flex-col group">
                             <span class="text-sm font-semibold text-text-main dark:text-gray-200 mb-2 pl-1">Dirección
-                                del Evento</span>
+                                del Evento *</span>
                             <div class="relative">
                                 <input
-                                    class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
-                                    placeholder="Buscar calle, número, colonia..." type="text"
-                                    [value]="requestInfo().direccion" readonly />
+                                    class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-xl h-14 px-4 pl-12 pr-36 text-base outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-gray-400 dark:text-white"
+                                    placeholder="Ingresa la dirección del evento..." type="text"
+                                    [value]="direccionEvento()" (input)="direccionEvento.set($any($event.target).value)" required />
                                 <span
                                     class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors">location_on</span>
+                                <button (click)="obtenerUbicacionExacta()" [disabled]="cargandoUbicacion()"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 bg-primary hover:bg-primary-dark text-white text-xs font-bold px-3 py-2 rounded-lg flex items-center gap-1 transition-all disabled:opacity-50">
+                                    @if (cargandoUbicacion()) {
+                                        <span class="material-symbols-outlined text-sm animate-spin">sync</span>
+                                        Obteniendo...
+                                    } @else {
+                                        <span class="material-symbols-outlined text-sm">my_location</span>
+                                        Usar mi ubicación
+                                    }
+                                </button>
                             </div>
                         </label>
-                        <div
-                            class="relative w-full h-48 rounded-xl overflow-hidden border border-border-color dark:border-gray-700 group cursor-pointer">
-                            <div class="absolute inset-0 bg-cover bg-center grayscale opacity-80 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500"
-                                data-alt="Map view of Mexico City streets" data-location="Mexico City"
-                                style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCZ2JKp2e8hSOoqQpcYm58Es1aZwwAd_rBrTs3Cu5bEhZJcoheXjrn-FGOUy2ClDLPVjInCaECY0IzMiKDCkMUuU1urPQ1_5u-_BGkGr1ZPacycNVhus-xhazlI4mIE8A9G51oYy2_AQudrygla4g3cBmLISsR9PynSJUriWlvlA-IKHUqBaN4CTxRTIFoVLxwmzSIgtQo673j48D7bdr50ilR-c0k7qknW7HaMbKOYVVgNXe_WrThT_8bSWACZGOIPdeD3G8fgy3w');">
-                            </div>
-                            <div class="absolute inset-0 bg-black/5 dark:bg-black/40"></div>
-                            <div
-                                class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center">
-                                <div
-                                    class="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center shadow-lg animate-bounce">
-                                    <span class="material-symbols-outlined text-[28px]">push_pin</span>
-                                </div>
-                                <span
-                                    class="mt-2 bg-white dark:bg-gray-800 px-3 py-1 rounded-full text-xs font-bold shadow-md text-text-main dark:text-white">Ubicación
-                                    Exacta</span>
+                        
+                        @if (ubicacionExacta() && latitud() && longitud()) {
+                        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 flex items-center gap-3">
+                            <span class="material-symbols-outlined text-green-600 text-2xl">check_circle</span>
+                            <div>
+                                <p class="font-semibold text-green-800 dark:text-green-300">Ubicación exacta activada</p>
+                                <p class="text-sm text-green-600 dark:text-green-400">Coordenadas: {{ latitud() | number:'1.4-4' }}, {{ longitud() | number:'1.4-4' }}</p>
                             </div>
                         </div>
-                    </div>
-                </section>
-                <section
-                    class="bg-surface-light dark:bg-surface-dark p-6 sm:p-8 rounded-2xl shadow-soft border border-transparent dark:border-gray-800 bg-white dark:bg-[#2A2A2A]">
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                            <span class="material-symbols-outlined">payments</span>
-                        </div>
-                        <h2 class="text-2xl font-bold tracking-tight text-text-main dark:text-white">Método de Pago</h2>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                        <label class="cursor-pointer relative">
-                            <input checked="" class="peer sr-only" name="payment_method" type="radio" />
-                            <div
-                                class="h-full flex flex-col items-center justify-center p-6 rounded-xl border-2 border-primary bg-primary/5 dark:bg-primary/10 peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 transition-all hover:bg-gray-50 dark:hover:bg-gray-800/50 border-gray-200 dark:border-gray-700">
-                                <span class="material-symbols-outlined text-4xl text-primary mb-3">credit_card</span>
-                                <span
-                                    class="font-bold text-sm text-center text-text-main dark:text-white">Tarjeta</span>
-                                <span class="text-xs text-text-sub text-center mt-1">Stripe Secure</span>
-                                <div
-                                    class="absolute top-3 right-3 w-5 h-5 bg-primary rounded-full flex items-center justify-center peer-checked:opacity-100 opacity-0 transition-opacity">
-                                    <span
-                                        class="material-symbols-outlined text-white text-[14px] font-bold">check</span>
-                                </div>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer relative">
-                            <input class="peer sr-only" name="payment_method" type="radio" />
-                            <div
-                                class="h-full flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <span
-                                    class="material-symbols-outlined text-4xl text-gray-400 peer-checked:text-primary mb-3">account_balance</span>
-                                <span
-                                    class="font-bold text-sm text-center text-text-main dark:text-white">Transferencia</span>
-                                <span class="text-xs text-text-sub text-center mt-1">SPEI</span>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer relative">
-                            <input class="peer sr-only" name="payment_method" type="radio" />
-                            <div
-                                class="h-full flex flex-col items-center justify-center p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-black/20 peer-checked:border-primary peer-checked:bg-primary/5 dark:peer-checked:bg-primary/10 transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
-                                <span
-                                    class="material-symbols-outlined text-4xl text-gray-400 peer-checked:text-primary mb-3">storefront</span>
-                                <span
-                                    class="font-bold text-sm text-center text-text-main dark:text-white">Efectivo</span>
-                                <span class="text-xs text-text-sub text-center mt-1">Oxxo Pay</span>
-                            </div>
-                        </label>
-                    </div>
-                    <div class="border-t border-border-color dark:border-gray-700 pt-6 mt-2 animate-fade-in">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <label class="md:col-span-2">
-                                <span class="text-xs font-bold uppercase tracking-wider text-text-sub mb-1 block">Número
-                                    de Tarjeta</span>
-                                <input
-                                    class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-lg h-12 px-4 focus:ring-1 focus:ring-primary focus:border-primary outline-none dark:text-white"
-                                    placeholder="0000 0000 0000 0000" type="text" />
-                            </label>
-                            <label>
-                                <span
-                                    class="text-xs font-bold uppercase tracking-wider text-text-sub mb-1 block">Expiración</span>
-                                <input
-                                    class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-lg h-12 px-4 focus:ring-1 focus:ring-primary focus:border-primary outline-none dark:text-white"
-                                    placeholder="MM/AA" type="text" />
-                            </label>
-                            <label>
-                                <span
-                                    class="text-xs font-bold uppercase tracking-wider text-text-sub mb-1 block">CVC</span>
-                                <div class="relative">
-                                    <input
-                                        class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-lg h-12 px-4 focus:ring-1 focus:ring-primary focus:border-primary outline-none dark:text-white"
-                                        placeholder="123" type="text" />
-                                    <span
-                                        class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg cursor-help">help</span>
-                                </div>
-                            </label>
-                            <label class="md:col-span-2">
-                                <span class="text-xs font-bold uppercase tracking-wider text-text-sub mb-1 block">Nombre
-                                    en la Tarjeta</span>
-                                <input
-                                    class="w-full bg-background-light dark:bg-black/20 border border-border-color dark:border-gray-700 rounded-lg h-12 px-4 focus:ring-1 focus:ring-primary focus:border-primary outline-none dark:text-white"
-                                    placeholder="Como aparece en la tarjeta" type="text" />
-                            </label>
-                        </div>
+                        }
                     </div>
                 </section>
             </div>
@@ -504,17 +422,21 @@
                         <span class="text-4xl font-extrabold text-primary tracking-tight">${{ total.toLocaleString()
                             }}</span>
                     </div>
-                    <button (click)="checkout()"
-                        class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/30 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 group relative z-10">
-                        <span>Confirmar Reservación y Pagar</span>
-                        <span
-                            class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    <button (click)="confirmarReservacion()" [disabled]="!formularioValido || enviandoSolicitud()"
+                        class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/30 transition-all transform active:scale-[0.98] flex items-center justify-center gap-2 group relative z-10 disabled:opacity-50 disabled:cursor-not-allowed">
+                        @if (enviandoSolicitud()) {
+                            <span class="material-symbols-outlined animate-spin">sync</span>
+                            <span>Enviando solicitud...</span>
+                        } @else {
+                            <span>Confirmar Reservación</span>
+                            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                        }
                     </button>
                     <div class="mt-6 flex items-center justify-center gap-2 opacity-80 relative z-10">
-                        <span class="material-symbols-outlined text-green-600 text-[20px]">verified_user</span>
+                        <span class="material-symbols-outlined text-blue-600 text-[20px]">schedule</span>
                         <p class="text-xs text-center text-text-sub dark:text-gray-400 leading-tight">
-                            Tus pagos están protegidos por <br /><strong
-                                class="text-text-main dark:text-gray-300">FestEasy Escrow</strong>
+                            El proveedor recibirá tu solicitud <br /><strong
+                                class="text-text-main dark:text-gray-300">y tendrá 24h para confirmar</strong>
                         </p>
                     </div>
                 </div>

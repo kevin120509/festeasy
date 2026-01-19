@@ -1,6 +1,6 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
-
+/*
 CREATE TABLE public.bloqueos_calendario (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   proveedor_usuario_id uuid NOT NULL,
@@ -207,3 +207,4 @@ CREATE TABLE public.users (
   actualizado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT users_pkey PRIMARY KEY (id)
 );
+*/
