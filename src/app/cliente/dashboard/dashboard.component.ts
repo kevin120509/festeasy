@@ -2,7 +2,7 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
-import { ApiService } from '../../services/api.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 
 @Component({
     selector: 'app-cliente-dashboard',
@@ -12,7 +12,8 @@ import { ApiService } from '../../services/api.service';
 })
 export class ClienteDashboardComponent implements OnInit {
     auth = inject(AuthService);
-    api = inject(ApiService);
+    // api = inject(ApiService); // Removed
+    supabaseData = inject(SupabaseDataService);
 
     // Métricas
     metricas = signal({
@@ -52,7 +53,13 @@ export class ClienteDashboardComponent implements OnInit {
     }
 
     cargarDatos(): void {
-        this.api.getClientRequests().subscribe({
+        const user = this.auth.currentUser();
+        if (!user || !user.id) {
+            this.loading.set(false);
+            return;
+        }
+
+        this.supabaseData.getRequestsByClient(user.id).subscribe({
             next: (requests) => {
                 // Guardar todas las solicitudes
                 this.misSolicitudes.set(requests);
@@ -60,12 +67,12 @@ export class ClienteDashboardComponent implements OnInit {
                 // Mapear solicitudes a actividades
                 const actividades = requests.slice(0, 5).map(req => ({
                     id: req.id,
-                    proveedor: 'Proveedor',
+                    proveedor: req.perfil_proveedor?.nombre_negocio || 'Proveedor',
                     servicio: req.titulo_evento || 'Servicio',
                     fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX'),
                     estado: req.estado,
                     estadoLabel: this.formatEstado(req.estado),
-                    monto: 0,
+                    monto: req.presupuesto_max,
                     icono: '📋'
                 }));
                 this.actividades.set(actividades);
@@ -73,26 +80,40 @@ export class ClienteDashboardComponent implements OnInit {
                 // Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
                 this.metricas.set({
+<<<<<<< HEAD:src/app/cliente/dashboard/dashboard.ts
                     eventosActivos: requests.filter(r => ['reservado', 'en_progreso'].includes(r.estado)).length,
+=======
+                    eventosActivos: requests.filter(r => ['reservado', 'negociacion', 'en_progreso'].includes(r.estado)).length,
+>>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/cliente/dashboard/dashboard.component.ts
                     cotizacionesPendientes: pendientes,
-                    inversionTotal: 0
+                    inversionTotal: 0 // TODO: Calcular de pagos reales
                 });
 
+<<<<<<< HEAD:src/app/cliente/dashboard/dashboard.ts
                 // Evento activo (primera solicitud reservada)
                 const activo = requests.find(r => r.estado === 'reservado');
+=======
+                // Evento activo (primera solicitud aceptada/reservada)
+                const activo = requests.find(r => r.estado === 'reservado' || r.estado === 'en_progreso');
+>>>>>>> 934db9194f24387cd7de91aab4f4a59d9a806e83:src/app/cliente/dashboard/dashboard.component.ts
                 if (activo) {
                     this.eventoActivo.set({
                         id: activo.id,
                         titulo: activo.titulo_evento || 'Mi Evento',
                         ubicacion: activo.direccion_servicio,
                         fecha: new Date(activo.fecha_servicio).toLocaleDateString('es-MX'),
-                        progreso: 65
+                        progreso: activo.estado === 'reservado' ? 50 : 75
                     });
+                } else {
+                    this.eventoActivo.set(null);
                 }
 
                 this.loading.set(false);
             },
-            error: () => this.loading.set(false)
+            error: (err) => {
+                console.error('Error loading dashboard data', err);
+                this.loading.set(false);
+            }
         });
     }
 

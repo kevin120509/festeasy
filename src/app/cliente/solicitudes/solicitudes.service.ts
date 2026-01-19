@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
-import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 
 export interface SolicitudCliente {
     id: string;
@@ -17,22 +18,24 @@ export interface SolicitudCliente {
     providedIn: 'root'
 })
 export class SolicitudesService {
-    private api = inject(ApiService);
+    private auth = inject(AuthService);
+    private supabaseData = inject(SupabaseDataService);
 
     // Obtener todas las solicitudes del cliente logueado
     getMisSolicitudes(): Observable<SolicitudCliente[]> {
-        // Usamos el endpoint existente del ApiService
-        return this.api.getClientRequests().pipe(
+        const user = this.auth.currentUser();
+        if (!user || !user.id) return new Observable(obs => obs.next([]));
+
+        return this.supabaseData.getRequestsByClient(user.id).pipe(
             map((requests: any[]) => {
                 return requests.map(req => ({
                     id: req.id,
                     titulo_evento: req.titulo_evento || 'Evento Sin Título',
-                    // Mapeamos o generamos datos visuales que quizás no vengan directos del backend aun
                     categoria: this.inferirCategoria(req),
                     fecha_evento: req.fecha_servicio,
-                    creada_en: req.creado_en,
+                    creada_en: req.created_at || req.creado_en, // Supabase usa created_at
                     estado: this.mapearEstado(req.estado),
-                    cotizaciones_count: req.cotizaciones ? req.cotizaciones[0]?.count || 0 : 0,
+                    cotizaciones_count: 0, // TODO: Count real quotes
                     imagen_url: this.getImagenCategoria(this.inferirCategoria(req))
                 }));
             })

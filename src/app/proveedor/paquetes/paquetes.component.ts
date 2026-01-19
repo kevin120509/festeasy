@@ -1,7 +1,8 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { ApiService } from '../../services/api.service';
+// import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
 import { ProviderPackage } from '../../models';
 import { CommonModule } from '@angular/common';
@@ -31,7 +32,8 @@ interface PackageImage {
   styleUrl: './paquetes.css'
 })
 export class PaquetesComponent implements OnInit {
-  private apiService = inject(ApiService);
+  // private apiService = inject(ApiService);
+  private supabaseData = inject(SupabaseDataService);
   private supabaseService = inject(SupabaseService);
   public authService = inject(AuthService);
 
@@ -62,14 +64,12 @@ export class PaquetesComponent implements OnInit {
   newItemQuantity = signal(1);
 
   ngOnInit() {
-    this.apiService.getServiceCategories().subscribe({
-      next: (response: any) => {
-        if (response.data) {
-          this.categories.set(response.data);
-        }
+    this.supabaseData.getServiceCategories().then(
+      (data) => {
+        this.categories.set(data);
       },
-      error: (err) => console.error('Error fetching categories:', err)
-    });
+      (err) => console.error('Error fetching categories:', err)
+    );
   }
 
   // Cargos adicionales
@@ -205,9 +205,9 @@ export class PaquetesComponent implements OnInit {
 
       this.successMessage.set('Imágenes subidas exitosamente');
       setTimeout(() => this.successMessage.set(''), 3000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading images', error);
-      this.errorMessage.set('Error al subir las imágenes');
+      this.errorMessage.set(`Error al subir imagen: ${error.message || 'Error desconocido'}`);
     } finally {
       this.uploadingImages.set(false);
     }
@@ -264,6 +264,7 @@ export class PaquetesComponent implements OnInit {
   }
 
   // Guardar paquete en el backend
+  // Guardar paquete en el backend
   private async savePackage() {
     this.saving.set(true);
     this.errorMessage.set('');
@@ -278,8 +279,6 @@ export class PaquetesComponent implements OnInit {
         descripcion: this.packageData().descripcion,
         precio_base: this.packageData().precio_base,
         estado: this.packageData().estado,
-        // Guardar datos adicionales en un campo JSON (si el backend lo soporta)
-        // Si el backend no tiene este campo, puedes crear tablas separadas para items e imágenes
         // Guardar datos adicionales en un campo JSON
         detalles_json: {
           items: this.items(),
@@ -294,49 +293,39 @@ export class PaquetesComponent implements OnInit {
 
       console.log('📦 Guardando paquete:', packageToSave);
 
-      // Crear el paquete usando Observable
-      this.apiService.createProviderPackage(packageToSave).subscribe({
-        next: (createdPackage) => {
-          console.log('✅ Paquete creado exitosamente:', createdPackage);
+      // Crear el paquete usando SupabaseDataService (Promise)
+      const createdPackage = await this.supabaseData.createProviderPackage(packageToSave);
 
-          this.successMessage.set(
-            this.packageData().estado === 'publicado'
-              ? '¡Paquete publicado exitosamente! 🎉'
-              : 'Borrador guardado exitosamente ✓'
-          );
+      console.log('✅ Paquete creado exitosamente:', createdPackage);
 
-          this.saving.set(false);
+      this.successMessage.set(
+        this.packageData().estado === 'publicado'
+          ? '¡Paquete publicado exitosamente! 🎉'
+          : 'Borrador guardado exitosamente ✓'
+      );
 
-          // Resetear formulario después de 2 segundos
-          setTimeout(() => {
-            this.resetForm();
-          }, 2000);
-        },
-        error: (err) => {
-          console.error('❌ Error al guardar el paquete:', err);
+      this.saving.set(false);
 
-          // Mostrar mensaje de error más específico
-          let errorMsg = 'Error al guardar el paquete. ';
-          if (err.error?.message) {
-            errorMsg += err.error.message;
-          } else if (err.status === 401) {
-            errorMsg += 'No estás autenticado. Por favor inicia sesión.';
-          } else if (err.status === 400) {
-            errorMsg += 'Datos inválidos. Verifica la información.';
-          } else if (err.status === 500) {
-            errorMsg += 'Error del servidor. Intenta más tarde.';
-          } else {
-            errorMsg += 'Por favor intenta de nuevo.';
-          }
+      // Resetear formulario después de 2 segundos
+      setTimeout(() => {
+        this.resetForm();
+      }, 2000);
 
-          this.errorMessage.set(errorMsg);
-          this.saving.set(false);
-        }
-      });
+    } catch (error: any) {
+      console.error('❌ Error al guardar el paquete:', error);
 
-    } catch (error) {
-      console.error('❌ Error inesperado:', error);
-      this.errorMessage.set('Error inesperado al guardar el paquete.');
+      // Mostrar mensaje de error más específico
+      let errorMsg = 'Error al guardar el paquete. ';
+
+      if (error.message) {
+        errorMsg += error.message;
+      } else if (error.code) {
+        errorMsg += `Code: ${error.code}. `;
+      } else {
+        errorMsg += 'Por favor intenta de nuevo.';
+      }
+
+      this.errorMessage.set(errorMsg);
       this.saving.set(false);
     }
   }
