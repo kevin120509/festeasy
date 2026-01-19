@@ -19,7 +19,7 @@ export class CarritoComponent implements OnInit {
     currentStep = signal(1); // 1: Carrito, 2: Checkout
 
     items = signal<any[]>([]);
-    
+
     // Request info for checkout - ahora editable
     fechaEvento = signal('');
     horaEvento = signal('');
@@ -44,6 +44,7 @@ export class CarritoComponent implements OnInit {
                     return {
                         id: item.id,
                         nombre: item.paquete?.nombre || 'Nombre no disponible',
+                        paquete_proveedor_id: item.paquete?.proveedor_usuario_id,
                         proveedor: 'Proveedor', // Simplificado - no hay FK a perfil_proveedor
                         precio: item.precio_unitario_momento,
                         cantidad: item.cantidad,
@@ -74,7 +75,7 @@ export class CarritoComponent implements OnInit {
                 this.longitud.set(position.coords.longitude);
                 this.ubicacionExacta.set(true);
                 this.cargandoUbicacion.set(false);
-                
+
                 // Reverse geocoding para obtener dirección
                 this.obtenerDireccionDesdeCoordenadas(position.coords.latitude, position.coords.longitude);
             },
@@ -143,21 +144,32 @@ export class CarritoComponent implements OnInit {
         this.enviandoSolicitud.set(true);
 
         try {
-            const user = this.auth.currentUser();
+            const { data: { user } } = await this.api.getCurrentUser();
+
             if (!user) {
-                alert('Debes iniciar sesión');
+                alert('Debes iniciar sesión (Sesión expirada)');
                 this.router.navigate(['/login']);
                 return;
             }
+
+            console.log('👤 Usuario autenticado (Supabase):', user.id);
 
             // Crear fecha y hora combinadas
             const fechaServicio = this.fechaEvento(); // Solo la fecha YYYY-MM-DD
 
             // Crear solicitud para cada item del carrito
             for (const item of this.items()) {
+                const proveedorId = item.paquete_proveedor_id || item.paquete?.proveedor_usuario_id;
+
+                if (!proveedorId) {
+                    console.error('❌ Error: ID de proveedor no encontrado para el item:', item);
+                    alert(`Error: No se pudo identificar al proveedor del paquete "${item.nombre}". Intenta recargar la página.`);
+                    continue;
+                }
+
                 const solicitud = {
                     cliente_usuario_id: user.id,
-                    proveedor_usuario_id: item.paquete_proveedor_id || item.paquete?.proveedor_usuario_id,
+                    proveedor_usuario_id: proveedorId,
                     fecha_servicio: fechaServicio,
                     direccion_servicio: this.direccionEvento(),
                     latitud_servicio: this.latitud() || null,

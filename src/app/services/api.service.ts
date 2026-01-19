@@ -44,6 +44,10 @@ export class ApiService {
         );
     }
 
+    async getCurrentUser() {
+        return await this.supabase.auth.getUser();
+    }
+
     // ==========================================
     // 1. Autenticación (/users)
     // ==========================================
@@ -205,7 +209,7 @@ export class ApiService {
     createRequest(data: any): Observable<any> {
         return this.fromSupabase(this.supabase.from('solicitudes').insert(data).select().single());
     }
-    
+
     // MISSING METHODS ADDED HERE
     createQuote(data: Partial<Quote>): Observable<Quote> {
         return this.fromSupabase(this.supabase.from('cotizaciones').insert(data).select().single());
@@ -229,7 +233,7 @@ export class ApiService {
                 if (res.error) throw res.error;
                 const userId = res.data.user?.id;
                 if (!userId) return [];
-                
+
                 // Solicitudes sin JOIN - no hay FK directa a perfil_proveedor
                 return from(this.supabase
                     .from('solicitudes')
@@ -252,7 +256,7 @@ export class ApiService {
                 if (res.error) throw res.error;
                 const userId = res.data.user?.id;
                 if (!userId) return [];
-                
+
                 // JOIN con perfil_cliente usando la nueva FK
                 return from(this.supabase
                     .from('solicitudes')
@@ -279,10 +283,10 @@ export class ApiService {
                 .single()
         );
     }
-    
+
     // ... (Agregando los demás métodos necesarios para que compile el resto de la app)
     updateProviderProfile(id: string, data: any): Observable<any> { return this.fromSupabase(this.supabase.from('perfil_proveedor').update(data).eq('id', id).select().single()); }
-    
+
     // Obtener carrito activo del usuario actual
     getCart(): Observable<any> {
         return from(this.supabase.auth.getUser()).pipe(
@@ -291,7 +295,7 @@ export class ApiService {
                 const userId = res.data.user?.id;
                 console.log('🛒 getCart: userId =', userId);
                 if (!userId) throw new Error('Usuario no autenticado');
-                
+
                 return from(this.supabase
                     .from('carrito')
                     .select('*, items:items_carrito(*, paquete:paquetes_proveedor(*))')
@@ -322,7 +326,7 @@ export class ApiService {
             .maybeSingle();
 
         if (findError) throw findError;
-        
+
         if (existingCart) {
             return existingCart;
         }
@@ -337,7 +341,7 @@ export class ApiService {
         if (createError) throw createError;
         return { ...newCart, items: [] };
     }
-    
+
     // Métodos para carrito
     addToCart(item: Partial<CartItem>): Observable<any> {
         return this.fromSupabase(this.supabase.from('items_carrito').insert(item).select().single());
