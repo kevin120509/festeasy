@@ -1,53 +1,34 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../shared/header/header';
-import { MapaComponent } from '../../shared/mapa/mapa.component';
-import { SupabaseDataService } from '../../services/supabase-data.service';
-import { ProviderPackage } from '../../models';
+import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-marketplace',
     standalone: true,
-    imports: [FormsModule],
+    imports: [FormsModule, RouterLink],
     templateUrl: './marketplace.html'
 })
 export class MarketplaceComponent implements OnInit {
-    searchQuery = '';
-    selectedCategory = '';
-    priceRange = '';
-
-    private supabaseData = inject(SupabaseDataService);
-
+    private api = inject(ApiService);
     providers = signal<any[]>([]);
-    categories = signal<string[]>([]);
+    searchQuery = '';
 
     ngOnInit(): void {
-        this.supabaseData.getAllPackages().subscribe(packages => {
-            const providersData = packages.map(p => ({
+        this.api.getProviderProfiles().subscribe(profiles => {
+            this.providers.set(profiles.map(p => ({
                 id: p.id,
-                // Si la query incluye perfil_proveedor, p.perfil_proveedor?.nombre_negocio podría ser útil
-                nombre: p.nombre,
-                categoria: p.perfil_proveedor?.descripcion || 'Servicio', // Fallback
-                precio: p.precio,
-                rating: 4.5,
-                ubicacion: p.perfil_proveedor?.direccion_formato || 'Ciudad de México',
-                imagen: '📦'
-            }));
-            this.providers.set(providersData);
+                usuario_id: p.usuario_id,
+                nombre: p.nombre_negocio,
+                categoria: p.descripcion || 'Servicios',
+                ubicacion: p.direccion_formato || 'Ciudad de México',
+                imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
+                rating: 5.0
+            })));
         });
-
-        // TODO: Implement a real endpoint for categories in the backend
-        this.categories.set(['DJ / Sonido', 'Catering', 'Fotografía', 'Decoración', 'Iluminación', 'Pastelería']);
     }
 
     get filteredProviders() {
-        return this.providers().filter(p => {
-            const matchesSearch = !this.searchQuery ||
-                p.nombre.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                p.categoria.toLowerCase().includes(this.searchQuery.toLowerCase());
-            const matchesCategory = !this.selectedCategory || p.categoria === this.selectedCategory;
-            return matchesSearch && matchesCategory;
-        });
+        return this.providers().filter(p => !this.searchQuery || p.nombre.toLowerCase().includes(this.searchQuery.toLowerCase()));
     }
 }

@@ -1,67 +1,26 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { switchMap, map, forkJoin } from 'rxjs';
-import { HeaderComponent } from '../../shared/header/header';
 import { ApiService } from '../../services/api.service';
-import { ProviderProfile, ProviderPackage } from '../../models';
+import { HeaderComponent } from '../../shared/header/header';
 
 @Component({
     selector: 'app-proveedor-detalle',
     standalone: true,
-    imports: [HeaderComponent, RouterLink],
-    templateUrl: './proveedor-detalle.html'
+    imports: [CommonModule, HeaderComponent, RouterLink],
+    templateUrl: './proveedor-detalle.component.html'
 })
 export class ProveedorDetalleComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private api = inject(ApiService);
-
-    provider = signal<any>({});
-    packages = signal<ProviderPackage[]>([]);
-    galeria = signal<string[]>([]); // TODO: Implement gallery in backend
-    reviews = signal<any[]>([]);
+    provider = signal<any>(null);
+    packages = signal<any[]>([]);
 
     ngOnInit(): void {
-        const providerId = this.route.snapshot.paramMap.get('id');
-        if (providerId) {
-            const profile$ = this.api.getProviderProfile(providerId);
-            const reviews$ = this.api.getReviews(providerId);
-
-            forkJoin({
-                profile: profile$,
-                reviews: reviews$
-            }).pipe(
-                switchMap(({ profile, reviews }) => {
-                    const providerData = {
-                        id: profile.id,
-                        nombre: profile.nombre_negocio,
-                        categoria: profile.categoria_principal_id,
-                        descripcion: profile.descripcion,
-                        rating: 4.8, // Placeholder
-                        ubicacion: profile.direccion_formato,
-                        imagen: profile.avatar_url || '🏢',
-                        reviews: reviews.length
-                    };
-                    this.provider.set(providerData);
-                    // Add simple ID to reviews if missing for UI tracking
-                    this.reviews.set(reviews.map((r: any, i: number) => ({ ...r, id: r.id || i })));
-
-                    return this.api.getProviderPackages().pipe(
-                        map(allPackages => allPackages.filter(p => p.proveedor_usuario_id === profile.usuario_id))
-                    );
-                })
-            ).subscribe(providerPackages => {
-                this.packages.set(providerPackages);
-            });
-
-            // Placeholder data for gallery
-            this.galeria.set(['🎵', '🎶', '🎤', '🔊']);
+        const id = this.route.snapshot.paramMap.get('id');
+        if (id) {
+            this.api.getProviderProfile(id).subscribe(p => this.provider.set(p));
+            this.api.getPackagesByProviderId(id).subscribe(pkgs => this.packages.set(pkgs));
         }
     }
-
-    addToCart(pkg: any) {
-        // TODO: Implement cart logic
-        alert(`${pkg.nombre} agregado al carrito`);
-    }
 }
-
-
