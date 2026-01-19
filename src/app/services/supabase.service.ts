@@ -16,6 +16,13 @@ export class SupabaseService {
     }
 
     /**
+     * Obtiene el cliente de Supabase para operaciones directas
+     */
+    getClient(): SupabaseClient {
+        return this.supabase;
+    }
+
+    /**
      * Sube un archivo al bucket de Supabase Storage
      * @param bucket Nombre del bucket (ej: 'festeasy')
      * @param path Ruta dentro del bucket (ej: 'avatars/user-123.jpg')

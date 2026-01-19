@@ -36,11 +36,11 @@ export class AgendaComponent implements OnInit {
             blocks: this.api.getCalendarBlocks(),
             requests: this.api.getProviderRequests()
         }).subscribe(({ blocks, requests }) => {
-            const acceptedRequests = requests.filter(r => r.estado === 'reservado');
+            const acceptedRequests = requests.filter((r: any) => r.estado === 'reservado');
             this.generateCalendar(year, month, blocks, acceptedRequests);
 
             const proximos = acceptedRequests
-                .map(r => ({
+                .map((r: any) => ({
                     fecha: new Date(r.fecha_servicio).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }),
                     cliente: `Cliente ID: ${r.cliente_usuario_id}`,
                     tipo: r.titulo_evento || 'Evento',
@@ -80,7 +80,7 @@ export class AgendaComponent implements OnInit {
 
         if (day.disponible) {
             // Block the day
-            this.api.createCalendarBlock({ fecha: dateString }).subscribe(newBlock => {
+            this.api.createCalendarBlock({ fecha: dateString }).subscribe((newBlock: any) => {
                 this.dias.update(dias => dias.map((d, i) => i === index ? { ...d, disponible: false, blockId: newBlock.id } : d));
             });
         } else if (day.blockId) {

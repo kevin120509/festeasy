@@ -1,114 +1,94 @@
-import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Injectable, inject } from '@angular/core';
+import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { Router } from '@angular/router';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class SupabaseAuthService {
-    private supabase: SupabaseClient;
+  private supabase: SupabaseClient;
+  private router = inject(Router);
 
-    constructor() {
-        this.supabase = createClient(
-            environment.supabaseUrl,
-            environment.supabaseKey
-        );
+  constructor() {
+    this.supabase = createClient(
+      environment.supabaseUrl,
+      environment.supabaseKey
+    );
+  }
+
+  // Obtener usuario actual de la sesión
+  async getCurrentUser(): Promise<User | null> {
+    const { data: { user } } = await this.supabase.auth.getUser();
+    return user;
+  }
+
+  // Registro de usuario
+  async signUp(email: string, password: string, metadata: any) {
+    const { data, error } = await this.supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata // nombre_negocio, rol, etc.
+      }
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
+  // Inicio de sesión
+  async signIn(email: string, password: string) {
+    const { data, error } = await this.supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+    return data;
+  }
+
+  // Cerrar sesión
+  async signOut() {
+    const { error } = await this.supabase.auth.signOut();
+    if (error) throw error;
+    this.router.navigate(['/login']);
+  }
+
+  // Crear perfil de proveedor en la tabla 'perfil_proveedor'
+  async createProviderProfile(profile: any) {
+    const { data, error } = await this.supabase
+      .from('perfil_proveedor')
+      .insert([profile])
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  }
+
+  // Crear perfil de cliente en la tabla 'perfil_cliente'
+  async createClientProfile(profile: any) {
+      const { data, error } = await this.supabase
+        .from('perfil_cliente')
+        .insert([profile])
+        .select()
+        .single();
+  
+      if (error) throw error;
+      return data;
     }
 
-    // Registrar usuario
-    async signUp(email: string, password: string, metadata: any) {
-        const { data, error } = await this.supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: metadata // nombre_negocio, rol, etc.
-            }
-        });
-
-        if (error) throw error;
-
-        // Sync with public.users table (Required by legacy schema FKs)
-        if (data.user) {
-            const { error: dbError } = await this.supabase
-                .from('users')
-                .insert([{
-                    id: data.user.id,
-                    correo_electronico: email,
-                    contrasena: password, // Legacy schema requires this column (Not Null)
-                    rol: metadata.rol || 'client',
-                    estado: 'active'
-                }])
-                .select()
-                .single();
-
-            if (dbError) {
-                // Ignore duplicate key error (if user was already synced)
-                if (dbError.code !== '23505') {
-                    console.error('Error syncing public.users:', dbError);
-                    // We don't throw here to allow Auth flow to continue, 
-                    // but Profile creation might fail later if this didn't work.
-                }
-            }
-        }
-
-        return data;
-    }
-
-    // Iniciar sesión
-    async signIn(email: string, password: string) {
-        const { data, error } = await this.supabase.auth.signInWithPassword({
-            email,
-            password
-        });
-
-        if (error) throw error;
-        return data;
-    }
-
-    // Crear perfil de proveedor
-    async createProviderProfile(profile: any) {
-        // En Supabase, la tabla es 'perfil_proveedor' o 'proveedores' dependiendo tu esquema.
-        // Asumo 'perfil_proveedor' basado en tu archivo de solución.
-        const { data, error } = await this.supabase
-            .from('perfil_proveedor')
-            .insert([profile])
-            .select()
-            .single();
-
-        if (error) {
-            console.error('Error creating provider profile:', error);
-            // Si falla, no rompemos todo el flujo si el usuario ya se creó, 
-            // pero idealmente deberíamos manejarlo.
-            throw error;
-        }
-        return data;
-    }
-
-    // Crear perfil de cliente
-    async createClientProfile(profile: any) {
-        const { data, error } = await this.supabase
-            .from('perfil_cliente')
-            .insert([profile])
-            .select()
-            .single();
-
-        if (error) throw error;
-        return data;
-    }
-
-    // Obtener usuario actual y perfil
-    async getCurrentUser() {
-        const { data: { user } } = await this.supabase.auth.getUser();
-        if (!user) return null;
-
-        // Intentar obtener perfil (esto dependerá de tu estructura de BD)
-        // Por ahora retornamos el user de auth que contiene metadata
-        return user;
-    }
-
-    // Cerrar sesión
-    async signOut() {
-        const { error } = await this.supabase.auth.signOut();
-        if (error) throw error;
-    }
+  // Obtener perfil del usuario (proveedor o cliente)
+  async getUserProfile(userId: string, role: 'provider' | 'client') {
+      const table = role === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
+      const { data, error } = await this.supabase
+          .from(table)
+          .select('*')
+          .eq('usuario_id', userId)
+          .single();
+      
+      if (error) return null;
+      return data;
+  }
 }

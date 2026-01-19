@@ -1,0 +1,184 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header -->
+    <div class="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-3xl mx-auto px-4 py-4 flex items-center gap-4">
+            <button (click)="router.navigate(['/cliente/dashboard'])" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
+            </button>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-white">Crear Evento</h1>
+        </div>
+    </div>
+
+    <!-- Formulario -->
+    <main class="max-w-3xl mx-auto px-4 py-8">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+            <!-- Icono decorativo -->
+            <div class="flex justify-center mb-6">
+                <div class="w-20 h-20 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl text-primary">celebration</span>
+                </div>
+            </div>
+
+            <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">¿Qué evento estás planeando?</h2>
+            <p class="text-center text-gray-500 dark:text-gray-400 mb-8">Cuéntanos los detalles y te mostraremos los mejores proveedores cercanos</p>
+
+            @if (error) {
+                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 px-4 py-3 rounded-lg mb-6">
+                    {{ error }}
+                </div>
+            }
+
+            <form (ngSubmit)="buscarProveedores()" class="space-y-6">
+                <!-- Título del evento -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Nombre del evento *
+                    </label>
+                    <input 
+                        type="text" 
+                        [(ngModel)]="titulo" 
+                        name="titulo"
+                        placeholder="Ej: Fiesta de cumpleaños, Boda, XV Años..."
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    >
+                </div>
+
+                <!-- Fecha y Hora -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <span class="material-symbols-outlined text-sm align-middle mr-1">calendar_month</span>
+                            Fecha del evento *
+                        </label>
+                        <input 
+                            type="date" 
+                            [(ngModel)]="fecha" 
+                            name="fecha"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        >
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                            <span class="material-symbols-outlined text-sm align-middle mr-1">schedule</span>
+                            Hora del evento *
+                        </label>
+                        <input 
+                            type="time" 
+                            [(ngModel)]="hora" 
+                            name="hora"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        >
+                    </div>
+                </div>
+
+                <!-- Ubicación -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span class="material-symbols-outlined text-sm align-middle mr-1">location_on</span>
+                        Ubicación del evento *
+                    </label>
+                    <input 
+                        type="text" 
+                        [(ngModel)]="ubicacion" 
+                        name="ubicacion"
+                        placeholder="Ej: Av. Reforma 123, Col. Centro, CDMX"
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    >
+                </div>
+
+                <!-- Número de invitados -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span class="material-symbols-outlined text-sm align-middle mr-1">groups</span>
+                        Número aproximado de invitados
+                    </label>
+                    <div class="flex items-center gap-4">
+                        <button 
+                            type="button"
+                            (click)="invitados = invitados > 10 ? invitados - 10 : invitados"
+                            class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                        >
+                            <span class="material-symbols-outlined">remove</span>
+                        </button>
+                        <input 
+                            type="number" 
+                            [(ngModel)]="invitados" 
+                            name="invitados"
+                            min="1"
+                            class="w-24 text-center px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xl font-bold focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        >
+                        <button 
+                            type="button"
+                            (click)="invitados = invitados + 10"
+                            class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center transition-all"
+                        >
+                            <span class="material-symbols-outlined">add</span>
+                        </button>
+                        <span class="text-gray-500 dark:text-gray-400">personas</span>
+                    </div>
+                </div>
+
+                <!-- Descripción opcional -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        <span class="material-symbols-outlined text-sm align-middle mr-1">description</span>
+                        Descripción adicional (opcional)
+                    </label>
+                    <textarea 
+                        [(ngModel)]="descripcion" 
+                        name="descripcion"
+                        rows="3"
+                        placeholder="Cuéntanos más sobre tu evento, requisitos especiales, etc."
+                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
+                    ></textarea>
+                </div>
+
+                <!-- Botón principal -->
+                <button 
+                    type="submit"
+                    [disabled]="isLoading"
+                    class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    @if (isLoading) {
+                        <span class="animate-spin material-symbols-outlined">progress_activity</span>
+                        Buscando proveedores...
+                    } @else {
+                        <span class="material-symbols-outlined">search</span>
+                        Buscar Proveedores Cercanos
+                    }
+                </button>
+            </form>
+        </div>
+
+        <!-- Info adicional -->
+        <div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 flex items-start gap-3">
+                <div class="w-10 h-10 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-green-600 dark:text-green-400">verified</span>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Proveedores Verificados</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Todos nuestros proveedores pasan por un proceso de verificación</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 flex items-start gap-3">
+                <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">timer</span>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Respuesta en 24h</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Los proveedores responden tu solicitud en máximo 24 horas</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-4 flex items-start gap-3">
+                <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">shield</span>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 dark:text-white text-sm">Pago Seguro</h4>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tu dinero está protegido hasta que se complete el servicio</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

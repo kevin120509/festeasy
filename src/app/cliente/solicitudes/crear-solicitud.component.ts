@@ -4,6 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { SupabaseService } from '../../services/supabase.service';
 
 @Component({
     selector: 'app-crear-solicitud',
@@ -17,6 +18,7 @@ export class CrearSolicitudComponent implements OnInit {
     private api = inject(ApiService);
     private router = inject(Router);
     private auth = inject(AuthService);
+    private supabase = inject(SupabaseService);
 
     currentStep = 1;
     isLoading = false;
@@ -83,7 +85,7 @@ export class CrearSolicitudComponent implements OnInit {
         });
     }
 
-    submit() {
+    async submit() {
         if (this.solicitudForm.invalid) {
             this.solicitudForm.markAllAsTouched();
             return;
@@ -92,31 +94,49 @@ export class CrearSolicitudComponent implements OnInit {
         this.isLoading = true;
         const formValue = this.solicitudForm.value;
 
-        // Construir objeto para el backend
-        const solicitudData = {
-            cliente_usuario_id: this.auth.currentUser()?.id,
-            proveedor_usuario_id: this.targetProviderId,
-            titulo_evento: formValue.titulo_evento,
-            fecha_servicio: new Date(`${formValue.fecha_servicio}T${formValue.hora_servicio}`).toISOString(),
-            direccion_servicio: formValue.ubicacion,
-            longitud_servicio: 0,
-            latitud_servicio: 0
-        };
-
-        console.log('Enviando solicitud:', solicitudData);
-
-        this.api.createRequest(solicitudData).subscribe({
-            next: (res) => {
-                console.log('Solicitud creada:', res);
+        try {
+            // Obtener el usuario autenticado desde Supabase
+            const { data: { user }, error: authError } = await this.supabase.getClient().auth.getUser();
+            
+            if (authError || !user) {
+                alert('Error: No estás autenticado. Por favor inicia sesión.');
+                this.router.navigate(['/login']);
                 this.isLoading = false;
-                // Redirigir a "Mis Solicitudes"
-                this.router.navigate(['/cliente/solicitudes']);
-            },
-            error: (err) => {
-                console.error('Error:', err);
-                this.isLoading = false;
-                alert('Error al crear la solicitud. Verifica la consola.');
+                return;
             }
-        });
+
+            console.log('Usuario autenticado desde Supabase:', user);
+
+            // Construir objeto para el backend
+            const solicitudData = {
+                cliente_usuario_id: user.id, // Usar el ID real de auth.users
+                proveedor_usuario_id: this.targetProviderId,
+                titulo_evento: formValue.titulo_evento,
+                fecha_servicio: new Date(`${formValue.fecha_servicio}T${formValue.hora_servicio}`).toISOString(),
+                direccion_servicio: formValue.ubicacion,
+                longitud_servicio: 0,
+                latitud_servicio: 0
+            };
+
+            console.log('Enviando solicitud:', solicitudData);
+
+            this.api.createRequest(solicitudData).subscribe({
+                next: (res) => {
+                    console.log('Solicitud creada:', res);
+                    this.isLoading = false;
+                    // Redirigir a "Mis Solicitudes"
+                    this.router.navigate(['/cliente/solicitudes']);
+                },
+                error: (err) => {
+                    console.error('Error:', err);
+                    this.isLoading = false;
+                    alert('Error al enviar la solicitud: ' + (err?.message || JSON.stringify(err)));
+                }
+            });
+        } catch (err: any) {
+            console.error('Error obteniendo usuario:', err);
+            this.isLoading = false;
+            alert('Error de autenticación: ' + err.message);
+        }
     }
 }
