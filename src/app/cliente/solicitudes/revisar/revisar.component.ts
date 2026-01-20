@@ -84,27 +84,11 @@ export class RevisarSolicitudComponent implements OnInit {
                 precio_unitario: pkg.precio_base
             }));
 
-            await firstValueFrom(this.api.createSolicitudItems(itemsPayload));
+            const createdItems = await firstValueFrom(this.api.createSolicitudItems(itemsPayload));
+            console.log('🔔 Items creados en BD (respuesta insert):', createdItems);
 
-            // 3. Preparar datos para la pantalla de confirmación
-            // Mapear campos para que la pantalla `solicitud-enviada` encuentre las propiedades esperadas
-            // Normalizar y garantizar valores legibles
-            // Preferir valores retornados desde la base de datos (solicitud) cuando existan
-            const fechaRaw = solicitud?.fecha_servicio || eventoData.fecha || eventoData.fecha_servicio || '';
-            const horaRaw = solicitud?.hora_servicio || eventoData.hora || eventoData.hora_servicio || '';
-            const fechaDisplay = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-MX') : '';
-            const horaDisplay = horaRaw || '';
-
-            const eventoParaMostrar = {
-                titulo_evento: solicitud?.titulo_evento || eventoData.titulo || eventoData.titulo_evento || 'Evento',
-                fecha_servicio: fechaDisplay,
-                hora_servicio: horaDisplay,
-                invitados: solicitud?.invitados ?? eventoData.invitados ?? eventoData.invitados_estimados ?? 0,
-                ubicacion: solicitud?.direccion_servicio || eventoData.ubicacion,
-                descripcion: solicitud?.descripcion || eventoData.descripcion || ''
-            };
-
-            const paquetesParaMostrar = this.paquetes().map((pkg: any) => ({
+            // Precalcular los paquetes a mostrar desde lo local (fallback si DB no devuelve items)
+            let finalPaquetes: any[] = this.paquetes().map((pkg: any) => ({
                 id: pkg.id,
                 nombre: pkg.nombre || pkg.titulo || pkg.nombre_paquete || pkg.nombre_paquete_snapshot,
                 precioUnitario: pkg.precio_base ?? pkg.precioUnitario ?? pkg.precio_unitario_momento,
@@ -112,13 +96,45 @@ export class RevisarSolicitudComponent implements OnInit {
                 cantidad: pkg.cantidad ?? 1
             }));
 
+            // Verificamos leyendo directamente de la BD los items de la solicitud recién creada
+            try {
+                const itemsFromDb = await firstValueFrom(this.api.getRequestItems(solicitud.id));
+                console.log('🔎 Items leídos desde BD para solicitud', solicitud.id, itemsFromDb);
+
+                if (itemsFromDb && itemsFromDb.length > 0) {
+                    finalPaquetes = itemsFromDb.map((it: any) => ({
+                        id: it.paquete_id || it.id,
+                        nombre: it.nombre_paquete_snapshot || it.nombre || 'Paquete',
+                        precioUnitario: it.precio_unitario,
+                        subtotal: (it.precio_unitario || 0) * (it.cantidad || 1),
+                        cantidad: it.cantidad || 1
+                    }));
+                }
+            } catch (err) {
+                console.error('❌ Error leyendo items desde BD después de insertar:', err);
+            }
+
+            // 3. Preparar datos para la pantalla de confirmación
+            const fechaRaw = solicitud?.fecha_servicio || eventoData.fecha || eventoData.fecha_servicio || '';
+            const horaRaw = solicitud?.hora_servicio || eventoData.hora || eventoData.hora_servicio || '';
+            const fechaDisplay = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-MX') : '';
+            
+            const eventoParaMostrar = {
+                titulo_evento: solicitud?.titulo_evento || eventoData.titulo || eventoData.titulo_evento || 'Evento',
+                fecha_servicio: fechaDisplay,
+                hora_servicio: horaRaw || '',
+                invitados: solicitud?.invitados ?? eventoData.invitados ?? 0,
+                ubicacion: solicitud?.direccion_servicio || eventoData.ubicacion,
+                descripcion: solicitud?.descripcion || eventoData.descripcion || ''
+            };
+
             const datosConfirmacion = {
                 id: solicitud.id,
                 fechaEnvio: new Date().toISOString(),
                 evento: eventoParaMostrar,
                 proveedor: proveedorData,
-                paquetesSeleccionados: paquetesParaMostrar,
-                total: this.total()
+                paquetesSeleccionados: finalPaquetes,
+                total: finalPaquetes.reduce((acc: number, p: any) => acc + (p.subtotal || 0), 0) || this.total()
             };
             
             console.log('Confirmación solicitud:', { datosConfirmacion, solicitud });

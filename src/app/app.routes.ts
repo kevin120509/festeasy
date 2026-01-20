@@ -62,7 +62,7 @@ export const routes: Routes = [
     { path: 'cliente/solicitudes/:id', component: SolicitudEnviadaComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/pagos/:id', component: PagoComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/solicitud-enviada', component: SolicitudEnviadaComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/seguimiento', component: SeguimientoEventoComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/seguimiento/:id', component: SeguimientoEventoComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/configuracion', component: ClienteConfiguracionComponent, canActivate: [roleGuard], data: { role: 'client' } },
 
     // Proveedor

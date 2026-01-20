@@ -1,0 +1,13 @@
+# Forzar terminaciones de línea LF para todos los archivos de texto
+# Esto evita problemas entre Windows y Mac/Linux
+* text=auto eol=lf
+
+# Excluir archivos binarios de la conversión
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text
+*.woff text
+*.woff2 binary

@@ -23,6 +23,14 @@ export class ClienteDashboardComponent implements OnInit {
     // Actividad reciente (solicitudes)
     actividades = signal<any[]>([]);
 
+    // Categorías de solicitudes
+    reservadas = signal<any[]>([]);
+    pendientesPago = signal<any[]>([]);
+    pendientesRespuesta = signal<any[]>([]);
+
+    // Tab activo
+    activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes'>('reservadas');
+
     // Todas las solicitudes del cliente
     misSolicitudes = signal<any[]>([]);
 
@@ -51,16 +59,25 @@ export class ClienteDashboardComponent implements OnInit {
                 this.misSolicitudes.set(requests);
 
                 // Mapear a actividades para la tabla
-                const actividades = requests.map(req => ({
+                const mappedRequests = requests.map(req => ({
                     id: req.id,
                     proveedor: req.perfil_proveedor?.nombre_negocio || 'Proveedor',
                     servicio: req.titulo_evento || 'Evento Especial',
                     fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
                     estado: req.estado,
                     estadoLabel: this.formatEstado(req.estado),
-                    monto: req.monto_total || 0
+                    monto: req.monto_total || 0,
+                    // Additional fields for reserved view
+                    hora: req.hora_servicio || '12:00',
+                    direccion: req.direccion_servicio || 'Ubicación no disponible'
                 }));
-                this.actividades.set(actividades);
+                
+                this.actividades.set(mappedRequests);
+
+                // Categorizar
+                this.reservadas.set(mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(r.estado)));
+                this.pendientesPago.set(mappedRequests.filter(r => r.estado === 'esperando_anticipo'));
+                this.pendientesRespuesta.set(mappedRequests.filter(r => r.estado === 'pendiente_aprobacion'));
 
                 // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
@@ -70,6 +87,11 @@ export class ClienteDashboardComponent implements OnInit {
                     cotizacionesPendientes: pendientes
                 });
 
+                // Set initial tab based on content priority
+                if (this.reservadas().length > 0) this.activeTab.set('reservadas');
+                else if (this.pendientesPago().length > 0) this.activeTab.set('por_pagar');
+                else this.activeTab.set('pendientes');
+
                 this.loading.set(false);
             },
             error: (err) => {
@@ -77,6 +99,10 @@ export class ClienteDashboardComponent implements OnInit {
                 this.loading.set(false);
             }
         });
+    }
+
+    setActiveTab(tab: 'reservadas' | 'por_pagar' | 'pendientes') {
+        this.activeTab.set(tab);
     }
 
     formatEstado(estado: string): string {

@@ -208,6 +208,34 @@
         border-bottom: 1px solid var(--color-gray-border);
     }
 
+    /* Tabs */
+    .tabs-header {
+        display: flex;
+        padding: 0 24px;
+        border-bottom: 1px solid var(--color-gray-border);
+        gap: 32px;
+    }
+
+    .tab-btn {
+        padding: 16px 0;
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-weight: 600;
+        color: var(--color-gray);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+        color: var(--color-primary);
+        border-bottom-color: var(--color-primary);
+    }
+
+    .tab-btn:hover {
+        color: var(--color-dark);
+    }
+
     /* Tabla de Actividad */
     .activity-table {
         width: 100%;
@@ -308,53 +336,142 @@
                 </div>
             </div>
 
-            <!-- Mis Solicitudes -->
+            <!-- Mis Solicitudes Categorizadas -->
             <div class="card">
-                <div class="card-header">
-                    <h2 class="card-title">Mis Solicitudes</h2>
-                    <button class="btn-primary" routerLink="/cliente/solicitudes/crear">+ Crear Solicitud</button>
+                <div class="tabs-header">
+                    <button class="tab-btn" [class.active]="activeTab() === 'reservadas'" (click)="setActiveTab('reservadas')">
+                        ✅ Reservadas ({{ reservadas().length }})
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'pendientes'" (click)="setActiveTab('pendientes')">
+                        ⏳ Pendientes por Responder ({{ pendientesRespuesta().length }})
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'por_pagar'" (click)="setActiveTab('por_pagar')">
+                        💳 Pendiente por Pagar ({{ pendientesPago().length }})
+                    </button>
                 </div>
+
                 <div class="card-body" style="padding: 0;">
-                    @if (actividades().length > 0) {
-                    <table class="activity-table">
-                        <thead>
-                            <tr>
-                                <th>Proveedor / Evento</th>
-                                <th>Fecha</th>
-                                <th>Estado</th>
-                                <th>Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                                @for (act of actividades(); track act.id) {
-                                <tr [routerLink]="['/cliente/solicitudes', act.id]" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
-                                    <td>
-                                        <div style="display: flex; align-items: center; gap: 12px;">
-                                            <div style="font-size: 20px;">🎊</div>
-                                            <div>
-                                                <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.proveedor }}</p>
-                                                <p style="font-size: 12px; color: gray; margin: 0;">{{ act.servicio }}</p>
+                    <!-- RESERVADAS -->
+                    @if (activeTab() === 'reservadas') {
+                        @if (reservadas().length > 0) {
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Evento / Proveedor</th>
+                                        <th>Fecha del Servicio</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (act of reservadas(); track act.id) {
+                                    <tr [routerLink]="['/cliente/seguimiento', act.id]" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div style="font-size: 20px;">🎉</div>
+                                                <div>
+                                                    <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
+                                                    <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>{{ act.fecha }}</td>
-                                    <td>
-                                        <span class="estado-badge" [class]="getEstadoClass(act.estado)">
-                                            {{ act.estadoLabel }}
-                                        </span>
-                                    </td>
-                                    <td class="monto">${{ act.monto?.toLocaleString() || '0' }}</td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                    } @else {
-                    <div style="padding: 48px; text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
-                        <h3>Sin solicitudes todavía</h3>
-                        <p>Tus solicitudes aparecerán aquí una vez que contactes a un proveedor.</p>
-                        <button class="btn-primary" style="margin-top: 16px;" routerLink="/cliente/marketplace">Explorar Proveedores</button>
-                    </div>
+                                        </td>
+                                        <td>{{ act.fecha }}</td>
+                                        <td><span class="estado-badge estado-reservado">Confirmado</span></td>
+                                        <td>
+                                            <span class="text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full flex items-center gap-1 w-fit">
+                                                <span>📍</span> Ver seguimiento
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <div style="padding: 48px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">🎫</div>
+                                <h3>No tienes eventos reservados</h3>
+                                <p>Tus eventos confirmados aparecerán aquí.</p>
+                            </div>
+                        }
+                    }
+
+                    <!-- PENDIENTES POR PAGAR -->
+                    @if (activeTab() === 'por_pagar') {
+                        @if (pendientesPago().length > 0) {
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Evento / Proveedor</th>
+                                        <th>Monto a Pagar</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (act of pendientesPago(); track act.id) {
+                                    <tr [routerLink]="['/cliente/solicitudes', act.id]" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div style="font-size: 20px;">💳</div>
+                                                <div>
+                                                    <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
+                                                    <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="monto" style="color: #E91E63;">${{ act.monto.toLocaleString() }}</td>
+                                        <td>
+                                            <button class="btn-primary" style="padding: 6px 12px; font-size: 12px;">Pagar Ahora</button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <div style="padding: 48px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+                                <h3>Estás al día</h3>
+                                <p>No tienes pagos pendientes.</p>
+                            </div>
+                        }
+                    }
+
+                    <!-- PENDIENTES POR RESPONDER -->
+                    @if (activeTab() === 'pendientes') {
+                        @if (pendientesRespuesta().length > 0) {
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Evento / Proveedor</th>
+                                        <th>Fecha Solicitada</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (act of pendientesRespuesta(); track act.id) {
+                                    <tr [routerLink]="['/cliente/solicitudes', act.id]" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div style="font-size: 20px;">⏳</div>
+                                                <div>
+                                                    <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
+                                                    <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ act.fecha }}</td>
+                                        <td><span class="estado-badge estado-pendiente">Esperando respuesta</span></td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <div style="padding: 48px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">📬</div>
+                                <h3>Bandeja vacía</h3>
+                                <p>No tienes solicitudes esperando respuesta.</p>
+                                <button class="btn-primary" style="margin-top: 16px;" routerLink="/cliente/marketplace">Crear nueva solicitud</button>
+                            </div>
+                        }
                     }
                 </div>
             </div>

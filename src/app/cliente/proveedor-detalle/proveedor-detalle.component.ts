@@ -85,7 +85,23 @@ export class ProveedorDetalleComponent implements OnInit {
                 console.log('📦 Paquetes obtenidos:', packages);
                 console.log('⭐ Reviews obtenidos:', reviews);
                 
-                this.packages.set(packages);
+                // If no packages found using usuario_id, try fallback using provider signal ID
+                const currentProvider = this.provider();
+                if ((!packages || packages.length === 0) && currentProvider?.id) {
+                    console.warn('🔍 No se encontraron paquetes por usuario_id, probando por profile.id:', currentProvider.id);
+                    this.api.getPackagesByProviderId(currentProvider.id).subscribe({
+                        next: (altPackages: any[]) => {
+                            console.log('🔍 Paquetes encontrados por profile.id:', altPackages);
+                            this.packages.set(altPackages);
+                        },
+                        error: (err) => {
+                            console.error('❌ Error buscando paquetes por profile.id:', err);
+                            this.packages.set([]);
+                        }
+                    });
+                } else {
+                    this.packages.set(packages);
+                }
                 this.reviews.set(reviews.map((r: any, i: number) => ({ ...r, id: r.id || i, autor: r.autor || 'Cliente' })));
                 this.provider.update(p => ({ ...p, reviews: reviews.length }));
             },

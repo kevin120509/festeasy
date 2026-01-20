@@ -223,7 +223,14 @@ export class ApiService {
     }
 
     createSolicitudItems(items: any[]): Observable<any> {
-        return this.fromSupabase(this.supabase.from('items_solicitud').insert(items).select());
+        console.log('🔁 API: Insertando items_solicitud:', items);
+        return this.fromSupabase(this.supabase.from('items_solicitud').insert(items).select()).pipe(
+            tap((res: any) => console.log('✅ API: items_solicitud insertados:', res)),
+            catchError(err => {
+                console.error('❌ API: Error insertando items_solicitud:', err);
+                return throwError(() => err);
+            })
+        );
     }
 
     async debugCurrentUser() {
