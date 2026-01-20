@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { HeaderComponent } from '../../shared/header/header';
+import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { forkJoin } from 'rxjs';
 
@@ -13,7 +13,7 @@ interface Day {
 @Component({
     selector: 'app-agenda',
     standalone: true,
-    imports: [HeaderComponent],
+    imports: [RouterLink],
     templateUrl: './agenda.html'
 })
 export class AgendaComponent implements OnInit {

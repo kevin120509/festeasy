@@ -158,13 +158,18 @@ export class SupabaseDataService {
     // Paquetes
     // ==========================================
     async createProviderPackage(packageData: any) {
+        console.log('📦 Creating package in DB:', packageData);
         const { data, error } = await this.supabase
             .from('paquetes_proveedor')
             .insert([packageData])
             .select()
             .single();
 
-        if (error) throw error;
+        if (error) {
+            console.error('❌ Error creating package:', error);
+            throw error;
+        }
+        console.log('✅ Package created:', data);
         return data;
     }
 

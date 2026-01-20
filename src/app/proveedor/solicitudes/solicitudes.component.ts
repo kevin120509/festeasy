@@ -1,5 +1,6 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 
@@ -15,12 +16,12 @@ interface SolicitudProveedor {
     creado_en?: string;
 }
 
-type TabType = 'pendientes' | 'confirmadas' | 'historial';
+type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe],
+    imports: [CommonModule, DatePipe, CurrencyPipe, RouterLink],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
@@ -44,8 +45,10 @@ export class SolicitudesComponent implements OnInit {
                 return all.filter(s => s.estado === 'pendiente_aprobacion');
             case 'confirmadas':
                 return all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado));
-            case 'historial':
-                return all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado));
+            case 'rechazado':
+                return all.filter(s => s.estado === 'rechazada');
+            case 'todo':
+                return all;
             default:
                 return all;
         }
@@ -56,7 +59,8 @@ export class SolicitudesComponent implements OnInit {
         return {
             pendientes: all.filter(s => s.estado === 'pendiente_aprobacion').length,
             confirmadas: all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado)).length,
-            historial: all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado)).length
+            rechazado: all.filter(s => s.estado === 'rechazada').length,
+            todo: all.length
         };
     });
 

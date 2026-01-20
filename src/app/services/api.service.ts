@@ -175,7 +175,7 @@ export class ApiService {
 
     // PROFILES
     getProviderProfiles(): Observable<ProviderProfile[]> {
-        return this.fromSupabase(this.supabase.from('perfil_proveedor').select('*'));
+        return this.fromSupabase(this.supabase.from('perfil_proveedor').select('*').eq('estado', 'active').not('usuario_id', 'is', null));
     }
 
     getProviderProfile(id: string): Observable<ProviderProfile> {
@@ -191,6 +191,7 @@ export class ApiService {
                 .from('paquetes_proveedor')
                 .select('*, categoria:categorias_servicio(nombre)')
                 .eq('proveedor_usuario_id', providerUserId)
+                .eq('estado', 'publicado')
         ).pipe(
             map(packages => {
                 console.log('🔍 API: Paquetes encontrados (por usuario_id):', packages);
