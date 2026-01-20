@@ -8,7 +8,7 @@ import { Observable, from, map, switchMap, forkJoin, of } from 'rxjs';
 })
 export class SupabaseDataService {
     private supabaseService = inject(SupabaseService);
-    private supabase: SupabaseClient;
+    public supabase: SupabaseClient;
 
     constructor() {
         this.supabase = this.supabaseService.getClient();
@@ -104,7 +104,7 @@ export class SupabaseDataService {
                 ).pipe(
                     map(({ data: profiles }) => {
                         const profilesMap = new Map(profiles?.map((p: any) => [p.usuario_id, p]));
-                        
+
                         // Merge requests with provider profiles
                         return requests.map((req: any) => ({
                             ...req,
@@ -178,5 +178,101 @@ export class SupabaseDataService {
             throw error;
         }
         return data || [];
+    }
+
+    // ==========================================
+    // Calendar Blocking (Disponibilidad)
+    // ==========================================
+
+    /**
+     * Get occupied dates from requests with status 'Reservado' or 'Pagado'
+     */
+    getOccupiedDates(providerId: string): Observable<any[]> {
+        return from(this.supabase
+            .from('solicitudes')
+            .select('id, fecha_servicio, titulo_evento, direccion_servicio, estado')
+            .eq('proveedor_usuario_id', providerId)
+            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado'])
+            .order('fecha_servicio', { ascending: true })
+        ).pipe(
+            map(({ data, error }) => {
+                if (error && error.code === '42P01') return [];
+                if (error) throw error;
+                return data || [];
+            })
+        );
+    }
+
+    /**
+     * Get manually blocked dates for a provider
+     */
+    getBlockedDates(providerId: string): Observable<any[]> {
+        return from(this.supabase
+            .from('disponibilidad_bloqueada')
+            .select('*')
+            .eq('provider_id', providerId)
+            .order('fecha', { ascending: true })
+        ).pipe(
+            map(({ data, error }) => {
+                if (error && error.code === '42P01') return [];
+                if (error) throw error;
+                return data || [];
+            })
+        );
+    }
+
+    /**
+     * Block a date manually
+     */
+    async blockDate(providerId: string, date: Date, motivo?: string) {
+        const dateString = date.toISOString().split('T')[0];
+
+        const { data, error } = await this.supabase
+            .from('disponibilidad_bloqueada')
+            .insert({
+                provider_id: providerId,
+                fecha: dateString,
+                motivo: motivo || null
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Unblock a previously blocked date
+     */
+    async unblockDate(blockId: string) {
+        const { error } = await this.supabase
+            .from('disponibilidad_bloqueada')
+            .delete()
+            .eq('id', blockId);
+
+        if (error) throw error;
+        return { success: true };
+    }
+
+    /**
+     * Get all events (occupied + blocked) for a specific date
+     */
+    getEventsForDate(providerId: string, date: Date): Observable<any[]> {
+        const dateString = date.toISOString().split('T')[0];
+
+        return from(this.supabase
+            .from('solicitudes')
+            .select('*, perfil_cliente(nombre_completo, telefono)')
+            .eq('proveedor_usuario_id', providerId)
+            .gte('fecha_servicio', dateString)
+            .lt('fecha_servicio', `${dateString}T23:59:59`)
+            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado', 'en_progreso'])
+        ).pipe(
+            map(({ data, error }) => {
+                if (error && error.code === '42P01') return [];
+                if (error) throw error;
+                return data || [];
+            })
+        );
     }
 }
