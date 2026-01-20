@@ -133,6 +133,6 @@ export class ClienteDashboardComponent implements OnInit {
 
     getUserName(): string {
         const user = this.auth.currentUser();
-        return user?.nombre || user?.correo_electronico?.split('@')[0] || 'Usuario';
+        return user?.nombre || user?.email || user?.correo_electronico || 'Usuario';
     }
 }

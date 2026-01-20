@@ -1,7 +1,7 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
@@ -18,6 +18,7 @@ export class ProveedorConfiguracionComponent implements OnInit {
     auth = inject(AuthService);
     api = inject(ApiService);
     supabase = inject(SupabaseService);
+    router = inject(Router);
 
     profile = signal<ProviderProfile | null>(null);
     loading = signal(false);
@@ -50,26 +51,23 @@ export class ProveedorConfiguracionComponent implements OnInit {
             return;
         }
 
-        // Buscar el perfil del proveedor por usuario_id
-        this.api.getProviderProfiles().subscribe({
-            next: (profiles) => {
-                const userProfile = profiles.find(p => p.usuario_id === userId);
-                if (userProfile) {
-                    this.profile.set(userProfile);
-                    this.formData.set({
-                        nombre_negocio: userProfile.nombre_negocio || '',
-                        descripcion: userProfile.descripcion || '',
-                        telefono: userProfile.telefono || '',
-                        direccion_formato: userProfile.direccion_formato || '',
-                        radio_cobertura_km: userProfile.radio_cobertura_km || 10,
-                        avatar_url: userProfile.avatar_url || ''
-                    });
-                }
+        // Buscar el perfil del proveedor por id o usuario_id
+        this.api.getProviderProfile(userId).subscribe({
+            next: (profile) => {
+                this.profile.set(profile);
+                this.formData.set({
+                    nombre_negocio: profile.nombre_negocio || '',
+                    descripcion: profile.descripcion || '',
+                    telefono: profile.telefono || '',
+                    direccion_formato: profile.direccion_formato || '',
+                    radio_cobertura_km: profile.radio_cobertura_km || 10,
+                    avatar_url: profile.avatar_url || ''
+                });
                 this.loading.set(false);
             },
             error: (err) => {
                 console.error('Error loading profile', err);
-                this.errorMessage.set('Error al cargar el perfil');
+                this.errorMessage.set('Perfil no encontrado. Contacte al administrador.');
                 this.loading.set(false);
             }
         });
@@ -130,9 +128,14 @@ export class ProveedorConfiguracionComponent implements OnInit {
     }
 
     saveProfile() {
-        const profileId = this.profile()?.id;
-        if (!profileId) {
-            this.errorMessage.set('No se encontró el perfil');
+        if (!this.profile()) {
+            this.errorMessage.set('Perfil no encontrado. Contacte al administrador.');
+            return;
+        }
+
+        const userId = this.auth.currentUser()?.id;
+        if (!userId) {
+            this.errorMessage.set('No se pudo obtener el usuario actual');
             return;
         }
 
@@ -140,7 +143,8 @@ export class ProveedorConfiguracionComponent implements OnInit {
         this.errorMessage.set('');
         this.successMessage.set('');
 
-        this.api.updateProviderProfile(profileId, this.formData()).subscribe({
+        const data = { ...this.formData(), usuario_id: userId };
+        this.api.updateProviderProfile(this.profile()!.id, data).subscribe({
             next: (updatedProfile) => {
                 this.profile.set(updatedProfile);
                 this.successMessage.set('Perfil actualizado exitosamente');
@@ -153,6 +157,16 @@ export class ProveedorConfiguracionComponent implements OnInit {
                 this.saving.set(false);
             }
         });
+    }
+
+    async logout() {
+        try {
+            await this.auth.logout();
+            this.router.navigate(['/login']);
+        } catch (error) {
+            console.error('Error during logout:', error);
+            this.errorMessage.set('Error al cerrar sesión');
+        }
     }
 
     updateField(field: string, value: any) {

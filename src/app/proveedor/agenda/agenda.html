@@ -1,65 +1,308 @@
-<div class="min-h-screen bg-gray-50">
+<style>
+    .calendar-container {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 32px;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 32px 24px;
+    }
+
+    .calendar-card {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 32px;
+    }
+
+    .calendar-title {
+        font-size: 20px;
+        font-weight: 600;
+        color: #1a1a1a;
+    }
+
+    .month-nav {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .month-name {
+        font-size: 16px;
+        font-weight: 500;
+        min-width: 140px;
+        text-align: center;
+        color: #333;
+    }
+
+    .nav-button {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+
+    .nav-button:hover {
+        background: #f5f5f5;
+    }
+
+    .legend-row {
+        display: flex;
+        gap: 24px;
+        margin-bottom: 28px;
+        font-size: 13px;
+        color: #666;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .legend-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+    }
+
+    .legend-dot.available {
+        border: 2px solid #e0e0e0;
+        background: white;
+    }
+
+    .legend-dot.blocked {
+        background: #ffc0c0;
+    }
+
+    .legend-dot.occupied {
+        background: #ff4444;
+    }
+
+    .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 8px;
+    }
+
+    .weekday-header {
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: #999;
+        padding: 8px 0;
+        text-transform: uppercase;
+    }
+
+    .day-cell {
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border-radius: 50%;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        font-weight: 500;
+    }
+
+    .day-cell.other-month {
+        color: #ccc;
+    }
+
+    .day-cell.available {
+        color: #333;
+    }
+
+    .day-cell.available:hover {
+        background: #f8f8f8;
+    }
+
+    .day-cell.occupied {
+        background: #ff4444;
+        color: white;
+    }
+
+    .day-cell.blocked {
+        background: #ffe0e0;
+        color: #ff6b6b;
+    }
+
+    .day-cell.selected {
+        background: #ffe0e0;
+        color: #ff4444;
+    }
+
+    .details-card {
+        background: white;
+        border-radius: 12px;
+        padding: 28px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        height: fit-content;
+    }
+
+    .details-header {
+        margin-bottom: 24px;
+    }
+
+    .details-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+    }
+
+    .details-date {
+        font-size: 14px;
+        color: #666;
+    }
+
+    .event-section {
+        margin-bottom: 20px;
+    }
+
+    .event-label {
+        font-size: 13px;
+        color: #999;
+        margin-bottom: 8px;
+        font-weight: 500;
+    }
+
+    .event-value {
+        font-size: 15px;
+        color: #333;
+        line-height: 1.6;
+    }
+
+    .details-button {
+        width: 100%;
+        padding: 12px;
+        background: #1a1a1a;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+        margin-top: 24px;
+    }
+
+    .details-button:hover {
+        background: #333;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 16px;
+        opacity: 0.3;
+    }
+
+    .sync-button {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-bottom: 24px;
+    }
+
+    .sync-button:hover {
+        background: #f8f8f8;
+        border-color: #ccc;
+    }
+
+    @media (max-width: 1024px) {
+        .calendar-container {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+
+<div>
     <app-header></app-header>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <!-- Header Section -->
-        <div class="flex justify-between items-start mb-8">
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900">Agenda de Disponibilidad</h1>
-                <p class="text-gray-500 mt-1">Gestiona tus fechas, bloqueos y próximos eventos</p>
+    <div style="background: #f7f7f7; min-height: 100vh; padding-top: 20px;">
+        <!-- Page Header -->
+        <div style="max-width: 1400px; margin: 0 auto; padding: 0 24px 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0;">Agenda de Disponibilidad</h1>
+                <button (click)="syncWithGoogleCalendar()" class="sync-button">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Sincronizar con Google Calendar
+                </button>
             </div>
-            <button 
-                (click)="syncWithGoogleCalendar()"
-                class="flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors shadow-sm">
-                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M19 4H18V2H16V4H8V2H6V4H5C3.89 4 3.01 4.9 3.01 6L3 20C3 21.1 3.89 22 5 22H19C20.1 22 21 21.1 21 20V6C21 4.9 20.1 4 19 4ZM19 20H5V9H19V20Z" fill="currentColor"/>
-                </svg>
-                <span class="font-medium text-gray-700">Sincronizar con Google Calendar</span>
-            </button>
         </div>
 
-        <!-- Main Content Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Panel: Calendar -->
-            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
-                <!-- Month Navigation -->
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-xl font-semibold text-gray-900 capitalize">{{ monthYear() }}</h2>
-                    <div class="flex gap-2">
-                        <button 
-                            (click)="previousMonth()"
-                            class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+        <!-- Main Calendar Grid -->
+        <div class="calendar-container">
+            <!-- Left: Calendar -->
+            <div class="calendar-card">
+                <!-- Calendar Header -->
+                <div class="calendar-header">
+                    <h2 class="calendar-title">Agenda de Disponibilidad</h2>
+                    <div class="month-nav">
+                        <button (click)="previousMonth()" class="nav-button">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 19l-7-7 7-7" />
                             </svg>
                         </button>
-                        <button 
-                            (click)="nextMonth()"
-                            class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        <span class="month-name">{{ monthYear() }}</span>
+                        <button (click)="nextMonth()" class="nav-button">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5l7 7-7 7" />
                             </svg>
                         </button>
                     </div>
                 </div>
 
                 <!-- Legend -->
-                <div class="flex gap-6 mb-6 text-sm">
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span class="text-gray-600">Ocupado</span>
+                <div class="legend-row">
+                    <div class="legend-item">
+                        <div class="legend-dot available"></div>
+                        <span>Disponible</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-5 h-5 bg-gray-200 rounded-sm striped-pattern relative">
-                            <svg class="w-3 h-3 text-gray-500 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                            </svg>
-                        </div>
-                        <span class="text-gray-600">Bloqueado</span>
+                    <div class="legend-item">
+                        <div class="legend-dot blocked"></div>
+                        <span>Bloqueado</span>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <div class="w-3 h-3 rounded-full border-2 border-gray-300"></div>
-                        <span class="text-gray-600">Disponible</span>
+                    <div class="legend-item">
+                        <div class="legend-dot occupied"></div>
+                        <span>Ocupado</span>
                     </div>
                 </div>
 
@@ -67,171 +310,96 @@
                 <div class="calendar-grid">
                     <!-- Weekday Headers -->
                     @for (day of weekDays; track day) {
-                        <div class="text-center text-xs font-semibold text-gray-500 py-2">
-                            {{ day }}
-                        </div>
+                    <div class="weekday-header">{{ day }}</div>
                     }
 
                     <!-- Calendar Days -->
                     @for (day of calendarDays(); track day.date.getTime()) {
-                        <div 
-                            [ngClass]="getDayClasses(day)"
-                            (click)="selectDate(day)"
-                            class="relative aspect-square p-2 rounded-lg cursor-pointer transition-all hover:bg-gray-50">
-                            
-                            <!-- Day Number -->
-                            <div class="text-sm font-medium" 
-                                 [class.text-gray-400]="!day.isCurrentMonth"
-                                 [class.text-gray-900]="day.isCurrentMonth && day.state === 'available'"
-                                 [class.text-red-600]="day.state === 'occupied'"
-                                 [class.text-gray-500]="day.state === 'blocked'">
-                                {{ day.dayNumber }}
-                            </div>
-
-                            <!-- State Indicator -->
-                            <div class="absolute bottom-2 left-1/2 -translate-x-1/2">
-                                @if (day.state === 'occupied') {
-                                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
-                                } @else if (day.state === 'blocked') {
-                                    <div class="w-5 h-5 bg-gray-200 rounded-sm striped-pattern relative flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                        </svg>
-                                    </div>
-                                } @else {
-                                    <div class="w-2 h-2 rounded-full border-2 border-gray-300"></div>
-                                }
-                            </div>
-                        </div>
+                    <div (click)="selectDate(day)" class="day-cell" [class.other-month]="!day.isCurrentMonth"
+                        [class.available]="day.state === 'available' && day.isCurrentMonth"
+                        [class.occupied]="day.state === 'occupied'" [class.blocked]="day.state === 'blocked'"
+                        [class.selected]="day.isSelected">
+                        {{ day.dayNumber }}
+                    </div>
                     }
-                </div>
-
-                <!-- Tip Info -->
-                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3">
-                    <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                    </svg>
-                    <p class="text-sm text-blue-800">
-                        Arrastra en el calendario para seleccionar múltiples días
-                    </p>
                 </div>
             </div>
 
-            <!-- Right Panel: Event Details -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- Details Card -->
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Detalles del Día</h3>
-                        @if (selectedDate()) {
-                            <span class="text-sm text-gray-500">{{ formattedSelectedDate() }}</span>
-                        }
-                    </div>
-
+            <!-- Right: Event Details -->
+            <div class="details-card">
+                <div class="details-header">
+                    <h3 class="details-title">Detalles del Día</h3>
                     @if (selectedDate()) {
-                        <!-- Events List -->
-                        <div class="space-y-4">
-                            @if (eventsForSelectedDate().length > 0) {
-                                @for (event of eventsForSelectedDate(); track event.id) {
-                                    <div class="border border-gray-200 rounded-lg p-4 hover:border-red-300 transition-colors">
-                                        <!-- Time Badge -->
-                                        <div class="flex items-center gap-2 mb-3">
-                                            <span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-100 text-red-700">
-                                                {{ formatEventTime(event.fecha_servicio) }}
-                                            </span>
-                                        </div>
-
-                                        <!-- Event Title -->
-                                        <h4 class="font-semibold text-gray-900 mb-2">
-                                            {{ event.titulo_evento || 'Evento sin título' }}
-                                        </h4>
-
-                                        <!-- Location -->
-                                        <div class="flex items-start gap-2 text-sm text-gray-600 mb-4">
-                                            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                            </svg>
-                                            <span class="line-clamp-2">{{ event.direccion_servicio || 'Ubicación no especificada' }}</span>
-                                        </div>
-
-                                        <!-- Action Button -->
-                                        <button 
-                                            (click)="viewRequestDetails(event.id)"
-                                            class="w-full bg-gray-900 text-white py-2 px-4 rounded-lg font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                                            <span>Ver Detalle del Pedido</span>
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                }
-                            } @else {
-                                <!-- Empty State -->
-                                <div class="text-center py-8">
-                                    <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                        <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                    </div>
-                                    <p class="text-gray-500 text-sm mb-4">
-                                        No tienes eventos programados<br>en este bloque.
-                                    </p>
-
-                                    <!-- Block Date Button -->
-                                    @if (selectedDate()) {
-                                        @for (day of calendarDays(); track day.date.getTime()) {
-                                            @if (day.isSelected && day.state === 'available') {
-                                                <button 
-                                                    (click)="blockDateManually()"
-                                                    class="inline-flex items-center gap-2 px-4 py-2 border-2 border-dashed border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium">
-                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
-                                                    </svg>
-                                                    <span>Bloquear Fecha Manualmente</span>
-                                                </button>
-                                            }
-                                            @if (day.isSelected && day.state === 'blocked' && day.blockId) {
-                                                <button 
-                                                    (click)="unblockDate(day.blockId!)"
-                                                    class="inline-flex items-center gap-2 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors font-medium">
-                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                                        <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2H7V7a3 3 0 015.905-.75 1 1 0 001.937-.5A5.002 5.002 0 0010 2z"/>
-                                                    </svg>
-                                                    <span>Desbloquear Fecha</span>
-                                                </button>
-                                            }
-                                        }
-                                    }
-                                </div>
-                            }
-                        </div>
-                    } @else {
-                        <!-- No Date Selected -->
-                        <div class="text-center py-8">
-                            <div class="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                                <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"/>
-                                </svg>
-                            </div>
-                            <p class="text-gray-500 text-sm">
-                                Selecciona un día del calendario<br>para ver sus detalles
-                            </p>
-                        </div>
+                    <p class="details-date">{{ formattedSelectedDate() }}</p>
                     }
                 </div>
 
-                <!-- Tomorrow Section (Optional) -->
-                <!--
-                <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        Mañana <span class="text-sm font-normal text-gray-500">({{ tomorrowDate() }})</span>
-                    </h3>
-                    <div class="text-center py-4 text-gray-500 text-sm">
-                        Sin eventos programados
+                @if (selectedDate()) {
+                @if (eventsForSelectedDate().length > 0) {
+                <!-- Has Events -->
+                @for (event of eventsForSelectedDate(); track event.id) {
+                <div>
+                    <div class="event-section">
+                        <div class="event-label">Hora</div>
+                        <div class="event-value">{{ formatEventTime(event.fecha_servicio) }}</div>
                     </div>
+
+                    <div class="event-section">
+                        <div class="event-label">Evento de Areli y Carlos</div>
+                        <div class="event-value">{{ event.titulo_evento || 'Evento sin título' }}</div>
+                    </div>
+
+                    <div class="event-section">
+                        <div class="event-label">Ubicación</div>
+                        <div class="event-value">{{ event.direccion_servicio || 'No especificada' }}</div>
+                    </div>
+
+                    <button (click)="viewRequestDetails(event.id)" class="details-button">
+                        Ver Detalles Completos
+                    </button>
                 </div>
-                -->
+                }
+                } @else {
+                <!-- No Events - Available Day -->
+                @for (day of calendarDays(); track day.date.getTime()) {
+                @if (day.isSelected && day.state === 'available') {
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p style="font-size: 14px; margin-bottom: 20px;">No hay eventos en esta fecha</p>
+                    <button (click)="blockDateManually()" class="details-button">
+                        Bloquear Fecha Manualmente
+                    </button>
+                </div>
+                }
+                @if (day.isSelected && day.state === 'blocked' && day.blockId) {
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    <p style="font-size: 14px; margin-bottom: 20px;">Esta fecha está bloqueada</p>
+                    <button (click)="unblockDate(day.blockId!)" class="details-button"
+                        style="background: white; color: #1a1a1a; border: 1px solid #e0e0e0;">
+                        Desbloquear Fecha
+                    </button>
+                </div>
+                }
+                }
+                }
+                } @else {
+                <!-- No Date Selected -->
+                <div class="empty-state">
+                    <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                    </svg>
+                    <p style="font-size: 14px;">Selecciona un día del calendario para ver sus detalles</p>
+                </div>
+                }
             </div>
         </div>
     </div>

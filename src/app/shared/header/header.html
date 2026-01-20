@@ -86,6 +86,11 @@
   .user-name {
     font-weight: 500;
   }
+  .user-email {
+    font-size: 12px;
+    color: var(--color-gray);
+    margin-top: 2px;
+  }
 
   .btn-logout {
     padding: 8px 16px;
@@ -115,7 +120,10 @@
     @if (!isAuthPage()) {
     @if (auth.isLoggedIn()) {
     <div class="user-menu">
-      <span class="user-name">{{ auth.currentUser()?.nombre || 'Usuario' }}</span>
+      <div class="user-info">
+        <p class="user-name">{{ auth.currentUser()?.nombre || auth.currentUser()?.email || auth.currentUser()?.correo_electronico || 'Usuario' }}</p>
+        <p class="user-email">{{ auth.currentUser()?.email || auth.currentUser()?.correo_electronico || '' }}</p>
+      </div>
       @if (auth.isClient()) {
       <a routerLink="/cliente/dashboard" class="btn-login">Mi Panel</a>
       } @else {

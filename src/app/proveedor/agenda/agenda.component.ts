@@ -1,20 +1,15 @@
-import { Component, signal, computed, inject, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { Router } from '@angular/router';
+import { NgClass } from '@angular/common';
 import { HeaderComponent } from '../../shared/header/header';
+import { ApiService } from '../../services/api.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
-import { AuthService } from '../../services/auth.service';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { SupabaseAuthService } from '../../services/supabase-auth.service';
+import { forkJoin, catchError, of } from 'rxjs';
 
-// Interfaces
-interface CalendarDay {
-    date: Date;
-    dayNumber: number;
-    isCurrentMonth: boolean;
-    isToday: boolean;
-    isSelected: boolean;
-    state: 'available' | 'occupied' | 'blocked';
+interface Day {
+    num: number;
+    disponible: boolean;
     blockId?: string;
     events?: any[];
 }
@@ -31,16 +26,25 @@ interface CalendarEvent {
     };
 }
 
+interface CalendarDay {
+    date: Date;
+    dayNumber: number;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isSelected: boolean;
+    state: 'available' | 'occupied' | 'blocked';
+    blockId?: string;
+}
+
 @Component({
     selector: 'app-provider-calendar',
     standalone: true,
-    imports: [CommonModule, HeaderComponent],
-    templateUrl: './agenda.html',
-    styleUrls: ['./agenda.component.css']
+    imports: [NgClass, HeaderComponent],
+    templateUrl: './agenda.html'
 })
 export class AgendaComponent implements OnInit {
     public supabaseData = inject(SupabaseDataService);
-    public auth = inject(AuthService);
+    public auth = inject(SupabaseAuthService);
     private router = inject(Router);
 
     // State signals
@@ -81,7 +85,7 @@ export class AgendaComponent implements OnInit {
 
     async loadProviderData() {
         try {
-            const user = await this.auth.currentUser();
+            const user = await this.auth.getCurrentUser();
             if (user?.id) {
                 this.providerId.set(user.id);
             }

@@ -175,7 +175,7 @@ export class ApiService {
 
     // PROFILES
     getProviderProfiles(): Observable<ProviderProfile[]> {
-        return this.fromSupabase(this.supabase.from('perfil_proveedor').select('*'));
+        return this.fromSupabase(this.supabase.from('perfil_proveedor').select('*').eq('estado', 'active').not('usuario_id', 'is', null));
     }
 
     getProviderProfile(id: string): Observable<ProviderProfile> {
@@ -191,6 +191,7 @@ export class ApiService {
                 .from('paquetes_proveedor')
                 .select('*, categoria:categorias_servicio(nombre)')
                 .eq('proveedor_usuario_id', providerUserId)
+                .eq('estado', 'publicado')
         ).pipe(
             map(packages => {
                 console.log('🔍 API: Paquetes encontrados (por usuario_id):', packages);
@@ -201,6 +202,15 @@ export class ApiService {
 
     getServiceCategories(): Observable<any[]> {
         return this.fromSupabase(this.supabase.from('categorias_servicio').select('*'));
+    }
+
+    getProvidersWithLocation(): Observable<any[]> {
+        // Obtenemos perfiles de proveedores con sus coordenadas y categoría
+        return this.fromSupabase(
+            this.supabase
+                .from('perfil_proveedor')
+                .select('id, nombre_negocio, latitud, longitud, categoria_principal_id, avatar_url, descripcion, direccion_formato, usuario_id')
+        );
     }
 
     // REQUESTS
@@ -463,5 +473,17 @@ export class ApiService {
     // Paquetes del proveedor - Versión que obtiene todos
     getProviderPackages(): Observable<ProviderPackage[]> {
         return this.fromSupabase(this.supabase.from('paquetes_proveedor').select('*'));
+    }
+
+    // Obtener paquetes de una lista de proveedores para filtrado avanzado
+    getPackagesByProviderIds(providerIds: string[]): Observable<any[]> {
+        if (!providerIds.length) return new Observable(obs => obs.next([]));
+        
+        return this.fromSupabase(
+            this.supabase
+                .from('paquetes_proveedor')
+                .select('proveedor_usuario_id, categoria_servicio_id, categoria:categorias_servicio(nombre, id)')
+                .in('proveedor_usuario_id', providerIds)
+        );
     }
 }

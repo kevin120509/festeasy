@@ -3,6 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -49,13 +50,19 @@ export class PaquetesComponent implements OnInit {
   private supabaseService = inject(SupabaseService);
   public authService = inject(AuthService);
   private router = inject(Router);
+  private api = inject(ApiService);
+
+  // Paquetes
+  paquetes = signal<Paquete[]>([]);
+
+  // Loading state
+  loading = signal(false);
 
   // Vista actual: 'lista' o 'crear' o 'editar'
   vistaActual = signal<'lista' | 'crear' | 'editar'>('lista');
 
-  // Paquetes del proveedor
-  paquetes = signal<Paquete[]>([]);
-  loading = signal(true);
+  // Perfil del proveedor
+  profile: any = null;
 
   // Tab activo: publicado, borrador, archivado
   tabActivo = signal<'publicado' | 'borrador' | 'archivado'>('publicado');
@@ -107,7 +114,7 @@ export class PaquetesComponent implements OnInit {
     categoria_servicio_id: '',
     descripcion: '',
     precio_base: 0,
-    estado: 'borrador' as 'borrador' | 'publicado' | 'archivado'
+    estado: 'publicado' as 'borrador' | 'publicado' | 'archivado'
   });
 
   // Items del inventario
@@ -124,6 +131,7 @@ export class PaquetesComponent implements OnInit {
   images = signal<PackageImage[]>([]);
 
   async ngOnInit() {
+    await this.cargarPerfil();
     await this.cargarPaquetes();
     await this.cargarCategorias();
   }
@@ -131,9 +139,8 @@ export class PaquetesComponent implements OnInit {
   async cargarPaquetes() {
     this.loading.set(true);
     try {
-      const userId = this.authService.currentUser()?.id;
-      if (!userId) {
-        this.errorMessage.set('Usuario no autenticado');
+      if (!this.profile) {
+        console.error('Perfil no cargado');
         return;
       }
 
@@ -143,7 +150,7 @@ export class PaquetesComponent implements OnInit {
           *,
           categoria:categorias_servicio(nombre)
         `)
-        .eq('proveedor_usuario_id', userId)
+        .eq('proveedor_usuario_id', this.profile.usuario_id)
         .order('creado_en', { ascending: false });
 
       if (error) throw error;
@@ -157,12 +164,26 @@ export class PaquetesComponent implements OnInit {
     }
   }
 
+  async cargarPerfil() {
+    try {
+      const userId = this.authService.currentUser()?.id;
+      if (!userId) {
+        console.error('Usuario no autenticado');
+        return;
+      }
+      const profile = await this.api.getProviderProfile(userId).toPromise();
+      this.profile = profile;
+    } catch (err) {
+      console.error('Error loading profile:', err);
+    }
+  }
+
   async cargarCategorias() {
     try {
-      const data = await this.supabaseData.getServiceCategories();
-      this.categories.set(data);
-    } catch (err) {
-      console.error('Error fetching categories:', err);
+      const categories = await this.api.getServiceCategories().toPromise();
+      this.categories.set(categories || []);
+    } catch (error) {
+      console.error('Error cargando categorías:', error);
     }
   }
 
@@ -244,8 +265,8 @@ export class PaquetesComponent implements OnInit {
     // Cargar datos en el formulario
     this.packageData.set({
       nombre: paquete.nombre,
-      categoria_servicio_id: paquete.categoria_servicio_id || '',
-      descripcion: paquete.descripcion || '',
+      categoria_servicio_id: paquete.categoria_servicio_id,
+      descripcion: paquete.descripcion,
       precio_base: paquete.precio_base,
       estado: paquete.estado
     });
@@ -483,14 +504,36 @@ export class PaquetesComponent implements OnInit {
     this.errorMessage.set('');
     this.successMessage.set('');
 
+    // Validaciones
+    if (!this.packageData().nombre.trim()) {
+      this.errorMessage.set('El nombre del paquete es obligatorio');
+      this.saving.set(false);
+      return;
+    }
+    if (!this.packageData().categoria_servicio_id) {
+      this.errorMessage.set('Debes seleccionar una categoría');
+      this.saving.set(false);
+      return;
+    }
+    if (this.packageData().precio_base <= 0) {
+      this.errorMessage.set('El precio base debe ser mayor a 0');
+      this.saving.set(false);
+      return;
+    }
+    if (this.items().length === 0) {
+      this.errorMessage.set('Debes agregar al menos un item al paquete');
+      this.saving.set(false);
+      return;
+    }
+
     try {
       const packageToSave: any = {
-        proveedor_usuario_id: this.authService.currentUser()?.id,
+        proveedor_usuario_id: this.profile.usuario_id,
         nombre: this.packageData().nombre,
         categoria_servicio_id: this.packageData().categoria_servicio_id,
         descripcion: this.packageData().descripcion,
         precio_base: this.packageData().precio_base,
-        estado: this.packageData().estado,
+        estado: 'publicado',
         detalles_json: {
           items: this.items(),
           cargos_adicionales: this.extraCharges(),
@@ -501,6 +544,9 @@ export class PaquetesComponent implements OnInit {
           total_estimado: this.totalEstimado
         }
       };
+
+      console.log('👤 User ID:', this.authService.currentUser()?.id);
+      console.log('📦 Package to save:', packageToSave);
 
       if (this.paqueteEditando()) {
         // Actualizar paquete existente
@@ -548,7 +594,7 @@ export class PaquetesComponent implements OnInit {
       categoria_servicio_id: '',
       descripcion: '',
       precio_base: 0,
-      estado: 'borrador'
+      estado: 'publicado'
     });
     this.items.set([]);
     this.extraCharges.set([]);

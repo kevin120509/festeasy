@@ -1,7 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-crear-evento',
@@ -9,8 +10,9 @@ import { Router } from '@angular/router';
     imports: [CommonModule, FormsModule],
     templateUrl: './crear-evento.component.html'
 })
-export class CrearEventoComponent {
+export class CrearEventoComponent implements OnInit {
     router = inject(Router);
+    api = inject(ApiService);
 
     // Datos del evento
     titulo = '';
@@ -19,11 +21,17 @@ export class CrearEventoComponent {
     ubicacion = '';
     invitados = 50;
     descripcion = '';
+    
+    // Geolocalización
+    coordenadas: { lat: number, lng: number } | null = null;
 
     // Estado
     isLoading = false;
     isLocating = false;
     error = '';
+
+    ngOnInit() {
+    }
 
     usarUbicacionActual() {
         if (!navigator.geolocation) {
@@ -37,6 +45,7 @@ export class CrearEventoComponent {
         navigator.geolocation.getCurrentPosition(
             (position) => {
                 const { latitude, longitude } = position.coords;
+                this.coordenadas = { lat: latitude, lng: longitude };
                 this.ubicacion = `Ubicación actual (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
                 this.isLocating = false;
             },
@@ -55,7 +64,7 @@ export class CrearEventoComponent {
 
     buscarProveedores() {
         if (!this.titulo || !this.fecha || !this.hora || !this.ubicacion) {
-            this.error = 'Por favor completa todos los campos obligatorios';
+            this.error = 'Por favor completa todos los campos obligatorios.';
             return;
         }
 
@@ -66,7 +75,8 @@ export class CrearEventoComponent {
             hora: this.hora,
             ubicacion: this.ubicacion,
             invitados: this.invitados,
-            descripcion: this.descripcion
+            descripcion: this.descripcion,
+            coords: this.coordenadas // { lat, lng } o null
         };
         sessionStorage.setItem('eventoActual', JSON.stringify(eventoData));
 
