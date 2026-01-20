@@ -95,67 +95,10 @@
         z-index: 50;
     }
 
-    .search-box {
-        position: relative;
-        width: 360px;
-    }
-
-    .search-box input {
-        width: 100%;
-        padding: 10px 16px 10px 44px;
-        background: var(--color-gray-light);
-        border: none;
-        border-radius: 24px;
-        font-size: 14px;
-        outline: none;
-        transition: box-shadow 0.2s ease;
-    }
-
-    .search-box input:focus {
-        box-shadow: 0 0 0 2px rgba(233, 30, 99, 0.2);
-    }
-
-    .search-box-icon {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--color-gray);
-    }
-
     .header-actions {
         display: flex;
         align-items: center;
         gap: 16px;
-    }
-
-    .notification-btn {
-        position: relative;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s ease;
-    }
-
-    .notification-btn:hover {
-        background: var(--color-gray-light);
-    }
-
-    .notification-badge {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 8px;
-        height: 8px;
-        background: var(--color-primary);
-        border-radius: 50%;
-        border: 2px solid var(--color-white);
     }
 
     .user-profile {
@@ -174,11 +117,6 @@
         font-weight: 600;
         font-size: 14px;
         color: var(--color-dark);
-    }
-
-    .user-role {
-        font-size: 12px;
-        color: var(--color-gray);
     }
 
     .user-avatar {
@@ -211,14 +149,10 @@
         margin-bottom: 8px;
     }
 
-    .welcome-section p {
-        color: var(--color-gray);
-    }
-
     /* Métricas Cards */
     .metrics-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
         gap: 24px;
         margin-bottom: 32px;
     }
@@ -229,12 +163,6 @@
         border-radius: 16px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         border: 1px solid var(--color-gray-border);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .metric-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     .metric-header {
@@ -254,51 +182,13 @@
         font-size: 24px;
     }
 
-    .metric-icon.blue {
-        background: #e3f2fd;
-    }
-
-    .metric-icon.amber {
-        background: #fff8e1;
-    }
-
-    .metric-icon.green {
-        background: #e8f5e9;
-    }
-
-    .metric-period {
-        font-size: 12px;
-        color: var(--color-gray);
-    }
-
-    .metric-label {
-        font-size: 14px;
-        color: var(--color-gray);
-        margin-bottom: 4px;
-    }
+    .metric-icon.blue { background: #e3f2fd; }
+    .metric-icon.amber { background: #fff8e1; }
+    .metric-icon.green { background: #e8f5e9; }
 
     .metric-value {
         font-size: 28px;
         font-weight: 700;
-    }
-
-    /* Layout Grid */
-    .content-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 32px;
-    }
-
-    .main-column {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-    }
-
-    .side-column {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
     }
 
     /* Cards */
@@ -318,144 +208,6 @@
         border-bottom: 1px solid var(--color-gray-border);
     }
 
-    .card-title {
-        font-size: 18px;
-        font-weight: 600;
-    }
-
-    .card-link {
-        color: var(--color-primary);
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-    }
-
-    .card-body {
-        padding: 24px;
-    }
-
-    /* Evento Activo */
-    .evento-activo {
-        display: flex;
-        gap: 24px;
-        align-items: center;
-    }
-
-    .evento-imagen {
-        width: 180px;
-        height: 180px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, #ffeef8, #fff0f0);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 64px;
-        flex-shrink: 0;
-    }
-
-    .evento-info {
-        flex: 1;
-    }
-
-    .evento-badge {
-        display: inline-block;
-        padding: 4px 12px;
-        background: rgba(233, 30, 99, 0.1);
-        color: var(--color-primary);
-        font-size: 11px;
-        font-weight: 700;
-        border-radius: 20px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 12px;
-    }
-
-    .evento-titulo {
-        font-size: 24px;
-        font-weight: 700;
-        margin-bottom: 8px;
-    }
-
-    .evento-ubicacion {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        color: var(--color-gray);
-        font-size: 14px;
-        margin-bottom: 20px;
-    }
-
-    .progreso-container {
-        margin-bottom: 20px;
-    }
-
-    .progreso-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-        margin-bottom: 8px;
-    }
-
-    .progreso-label {
-        color: var(--color-gray);
-    }
-
-    .progreso-value {
-        font-weight: 700;
-        color: var(--color-primary);
-    }
-
-    .progreso-bar {
-        height: 10px;
-        background: var(--color-gray-light);
-        border-radius: 5px;
-        overflow: hidden;
-    }
-
-    .progreso-fill {
-        height: 100%;
-        background: var(--color-primary);
-        border-radius: 5px;
-        transition: width 0.3s ease;
-    }
-
-    .evento-actions {
-        display: flex;
-        gap: 12px;
-    }
-
-    .btn-primary {
-        padding: 12px 24px;
-        background: var(--color-primary);
-        color: white;
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        box-shadow: 0 4px 12px rgba(233, 30, 99, 0.3);
-    }
-
-    .btn-primary:hover {
-        background: #d81b60;
-        transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-        padding: 12px 24px;
-        background: var(--color-gray-light);
-        color: var(--color-dark);
-        border: none;
-        border-radius: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .btn-secondary:hover {
-        background: #e2e8f0;
-    }
-
     /* Tabla de Actividad */
     .activity-table {
         width: 100%;
@@ -468,7 +220,6 @@
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
         color: var(--color-gray);
         text-align: left;
     }
@@ -476,44 +227,6 @@
     .activity-table td {
         padding: 16px 20px;
         border-bottom: 1px solid var(--color-gray-border);
-    }
-
-    .activity-proveedor {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .proveedor-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 18px;
-    }
-
-    .proveedor-icon.red {
-        background: #ffebee;
-    }
-
-    .proveedor-icon.amber {
-        background: #fff8e1;
-    }
-
-    .proveedor-icon.blue {
-        background: #e3f2fd;
-    }
-
-    .proveedor-nombre {
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .proveedor-servicio {
-        font-size: 12px;
-        color: var(--color-gray);
     }
 
     .estado-badge {
@@ -524,212 +237,14 @@
         font-weight: 600;
     }
 
-    .estado-aceptado {
-        background: #e8f5e9;
-        color: #2e7d32;
-    }
-
-    .estado-pendiente {
-        background: #fff8e1;
-        color: #f57c00;
-    }
-
-    .estado-negociacion {
-        background: #e3f2fd;
-        color: #1565c0;
-    }
-
-    .estado-rechazado {
-        background: #ffebee;
-        color: #c62828;
-    }
-
-    .estado-completado {
-        background: #e8f5e9;
-        color: #1b5e20;
-    }
-
-    .estado-cancelado {
-        background: #fafafa;
-        color: #757575;
-    }
-
-    .monto {
-        font-weight: 600;
-    }
-
-    /* Recomendados */
-    .recomendado-item {
-        display: flex;
-        align-items: center;
-        padding: 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: background 0.2s ease;
-    }
-
-    .recomendado-item:hover {
-        background: var(--color-gray-light);
-    }
-
-    .recomendado-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #ffeef8, #fff0f0);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        margin-right: 12px;
-    }
-
-    .recomendado-info {
-        flex: 1;
-    }
-
-    .recomendado-nombre {
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .recomendado-rating {
-        font-size: 12px;
-        color: var(--color-gray);
-    }
-
-    .recomendado-arrow {
-        color: #cbd5e1;
-        transition: color 0.2s ease;
-    }
-
-    .recomendado-item:hover .recomendado-arrow {
-        color: var(--color-primary);
-    }
-
-    .btn-outline-full {
-        width: 100%;
-        padding: 12px;
-        background: transparent;
-        border: 1px solid var(--color-gray-border);
-        border-radius: 12px;
-        font-weight: 600;
-        color: var(--color-gray);
-        cursor: pointer;
-        margin-top: 12px;
-        transition: all 0.2s ease;
-    }
-
-    .btn-outline-full:hover {
-        background: var(--color-gray-light);
-        color: var(--color-dark);
-    }
-
-    /* Tareas */
-    .tareas-card {
-        background: rgba(233, 30, 99, 0.05);
-        border: 1px solid rgba(233, 30, 99, 0.15);
-    }
-
-    .tareas-card .card-header {
-        border-bottom: 1px solid rgba(233, 30, 99, 0.15);
-    }
-
-    .tarea-item {
-        display: flex;
-        align-items: center;
-        padding: 14px 16px;
-        background: var(--color-white);
-        border-radius: 12px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        border: 1px solid rgba(233, 30, 99, 0.1);
-        transition: all 0.2s ease;
-    }
-
-    .tarea-item:hover {
-        border-color: var(--color-primary);
-    }
-
-    .tarea-item.completada {
-        opacity: 0.6;
-    }
-
-    .tarea-item.completada .tarea-texto {
-        text-decoration: line-through;
-    }
-
-    .tarea-checkbox {
-        width: 18px;
-        height: 18px;
-        border: 2px solid var(--color-gray-border);
-        border-radius: 4px;
-        margin-right: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-    }
-
-    .tarea-item.completada .tarea-checkbox {
-        background: var(--color-primary);
-        border-color: var(--color-primary);
-        color: white;
-    }
-
-    .tarea-texto {
-        font-size: 14px;
-        color: var(--color-dark);
-    }
-
-    /* Empty State */
-    .empty-state {
-        text-align: center;
-        padding: 48px 24px;
-    }
-
-    .empty-state-icon {
-        font-size: 56px;
-        margin-bottom: 16px;
-    }
-
-    .empty-state h3 {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 8px;
-    }
-
-    .empty-state p {
-        color: var(--color-gray);
-        margin-bottom: 24px;
-    }
+    .estado-pendiente { background: #fff8e1; color: #f57c00; }
+    .estado-reservado { background: #e8f5e9; color: #2e7d32; }
+    .estado-rechazado { background: #ffebee; color: #c62828; }
 
     /* Responsive */
     @media (max-width: 1024px) {
-        .sidebar {
-            display: none;
-        }
-
-        .main-content {
-            margin-left: 0;
-        }
-
-        .metrics-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .evento-activo {
-            flex-direction: column;
-            text-align: center;
-        }
-
-        .evento-actions {
-            justify-content: center;
-        }
+        .sidebar { display: none; }
+        .main-content { margin-left: 0; }
     }
 </style>
 
@@ -737,31 +252,22 @@
     <!-- Sidebar -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <img src="festeasy.jpeg" alt="FESTEASY"
-                onerror="this.outerHTML='<span style=font-size:24px;font-weight:700;color:#E91E63>FESTEASY</span>'">
+            <img src="festeasy.jpeg" alt="FESTEASY" onerror="this.outerHTML='<span style=font-size:24px;font-weight:700;color:#E91E63>FESTEASY</span>'">
         </div>
         <nav class="sidebar-nav">
             <a class="nav-item active" routerLink="/cliente/dashboard">
-                <span class="nav-item-icon">📊</span>
-                Dashboard
+                <span class="nav-item-icon">📊</span> Dashboard
             </a>
             <a class="nav-item" routerLink="/cliente/marketplace">
-                <span class="nav-item-icon">🎉</span>
-                Explorar
+                <span class="nav-item-icon">🎉</span> Explorar
             </a>
             <a class="nav-item" routerLink="/cliente/solicitudes">
-                <span class="nav-item-icon">📋</span>
-                Solicitudes
-            </a>
-            <a class="nav-item" routerLink="/cliente/carrito">
-                <span class="nav-item-icon">🛒</span>
-                Carrito
+                <span class="nav-item-icon">📋</span> Mis Solicitudes
             </a>
         </nav>
         <div class="sidebar-footer">
             <a class="nav-item" routerLink="/cliente/configuracion">
-                <span class="nav-item-icon">⚙️</span>
-                Configuración
+                <span class="nav-item-icon">⚙️</span> Configuración
             </a>
         </div>
     </aside>
@@ -770,134 +276,64 @@
     <main class="main-content">
         <!-- Header -->
         <header class="dashboard-header">
-            <div class="search-box">
-                <span class="search-box-icon">🔍</span>
-                <input type="text" placeholder="Buscar proveedores, servicios...">
-            </div>
+            <div></div>
             <div class="header-actions">
-                <button class="notification-btn">
-                    🔔
-                    <span class="notification-badge"></span>
-                </button>
                 <div class="user-profile">
                     <div class="user-info">
                         <p class="user-name">{{ getUserName() }}</p>
                         <p class="user-role">Cliente</p>
                     </div>
-                    <div class="user-avatar">
-                        {{ getUserName().charAt(0).toUpperCase() }}
-                    </div>
+                    <div class="user-avatar">{{ getUserName().charAt(0).toUpperCase() }}</div>
                 </div>
             </div>
         </header>
 
-        <!-- Dashboard Content -->
         <div class="dashboard-content">
-            <!-- Welcome -->
             <div class="welcome-section">
                 <h1>¡Hola, {{ getUserName() }}! 👋</h1>
-                <p>Hoy es un gran día para seguir planeando tus momentos especiales.</p>
+                <p>Gestiona tus eventos y solicitudes desde aquí.</p>
             </div>
 
             <!-- Métricas -->
             <div class="metrics-grid">
                 <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon blue">📅</div>
-                        <span class="metric-period">Este mes</span>
-                    </div>
-                    <p class="metric-label">Eventos Activos</p>
-                    <p class="metric-value">{{ metricas().eventosActivos }}</p>
+                    <div class="metric-header"><div class="metric-icon blue">📋</div></div>
+                    <p class="metric-label">Total Solicitudes</p>
+                    <p class="metric-value">{{ misSolicitudes().length }}</p>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon amber">⏳</div>
-                        <span class="metric-period">Pendientes</span>
-                    </div>
-                    <p class="metric-label">Cotizaciones Pendientes</p>
+                    <div class="metric-header"><div class="metric-icon amber">⏳</div></div>
+                    <p class="metric-label">Pendientes</p>
                     <p class="metric-value">{{ metricas().cotizacionesPendientes }}</p>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-header">
-                        <div class="metric-icon green">💰</div>
-                        <span class="metric-period">Total</span>
-                    </div>
-                    <p class="metric-label">Inversión Total</p>
-                    <p class="metric-value">${{ metricas().inversionTotal.toLocaleString() }}</p>
                 </div>
             </div>
 
-            <!-- Content Grid -->
-            <div class="content-grid">
-                <div class="main-column">
-                    <!-- Evento Activo -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Evento Activo</h2>
-                            <a class="card-link" routerLink="/cliente/seguimiento">Ver todos</a>
-                        </div>
-                        <div class="card-body">
-                            @if (eventoActivo()) {
-                            <div class="evento-activo">
-                                <div class="evento-imagen">🎊</div>
-                                <div class="evento-info">
-                                    <span class="evento-badge">Próximamente</span>
-                                    <h3 class="evento-titulo">{{ eventoActivo().titulo }}</h3>
-                                    <p class="evento-ubicacion">
-                                        📍 {{ eventoActivo().ubicacion || 'Ubicación por definir' }}
-                                    </p>
-                                    <div class="progreso-container">
-                                        <div class="progreso-header">
-                                            <span class="progreso-label">Progreso de la planeación</span>
-                                            <span class="progreso-value">{{ eventoActivo().progreso }}%</span>
-                                        </div>
-                                        <div class="progreso-bar">
-                                            <div class="progreso-fill" [style.width.%]="eventoActivo().progreso"></div>
-                                        </div>
-                                    </div>
-                                    <div class="evento-actions">
-                                        <button class="btn-primary" routerLink="/cliente/marketplace">Continuar
-                                            planeando</button>
-                                        <button class="btn-secondary">Detalles</button>
-                                    </div>
-                                </div>
-                            </div>
-                            } @else {
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🎉</div>
-                                <h3>¡Planea tu primer evento!</h3>
-                                <p>Explora proveedores y crea tu primera solicitud</p>
-                                <button class="btn-primary" routerLink="/cliente/marketplace">Explorar
-                                    proveedores</button>
-                            </div>
-                            }
-                        </div>
-                    </div>
-
-                    <!-- Actividad Reciente -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Actividad Reciente</h2>
-                        </div>
-                        @if (actividades().length > 0) {
-                        <table class="activity-table">
-                            <thead>
-                                <tr>
-                                    <th>Proveedor / Servicio</th>
-                                    <th>Fecha</th>
-                                    <th>Estado</th>
-                                    <th>Monto</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+            <!-- Mis Solicitudes -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Mis Solicitudes</h2>
+                    <button class="btn-primary" routerLink="/cliente/solicitudes/crear">+ Crear Solicitud</button>
+                </div>
+                <div class="card-body" style="padding: 0;">
+                    @if (actividades().length > 0) {
+                    <table class="activity-table">
+                        <thead>
+                            <tr>
+                                <th>Proveedor / Evento</th>
+                                <th>Fecha</th>
+                                <th>Estado</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                                 @for (act of actividades(); track act.id) {
-                                <tr>
+                                <tr [routerLink]="['/cliente/solicitudes', act.id]" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
                                     <td>
-                                        <div class="activity-proveedor">
-                                            <div class="proveedor-icon red">{{ act.icono }}</div>
+                                        <div style="display: flex; align-items: center; gap: 12px;">
+                                            <div style="font-size: 20px;">🎊</div>
                                             <div>
-                                                <p class="proveedor-nombre">{{ act.proveedor }}</p>
-                                                <p class="proveedor-servicio">{{ act.servicio }}</p>
+                                                <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.proveedor }}</p>
+                                                <p style="font-size: 12px; color: gray; margin: 0;">{{ act.servicio }}</p>
                                             </div>
                                         </div>
                                     </td>
@@ -907,130 +343,19 @@
                                             {{ act.estadoLabel }}
                                         </span>
                                     </td>
-                                    <td class="monto">${{ act.monto.toLocaleString() }}</td>
+                                    <td class="monto">${{ act.monto?.toLocaleString() || '0' }}</td>
                                 </tr>
-                                }
-                            </tbody>
-                        </table>
-                        } @else {
-                        <div class="card-body">
-                            <div class="empty-state">
-                                <div class="empty-state-icon">📋</div>
-                                <h3>Sin actividad reciente</h3>
-                                <p>Tus solicitudes aparecerán aquí</p>
-                            </div>
-                        </div>
-                        }
-                    </div>
-
-                    <!-- Mis Eventos -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">🎉 Mis Eventos</h2>
-                            <span class="card-link" routerLink="/cliente/marketplace">+ Nuevo evento</span>
-                        </div>
-                        <div class="card-body">
-                            @if (misSolicitudes().length > 0) {
-                            <div
-                                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
-                                @for (solicitud of misSolicitudes(); track solicitud.id) {
-                                <div style="background: linear-gradient(135deg, #fafafa 0%, #fff 100%); border-radius: 16px; padding: 20px; border: 1px solid #e5e7eb; transition: all 0.2s ease; cursor: pointer;"
-                                    onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.1)';"
-                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)';">
-
-                                    <!-- Header -->
-                                    <div
-                                        style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
-                                        <div
-                                            style="width: 48px; height: 48px; background: linear-gradient(135deg, #ffeef8, #fff0f0); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                                            🎊
-                                        </div>
-                                        <span class="estado-badge" [ngClass]="getEstadoClass(solicitud.estado)">
-                                            {{ formatEstado(solicitud.estado) }}
-                                        </span>
-                                    </div>
-
-                                    <!-- Título -->
-                                    <h3
-                                        style="font-size: 18px; font-weight: 700; color: #1f2937; margin-bottom: 8px; line-height: 1.3;">
-                                        {{ solicitud.titulo_evento || 'Evento Especial' }}
-                                    </h3>
-
-                                    <!-- Dirección -->
-                                    <div
-                                        style="display: flex; align-items: center; gap: 6px; color: #6b7280; font-size: 14px; margin-bottom: 12px;">
-                                        <span>📍</span>
-                                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                            {{ solicitud.direccion_servicio }}
-                                        </span>
-                                    </div>
-
-                                    <!-- Fecha -->
-                                    <div
-                                        style="padding-top: 12px; border-top: 1px solid #f3f4f6; display: flex; justify-content: space-between; align-items: center;">
-                                        <span
-                                            style="font-size: 11px; font-weight: 600; text-transform: uppercase; color: #9ca3af; letter-spacing: 0.5px;">
-                                            Fecha del Evento
-                                        </span>
-                                        <span style="font-size: 14px; font-weight: 700; color: #1f2937;">
-                                            {{ solicitud.fecha_servicio | date:'mediumDate' }}
-                                        </span>
-                                    </div>
-                                </div>
-                                }
-                            </div>
-                            } @else {
-                            <div class="empty-state">
-                                <div class="empty-state-icon">🎊</div>
-                                <h3>Sin eventos todavía</h3>
-                                <p>Crea tu primer evento y empieza a planear</p>
-                                <button class="btn-primary" routerLink="/cliente/marketplace">Crear evento</button>
-                            </div>
                             }
-                        </div>
+                        </tbody>
+                    </table>
+                    } @else {
+                    <div style="padding: 48px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 16px;">📋</div>
+                        <h3>Sin solicitudes todavía</h3>
+                        <p>Tus solicitudes aparecerán aquí una vez que contactes a un proveedor.</p>
+                        <button class="btn-primary" style="margin-top: 16px;" routerLink="/cliente/marketplace">Explorar Proveedores</button>
                     </div>
-                </div>
-
-                <div class="side-column">
-                    <!-- Recomendados -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h2 class="card-title">Recomendados para ti</h2>
-                        </div>
-                        <div class="card-body">
-                            @for (rec of recomendados(); track rec.id) {
-                            <div class="recomendado-item">
-                                <div class="recomendado-icon">{{ rec.icono }}</div>
-                                <div class="recomendado-info">
-                                    <p class="recomendado-nombre">{{ rec.nombre }}</p>
-                                    <p class="recomendado-rating">{{ rec.rating }} ★ ({{ rec.resenas }} reseñas)</p>
-                                </div>
-                                <span class="recomendado-arrow">→</span>
-                            </div>
-                            }
-                            <button class="btn-outline-full" routerLink="/cliente/marketplace">
-                                Explorar categorías
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Tareas Pendientes -->
-                    <div class="card tareas-card">
-                        <div class="card-header">
-                            <h2 class="card-title">✅ Tareas Pendientes</h2>
-                        </div>
-                        <div class="card-body">
-                            @for (tarea of tareas(); track tarea.id) {
-                            <div class="tarea-item" [class.completada]="tarea.completada"
-                                (click)="toggleTarea(tarea.id)">
-                                <div class="tarea-checkbox">
-                                    @if (tarea.completada) { ✓ }
-                                </div>
-                                <span class="tarea-texto">{{ tarea.texto }}</span>
-                            </div>
-                            }
-                        </div>
-                    </div>
+                    }
                 </div>
             </div>
         </div>

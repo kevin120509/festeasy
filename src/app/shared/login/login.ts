@@ -27,18 +27,22 @@ export class LoginComponent {
         try {
             const { user, session } = await this.supabaseAuth.signIn(this.email, this.password);
             if (user && session) {
-                const rol = user.user_metadata['rol'] || 'client';
+                // Determine role dynamically
+                let rol = await this.supabaseAuth.determineUserRole(user.id);
+                if (!rol) rol = user.user_metadata['rol'] || 'client';
+
                 const profile = await this.supabaseAuth.getUserProfile(user.id, rol as any);
                 
                 this.auth.login(session.access_token, {
+                    ...profile,
+                    profile_id: (profile as any)?.id ?? null,
                     id: user.id,
                     email: user.email,
                     rol: rol,
                     nombre: user.user_metadata['nombre_negocio'] || user.user_metadata['nombre'] || 'Usuario',
-                    ...profile
                 });
 
-                console.log('✅ Login exitoso - Redirigiendo a dashboard...');
+                console.log(`✅ Login exitoso como ${rol} - Redirigiendo...`);
                 if (rol === 'provider') {
                     this.router.navigate(['/proveedor/dashboard']);
                 } else {

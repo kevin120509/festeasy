@@ -1,0 +1,139 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+    <div class="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
+        <div class="max-w-4xl mx-auto px-4 py-4 flex items-center gap-4">
+            <app-header></app-header>
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Columna Izquierda: Detalles -->
+            <div class="md:col-span-2 space-y-6">
+                
+                <!-- Evento -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">event</span>
+                        Detalles del Evento
+                    </h2>
+                    
+                    @if (evento()) {
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Nombre</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">{{ evento().titulo }}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Fecha</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">{{ evento().fecha | date:'fullDate' }}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Hora</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">{{ evento().hora }}</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Invitados</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">{{ evento().invitados }} personas</p>
+                        </div>
+                        <div class="col-span-1 sm:col-span-2 p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Ubicación</p>
+                            <p class="font-semibold text-gray-900 dark:text-white flex items-center gap-1">
+                                <span class="material-symbols-outlined text-sm text-red-500">location_on</span>
+                                {{ evento().ubicacion }}
+                            </p>
+                        </div>
+                    </div>
+                    }
+                </div>
+
+                <!-- Paquetes Seleccionados -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6">
+                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">inventory_2</span>
+                        Paquetes Seleccionados
+                    </h2>
+
+                    <div class="space-y-4">
+                        @for (pkg of paquetes(); track pkg.id) {
+                        <div class="flex items-start gap-4 p-4 border border-gray-100 dark:border-gray-700 rounded-xl hover:border-primary/30 transition-colors">
+                            <div class="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                <!-- Imagen placeholder si no hay -->
+                                <img [src]="pkg.detalles_json?.imagenes?.[0]?.url || 'https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=150&q=80'" 
+                                     class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h3 class="font-bold text-gray-900 dark:text-white">{{ pkg.nombre }}</h3>
+                                    <p class="font-bold text-primary">${{ pkg.subtotal.toLocaleString() }}</p>
+                                </div>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{{ pkg.descripcion }}</p>
+                                <div class="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                                    <span class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs font-medium">Cant: {{ pkg.cantidad }}</span>
+                                    <span class="text-xs">x ${{ pkg.precio_base.toLocaleString() }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Resumen y Acción -->
+            <div class="md:col-span-1">
+                <div class="sticky top-24 space-y-6">
+                    <!-- Tarjeta Proveedor -->
+                    @if (proveedor()) {
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 text-center">
+                        <div class="w-20 h-20 rounded-full bg-gray-200 mx-auto mb-3 overflow-hidden border-4 border-white dark:border-gray-700 shadow-md">
+                            <img [src]="proveedor().imagen" class="w-full h-full object-cover">
+                        </div>
+                        <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ proveedor().nombre }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">{{ proveedor().categoria }}</p>
+                        <div class="inline-flex items-center gap-1 bg-yellow-50 dark:bg-yellow-900/20 px-2 py-1 rounded-full border border-yellow-100 dark:border-yellow-900/30">
+                            <span class="material-symbols-outlined text-yellow-500 text-sm">star</span>
+                            <span class="text-xs font-bold text-yellow-700 dark:text-yellow-500">{{ proveedor().rating }} ({{ proveedor().reviews }} reseñas)</span>
+                        </div>
+                    </div>
+                    }
+
+                    <!-- Resumen de Costos -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-primary/10">
+                        <h3 class="font-bold text-gray-900 dark:text-white mb-4">Resumen</h3>
+                        
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">Subtotal</span>
+                                <span class="font-medium text-gray-900 dark:text-white">${{ total().toLocaleString() }}</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-500 dark:text-gray-400">Comisión servicio</span>
+                                <span class="font-medium text-gray-900 dark:text-white">$0.00</span>
+                            </div>
+                            <div class="border-t border-gray-100 dark:border-gray-700 pt-3 flex justify-between items-end">
+                                <span class="font-bold text-gray-900 dark:text-white">Total Estimado</span>
+                                <span class="text-2xl font-extrabold text-primary">${{ total().toLocaleString() }}</span>
+                            </div>
+                        </div>
+
+                        <button 
+                            (click)="enviarSolicitud()"
+                            [disabled]="isLoading()"
+                            class="w-full bg-primary hover:bg-primary-hover text-white font-bold py-4 px-6 rounded-xl shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                            @if (isLoading()) {
+                                <span class="material-symbols-outlined animate-spin">progress_activity</span>
+                                Procesando...
+                            } @else {
+                                <span>Mandar solicitud a proveedor</span>
+                                <span class="material-symbols-outlined">send</span>
+                            }
+                        </button>
+                        
+                        <p class="text-xs text-center text-gray-400 mt-4">
+                            Al enviar la solicitud, aceptas nuestros términos y condiciones. El proveedor tiene 24 horas para responder.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>

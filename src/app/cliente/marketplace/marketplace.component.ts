@@ -20,7 +20,7 @@ export class MarketplaceComponent implements OnInit {
     ngOnInit(): void {
         this.api.getProviderProfiles().subscribe({
             next: (profiles) => {
-                console.log('🏪 Proveedores obtenidos:', profiles);
+                console.log('🏪 Proveedores obtenidos (sin filtro):', profiles);
                 this.providers.set(profiles.map(p => ({
                     id: p.id,
                     usuario_id: p.usuario_id,

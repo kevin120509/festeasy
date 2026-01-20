@@ -33,6 +33,7 @@ export class SolicitudesService {
                     titulo_evento: req.titulo_evento || 'Evento Sin Título',
                     categoria: this.inferirCategoria(req),
                     fecha_evento: req.fecha_servicio,
+                    direccion_servicio: req.direccion_servicio || '',
                     creada_en: req.created_at || req.creado_en, // Supabase usa created_at
                     estado: this.mapearEstado(req.estado),
                     cotizaciones_count: 0, // TODO: Count real quotes
@@ -56,7 +57,7 @@ export class SolicitudesService {
         // Mapeo simple de estados de DB a estados de UI
         switch (estadoDb) {
             case 'pendiente_aprobacion': return 'pendiente';
-            case 'esperando_anticipo': return 'cotizando'; // Asumimos que esperando anticipo es parte del proceso previo
+            case 'esperando_anticipo': return 'contratado'; // Mostrar en verde (esperando anticipo) para resaltar
             case 'reservado':
             case 'en_progreso':
             case 'entregado_pendiente_liq':

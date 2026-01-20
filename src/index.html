@@ -7,7 +7,11 @@
   <title>FestEasy - Marketplace de Eventos</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!-- App favicon: svg preferred (32x32), png fallback -->
+  <!-- Favicon: use project image.png as primary favicon -->
+  <link rel="icon" type="image/png" href="assets/image.png" sizes="32x32">
+  <!-- Inline data-uri fallback to ensure favicon appears even without external file -->
+  <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23E01D25' /><path d='M10 8h6a2 2 0 0 1 2 2v2.5a4 4 0 0 1 0 8V22a2 2 0 0 1-2 2h-6v-2h6v-1.5a4 4 0 0 0 0-8V10H10v-2z' fill='%23fff' /></svg>">
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com" rel="preconnect" />
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />

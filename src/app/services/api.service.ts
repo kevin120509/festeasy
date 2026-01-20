@@ -3,8 +3,9 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, throwError, from, map, switchMap } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
+import { SupabaseService } from './supabase.service';
+import { SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import {
     User, ClientProfile, ProviderProfile, Cart, CartItem,
     ServiceRequest, Quote, Payment, ProviderPackage
@@ -14,14 +15,12 @@ import {
     providedIn: 'root'
 })
 export class ApiService {
+    private supabaseService = inject(SupabaseService);
     private supabase: SupabaseClient;
     private auth = inject(AuthService);
 
     constructor() {
-        this.supabase = createClient(
-            environment.supabaseUrl,
-            environment.supabaseKey
-        );
+        this.supabase = this.supabaseService.getClient();
     }
 
     private http = inject(HttpClient);
@@ -186,6 +185,7 @@ export class ApiService {
     // PACKAGES
     getPackagesByProviderId(providerUserId: string): Observable<ProviderPackage[]> {
         console.log('🔍 API: Buscando paquetes para:', providerUserId);
+        // Buscar paquetes solo por usuario_id (no usar .user() de Supabase JS v2)
         return this.fromSupabase<ProviderPackage[]>(
             this.supabase
                 .from('paquetes_proveedor')
@@ -193,10 +193,8 @@ export class ApiService {
                 .eq('proveedor_usuario_id', providerUserId)
         ).pipe(
             map(packages => {
-                console.log('🔍 API: Paquetes encontrados (todos):', packages);
-                const published = packages.filter(p => p.estado === 'publicado');
-                console.log('🔍 API: Paquetes publicados:', published);
-                return published;
+                console.log('🔍 API: Paquetes encontrados (por usuario_id):', packages);
+                return packages;
             })
         );
     }
@@ -207,7 +205,31 @@ export class ApiService {
 
     // REQUESTS
     createRequest(data: any): Observable<any> {
-        return this.fromSupabase(this.supabase.from('solicitudes').insert(data).select().single());
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap(({ data: { user }, error }: any) => {
+                if (error) return throwError(() => error);
+                if (!user) {
+                    return throwError(() => new Error('Sesión de Supabase no válida. Vuelve a iniciar sesión.'));
+                }
+
+                const payload = {
+                    ...data,
+                    cliente_usuario_id: user.id,
+                };
+
+                return this.fromSupabase(this.supabase.from('solicitudes').insert(payload).select().single());
+            })
+        );
+    }
+
+    createSolicitudItems(items: any[]): Observable<any> {
+        return this.fromSupabase(this.supabase.from('items_solicitud').insert(items).select());
+    }
+
+    async debugCurrentUser() {
+        const { data: { user }, error } = await this.supabase.auth.getUser();
+        if (error) throw error;
+        return user;
     }
 
     // MISSING METHODS ADDED HERE
@@ -380,6 +402,46 @@ export class ApiService {
             map((u: any) => u.data.user?.id),
             map(userId => this.fromSupabase(this.supabase.from('solicitudes').select('*, cliente:perfil_cliente(*)').eq('proveedor_usuario_id', userId)))
         ) as any;
+    }
+
+    getRequestById(id: string): Observable<any> {
+        return from(this.supabase
+            .from('solicitudes')
+            .select('*')
+            .eq('id', id)
+            .single()
+        ).pipe(
+            switchMap(({ data: request, error }) => {
+                if (error) throw error;
+                if (!request) throw new Error('Solicitud no encontrada');
+
+                // Obtener perfil del proveedor manualmente
+                return from(this.supabase
+                    .from('perfil_proveedor')
+                    .select('*')
+                    .eq('usuario_id', request.proveedor_usuario_id)
+                    .single()
+                ).pipe(
+                    map(({ data: profile }) => ({
+                        ...request,
+                        perfil_proveedor: profile
+                    }))
+                );
+            })
+        );
+    }
+
+    getRequestItems(solicitudId: string): Observable<any[]> {
+        return from(this.supabase
+            .from('items_solicitud')
+            .select('*')
+            .eq('solicitud_id', solicitudId)
+        ).pipe(
+            map(({ data, error }) => {
+                if (error) throw error;
+                return data || [];
+            })
+        );
     }
 
     // Reviews

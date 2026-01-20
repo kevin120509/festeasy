@@ -7,7 +7,8 @@ CREATE TABLE public.bloqueos_calendario (
   fecha_bloqueada date NOT NULL,
   motivo character varying DEFAULT 'Ocupado'::character varying,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT bloqueos_calendario_pkey PRIMARY KEY (id)
+  CONSTRAINT bloqueos_calendario_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_bloqueos_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.carrito (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -20,7 +21,7 @@ CREATE TABLE public.carrito (
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   actualizado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT carrito_pkey PRIMARY KEY (id),
-  CONSTRAINT carrito_cliente_usuario_id_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.users(id)
+  CONSTRAINT fk_carrito_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.categorias_evento (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -45,6 +46,7 @@ CREATE TABLE public.cotizaciones (
   notas text,
   estado text NOT NULL DEFAULT 'pendiente'::text CHECK (estado = ANY (ARRAY['pendiente'::text, 'aceptada_cliente'::text, 'rechazada_cliente'::text])),
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  fecha_expiracion date,
   CONSTRAINT cotizaciones_pkey PRIMARY KEY (id),
   CONSTRAINT cotizaciones_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id)
 );
@@ -59,7 +61,8 @@ CREATE TABLE public.historial_suscripciones (
   metodo_pago character varying,
   referencia_transaccion character varying,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT historial_suscripciones_pkey PRIMARY KEY (id)
+  CONSTRAINT historial_suscripciones_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_suscripcion_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.items_carrito (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -109,8 +112,9 @@ CREATE TABLE public.pagos (
   id_transaccion_externa character varying,
   tipo_pago text CHECK (tipo_pago = ANY (ARRAY['anticipo'::text, 'liquidacion'::text])),
   CONSTRAINT pagos_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_pagos_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
+  CONSTRAINT fk_pagos_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),
   CONSTRAINT pagos_cotizacion_id_fkey FOREIGN KEY (cotizacion_id) REFERENCES public.cotizaciones(id),
-  CONSTRAINT pagos_cliente_usuario_id_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.users(id),
   CONSTRAINT pagos_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id)
 );
 CREATE TABLE public.paquetes_proveedor (
@@ -129,13 +133,13 @@ CREATE TABLE public.paquetes_proveedor (
 );
 CREATE TABLE public.perfil_cliente (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  usuario_id uuid NOT NULL,
+  usuario_id uuid NOT NULL UNIQUE,
   nombre_completo character varying NOT NULL,
   telefono character varying,
   avatar_url character varying,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT perfil_cliente_pkey PRIMARY KEY (id),
-  CONSTRAINT perfil_cliente_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.users(id)
+  CONSTRAINT fk_perfil_cliente_auth FOREIGN KEY (usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.perfil_proveedor (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -157,7 +161,7 @@ CREATE TABLE public.perfil_proveedor (
   estado text DEFAULT 'active'::text CHECK (estado = ANY (ARRAY['active'::text, 'blocked'::text])),
   datos_bancarios_json jsonb,
   CONSTRAINT perfil_proveedor_pkey PRIMARY KEY (id),
-  CONSTRAINT perfil_proveedor_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES public.users(id),
+  CONSTRAINT fk_perfil_proveedor_auth FOREIGN KEY (usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_perfil_proveedor_categoria FOREIGN KEY (categoria_principal_id) REFERENCES public.categorias_servicio(id)
 );
 CREATE TABLE public.resenas (
@@ -170,8 +174,8 @@ CREATE TABLE public.resenas (
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT resenas_pkey PRIMARY KEY (id),
   CONSTRAINT resenas_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id),
-  CONSTRAINT resenas_autor_id_fkey FOREIGN KEY (autor_id) REFERENCES public.users(id),
-  CONSTRAINT resenas_destinatario_id_fkey FOREIGN KEY (destinatario_id) REFERENCES public.users(id)
+  CONSTRAINT fk_resenas_autor_auth FOREIGN KEY (autor_id) REFERENCES auth.users(id),
+  CONSTRAINT fk_resenas_destinatario_auth FOREIGN KEY (destinatario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.solicitudes (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -195,15 +199,7 @@ CREATE TABLE public.solicitudes (
   pin_seguridad character varying,
   pin_validado_en timestamp with time zone,
   CONSTRAINT solicitudes_pkey PRIMARY KEY (id),
-  CONSTRAINT solicitudes_cliente_usuario_id_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.users(id)
-);
-CREATE TABLE public.users (
-  id uuid NOT NULL,
-  correo_electronico character varying NOT NULL UNIQUE,
-  contrasena character varying NOT NULL,
-  rol text NOT NULL CHECK (rol = ANY (ARRAY['client'::text, 'provider'::text, 'admin'::text])),
-  estado text NOT NULL DEFAULT 'active'::text CHECK (estado = ANY (ARRAY['active'::text, 'blocked'::text])),
-  creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  actualizado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT users_pkey PRIMARY KEY (id)
+  CONSTRAINT fk_solicitud_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
+  CONSTRAINT fk_solicitud_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),
+  CONSTRAINT solicitudes_cliente_perfil_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.perfil_cliente(usuario_id)
 );

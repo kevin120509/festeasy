@@ -1,19 +1,17 @@
-import { Injectable } from '@angular/core';
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
-import { Observable, from, map } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseService } from './supabase.service';
+import { Observable, from, map, switchMap, forkJoin, of } from 'rxjs';
 
 @Injectable({
     providedIn: 'root'
 })
 export class SupabaseDataService {
+    private supabaseService = inject(SupabaseService);
     private supabase: SupabaseClient;
 
     constructor() {
-        this.supabase = createClient(
-            environment.supabaseUrl,
-            environment.supabaseKey
-        );
+        this.supabase = this.supabaseService.getClient();
     }
 
     // ==========================================
@@ -84,14 +82,36 @@ export class SupabaseDataService {
     getRequestsByClient(clientId: string): Observable<any[]> {
         return from(this.supabase
             .from('solicitudes')
-            .select('*, perfil_proveedor(*)')
+            .select('*')
             .eq('cliente_usuario_id', clientId)
             .order('creado_en', { ascending: false })
         ).pipe(
-            map(({ data, error }) => {
-                if (error && error.code === '42P01') return [];
-                if (error) throw error;
-                return data || [];
+            switchMap(({ data: requests, error }) => {
+                if (error) {
+                    if (error.code === '42P01') return of([]); // Table doesn't exist
+                    throw error;
+                }
+                if (!requests || requests.length === 0) return of([]);
+
+                // Extract unique provider IDs
+                const providerIds = [...new Set(requests.map((r: any) => r.proveedor_usuario_id))];
+
+                // Fetch provider profiles
+                return from(this.supabase
+                    .from('perfil_proveedor')
+                    .select('*')
+                    .in('usuario_id', providerIds)
+                ).pipe(
+                    map(({ data: profiles }) => {
+                        const profilesMap = new Map(profiles?.map((p: any) => [p.usuario_id, p]));
+                        
+                        // Merge requests with provider profiles
+                        return requests.map((req: any) => ({
+                            ...req,
+                            perfil_proveedor: profilesMap.get(req.proveedor_usuario_id) || { nombre_negocio: 'Proveedor Desconocido' }
+                        }));
+                    })
+                );
             })
         );
     }

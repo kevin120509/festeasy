@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
-import { createClient, SupabaseClient, User } from '@supabase/supabase-js';
-import { environment } from '../../environments/environment';
+import { SupabaseClient, User } from '@supabase/supabase-js';
 import { Router } from '@angular/router';
+import { SupabaseService } from './supabase.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,12 +9,10 @@ import { Router } from '@angular/router';
 export class SupabaseAuthService {
   private supabase: SupabaseClient;
   private router = inject(Router);
+  private supabaseService = inject(SupabaseService);
 
   constructor() {
-    this.supabase = createClient(
-      environment.supabaseUrl,
-      environment.supabaseKey
-    );
+    this.supabase = this.supabaseService.getClient();
   }
 
   // Obtener usuario actual de la sesión
@@ -95,5 +93,28 @@ export class SupabaseAuthService {
 
     if (error) return null;
     return data;
+  }
+
+  // Determinar rol basado en la existencia del perfil
+  async determineUserRole(userId: string): Promise<'provider' | 'client' | null> {
+    // 1. Check provider profile
+    const { data: provider } = await this.supabase
+        .from('perfil_proveedor')
+        .select('id')
+        .eq('usuario_id', userId)
+        .maybeSingle();
+    
+    if (provider) return 'provider';
+
+    // 2. Check client profile
+    const { data: client } = await this.supabase
+        .from('perfil_cliente')
+        .select('id')
+        .eq('usuario_id', userId)
+        .maybeSingle();
+
+    if (client) return 'client';
+
+    return null;
   }
 }

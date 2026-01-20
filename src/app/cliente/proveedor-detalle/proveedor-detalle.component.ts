@@ -146,14 +146,27 @@ export class ProveedorDetalleComponent implements OnInit {
                 return;
             }
 
-            // Obtener o crear carrito
-            const cart = await this.api.getOrCreateCart();
-            await this.addItemsToCartAsync(cart.id, pkgIds, selection);
-            this.router.navigate(['/cliente/carrito']);
+            // Guardar paquetes seleccionados para revisión
+            const paquetesSeleccionados = pkgIds.map(pid => {
+                const pkg = this.packages().find(p => p.id === pid);
+                return {
+                    ...pkg,
+                    cantidad: selection[pid],
+                    subtotal: (pkg?.precio_base || 0) * selection[pid]
+                };
+            });
+
+            // Guardar proveedor actual también para mostrar datos en la siguiente pantalla
+            const proveedorActual = this.provider();
+
+            sessionStorage.setItem('paquetesSeleccionados', JSON.stringify(paquetesSeleccionados));
+            sessionStorage.setItem('proveedorActual', JSON.stringify(proveedorActual));
+
+            this.router.navigate(['/cliente/solicitudes/revisar']);
 
         } catch (e: any) {
-            console.error('Error al agregar al carrito:', e);
-            alert('Error al agregar al carrito: ' + (e.message || 'Error desconocido'));
+            console.error('Error al procesar selección:', e);
+            alert('Error al procesar selección: ' + (e.message || 'Error desconocido'));
         }
     }
 

@@ -22,7 +22,36 @@ export class CrearEventoComponent {
 
     // Estado
     isLoading = false;
+    isLocating = false;
     error = '';
+
+    usarUbicacionActual() {
+        if (!navigator.geolocation) {
+            alert('La geolocalización no está soportada por tu navegador.');
+            return;
+        }
+
+        this.isLocating = true;
+        this.error = '';
+        
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                this.ubicacion = `Ubicación actual (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+                this.isLocating = false;
+            },
+            (err) => {
+                console.error('Error obteniendo ubicación:', err);
+                let msg = 'No se pudo obtener tu ubicación.';
+                if (err.code === 1) msg = 'Permiso de ubicación denegado.';
+                if (err.code === 3) msg = 'Tiempo de espera agotado al obtener ubicación.';
+                
+                this.error = msg + ' Por favor ingrésala manualmente.';
+                this.isLocating = false;
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
+    }
 
     buscarProveedores() {
         if (!this.titulo || !this.fecha || !this.hora || !this.ubicacion) {

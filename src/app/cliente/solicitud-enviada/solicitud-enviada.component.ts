@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { ApiService } from '../../services/api.service';
 
 @Component({
     selector: 'app-solicitud-enviada',
@@ -10,10 +11,13 @@ import { Router, RouterLink } from '@angular/router';
 })
 export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     private router = inject(Router);
+    private route = inject(ActivatedRoute);
+    private api = inject(ApiService);
     private timerInterval: any;
 
     // Datos de la solicitud enviada
     solicitudData = signal<any>(null);
+    loading = signal(true);
     
     // Contador de 24 horas
     horasRestantes = signal(24);
@@ -23,20 +27,97 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     // Estado
     tiempoAgotado = signal(false);
 
+    // Estado del proveedor
+    providerReplied = signal(false);
+
     ngOnInit(): void {
-        // Cargar datos de la solicitud desde sessionStorage
-        const solicitudGuardada = sessionStorage.getItem('solicitudEnviada');
-        if (solicitudGuardada) {
-            const data = JSON.parse(solicitudGuardada);
-            this.solicitudData.set(data);
-            
-            // Calcular tiempo restante desde el momento del envío
-            const fechaEnvio = new Date(data.fechaEnvio);
-            const fechaExpiracion = new Date(fechaEnvio.getTime() + 24 * 60 * 60 * 1000); // +24 horas
-            this.iniciarContador(fechaExpiracion);
+        const id = this.route.snapshot.paramMap.get('id');
+
+        if (id) {
+            // Primero, si la ruta trae un id, cargar desde la base de datos
+            this.loading.set(true);
+            this.api.getRequestById(id).subscribe({
+                next: (sol: any) => {
+                    // Mapear evento/proveedor/items a la forma que espera la vista
+                    this.api.getRequestItems(id).subscribe({
+                        next: (items: any[]) => {
+                            const evento = {
+                                titulo_evento: sol.titulo_evento || 'Evento',
+                                fecha_servicio: sol.fecha_servicio ? new Date(sol.fecha_servicio).toLocaleDateString('es-MX') : '',
+                                hora_servicio: sol.hora_servicio || '',
+                                invitados: sol.invitados || 0,
+                                ubicacion: sol.direccion_servicio || ''
+                            };
+
+                            const paquetes = items.map(it => ({
+                                id: it.paquete_id || it.id,
+                                nombre: it.nombre_paquete_snapshot || 'Paquete',
+                                precioUnitario: it.precio_unitario,
+                                cantidad: it.cantidad,
+                                subtotal: (it.precio_unitario || 0) * (it.cantidad || 0)
+                            }));
+
+                            const proveedor = sol.perfil_proveedor || {};
+                            const datos = {
+                                id: sol.id,
+                                fechaEnvio: sol.creado_en || new Date().toISOString(),
+                                estado: sol.estado,
+                                evento,
+                                proveedor: {
+                                    nombre: proveedor.nombre_negocio || proveedor.nombre || 'Proveedor',
+                                    imagen: proveedor.avatar_url || null,
+                                    ubicacion: proveedor.direccion_formato || null,
+                                    rating: proveedor.rating || 4.5
+                                },
+                                paquetesSeleccionados: paquetes as any[],
+                                total: sol.monto_total || paquetes.reduce((s,a)=> s + (a.subtotal || 0), 0)
+                            };
+
+                            this.solicitudData.set(datos);
+                            
+                            // Check status logic
+                            if (sol.estado !== 'pendiente_aprobacion') {
+                                this.providerReplied.set(true);
+                                this.horasRestantes.set(0);
+                                this.minutosRestantes.set(0);
+                                this.segundosRestantes.set(0);
+                            } else {
+                                const fechaExpiracion = new Date(new Date(datos.fechaEnvio).getTime() + 24 * 60 * 60 * 1000);
+                                this.iniciarContador(fechaExpiracion);
+                            }
+                            
+                            this.loading.set(false);
+                        },
+                        error: (err) => {
+                            console.error('Error cargando items de solicitud:', err);
+                            this.loading.set(false);
+                            this.router.navigate(['/cliente/solicitudes']);
+                        }
+                    });
+                },
+                error: (err) => {
+                    console.error('Error cargando solicitud:', err);
+                    this.loading.set(false);
+                    this.router.navigate(['/cliente/solicitudes']);
+                }
+            });
+            return;
         } else {
-            // Si no hay datos, redirigir a solicitudes
-            this.router.navigate(['/cliente/solicitudes']);
+            // Cargar desde SessionStorage (flujo de creación)
+            const solicitudGuardada = sessionStorage.getItem('solicitudEnviada');
+            if (solicitudGuardada) {
+                const data = JSON.parse(solicitudGuardada);
+                this.solicitudData.set(data);
+                this.loading.set(false);
+                
+                // Calcular tiempo restante desde el momento del envío
+                const fechaEnvio = new Date(data.fechaEnvio);
+                const fechaExpiracion = new Date(fechaEnvio.getTime() + 24 * 60 * 60 * 1000); // +24 horas
+                this.iniciarContador(fechaExpiracion);
+            } else {
+                // Si no hay datos, redirigir a solicitudes
+                this.router.navigate(['/cliente/solicitudes']);
+            }
         }
     }
 
@@ -87,5 +168,10 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
         sessionStorage.removeItem('solicitudEnviada');
         sessionStorage.removeItem('eventoActual');
         this.router.navigate(['/cliente/solicitudes/crear']);
+    }
+
+    irAPagar() {
+        const id = this.solicitudData().id;
+        this.router.navigate(['/cliente/pagos', id]);
     }
 }

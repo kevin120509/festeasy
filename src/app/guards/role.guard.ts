@@ -1,28 +1,21 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 
-export const roleGuard: CanActivateFn = (route, state) => {
+export const roleGuard: CanActivateFn = async (route, state) => {
     const router = inject(Router);
+    const auth = inject(AuthService);
 
-    // Leer DIRECTAMENTE de localStorage - sin AuthService, sin signals
-    const token = localStorage.getItem('festeasy_token');
-    const userStr = localStorage.getItem('festeasy_user');
+    // Esperar a que la autenticación se inicialice
+    const isAuthenticated = await auth.waitForAuth();
 
-    if (!token || !userStr) {
-        console.log('RoleGuard: No token or user, redirecting to login');
+    if (!isAuthenticated) {
+        console.log('RoleGuard: Not logged in, redirecting to login');
         router.navigate(['/login']);
         return false;
     }
 
-    let user;
-    try {
-        user = JSON.parse(userStr);
-    } catch (e) {
-        console.error('RoleGuard: Error parsing user:', e);
-        router.navigate(['/login']);
-        return false;
-    }
-
+    const user = auth.currentUser();
     // Obtener el rol requerido desde los datos de la ruta
     const requiredRole = route.data['role'] as string;
 
@@ -34,7 +27,7 @@ export const roleGuard: CanActivateFn = (route, state) => {
 
     // Verificar si el rol del usuario coincide con el requerido
     if (user.rol === requiredRole) {
-        console.log(`RoleGuard: Access granted for role ${requiredRole}`);
+        // console.log(`RoleGuard: Access granted for role ${requiredRole}`);
         return true;
     }
 

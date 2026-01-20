@@ -17,10 +17,13 @@ import { MarketplaceComponent } from './cliente/marketplace/marketplace.componen
 import { ProveedorDetalleComponent } from './cliente/proveedor-detalle/proveedor-detalle.component';
 import { CarritoComponent } from './cliente/carrito/carrito.component';
 import { ClienteDashboardComponent } from './cliente/dashboard/dashboard.component';
-import { CrearSolicitudComponent } from './cliente/solicitudes/crear-solicitud.component';
+import { CrearEventoComponent } from './cliente/crear-evento/crear-evento.component';
+import { RevisarSolicitudComponent } from './cliente/solicitudes/revisar/revisar.component';
 import { MisSolicitudesComponent } from './cliente/solicitudes/solicitudes.component';
 import { ClienteConfiguracionComponent } from './cliente/configuracion/configuracion.component';
 import { SeguimientoEventoComponent } from './cliente/seguimiento/seguimiento.component';
+import { SolicitudEnviadaComponent } from './cliente/solicitud-enviada/solicitud-enviada.component';
+import { PagoComponent } from './cliente/pago/pago.component';
 
 // Proveedor
 import { ProveedorRegistroComponent } from './proveedor/registro/registro.component';
@@ -54,7 +57,11 @@ export const routes: Routes = [
     { path: 'cliente/carrito', component: CarritoComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/dashboard', component: ClienteDashboardComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/solicitudes', component: MisSolicitudesComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitudes/crear', component: CrearSolicitudComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/solicitudes/crear', component: CrearEventoComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/solicitudes/revisar', component: RevisarSolicitudComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/solicitudes/:id', component: SolicitudEnviadaComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/pagos/:id', component: PagoComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    { path: 'cliente/solicitud-enviada', component: SolicitudEnviadaComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/seguimiento', component: SeguimientoEventoComponent, canActivate: [roleGuard], data: { role: 'client' } },
     { path: 'cliente/configuracion', component: ClienteConfiguracionComponent, canActivate: [roleGuard], data: { role: 'client' } },
 

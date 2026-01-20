@@ -16,13 +16,9 @@ export class ClienteDashboardComponent implements OnInit {
 
     // Métricas
     metricas = signal({
-        eventosActivos: 0,
-        cotizacionesPendientes: 0,
-        inversionTotal: 0
+        solicitudesTotales: 0,
+        cotizacionesPendientes: 0
     });
-
-    // Evento activo (el más próximo)
-    eventoActivo = signal<any>(null);
 
     // Actividad reciente (solicitudes)
     actividades = signal<any[]>([]);
@@ -30,28 +26,20 @@ export class ClienteDashboardComponent implements OnInit {
     // Todas las solicitudes del cliente
     misSolicitudes = signal<any[]>([]);
 
-    // Proveedores recomendados
-    recomendados = signal([
-        { id: '1', nombre: 'Artes Florales', rating: 4.9, resenas: 120, icono: '🌸' },
-        { id: '2', nombre: 'Pastelería Royal', rating: 4.7, resenas: 85, icono: '🎂' },
-        { id: '3', nombre: 'DJ Sounds Pro', rating: 4.8, resenas: 92, icono: '🎵' }
-    ]);
-
-    // Tareas pendientes
-    tareas = signal([
-        { id: '1', texto: 'Confirmar lista de invitados', completada: false },
-        { id: '2', texto: 'Revisar cotizaciones pendientes', completada: false },
-        { id: '3', texto: 'Elegir paleta de colores', completada: false }
-    ]);
-
     loading = signal(true);
-    darkMode = signal(false);
 
     ngOnInit(): void {
         this.cargarDatos();
     }
 
-    cargarDatos(): void {
+    async cargarDatos(): Promise<void> {
+        // Esperar a que la sesión esté lista
+        const ok = await this.auth.waitForAuth();
+        if (!ok) {
+            this.loading.set(false);
+            return;
+        }
+
         const user = this.auth.currentUser();
         if (!user || !user.id) {
             this.loading.set(false);
@@ -60,43 +48,27 @@ export class ClienteDashboardComponent implements OnInit {
 
         this.supabaseData.getRequestsByClient(user.id).subscribe({
             next: (requests) => {
-                // Guardar todas las solicitudes
                 this.misSolicitudes.set(requests);
 
-                // Mapear solicitudes a actividades
-                const actividades = requests.slice(0, 5).map(req => ({
+                // Mapear a actividades para la tabla
+                const actividades = requests.map(req => ({
                     id: req.id,
                     proveedor: req.perfil_proveedor?.nombre_negocio || 'Proveedor',
-                    servicio: req.titulo_evento || 'Servicio',
-                    fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX'),
+                    servicio: req.titulo_evento || 'Evento Especial',
+                    fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
                     estado: req.estado,
                     estadoLabel: this.formatEstado(req.estado),
-                    monto: req.presupuesto_max,
-                    icono: '📋'
+                    monto: req.monto_total || 0
                 }));
                 this.actividades.set(actividades);
 
-                // Métricas
+                // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
-                this.metricas.set({
-                    eventosActivos: requests.filter(r => ['reservado', 'negociacion', 'en_progreso'].includes(r.estado)).length,
-                    cotizacionesPendientes: pendientes,
-                    inversionTotal: 0 // TODO: Calcular de pagos reales
-                });
 
-                // Evento activo (primera solicitud aceptada/reservada)
-                const activo = requests.find(r => r.estado === 'reservado' || r.estado === 'en_progreso');
-                if (activo) {
-                    this.eventoActivo.set({
-                        id: activo.id,
-                        titulo: activo.titulo_evento || 'Mi Evento',
-                        ubicacion: activo.direccion_servicio,
-                        fecha: new Date(activo.fecha_servicio).toLocaleDateString('es-MX'),
-                        progreso: activo.estado === 'reservado' ? 50 : 75
-                    });
-                } else {
-                    this.eventoActivo.set(null);
-                }
+                this.metricas.set({
+                    solicitudesTotales: requests.length,
+                    cotizacionesPendientes: pendientes
+                });
 
                 this.loading.set(false);
             },
@@ -110,6 +82,7 @@ export class ClienteDashboardComponent implements OnInit {
     formatEstado(estado: string): string {
         const estados: Record<string, string> = {
             'pendiente_aprobacion': 'Pendiente',
+            'esperando_anticipo': 'Esperando anticipo',
             'reservado': 'Reservado',
             'en_progreso': 'En progreso',
             'rechazada': 'Rechazado',
@@ -122,6 +95,7 @@ export class ClienteDashboardComponent implements OnInit {
     getEstadoClass(estado: string): string {
         const clases: Record<string, string> = {
             'pendiente_aprobacion': 'estado-pendiente',
+            'esperando_anticipo': 'estado-reservado',
             'reservado': 'estado-reservado',
             'en_progreso': 'estado-progreso',
             'rechazada': 'estado-rechazado',
@@ -129,16 +103,6 @@ export class ClienteDashboardComponent implements OnInit {
             'cancelada': 'estado-cancelado'
         };
         return clases[estado] || 'estado-pendiente';
-    }
-
-    toggleTarea(id: string): void {
-        this.tareas.update(tareas =>
-            tareas.map(t => t.id === id ? { ...t, completada: !t.completada } : t)
-        );
-    }
-
-    toggleDarkMode(): void {
-        this.darkMode.update(v => !v);
     }
 
     getUserName(): string {

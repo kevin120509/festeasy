@@ -1,5 +1,18 @@
 <app-header></app-header>
 <div class="container mx-auto p-4">
   <h1 class="text-2xl font-bold mb-4">Configuración del Perfil</h1>
-  <p>En construcción...</p>
+  <p class="mb-6">Desde aquí podrás gestionar tu información personal y preferencias.</p>
+
+  <div class="bg-white rounded-lg shadow p-4 max-w-md">
+    <h2 class="text-lg font-semibold mb-2">Cuenta</h2>
+    <p class="text-sm text-gray-500 mb-4">Cerrar sesión eliminará tu sesión activa y te llevará a la pantalla de inicio de sesión.</p>
+
+    <div class="flex gap-3">
+      <button (click)="cerrarSesion()"
+        class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-200">
+        <span class="material-symbols-outlined">logout</span>
+        <span class="font-semibold">Cerrar sesión</span>
+      </button>
+    </div>
+  </div>
 </div>
