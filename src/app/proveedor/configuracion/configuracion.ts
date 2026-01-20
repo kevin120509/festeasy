@@ -26,6 +26,7 @@ export class ProveedorConfiguracionComponent implements OnInit {
     loading = signal(false);
     saving = signal(false);
     uploadingAvatar = signal(false);
+    detectingLocation = signal(false);
     successMessage = signal('');
     errorMessage = signal('');
 
@@ -34,7 +35,9 @@ export class ProveedorConfiguracionComponent implements OnInit {
         nombre_negocio: '',
         descripcion: '',
         telefono: '',
-        direccion_formato: '',
+        ubicacion: '',
+        latitud: 0,
+        longitud: 0,
         radio_cobertura_km: 10,
         avatar_url: ''
     });
@@ -57,11 +60,16 @@ export class ProveedorConfiguracionComponent implements OnInit {
         this.api.getProviderProfile(userId).subscribe({
             next: (profile) => {
                 this.profile.set(profile);
+                const ubicacion = profile.latitud && profile.longitud 
+                    ? `${profile.direccion_formato || ''} (${profile.latitud}, ${profile.longitud})`
+                    : profile.direccion_formato || '';
                 this.formData.set({
                     nombre_negocio: profile.nombre_negocio || '',
                     descripcion: profile.descripcion || '',
                     telefono: profile.telefono || '',
-                    direccion_formato: profile.direccion_formato || '',
+                    ubicacion: ubicacion,
+                    latitud: profile.latitud || 0,
+                    longitud: profile.longitud || 0,
                     radio_cobertura_km: profile.radio_cobertura_km || 10,
                     avatar_url: profile.avatar_url || ''
                 });
@@ -145,7 +153,18 @@ export class ProveedorConfiguracionComponent implements OnInit {
         this.errorMessage.set('');
         this.successMessage.set('');
 
-        const data = { ...this.formData(), usuario_id: userId };
+        const formData = this.formData();
+        const data = { 
+            nombre_negocio: formData.nombre_negocio,
+            descripcion: formData.descripcion,
+            telefono: formData.telefono,
+            direccion_formato: formData.ubicacion,
+            latitud: formData.latitud,
+            longitud: formData.longitud,
+            radio_cobertura_km: formData.radio_cobertura_km,
+            avatar_url: formData.avatar_url,
+            usuario_id: userId
+        };
         this.api.updateProviderProfile(this.profile()!.id, data).subscribe({
             next: (updatedProfile) => {
                 this.profile.set(updatedProfile);
@@ -159,6 +178,72 @@ export class ProveedorConfiguracionComponent implements OnInit {
                 this.saving.set(false);
             }
         });
+    }
+
+    async detectLocation() {
+        if (!navigator.geolocation) {
+            this.errorMessage.set('La geolocalización no está soportada por este navegador');
+            return;
+        }
+
+        this.detectingLocation.set(true);
+        this.errorMessage.set('');
+
+        try {
+            const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 300000 // 5 minutos
+                });
+            });
+
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            
+            // Intentar obtener dirección aproximada usando un servicio de geocoding
+            try {
+                const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=es`);
+                const geoData: any = await response.json();
+                if (geoData.city && geoData.countryName) {
+                    this.formData.update(data => ({
+                        ...data,
+                        ubicacion: `${geoData.city}, ${geoData.countryName} (${lat}, ${lng})`,
+                        latitud: lat,
+                        longitud: lng
+                    }));
+                } else {
+                    this.formData.update(data => ({
+                        ...data,
+                        ubicacion: `${lat}, ${lng}`,
+                        latitud: lat,
+                        longitud: lng
+                    }));
+                }
+            } catch (geocodeError) {
+                console.warn('No se pudo obtener la dirección aproximada:', geocodeError);
+                this.formData.update(data => ({
+                    ...data,
+                    ubicacion: `${lat}, ${lng}`,
+                    latitud: lat,
+                    longitud: lng
+                }));
+            }
+            
+        } catch (error: any) {
+            console.error('Error obteniendo ubicación:', error);
+            if (error.code === 1) {
+                this.errorMessage.set('Acceso a ubicación denegado. Por favor permite el acceso a tu ubicación.');
+            } else if (error.code === 2) {
+                this.errorMessage.set('No se pudo determinar tu ubicación. Verifica tu conexión a internet.');
+            } else if (error.code === 3) {
+                this.errorMessage.set('Tiempo de espera agotado al obtener tu ubicación.');
+            } else {
+                this.errorMessage.set('Error al obtener tu ubicación. Inténtalo de nuevo.');
+            }
+        } finally {
+            this.detectingLocation.set(false);
+        }
     }
 
     async logout() {
