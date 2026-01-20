@@ -168,10 +168,10 @@
 
                 <div class="form-group">
                     <label for="categoria">Categoría de Servicio *</label>
-                    <select id="categoria" [(ngModel)]="categoria" name="categoria" required>
+                    <select id="categoria" [(ngModel)]="categoriaId" name="categoria" required>
                         <option value="">Selecciona una categoría</option>
-                        @for (cat of categorias; track cat) {
-                        <option [value]="cat">{{ cat }}</option>
+                        @for (cat of categorias(); track cat.id) {
+                        <option [value]="cat.id">{{ cat.nombre }}</option>
                         }
                     </select>
                 </div>

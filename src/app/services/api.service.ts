@@ -203,6 +203,15 @@ export class ApiService {
         return this.fromSupabase(this.supabase.from('categorias_servicio').select('*'));
     }
 
+    getProvidersWithLocation(): Observable<any[]> {
+        // Obtenemos perfiles de proveedores con sus coordenadas y categoría
+        return this.fromSupabase(
+            this.supabase
+                .from('perfil_proveedor')
+                .select('id, nombre_negocio, latitud, longitud, categoria_principal_id, avatar_url, descripcion, direccion_formato, usuario_id')
+        );
+    }
+
     // REQUESTS
     createRequest(data: any): Observable<any> {
         return from(this.supabase.auth.getUser()).pipe(
@@ -463,5 +472,17 @@ export class ApiService {
     // Paquetes del proveedor - Versión que obtiene todos
     getProviderPackages(): Observable<ProviderPackage[]> {
         return this.fromSupabase(this.supabase.from('paquetes_proveedor').select('*'));
+    }
+
+    // Obtener paquetes de una lista de proveedores para filtrado avanzado
+    getPackagesByProviderIds(providerIds: string[]): Observable<any[]> {
+        if (!providerIds.length) return new Observable(obs => obs.next([]));
+        
+        return this.fromSupabase(
+            this.supabase
+                .from('paquetes_proveedor')
+                .select('proveedor_usuario_id, categoria_servicio_id, categoria:categorias_servicio(nombre, id)')
+                .in('proveedor_usuario_id', providerIds)
+        );
     }
 }
