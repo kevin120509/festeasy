@@ -69,7 +69,6 @@ export class MarketplaceComponent implements OnInit {
 
         this.api.getProvidersWithLocation().subscribe({
             next: (profiles) => {
-<<<<<<< Updated upstream
                 console.log('🏪 Proveedores obtenidos:', profiles);
                 const categoriesMap = new Map(this.categorias().map(c => [c.id, c.nombre]));
                 const evento = this.eventoActual();
@@ -103,19 +102,6 @@ export class MarketplaceComponent implements OnInit {
                         this.processProviders(profiles, categoriesMap, evento);
                     }
                 });
-=======
-                console.log('🏪 Proveedores obtenidos (sin filtro):', profiles);
-                this.providers.set(profiles.map(p => ({
-                    id: p.id,
-                    usuario_id: p.usuario_id,
-                    nombre: p.nombre_negocio || 'Proveedor',
-                    categoria: p.descripcion || 'Servicios',
-                    precio: p.precio_base || 0,
-                    rating: 5.0,
-                    ubicacion: p.direccion_formato || 'Ciudad de México',
-                    imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60'
-                })));
->>>>>>> Stashed changes
             },
             error: (err) => console.error('❌ Error cargando proveedores:', err)
         });
