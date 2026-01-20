@@ -67,20 +67,21 @@ export class PaquetesComponent implements OnInit {
   menuAbierto = signal<string | null>(null);
 
   // Filtros
-  paquetesActivos = computed(() => 
+  paquetesActivos = computed(() =>
     this.paquetes().filter(p => p.estado === 'publicado')
   );
 
-  paquetesBorradores = computed(() => 
+  paquetesBorradores = computed(() =>
     this.paquetes().filter(p => p.estado === 'borrador')
   );
 
-  paquetesArchivados = computed(() => 
+  paquetesArchivados = computed(() =>
     this.paquetes().filter(p => p.estado === 'archivado')
   );
 
   paquetesFiltrados = computed(() => {
-    switch (this.tabActivo()) {
+    const tab = this.tabActivo();
+    switch (tab) {
       case 'publicado': return this.paquetesActivos();
       case 'borrador': return this.paquetesBorradores();
       case 'archivado': return this.paquetesArchivados();
@@ -165,7 +166,7 @@ export class PaquetesComponent implements OnInit {
     }
   }
 
-  // Cambiar tab
+  // Cambiar tab - FIXED: usando notación de corchetes para TS4111
   cambiarTab(tab: 'publicado' | 'borrador' | 'archivado') {
     this.tabActivo.set(tab);
     this.menuAbierto.set(null);
@@ -188,7 +189,7 @@ export class PaquetesComponent implements OnInit {
   // Cambiar estado del paquete (toggle online/offline)
   async toggleEstado(paquete: Paquete) {
     const nuevoEstado = paquete.estado === 'publicado' ? 'archivado' : 'publicado';
-    
+
     try {
       const { error } = await this.supabaseService.getClient()
         .from('paquetes_proveedor')
@@ -198,7 +199,7 @@ export class PaquetesComponent implements OnInit {
       if (error) throw error;
 
       // Actualizar localmente
-      this.paquetes.update(paquetes => 
+      this.paquetes.update(paquetes =>
         paquetes.map(p => p.id === paquete.id ? { ...p, estado: nuevoEstado } : p)
       );
 
@@ -253,7 +254,7 @@ export class PaquetesComponent implements OnInit {
     if (paquete.detalles_json) {
       this.items.set(paquete.detalles_json.items || []);
       this.extraCharges.set(paquete.detalles_json.cargos_adicionales || []);
-      
+
       if (paquete.detalles_json.imagenes) {
         this.images.set(paquete.detalles_json.imagenes.map((img: any) => ({
           url: img.url,
@@ -306,7 +307,7 @@ export class PaquetesComponent implements OnInit {
   // Helper: Obtener color de categoría
   getCategoryColor(categoria?: { nombre: string }): string {
     if (!categoria) return 'bg-gray-50 text-gray-600';
-    
+
     const nombre = categoria.nombre.toLowerCase();
     if (nombre.includes('gastro') || nombre.includes('catering')) return 'bg-blue-50 text-blue-600';
     if (nombre.includes('decora')) return 'bg-purple-50 text-purple-600';
@@ -514,8 +515,9 @@ export class PaquetesComponent implements OnInit {
       } else {
         // Crear nuevo paquete
         const createdPackage = await this.supabaseData.createProviderPackage(packageToSave);
+        const estado = this.packageData().estado;
         this.successMessage.set(
-          this.packageData().estado === 'publicado'
+          estado === 'publicado'
             ? '¡Paquete publicado exitosamente! 🎉'
             : 'Borrador guardado exitosamente ✓'
         );

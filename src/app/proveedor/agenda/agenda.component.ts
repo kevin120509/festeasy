@@ -39,8 +39,8 @@ interface CalendarEvent {
     styleUrls: ['./agenda.component.css']
 })
 export class AgendaComponent implements OnInit {
-    private supabaseData = inject(SupabaseDataService);
-    private auth = inject(AuthService);
+    public supabaseData = inject(SupabaseDataService);
+    public auth = inject(AuthService);
     private router = inject(Router);
 
     // State signals
