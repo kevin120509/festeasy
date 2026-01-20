@@ -1,3 +1,7 @@
+<app-provider-nav></app-provider-nav>
+
+<!-- Contenido Principal -->
+<div class="ml-64 min-h-screen bg-slate-50">
 <style>
     .notificaciones-page {
         min-height: 100vh;
@@ -144,34 +148,33 @@
     }
 </style>
 
-<div class="notificaciones-page">
-    <app-header></app-header>
-
-    <div class="notificaciones-container">
-        <div class="page-header">
+    <main class="p-8 max-w-4xl mx-auto">
+        <div class="page-header mb-8 flex justify-between items-center">
             <div>
-                <h1>Notificaciones 🔔</h1>
-                <p>Mantente al día con tu actividad</p>
+                <h1 class="text-3xl font-bold text-slate-800">Notificaciones 🔔</h1>
+                <p class="text-slate-500 mt-1">Mantente al día con tu actividad</p>
             </div>
-            <button class="btn-marcar-todas">Marcar todas como leídas</button>
+            <button class="px-4 py-2 bg-white border border-slate-200 rounded-xl font-medium text-sm text-slate-600 hover:bg-slate-50 transition-colors">Marcar todas como leídas</button>
         </div>
 
-        <div class="notificaciones-list">
+        <div class="notificaciones-list space-y-3">
             @for (notif of notificaciones(); track notif.id) {
-            <div class="notificacion-card" [class.no-leida]="!notif.leida" (click)="marcarLeida(notif.id)">
-                <div class="notificacion-icon">{{ getIcono(notif.tipo) }}</div>
-                <div class="notificacion-content">
-                    <div class="notificacion-header">
-                        <span class="notificacion-titulo">{{ notif.titulo }}</span>
-                        <span class="notificacion-tiempo">{{ notif.tiempo }}</span>
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex gap-4 items-start cursor-pointer hover:shadow-md transition-all" 
+                 [class.border-l-4]="!notif.leida" [class.border-l-red-500]="!notif.leida" [class.bg-red-50/50]="!notif.leida"
+                 (click)="marcarLeida(notif.id)">
+                <div class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl flex-shrink-0">{{ getIcono(notif.tipo) }}</div>
+                <div class="flex-1">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="font-semibold text-slate-800">{{ notif.titulo }}</span>
+                        <span class="text-xs text-slate-400">{{ notif.tiempo }}</span>
                     </div>
-                    <p class="notificacion-mensaje">{{ notif.mensaje }}</p>
+                    <p class="text-sm text-slate-600">{{ notif.mensaje }}</p>
                 </div>
                 @if (!notif.leida) {
-                <div class="indicador-no-leida"></div>
+                <div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-2"></div>
                 }
             </div>
             }
         </div>
-    </div>
+    </main>
 </div>

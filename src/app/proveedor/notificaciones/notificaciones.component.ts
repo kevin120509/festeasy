@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
-import { HeaderComponent } from '../../shared/header/header';
+import { CommonModule } from '@angular/common';
+import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 
 @Component({
     selector: 'app-notificaciones',
     standalone: true,
-    imports: [HeaderComponent],
+    imports: [CommonModule, ProviderNavComponent],
     templateUrl: './notificaciones.html'
 })
 export class NotificacionesComponent {

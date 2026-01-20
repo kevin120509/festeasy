@@ -7,10 +7,12 @@ import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { ProviderProfile } from '../../models';
 
+import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+
 @Component({
     selector: 'app-proveedor-configuracion',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule, RouterLink, ProviderNavComponent],
     templateUrl: './configuracion.html',
     styleUrl: './configuracion.css'
 })

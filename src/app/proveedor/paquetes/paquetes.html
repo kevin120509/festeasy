@@ -1,87 +1,28 @@
-<!-- Sidebar -->
-<aside class="w-64 fixed inset-y-0 left-0 bg-white dark:bg-gray-800 border-r border-slate-200 dark:border-gray-700 z-50 transition-colors duration-200">
-    <div class="p-6">
-        <div class="flex items-center gap-2 mb-8">
-            <img alt="FESTEASY Logo" class="h-8 w-auto" src="assets/festeasy.jpeg" />
-        </div>
-        <nav class="space-y-1">
-            <a routerLink="/proveedor/dashboard"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">dashboard</span>
-                Dashboard
-            </a>
-            <a routerLink="/proveedor/paquetes"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium bg-primary/10 text-primary rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">inventory_2</span>
-                Mis Paquetes
-            </a>
-            <a routerLink="/proveedor/solicitudes"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">notifications_active</span>
-                Solicitudes
-            </a>
-            <a routerLink="/proveedor/agenda"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">calendar_today</span>
-                Calendario
-            </a>
-            <a routerLink="/proveedor/configuracion"
-                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-700 rounded-xl transition-all">
-                <span class="material-icons-outlined text-[20px]">settings</span>
-                Configuración
-            </a>
-        </nav>
-    </div>
-</aside>
+<app-provider-nav></app-provider-nav>
 
-<div class="flex-1 ml-64 min-h-screen bg-slate-50 dark:bg-gray-900">
+<div class="ml-64 min-h-screen bg-slate-50">
     <!-- ============================================ -->
     <!-- VISTA: LISTA DE PAQUETES -->
     <!-- ============================================ -->
     <ng-container *ngIf="vistaActual() === 'lista'">
-        <!-- Header -->
-        <header class="sticky top-0 z-40 w-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
-            <div class="max-w-[1200px] mx-auto px-6 h-20 flex items-center justify-between">
-                <div class="flex items-center gap-10">
-                    <nav class="hidden md:flex items-center gap-8">
-                        <a routerLink="/proveedor/dashboard" class="text-gray-500 hover:text-primary text-sm font-semibold transition-colors">Dashboard</a>
-                        <a class="text-primary text-sm font-bold border-b-2 border-primary pb-1">Mis Paquetes</a>
-                        <a routerLink="/proveedor/solicitudes" class="text-gray-500 hover:text-primary text-sm font-semibold transition-colors">Reservas</a>
-                    </nav>
-                </div>
-                <div class="flex items-center gap-6">
-                    <div class="relative group hidden lg:block">
-                        <span class="absolute inset-y-0 left-3 flex items-center text-gray-400 group-focus-within:text-primary transition-colors">
-                            <span class="material-icons-outlined text-xl">search</span>
-                        </span>
-                        <input class="bg-gray-100 dark:bg-gray-800 border-none rounded-full pl-10 pr-4 py-2 text-sm w-64 focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Buscar paquetes..." type="text"/>
-                    </div>
-                    <div class="flex items-center gap-3 border-l pl-6 border-gray-200 dark:border-gray-700">
-                        <div class="text-right hidden sm:block">
-                            <p class="text-xs font-bold text-jet-black dark:text-white leading-none">{{ authService.currentUser()?.email }}</p>
-                            <p class="text-[10px] text-gray-400 font-medium">Proveedor</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <main class="max-w-[1000px] mx-auto px-6 py-10">
+        <main class="p-8 max-w-7xl mx-auto">
             <!-- Page Heading Section -->
-            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
-                <div>
-                    <nav class="flex items-center gap-2 text-xs text-gray-400 font-medium mb-2">
-                        <span>Panel de Control</span>
-                        <span class="material-icons-outlined text-sm">chevron_right</span>
-                        <span class="text-primary">Mis Paquetes</span>
-                    </nav>
-                    <h2 class="text-jet-black dark:text-white text-4xl font-black tracking-tight">Gestión de Mis Paquetes</h2>
-                    <p class="text-gray-500 dark:text-gray-400 mt-2 text-lg">Administra, edita y analiza el rendimiento de tus servicios publicados.</p>
+            <div class="mb-8">
+                <nav class="flex items-center gap-2 text-xs text-slate-400 font-medium mb-2">
+                    <span>Panel de Control</span>
+                    <span class="material-icons-outlined text-sm">chevron_right</span>
+                    <span class="text-primary">Mis Paquetes</span>
+                </nav>
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-800">Gestión de Mis Paquetes</h1>
+                        <p class="text-slate-500 mt-2">Administra, edita y analiza el rendimiento de tus servicios publicados.</p>
+                    </div>
+                    <button (click)="crearNuevo()" class="bg-red-500 hover:bg-red-600 text-white flex items-center gap-2 px-6 py-3 rounded-xl font-bold shadow-lg transition-all">
+                        <span class="material-icons-outlined">add</span>
+                        <span>Crear Nuevo</span>
+                    </button>
                 </div>
-                <button (click)="crearNuevo()" class="bg-primary hover:bg-red-700 text-white flex items-center gap-2 px-8 py-4 rounded-full font-bold shadow-lg shadow-primary/20 transition-all transform hover:-translate-y-1 active:scale-95">
-                    <span class="material-icons-outlined">add</span>
-                    <span>Crear Nuevo</span>
-                </button>
             </div>
 
             <!-- Mensajes -->

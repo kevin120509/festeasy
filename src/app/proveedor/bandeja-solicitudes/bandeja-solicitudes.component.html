@@ -1,15 +1,18 @@
-<div class="min-h-screen bg-[#F8FFFF]">
+<app-provider-nav></app-provider-nav>
+
+<!-- Contenido Principal -->
+<div class="ml-64 min-h-screen bg-slate-50">
     <!-- Notificaciones Toast -->
     @if (mensajeExito()) {
-    <div class="fixed top-24 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
-        <span class="material-symbols-outlined text-[24px]">check_circle</span>
+    <div class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+        <span class="material-icons-outlined text-[24px]">check_circle</span>
         <span class="font-semibold">{{ mensajeExito() }}</span>
     </div>
     }
 
     @if (mensajeError()) {
-    <div class="fixed top-24 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
-        <span class="material-symbols-outlined text-[24px]">error</span>
+    <div class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+        <span class="material-icons-outlined text-[24px]">error</span>
         <span class="font-semibold">{{ mensajeError() }}</span>
     </div>
     }
@@ -25,48 +28,7 @@
         }
     </style>
 
-    <!-- Header con navegación -->
-    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-primary/10 px-6 lg:px-10 py-3">
-        <div class="max-w-[1200px] mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-8">
-                <div class="flex items-center gap-3 cursor-pointer" routerLink="/">
-                    <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white">
-                        <span class="material-symbols-outlined">celebration</span>
-                    </div>
-                    <span class="text-xl font-black text-slate-800">FestEasy</span>
-                </div>
-                <nav class="hidden md:flex items-center gap-6">
-                    <a routerLink="/proveedor/dashboard" class="text-slate-500 hover:text-primary text-sm font-semibold transition-colors">Dashboard</a>
-                    <span class="text-primary text-sm font-bold border-b-2 border-primary py-1">Solicitudes</span>
-                    <a routerLink="/proveedor/agenda" class="text-slate-500 hover:text-primary text-sm font-semibold transition-colors">Calendario</a>
-                    <a routerLink="/proveedor/configuracion" class="text-slate-500 hover:text-primary text-sm font-semibold transition-colors">Perfil</a>
-                </nav>
-            </div>
-            <div class="flex items-center gap-4">
-                <!-- Búsqueda -->
-                <div class="hidden lg:flex items-center bg-slate-100 rounded-xl px-4 py-2 min-w-[200px]">
-                    <span class="material-symbols-outlined text-slate-400 text-xl mr-2">search</span>
-                    <input type="text" placeholder="Buscar solicitud..." class="bg-transparent border-none focus:ring-0 text-sm w-full" />
-                </div>
-                <!-- Notificaciones -->
-                <button class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary relative hover:bg-slate-200 transition-colors">
-                    <span class="material-symbols-outlined">notifications</span>
-                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                </button>
-                <!-- Configuración -->
-                <button class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-primary hover:bg-slate-200 transition-colors">
-                    <span class="material-symbols-outlined">settings</span>
-                </button>
-                <!-- Avatar -->
-                <div class="w-10 h-10 rounded-full bg-primary/20 border-2 border-primary/30 overflow-hidden">
-                    <img src="https://ui-avatars.com/api/?name=Proveedor&background=0a6e80&color=fff" alt="Avatar" class="w-full h-full object-cover" />
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Contenido Principal -->
-    <main class="max-w-[1000px] mx-auto w-full px-6 py-10">
+    <main class="max-w-7xl mx-auto p-8">
         <!-- Encabezado de Página -->
         <div class="flex flex-wrap justify-between items-end gap-4 mb-8">
             <div class="flex flex-col gap-2">

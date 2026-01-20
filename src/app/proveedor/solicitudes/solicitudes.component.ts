@@ -1,8 +1,8 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 
 interface SolicitudProveedor {
     id: string;
@@ -21,7 +21,7 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe, RouterLink],
+    imports: [CommonModule, DatePipe, CurrencyPipe, ProviderNavComponent],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {

@@ -1,8 +1,8 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 
 interface SolicitudBandeja {
     id: string;
@@ -26,7 +26,7 @@ type TabType = 'pendientes' | 'aceptadas' | 'historial';
 @Component({
     selector: 'app-bandeja-solicitudes',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterLink],
+    imports: [CommonModule, CurrencyPipe, ProviderNavComponent],
     templateUrl: './bandeja-solicitudes.component.html'
 })
 export class BandejaSolicitudesComponent implements OnInit {

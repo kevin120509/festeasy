@@ -1,0 +1,46 @@
+<aside class="w-64 fixed inset-y-0 left-0 bg-white border-r border-slate-200 z-50 shadow-sm">
+    <div class="p-6 flex flex-col h-full">
+        <!-- Logo -->
+        <div class="flex items-center gap-2 mb-8">
+            <img alt="FESTEASY Logo" class="h-10 w-auto" src="assets/festeasy.jpeg" />
+            <span class="text-xl font-bold text-slate-800">FestEasy</span>
+        </div>
+        <nav class="space-y-1">
+            <a routerLink="/proveedor/dashboard" routerLinkActive="sidebar-item-active" 
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">dashboard</span>
+                Dashboard
+            </a>
+            <a routerLink="/proveedor/paquetes" routerLinkActive="sidebar-item-active" 
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">inventory_2</span>
+                Paquetes
+            </a>
+            <a routerLink="/proveedor/solicitudes" routerLinkActive="sidebar-item-active" 
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">notifications_active</span>
+                Solicitudes
+            </a>
+            <a routerLink="/proveedor/cotizaciones" routerLinkActive="sidebar-item-active" 
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">request_quote</span>
+                Cotizaciones
+            </a>
+            <a routerLink="/proveedor/agenda" routerLinkActive="sidebar-item-active" 
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">calendar_today</span>
+                Calendario
+            </a>
+            <a routerLink="/proveedor/pagos" routerLinkActive="sidebar-item-active" 
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">account_balance_wallet</span>
+                Pagos
+            </a>
+            <a routerLink="/proveedor/configuracion" routerLinkActive="sidebar-item-active"
+                class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-600 hover:bg-slate-50 rounded-xl transition-all">
+                <span class="material-icons-outlined text-[20px]">settings</span>
+                Configuración
+            </a>
+        </nav>
+    </div>
+</aside>

@@ -1,0 +1,5 @@
+.sidebar-item-active {
+    background-color: #f1f5f9; /* bg-slate-100 */
+    color: #1e293b; /* text-slate-800 */
+    font-weight: 600; /* font-semibold */
+}

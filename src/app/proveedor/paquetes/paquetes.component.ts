@@ -1,9 +1,10 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -41,7 +42,7 @@ interface PackageImage {
 @Component({
   selector: 'app-paquetes',
   standalone: true,
-  imports: [RouterLink, CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ProviderNavComponent],
   templateUrl: './paquetes.html',
   styleUrl: './paquetes.css'
 })

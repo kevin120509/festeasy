@@ -4,6 +4,8 @@ import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 
+import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+
 // Interface para las solicitudes de la tabla
 interface RequestRow {
     id: string;
@@ -18,7 +20,7 @@ interface RequestRow {
 @Component({
     selector: 'app-proveedor-dashboard',
     standalone: true,
-    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe],
+    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe, ProviderNavComponent],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css'
 })
