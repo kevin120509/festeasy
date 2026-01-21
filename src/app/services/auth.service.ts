@@ -1,4 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 import { SupabaseAuthService } from './supabase-auth.service';
 
@@ -8,6 +9,7 @@ import { SupabaseAuthService } from './supabase-auth.service';
 export class AuthService {
   private supabase = inject(SupabaseService).getClient();
   private supabaseAuth = inject(SupabaseAuthService);
+  private router = inject(Router);
   
   // Signals for state
   isLoggedIn = signal(false);
@@ -76,6 +78,7 @@ export class AuthService {
     this.isLoggedIn.set(false);
     this.currentUser.set(null);
     localStorage.clear(); // Clear any remnants
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {

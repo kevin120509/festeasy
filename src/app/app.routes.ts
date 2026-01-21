@@ -34,6 +34,7 @@ import { AgendaComponent } from './proveedor/agenda/agenda.component';
 import { NotificacionesComponent } from './proveedor/notificaciones/notificaciones.component';
 import { PaquetesComponent } from './proveedor/paquetes/paquetes.component';
 import { ProveedorConfiguracionComponent } from './proveedor/configuracion/configuracion';
+import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.component';
 
 // Admin
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
@@ -76,13 +77,21 @@ export const routes: Routes = [
 
     // Proveedor
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },
-    { path: 'proveedor/dashboard', component: ProveedorDashboardComponent, canActivate: [roleGuard], data: { role: 'provider' } },
-    { path: 'proveedor/solicitudes', component: SolicitudesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
-    { path: 'proveedor/bandeja', component: BandejaSolicitudesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
-    { path: 'proveedor/agenda', component: AgendaComponent, canActivate: [roleGuard], data: { role: 'provider' } },
-    { path: 'proveedor/notificaciones', component: NotificacionesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
-    { path: 'proveedor/paquetes', component: PaquetesComponent, canActivate: [roleGuard], data: { role: 'provider' } },
-    { path: 'proveedor/configuracion', component: ProveedorConfiguracionComponent, canActivate: [roleGuard], data: { role: 'provider' } },
+    {
+        path: 'proveedor',
+        component: ProveedorLayoutComponent,
+        canActivate: [roleGuard],
+        data: { role: 'provider' },
+        children: [
+            { path: 'dashboard', component: ProveedorDashboardComponent },
+            { path: 'solicitudes', component: SolicitudesComponent },
+            { path: 'bandeja', component: BandejaSolicitudesComponent },
+            { path: 'agenda', component: AgendaComponent },
+            { path: 'notificaciones', component: NotificacionesComponent },
+            { path: 'paquetes', component: PaquetesComponent },
+            { path: 'configuracion', component: ProveedorConfiguracionComponent },
+        ]
+    },
 
     // Admin
     { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
