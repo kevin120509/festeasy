@@ -94,6 +94,46 @@
         font-size: 14px;
     }
 
+    .location-fields {
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+    }
+
+    .location-fields input {
+        flex: 1;
+    }
+
+    .btn-location {
+        padding: 14px 16px;
+        background: var(--color-primary);
+        color: var(--color-white);
+        border: none;
+        border-radius: var(--border-radius-sm);
+        cursor: pointer;
+        transition: background 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 50px;
+    }
+
+    .btn-location:hover:not(:disabled) {
+        background: var(--color-primary-dark);
+    }
+
+    .btn-location:disabled {
+        background: var(--color-gray);
+        cursor: not-allowed;
+    }
+
+    .location-help {
+        font-size: 12px;
+        color: var(--color-gray);
+        margin-top: 4px;
+        margin-bottom: 0;
+    }
+
     .login-link {
         text-align: center;
         margin-top: 24px;
@@ -178,8 +218,22 @@
 
                 <div class="form-group">
                     <label for="ubicacion">Ubicación</label>
-                    <input type="text" id="ubicacion" [(ngModel)]="ubicacion" name="ubicacion"
-                        placeholder="Ciudad de México" />
+                    <div class="location-fields">
+                        <input type="text" id="ubicacion" [(ngModel)]="ubicacion" name="ubicacion"
+                            placeholder="Ciudad de México o coordenadas GPS" />
+                        <button type="button" 
+                            class="btn-location" 
+                            (click)="detectLocation()" 
+                            [disabled]="detectingLocation"
+                            title="Detectar ubicación actual">
+                            @if (!detectingLocation) {
+                            <span class="material-icons-outlined">location_on</span>
+                            } @else {
+                            <span class="material-icons-outlined animate-spin">sync</span>
+                            }
+                        </button>
+                    </div>
+                    <p class="location-help">Haz click en el ícono para detectar tu ubicación automáticamente</p>
                 </div>
 
                 <div class="form-group">
