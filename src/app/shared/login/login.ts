@@ -4,11 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
 import { AuthService } from '../../services/auth.service';
 import { HeaderComponent } from '../header/header';
-
+import { CommonModule } from '@angular/common';
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [RouterLink, FormsModule, HeaderComponent],
+    imports: [RouterLink, FormsModule],
     templateUrl: './login.html'
 })
 export class LoginComponent {

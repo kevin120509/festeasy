@@ -50,7 +50,7 @@ interface CalendarDay {
 @Component({
     selector: 'app-provider-calendar',
     standalone: true,
-    imports: [ProviderNavComponent, HeaderComponent],
+    imports: [ProviderNavComponent],
     templateUrl: './agenda.html'
 })
 export class AgendaComponent implements OnInit {

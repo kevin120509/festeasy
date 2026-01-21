@@ -3,22 +3,26 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
-
-@Component({
+import { MenuItem } from 'primeng/api'; 
+import { Observable } from 'rxjs';@Component({
     selector: 'app-cliente-dashboard',
     standalone: true,
     imports: [RouterLink, CommonModule],
-    templateUrl: './dashboard.html'
+    templateUrl: './dashboard.html',
+    styleUrl: './dashboard.component.css'
 })
 export class ClienteDashboardComponent implements OnInit {
     auth = inject(AuthService);
     supabaseData = inject(SupabaseDataService);
+
+    items: MenuItem[] | undefined;
 
     // Métricas
     metricas = signal({
         solicitudesTotales: 0,
         cotizacionesPendientes: 0
     });
+
 
     // Actividad reciente (solicitudes)
     actividades = signal<any[]>([]);
@@ -37,6 +41,38 @@ export class ClienteDashboardComponent implements OnInit {
     loading = signal(true);
 
     ngOnInit(): void {
+        this.items = [
+            {
+                label: 'Dashboard',
+                icon: 'pi pi-chart-bar',
+                routerLink: '/cliente/dashboard'
+            },
+            {
+                label: 'Mis Solicitudes',
+                icon: 'pi pi-file',
+                routerLink: '/cliente/solicitudes'
+            },
+            {
+                label: 'Marketplace',
+                icon: 'pi pi-shopping-bag',
+                routerLink: '/cliente/marketplace'
+            },
+            {
+                separator: true
+            },
+            {
+                label: 'Configuración',
+                icon: 'pi pi-cog',
+                routerLink: '/cliente/configuracion'
+            },
+            {
+                label: 'Cerrar Sesión',
+                icon: 'pi pi-power-off',
+                command: () => {
+                    this.auth.logout();
+                }
+            }
+        ];
         this.cargarDatos();
     }
 

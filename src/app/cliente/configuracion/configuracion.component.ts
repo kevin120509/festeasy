@@ -7,7 +7,7 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-cliente-configuracion',
     standalone: true,
-    imports: [CommonModule, HeaderComponent],
+    imports: [CommonModule],
     templateUrl: './configuracion.component.html'
 })
 export class ClienteConfiguracionComponent {

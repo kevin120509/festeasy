@@ -11,7 +11,7 @@ import { NotFoundComponent } from './shared/errors/not-found/not-found.component
 import { ServerErrorComponent } from './shared/errors/server-error/server-error.component';
 import { AccessDeniedComponent } from './shared/errors/access-denied/access-denied.component';
 
-// Cliente
+import { ClienteLayoutComponent } from './cliente/layout/cliente-layout.component';
 import { ClienteRegistroComponent } from './cliente/registro/registro.component';
 import { MarketplaceComponent } from './cliente/marketplace/marketplace.component';
 import { ProveedorDetalleComponent } from './cliente/proveedor-detalle/proveedor-detalle.component';
@@ -52,18 +52,27 @@ export const routes: Routes = [
 
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
-    { path: 'cliente/marketplace', component: MarketplaceComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/proveedor/:id', component: ProveedorDetalleComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/carrito', component: CarritoComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/dashboard', component: ClienteDashboardComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitudes', component: MisSolicitudesComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitudes/crear', component: CrearEventoComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitudes/revisar', component: RevisarSolicitudComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitudes/:id', component: SolicitudEnviadaComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/pagos/:id', component: PagoComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/solicitud-enviada', component: SolicitudEnviadaComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/seguimiento/:id', component: SeguimientoEventoComponent, canActivate: [roleGuard], data: { role: 'client' } },
-    { path: 'cliente/configuracion', component: ClienteConfiguracionComponent, canActivate: [roleGuard], data: { role: 'client' } },
+    {
+        path: 'cliente',
+        component: ClienteLayoutComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' },
+        children: [
+            { path: 'dashboard', component: ClienteDashboardComponent },
+            { path: 'marketplace', component: MarketplaceComponent },
+            { path: 'proveedor/:id', component: ProveedorDetalleComponent },
+            { path: 'carrito', component: CarritoComponent },
+            { path: 'solicitudes', component: MisSolicitudesComponent },
+            { path: 'solicitudes/crear', component: CrearEventoComponent },
+            { path: 'solicitudes/revisar', component: RevisarSolicitudComponent },
+            { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
+            { path: 'pagos/:id', component: PagoComponent },
+            { path: 'solicitud-enviada', component: SolicitudEnviadaComponent },
+            { path: 'seguimiento/:id', component: SeguimientoEventoComponent },
+            { path: 'configuracion', component: ClienteConfiguracionComponent },
+        ]
+    },
+
 
     // Proveedor
     { path: 'proveedor/registro', component: ProveedorRegistroComponent },

@@ -1,14 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { HeaderComponent } from '../../shared/header/header';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
 
 @Component({
     selector: 'app-cliente-registro',
     standalone: true,
-    imports: [RouterLink, FormsModule, HeaderComponent],
+    imports: [RouterLink, FormsModule],
     templateUrl: './registro.html'
 })
 export class ClienteRegistroComponent {
