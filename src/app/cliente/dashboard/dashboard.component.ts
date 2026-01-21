@@ -4,10 +4,12 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { MenuItem } from 'primeng/api'; 
-import { Observable } from 'rxjs';@Component({
+import { Observable } from 'rxjs';
+
+@Component({
     selector: 'app-cliente-dashboard',
     standalone: true,
-    imports: [RouterLink, CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.component.css'
 })
