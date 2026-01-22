@@ -4,7 +4,6 @@
 
 export const environment = {
     production: false,
-    apiUrl: 'http://localhost:3000',
     supabaseUrl: 'https://ghlosgnopdmrowiygxdm.supabase.co',
     // IMPORTANTE: Regenerar estas claves ya que fueron expuestas en el repositorio
     // Usar solo la clave 'anon' en frontend, nunca 'service_role'

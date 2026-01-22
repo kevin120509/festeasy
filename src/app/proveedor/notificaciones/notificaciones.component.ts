@@ -5,7 +5,7 @@ import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.compon
 @Component({
     selector: 'app-notificaciones',
     standalone: true,
-    imports: [CommonModule, ProviderNavComponent],
+    imports: [CommonModule],
     templateUrl: './notificaciones.html'
 })
 export class NotificacionesComponent {

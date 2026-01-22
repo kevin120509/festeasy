@@ -7,12 +7,10 @@ import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
 import { ProviderProfile } from '../../models';
 
-import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
-
 @Component({
     selector: 'app-proveedor-configuracion',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink, ProviderNavComponent],
+    imports: [CommonModule, FormsModule, RouterLink],
     templateUrl: './configuracion.html',
     styleUrl: './configuracion.css'
 })
@@ -60,7 +58,7 @@ export class ProveedorConfiguracionComponent implements OnInit {
         this.api.getProviderProfile(userId).subscribe({
             next: (profile) => {
                 this.profile.set(profile);
-                const ubicacion = profile.latitud && profile.longitud 
+                const ubicacion = profile.latitud && profile.longitud
                     ? `${profile.direccion_formato || ''} (${profile.latitud}, ${profile.longitud})`
                     : profile.direccion_formato || '';
                 this.formData.set({
@@ -154,7 +152,7 @@ export class ProveedorConfiguracionComponent implements OnInit {
         this.successMessage.set('');
 
         const formData = this.formData();
-        const data = { 
+        const data = {
             nombre_negocio: formData.nombre_negocio,
             descripcion: formData.descripcion,
             telefono: formData.telefono,
@@ -200,7 +198,7 @@ export class ProveedorConfiguracionComponent implements OnInit {
 
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
-            
+
             // Intentar obtener dirección aproximada usando un servicio de geocoding
             try {
                 const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=es`);
@@ -229,7 +227,7 @@ export class ProveedorConfiguracionComponent implements OnInit {
                     longitud: lng
                 }));
             }
-            
+
         } catch (error: any) {
             console.error('Error obteniendo ubicación:', error);
             if (error.code === 1) {

@@ -20,7 +20,7 @@ interface RequestRow {
 @Component({
     selector: 'app-proveedor-dashboard',
     standalone: true,
-    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe, ProviderNavComponent],
+    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css'
 })

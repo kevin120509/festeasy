@@ -1,17 +1,17 @@
-<app-provider-nav></app-provider-nav>
-
 <!-- Contenido Principal -->
-<div class="ml-64 min-h-screen bg-red-50 overflow-y-auto">
+<div class="min-h-screen bg-red-50 overflow-y-auto">
   <!-- Mensajes de notificacion -->
   @if (mensajeExito()) {
-  <div class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+  <div
+    class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
     <span class="material-icons-outlined text-[24px]">check_circle</span>
     <span class="font-semibold">{{ mensajeExito() }}</span>
   </div>
   }
 
   @if (mensajeError()) {
-  <div class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+  <div
+    class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
     <span class="material-icons-outlined text-[24px]">error</span>
     <span class="font-semibold">{{ mensajeError() }}</span>
   </div>
@@ -19,10 +19,20 @@
 
   <style>
     @keyframes slide-in {
-      from { transform: translateX(400px); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
     }
-    .animate-slide-in { animation: slide-in 0.3s ease; }
+
+    .animate-slide-in {
+      animation: slide-in 0.3s ease;
+    }
   </style>
 
   <!-- Contenedor Principal -->
@@ -36,31 +46,38 @@
 
       <!-- Sistema de Pestanas -->
       <div class="flex bg-red-100 p-1 rounded-xl gap-1">
-        <button (click)="cambiarTab('pendientes')" [class]="tabActivo() === 'pendientes' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+        <button (click)="cambiarTab('pendientes')"
+          [class]="tabActivo() === 'pendientes' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
           class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
           <span>Pendientes</span>
           @if (contadores().pendientes > 0) {
-          <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().pendientes }}</span>
+          <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().pendientes
+            }}</span>
           }
         </button>
 
-        <button (click)="cambiarTab('confirmadas')" [class]="tabActivo() === 'confirmadas' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+        <button (click)="cambiarTab('confirmadas')"
+          [class]="tabActivo() === 'confirmadas' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
           class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
           <span>Confirmadas</span>
           @if (contadores().confirmadas > 0) {
-          <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().confirmadas }}</span>
+          <span class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().confirmadas
+            }}</span>
           }
         </button>
 
-        <button (click)="cambiarTab('rechazado')" [class]="tabActivo() === 'rechazado' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+        <button (click)="cambiarTab('rechazado')"
+          [class]="tabActivo() === 'rechazado' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
           class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
           <span>Rechazadas</span>
           @if (contadores().rechazado > 0) {
-          <span class="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().rechazado }}</span>
+          <span class="bg-orange-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().rechazado
+            }}</span>
           }
         </button>
 
-        <button (click)="cambiarTab('todo')" [class]="tabActivo() === 'todo' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
+        <button (click)="cambiarTab('todo')"
+          [class]="tabActivo() === 'todo' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
           class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
           <span>Todo</span>
           @if (contadores().todo > 0) {
@@ -85,7 +102,8 @@
           <!-- Columna Izquierda: Info del Cliente -->
           <div class="space-y-4">
             <div class="flex items-center gap-3">
-              <div class="h-12 w-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
+              <div
+                class="h-12 w-12 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center text-white font-bold text-lg">
                 {{ solicitud.cliente_nombre.charAt(0) }}
               </div>
               <div class="flex-1">
@@ -105,15 +123,15 @@
                 'bg-slate-100 text-slate-700': solicitud.estado === 'finalizado'
               }" class="px-3 py-1 rounded-full text-xs font-semibold">
                 @switch (solicitud.estado) {
-                  @case ('pendiente_aprobacion') { Pendiente }
-                  @case ('esperando_anticipo') { Esperando Pago }
-                  @case ('reservado') { Reservado }
-                  @case ('en_progreso') { En Progreso }
-                  @case ('entregado_pendiente_liq') { Por Liquidar }
-                  @case ('rechazada') { Rechazada }
-                  @case ('cancelada') { Cancelada }
-                  @case ('finalizado') { Finalizado }
-                  @default { {{ solicitud.estado }} }
+                @case ('pendiente_aprobacion') { Pendiente }
+                @case ('esperando_anticipo') { Esperando Pago }
+                @case ('reservado') { Reservado }
+                @case ('en_progreso') { En Progreso }
+                @case ('entregado_pendiente_liq') { Por Liquidar }
+                @case ('rechazada') { Rechazada }
+                @case ('cancelada') { Cancelada }
+                @case ('finalizado') { Finalizado }
+                @default { {{ solicitud.estado }} }
                 }
               </span>
             </div>
@@ -139,7 +157,8 @@
             </div>
             <div>
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Monto Total</p>
-              <p class="text-3xl font-bold text-slate-800">{{ solicitud.monto_total | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
+              <p class="text-3xl font-bold text-slate-800">{{ solicitud.monto_total |
+                currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
             </div>
           </div>
         </div>
@@ -169,9 +188,11 @@
         </div>
         }
 
-        @if (solicitud.estado === 'esperando_anticipo' || solicitud.estado === 'reservado' || solicitud.estado === 'en_progreso') {
+        @if (solicitud.estado === 'esperando_anticipo' || solicitud.estado === 'reservado' || solicitud.estado ===
+        'en_progreso') {
         <div class="flex justify-end pt-4 border-t border-slate-100">
-          <button class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
+          <button
+            class="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-colors">
             <span class="material-icons-outlined text-[20px]">chat</span>
             <span>Contactar Cliente</span>
           </button>
@@ -181,14 +202,16 @@
       } @empty {
       <!-- Estado vacio segun tab -->
       @if (tabActivo() === 'pendientes') {
-      <div class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+      <div
+        class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
         <span class="material-icons-outlined text-slate-300 text-[64px]">inbox</span>
         <p class="text-slate-500 font-medium text-lg">No hay solicitudes pendientes</p>
         <p class="text-slate-400 text-sm">Las nuevas peticiones apareceran aqui</p>
       </div>
       }
       @if (tabActivo() === 'confirmadas') {
-      <div class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
+      <div
+        class="bg-slate-50 rounded-2xl py-20 text-center border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-4">
         <span class="material-icons-outlined text-slate-300 text-[64px]">assignment</span>
         <p class="text-slate-500 font-medium text-lg">No hay solicitudes confirmadas</p>
         <p class="text-slate-400 text-sm">Las solicitudes aceptadas apareceran aqui</p>

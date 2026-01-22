@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
+import { CalendarioFechaService } from '../../../services/calendario-fecha.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -15,6 +16,7 @@ export class RevisarSolicitudComponent implements OnInit {
     private router = inject(Router);
     private api = inject(ApiService);
     private auth = inject(AuthService);
+    private calService = inject(CalendarioFechaService);
 
     evento = signal<any>(null);
     proveedor = signal<any>(null);
@@ -36,10 +38,10 @@ export class RevisarSolicitudComponent implements OnInit {
 
         this.evento.set(JSON.parse(eventoStr));
         this.proveedor.set(JSON.parse(proveedorStr));
-        
+
         const pkgs = JSON.parse(paquetesStr);
         this.paquetes.set(pkgs);
-        
+
         // Calcular total
         const totalAmount = pkgs.reduce((acc: number, curr: any) => acc + (curr.subtotal || 0), 0);
         this.total.set(totalAmount);
@@ -59,7 +61,20 @@ export class RevisarSolicitudComponent implements OnInit {
         try {
             const eventoData = this.evento();
             const proveedorData = this.proveedor();
-            // 1. Crear la solicitud
+            const fechaServicio = new Date(eventoData.fecha + 'T' + (eventoData.hora || '12:00'));
+
+            // 1. Validar Disponibilidad (Regla 1 y 2)
+            const disp = await firstValueFrom(this.calService.consultarDisponibilidad(proveedorData.usuario_id, fechaServicio));
+            if (!disp.disponible) {
+                alert(disp.error || 'El proveedor no está disponible para esa fecha.');
+                this.isLoading.set(false);
+                return;
+            }
+
+            // 2. Calcular SLA (Regla 3)
+            const sla = this.calService.aplicarReglaSLA(eventoData.fecha + 'T' + (eventoData.hora || '12:00'));
+
+            // 3. Crear la solicitud con SLA
             const solicitudPayload = {
                 cliente_usuario_id: user.id,
                 proveedor_usuario_id: proveedorData.usuario_id,
@@ -68,8 +83,10 @@ export class RevisarSolicitudComponent implements OnInit {
                 titulo_evento: eventoData.titulo,
                 monto_total: this.total(),
                 estado: 'pendiente_aprobacion',
-                latitud_servicio: 0, 
-                longitud_servicio: 0
+                latitud_servicio: 0,
+                longitud_servicio: 0,
+                horas_respuesta_max: sla.horas_respuesta_max,
+                es_urgente: sla.es_urgente
             };
             const solicitud = await firstValueFrom(this.api.createRequest(solicitudPayload));
             if (!solicitud?.id) throw new Error('No se pudo crear la solicitud (sin id).');
@@ -117,7 +134,7 @@ export class RevisarSolicitudComponent implements OnInit {
             const fechaRaw = solicitud?.fecha_servicio || eventoData.fecha || eventoData.fecha_servicio || '';
             const horaRaw = solicitud?.hora_servicio || eventoData.hora || eventoData.hora_servicio || '';
             const fechaDisplay = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-MX') : '';
-            
+
             const eventoParaMostrar = {
                 titulo_evento: solicitud?.titulo_evento || eventoData.titulo || eventoData.titulo_evento || 'Evento',
                 fecha_servicio: fechaDisplay,
@@ -135,10 +152,10 @@ export class RevisarSolicitudComponent implements OnInit {
                 paquetesSeleccionados: finalPaquetes,
                 total: finalPaquetes.reduce((acc: number, p: any) => acc + (p.subtotal || 0), 0) || this.total()
             };
-            
+
             console.log('Confirmación solicitud:', { datosConfirmacion, solicitud });
             sessionStorage.setItem('solicitudEnviada', JSON.stringify(datosConfirmacion));
-            
+
             // 4. Navegar a confirmación
             this.router.navigate(['/cliente/solicitud-enviada']);
 

@@ -21,7 +21,7 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe, ProviderNavComponent],
+    imports: [CommonModule, DatePipe, CurrencyPipe],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
@@ -109,7 +109,7 @@ export class SolicitudesComponent implements OnInit {
         // Cambiar a estado 'esperando_anticipo' cuando el proveedor acepta
         this.api.updateSolicitudEstado(solId, 'esperando_anticipo').subscribe({
             next: () => {
-                this.solicitudes.update(list => 
+                this.solicitudes.update(list =>
                     list.map(s => s.id === solId ? { ...s, estado: 'esperando_anticipo' as const } : s)
                 );
                 this.procesando.set(null);
@@ -127,14 +127,14 @@ export class SolicitudesComponent implements OnInit {
 
     rechazarSolicitud(solId: string) {
         if (this.procesando()) return;
-        
+
         if (!confirm('¿Estás seguro de rechazar esta solicitud?')) return;
-        
+
         this.procesando.set(solId);
 
         this.api.updateSolicitudEstado(solId, 'rechazada').subscribe({
             next: () => {
-                this.solicitudes.update(list => 
+                this.solicitudes.update(list =>
                     list.map(s => s.id === solId ? { ...s, estado: 'rechazada' as const } : s)
                 );
                 this.procesando.set(null);
@@ -162,7 +162,7 @@ export class SolicitudesComponent implements OnInit {
         const ahora = new Date();
         const diffMs = ahora.getTime() - fecha.getTime();
         const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
-        
+
         if (diffHoras < 1) return 'Hace unos minutos';
         if (diffHoras < 24) return `Hace ${diffHoras}h`;
         const diffDias = Math.floor(diffHoras / 24);

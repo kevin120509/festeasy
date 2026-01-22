@@ -129,6 +129,8 @@ export interface ServiceRequest {
     client?: ClientProfile; // Joined data
     items?: RequestItem[]; // Joined data
     presupuesto_max?: number;
+    horas_respuesta_max?: number;
+    es_urgente?: boolean;
 }
 
 export interface RequestItem {

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { GeoService } from '../../services/geo.service';
+import { CalendarioFechaService } from '../../services/calendario-fecha.service';
 
 @Component({
     selector: 'app-crear-evento',
@@ -16,6 +17,7 @@ export class CrearEventoComponent implements OnInit {
     api = inject(ApiService);
     ngZone = inject(NgZone);
     geo = inject(GeoService);
+    calService = inject(CalendarioFechaService);
     cdr = inject(ChangeDetectorRef);
 
     // Datos del evento
@@ -25,10 +27,10 @@ export class CrearEventoComponent implements OnInit {
     ubicacion = '';
     invitados = 50;
     categoriaId = '';
-    
+
     categorias = signal<any[]>([]);
     loadingCategories = signal(true);
-    
+
     // Geolocalización
     coordenadas: { lat: number, lng: number } | null = null;
 
@@ -62,7 +64,7 @@ export class CrearEventoComponent implements OnInit {
     usarUbicacionActual() {
         this.isLocating = true;
         this.error = '';
-        
+
         this.geo.getCurrentLocation().subscribe({
             next: (data) => {
                 this.ngZone.run(() => {
@@ -87,6 +89,13 @@ export class CrearEventoComponent implements OnInit {
     buscarProveedores() {
         if (!this.titulo || !this.fecha || !this.hora || !this.ubicacion || !this.categoriaId) {
             this.error = 'Por favor completa todos los campos obligatorios.';
+            return;
+        }
+
+        // VALIDACIÓN DE FECHA PASADA
+        const fechaSeleccionada = new Date(this.fecha + 'T' + this.hora);
+        if (!this.calService.validarFechaFutura(fechaSeleccionada)) {
+            this.error = 'No puedes agendar un evento en el pasado. Por favor selecciona una fecha válida.';
             return;
         }
 

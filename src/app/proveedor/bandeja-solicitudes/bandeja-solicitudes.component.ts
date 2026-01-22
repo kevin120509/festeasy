@@ -26,7 +26,7 @@ type TabType = 'pendientes' | 'aceptadas' | 'historial';
 @Component({
     selector: 'app-bandeja-solicitudes',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, ProviderNavComponent],
+    imports: [CommonModule, CurrencyPipe],
     templateUrl: './bandeja-solicitudes.component.html'
 })
 export class BandejaSolicitudesComponent implements OnInit {
@@ -97,7 +97,7 @@ export class BandejaSolicitudesComponent implements OnInit {
         const diffMs = ahora.getTime() - creadoEn.getTime();
         const horasTranscurridas = diffMs / (1000 * 60 * 60);
         const horasRestantes = Math.max(0, 24 - horasTranscurridas);
-        
+
         return {
             id: req.id,
             numero_solicitud: req.numero_solicitud,
@@ -138,7 +138,7 @@ export class BandejaSolicitudesComponent implements OnInit {
 
         this.api.updateSolicitudEstado(solicitud.id, 'esperando_anticipo').subscribe({
             next: () => {
-                this.solicitudes.update(list => 
+                this.solicitudes.update(list =>
                     list.map(s => s.id === solicitud.id ? { ...s, estado: 'esperando_anticipo' as const } : s)
                 );
                 this.procesando.set(null);
@@ -156,14 +156,14 @@ export class BandejaSolicitudesComponent implements OnInit {
 
     rechazarSolicitud(solicitud: SolicitudBandeja): void {
         if (this.procesando()) return;
-        
+
         if (!confirm(`¿Estás seguro de rechazar la solicitud de ${solicitud.cliente_nombre}?`)) return;
-        
+
         this.procesando.set(solicitud.id);
 
         this.api.updateSolicitudEstado(solicitud.id, 'rechazada').subscribe({
             next: () => {
-                this.solicitudes.update(list => 
+                this.solicitudes.update(list =>
                     list.map(s => s.id === solicitud.id ? { ...s, estado: 'rechazada' as const } : s)
                 );
                 this.procesando.set(null);
@@ -182,10 +182,10 @@ export class BandejaSolicitudesComponent implements OnInit {
     formatearTiempoRestante(horas: number | undefined): string {
         if (horas === undefined) return '';
         if (horas <= 0) return 'Tiempo agotado';
-        
+
         const horasEnteras = Math.floor(horas);
         const minutos = Math.round((horas - horasEnteras) * 60);
-        
+
         if (horasEnteras >= 1) {
             return `${horasEnteras}h ${minutos}m`;
         }
@@ -195,11 +195,11 @@ export class BandejaSolicitudesComponent implements OnInit {
     formatearFecha(fechaStr: string): string {
         if (!fechaStr) return 'Por definir';
         const fecha = new Date(fechaStr);
-        const opciones: Intl.DateTimeFormatOptions = { 
-            weekday: 'short', 
-            day: 'numeric', 
-            month: 'short', 
-            year: 'numeric' 
+        const opciones: Intl.DateTimeFormatOptions = {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
         };
         return fecha.toLocaleDateString('es-MX', opciones);
     }

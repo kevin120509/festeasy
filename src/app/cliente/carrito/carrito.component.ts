@@ -2,8 +2,10 @@ import { Component, signal, inject, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { CalendarioFechaService } from '../../services/calendario-fecha.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-carrito',
@@ -15,6 +17,7 @@ export class CarritoComponent implements OnInit {
     private api = inject(ApiService);
     private auth = inject(AuthService);
     private router = inject(Router);
+    private calService = inject(CalendarioFechaService);
 
     currentStep = signal(1); // 1: Carrito, 2: Checkout
 
@@ -141,6 +144,15 @@ export class CarritoComponent implements OnInit {
             return;
         }
 
+        const fechaServicioStr = this.fechaEvento() + 'T' + (this.horaEvento() || '12:00');
+        const fechaServicioDate = new Date(fechaServicioStr);
+
+        // Validar primero si la fecha es futura
+        if (!this.calService.validarFechaFutura(fechaServicioDate)) {
+            alert('No puedes agendar eventos en el pasado.');
+            return;
+        }
+
         this.enviandoSolicitud.set(true);
 
         try {
@@ -152,10 +164,8 @@ export class CarritoComponent implements OnInit {
                 return;
             }
 
-            console.log('👤 Usuario autenticado (Supabase):', user.id);
-
-            // Crear fecha y hora combinadas
-            const fechaServicio = this.fechaEvento(); // Solo la fecha YYYY-MM-DD
+            // Calcular SLA una vez para todas las solicitudes
+            const sla = this.calService.aplicarReglaSLA(fechaServicioStr);
 
             // Crear solicitud para cada item del carrito
             for (const item of this.items()) {
@@ -163,14 +173,21 @@ export class CarritoComponent implements OnInit {
 
                 if (!proveedorId) {
                     console.error('❌ Error: ID de proveedor no encontrado para el item:', item);
-                    alert(`Error: No se pudo identificar al proveedor del paquete "${item.nombre}". Intenta recargar la página.`);
+                    continue;
+                }
+
+                // Validar disponibilidad individual por proveedor
+                const disp = await firstValueFrom(this.calService.consultarDisponibilidad(proveedorId, fechaServicioDate));
+                if (!disp.disponible) {
+                    console.warn(`⚠️ Proveedor ${proveedorId} no disponible: ${disp.error}`);
+                    alert(`El proveedor de "${item.nombre}" no está disponible en la fecha seleccionada: ${disp.error}`);
                     continue;
                 }
 
                 const solicitud = {
                     cliente_usuario_id: user.id,
                     proveedor_usuario_id: proveedorId,
-                    fecha_servicio: fechaServicio,
+                    fecha_servicio: this.fechaEvento(),
                     direccion_servicio: this.direccionEvento(),
                     latitud_servicio: this.latitud() || null,
                     longitud_servicio: this.longitud() || null,
@@ -178,11 +195,13 @@ export class CarritoComponent implements OnInit {
                     estado: 'pendiente_aprobacion',
                     monto_total: item.precio * item.cantidad,
                     monto_anticipo: 0,
-                    monto_liquidacion: 0
+                    monto_liquidacion: 0,
+                    horas_respuesta_max: sla.horas_respuesta_max,
+                    es_urgente: sla.es_urgente
                 };
 
                 console.log('📤 Enviando solicitud:', solicitud);
-                await this.api.createRequest(solicitud).toPromise();
+                await firstValueFrom(this.api.createRequest(solicitud));
             }
 
             alert('✅ ¡Solicitud enviada!\n\nLos proveedores tienen 24 horas para confirmar tu reservación.');

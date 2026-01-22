@@ -1,7 +1,7 @@
 
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { ApiService } from '../../services/api.service';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../shared/header/header';
@@ -9,6 +9,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
+import { CalendarioFechaService } from '../../services/calendario-fecha.service';
 import { computed } from '@angular/core';
 
 interface Day {
@@ -47,15 +48,17 @@ interface CalendarDay {
     blockId?: string;
 }
 
+
 @Component({
-    selector: 'app-provider-calendar',
+    selector: 'app-agenda',
     standalone: true,
-    imports: [ProviderNavComponent],
+    imports: [],
     templateUrl: './agenda.html'
 })
 export class AgendaComponent implements OnInit {
     public supabaseData = inject(SupabaseDataService);
     public auth = inject(SupabaseAuthService);
+    private calService = inject(CalendarioFechaService);
     private router = inject(Router);
 
     // State signals with strict typing
@@ -92,6 +95,7 @@ export class AgendaComponent implements OnInit {
 
     async ngOnInit(): Promise<void> {
         await this.loadProviderData();
+        this.calService.gestionarCitasVencidas().subscribe(); // Limpieza automática
         this.loadProviderEvents();  // Load events with strict status filters
     }
 
@@ -322,7 +326,8 @@ export class AgendaComponent implements OnInit {
         }
 
         try {
-            await this.supabaseData.blockDate(providerId, date, 'Bloqueo manual');
+            const dateISO = date.toISOString().split('T')[0];
+            await firstValueFrom(this.calService.bloquearFechaManual(providerId, dateISO));
             console.log(`✅ Date blocked successfully: ${date.toLocaleDateString('es-ES')}`);
             // Refresh calendar to show the blocked date
             this.loadProviderEvents();

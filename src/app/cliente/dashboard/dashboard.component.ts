@@ -3,7 +3,8 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
-import { MenuItem } from 'primeng/api'; 
+import { CalendarioFechaService } from '../../services/calendario-fecha.service';
+import { MenuItem } from 'primeng/api';
 import { Observable } from 'rxjs';
 
 @Component({
@@ -16,6 +17,7 @@ import { Observable } from 'rxjs';
 export class ClienteDashboardComponent implements OnInit {
     auth = inject(AuthService);
     supabaseData = inject(SupabaseDataService);
+    calService = inject(CalendarioFechaService);
 
     items: MenuItem[] | undefined;
 
@@ -82,6 +84,9 @@ export class ClienteDashboardComponent implements OnInit {
             return;
         }
 
+        // Limpiar citas pasadas antes de cargar
+        this.calService.gestionarCitasVencidas().subscribe();
+
         this.supabaseData.getRequestsByClient(user.id).subscribe({
             next: (requests) => {
                 this.misSolicitudes.set(requests);
@@ -99,7 +104,7 @@ export class ClienteDashboardComponent implements OnInit {
                     hora: req.hora_servicio || '12:00',
                     direccion: req.direccion_servicio || 'Ubicación no disponible'
                 }));
-                
+
                 this.actividades.set(mappedRequests);
 
                 // Categorizar

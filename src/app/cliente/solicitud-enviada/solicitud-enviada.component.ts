@@ -2,7 +2,6 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { VerificacionFechaService } from '../../services/api.fechas.service';
 @Component({
     selector: 'app-solicitud-enviada',
     standalone: true,
@@ -18,12 +17,12 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     // Datos de la solicitud enviada
     solicitudData = signal<any>(null);
     loading = signal(true);
-    
+
     // Contador de 24 horas
     horasRestantes = signal(24);
     minutosRestantes = signal(0);
     segundosRestantes = signal(0);
-    
+
     // Estado
     tiempoAgotado = signal(false);
 
@@ -70,11 +69,11 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                                     rating: proveedor.rating || 4.5
                                 },
                                 paquetesSeleccionados: paquetes as any[],
-                                total: sol.monto_total || paquetes.reduce((s,a)=> s + (a.subtotal || 0), 0)
+                                total: sol.monto_total || paquetes.reduce((s, a) => s + (a.subtotal || 0), 0)
                             };
 
                             this.solicitudData.set(datos);
-                            
+
                             // Check status logic
                             if (sol.estado !== 'pendiente_aprobacion') {
                                 this.providerReplied.set(true);
@@ -85,7 +84,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                                 const fechaExpiracion = new Date(new Date(datos.fechaEnvio).getTime() + 24 * 60 * 60 * 1000);
                                 this.iniciarContador(fechaExpiracion);
                             }
-                            
+
                             this.loading.set(false);
                         },
                         error: (err) => {
@@ -109,7 +108,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                 const data = JSON.parse(solicitudGuardada);
                 this.solicitudData.set(data);
                 this.loading.set(false);
-                
+
                 // Calcular tiempo restante desde el momento del envío
                 const fechaEnvio = new Date(data.fechaEnvio);
                 const fechaExpiracion = new Date(fechaEnvio.getTime() + 24 * 60 * 60 * 1000); // +24 horas
@@ -129,7 +128,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
 
     iniciarContador(fechaExpiracion: Date) {
         this.actualizarTiempo(fechaExpiracion);
-        
+
         this.timerInterval = setInterval(() => {
             this.actualizarTiempo(fechaExpiracion);
         }, 1000);
@@ -138,7 +137,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     actualizarTiempo(fechaExpiracion: Date) {
         const ahora = new Date();
         const diferencia = fechaExpiracion.getTime() - ahora.getTime();
-        
+
         if (diferencia <= 0) {
             this.tiempoAgotado.set(true);
             this.horasRestantes.set(0);

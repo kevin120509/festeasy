@@ -42,7 +42,7 @@ interface PackageImage {
 @Component({
   selector: 'app-paquetes',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProviderNavComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './paquetes.html',
   styleUrl: './paquetes.css'
 })
