@@ -1,7 +1,7 @@
 <app-provider-nav></app-provider-nav>
 
 <!-- Contenido Principal -->
-<div class="ml-64 min-h-screen bg-slate-50 overflow-y-auto">
+<div class="ml-64 min-h-screen bg-red-50 overflow-y-auto">
   <!-- Mensajes de notificacion -->
   @if (mensajeExito()) {
   <div class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
@@ -35,7 +35,7 @@
       </div>
 
       <!-- Sistema de Pestanas -->
-      <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
+      <div class="flex bg-red-100 p-1 rounded-xl gap-1">
         <button (click)="cambiarTab('pendientes')" [class]="tabActivo() === 'pendientes' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
           class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
           <span>Pendientes</span>

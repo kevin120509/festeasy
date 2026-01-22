@@ -38,8 +38,8 @@
     }
 </style>
 <div class="dashboard-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
+    <!-- Sidebar (oculto en vistas de proveedor) -->
+    <aside *ngIf="showSidebar" class="sidebar">
         <div class="sidebar-logo">
             <img src="assets/festeasy.jpeg" alt="FESTEASY" onerror="this.outerHTML='<span style=font-size:24px;font-weight:700;color:#E91E63>FESTEASY</span>'">
         </div>

@@ -3,12 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../services/api.service';
-import { HeaderComponent } from '../../shared/header/header';
 
 @Component({
     selector: 'app-seguimiento-evento',
     standalone: true,
-    imports: [CommonModule, RouterLink, HeaderComponent],
+    imports: [CommonModule, RouterLink],
     templateUrl: './seguimiento.component.html'
 })
 export class SeguimientoEventoComponent implements OnInit, OnDestroy {

@@ -1,8 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { GeoService } from '../../services/geo.service';
 
 @Component({
     selector: 'app-crear-evento',
@@ -13,6 +14,9 @@ import { ApiService } from '../../services/api.service';
 export class CrearEventoComponent implements OnInit {
     router = inject(Router);
     api = inject(ApiService);
+    ngZone = inject(NgZone);
+    geo = inject(GeoService);
+    cdr = inject(ChangeDetectorRef);
 
     // Datos del evento
     titulo = '';
@@ -20,7 +24,10 @@ export class CrearEventoComponent implements OnInit {
     hora = '12:00';
     ubicacion = '';
     invitados = 50;
-    descripcion = '';
+    categoriaId = '';
+    
+    categorias = signal<any[]>([]);
+    loadingCategories = signal(true);
     
     // Geolocalización
     coordenadas: { lat: number, lng: number } | null = null;
@@ -31,39 +38,54 @@ export class CrearEventoComponent implements OnInit {
     error = '';
 
     ngOnInit() {
+        this.api.getServiceCategories().subscribe({
+            next: (cats) => {
+                // Filtrar duplicados por nombre
+                const uniqueCats = (cats || []).filter((cat, index, self) =>
+                    index === self.findIndex((t) => t.nombre === cat.nombre)
+                );
+                this.categorias.set(uniqueCats);
+                this.loadingCategories.set(false);
+            },
+            error: (err) => {
+                console.error('Error cargando categorías', err);
+                this.loadingCategories.set(false);
+            }
+        });
+    }
+
+    onCategoryChange() {
+        // Forzar detección de cambios para feedback inmediato
+        this.cdr.detectChanges();
     }
 
     usarUbicacionActual() {
-        if (!navigator.geolocation) {
-            alert('La geolocalización no está soportada por tu navegador.');
-            return;
-        }
-
         this.isLocating = true;
         this.error = '';
         
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                this.coordenadas = { lat: latitude, lng: longitude };
-                this.ubicacion = `Ubicación actual (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
-                this.isLocating = false;
+        this.geo.getCurrentLocation().subscribe({
+            next: (data) => {
+                this.ngZone.run(() => {
+                    this.coordenadas = { lat: data.lat, lng: data.lng };
+                    // Usar la dirección formateada que incluye colonia, calle, etc.
+                    this.ubicacion = data.formatted_address || `Ubicación detectada (${data.lat.toFixed(4)}, ${data.lng.toFixed(4)})`;
+                    this.isLocating = false;
+                    this.cdr.detectChanges(); // Forzar actualización de vista
+                });
             },
-            (err) => {
-                console.error('Error obteniendo ubicación:', err);
-                let msg = 'No se pudo obtener tu ubicación.';
-                if (err.code === 1) msg = 'Permiso de ubicación denegado.';
-                if (err.code === 3) msg = 'Tiempo de espera agotado al obtener ubicación.';
-                
-                this.error = msg + ' Por favor ingrésala manualmente.';
-                this.isLocating = false;
-            },
-            { timeout: 10000, enableHighAccuracy: true }
-        );
+            error: (err) => {
+                this.ngZone.run(() => {
+                    console.error('Error obteniendo ubicación:', err);
+                    this.error = (typeof err === 'string' ? err : 'No se pudo obtener tu ubicación.') + ' Por favor ingrésala manualmente.';
+                    this.isLocating = false;
+                    this.cdr.detectChanges();
+                });
+            }
+        });
     }
 
     buscarProveedores() {
-        if (!this.titulo || !this.fecha || !this.hora || !this.ubicacion) {
+        if (!this.titulo || !this.fecha || !this.hora || !this.ubicacion || !this.categoriaId) {
             this.error = 'Por favor completa todos los campos obligatorios.';
             return;
         }
@@ -75,7 +97,7 @@ export class CrearEventoComponent implements OnInit {
             hora: this.hora,
             ubicacion: this.ubicacion,
             invitados: this.invitados,
-            descripcion: this.descripcion,
+            categoriaId: this.categoriaId,
             coords: this.coordenadas // { lat, lng } o null
         };
         sessionStorage.setItem('eventoActual', JSON.stringify(eventoData));

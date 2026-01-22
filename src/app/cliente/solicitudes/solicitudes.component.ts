@@ -79,4 +79,23 @@ export class MisSolicitudesComponent implements OnInit {
             default: return 'bg-gray-50 text-gray-600';
         }
     }
+
+    async eliminarSolicitud(id: string) {
+        if (!confirm('¿Estás seguro de que deseas eliminar esta solicitud permanentemente?')) return;
+        
+        try {
+            await this.service.eliminarSolicitud(id);
+            // Actualizar lista solo si tuvo éxito
+            this.allRequests.set(this.allRequests().filter(req => req.id !== id));
+            // Recargar para asegurar sincronía con DB
+            setTimeout(() => this.cargarSolicitudes(), 1000);
+        } catch (error: any) {
+            console.error('Error eliminando solicitud:', error);
+            // Mostrar mensaje específico si viene del servicio
+            const msg = error.message || 'No se pudo eliminar la solicitud. Inténtalo de nuevo.';
+            alert(msg);
+            // Revertir estado local si hubo error (aunque no lo cambiamos antes, recargar es bueno)
+            this.cargarSolicitudes();
+        }
+    }
 }

@@ -54,17 +54,22 @@ export class SolicitudesService {
     }
 
     private mapearEstado(estadoDb: string): 'pendiente' | 'cotizando' | 'contratado' | 'finalizado' {
+        // Normalizar a minúsculas para evitar problemas de case
+        const estado = (estadoDb || '').toLowerCase();
+        
         // Mapeo simple de estados de DB a estados de UI
-        switch (estadoDb) {
+        switch (estado) {
             case 'pendiente_aprobacion': return 'pendiente';
-            case 'esperando_anticipo': return 'contratado'; // Mostrar en verde (esperando anticipo) para resaltar
+            case 'esperando_anticipo': return 'contratado'; 
             case 'reservado':
             case 'en_progreso':
             case 'entregado_pendiente_liq':
                 return 'contratado';
             case 'finalizado':
             case 'rechazada':
+            case 'rechazado': // Added variations
             case 'cancelada':
+            case 'cancelado':
             case 'abandonada':
                 return 'finalizado';
             default: return 'pendiente';
@@ -79,5 +84,9 @@ export class SolicitudesService {
             case 'Salón': return 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
             default: return 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60';
         }
+    }
+
+    async eliminarSolicitud(id: string) {
+        return this.supabaseData.deleteRequestById(id);
     }
 }

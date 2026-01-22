@@ -55,17 +55,7 @@ export class ClienteDashboardComponent implements OnInit {
                 routerLink: '/cliente/solicitudes'
             },
             {
-                label: 'Marketplace',
-                icon: 'pi pi-shopping-bag',
-                routerLink: '/cliente/marketplace'
-            },
-            {
                 separator: true
-            },
-            {
-                label: 'Configuración',
-                icon: 'pi pi-cog',
-                routerLink: '/cliente/configuracion'
             },
             {
                 label: 'Cerrar Sesión',
@@ -119,9 +109,10 @@ export class ClienteDashboardComponent implements OnInit {
 
                 // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
+                const reservadasCount = mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(r.estado)).length;
 
                 this.metricas.set({
-                    solicitudesTotales: requests.length,
+                    solicitudesTotales: reservadasCount,
                     cotizacionesPendientes: pendientes
                 });
 
@@ -167,6 +158,18 @@ export class ClienteDashboardComponent implements OnInit {
             'cancelada': 'estado-cancelado'
         };
         return clases[estado] || 'estado-pendiente';
+    }
+
+    // Eliminar solicitud finalizada
+    async eliminarSolicitud(id: string) {
+        try {
+            await this.supabaseData.deleteRequestById(id);
+            // Quitar de la UI
+            this.misSolicitudes.set(this.misSolicitudes().filter(s => s.id !== id));
+            this.reservadas.set(this.reservadas().filter(s => s.id !== id));
+        } catch (e) {
+            alert('Error al eliminar la solicitud.');
+        }
     }
 
     getUserName(): string {

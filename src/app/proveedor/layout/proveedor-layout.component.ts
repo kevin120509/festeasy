@@ -41,11 +41,6 @@ export class ProveedorLayoutComponent implements OnInit {
         separator: true
       },
       {
-        label: 'Configuración',
-        icon: 'pi pi-cog',
-        routerLink: '/proveedor/configuracion'
-      },
-      {
         label: 'Cerrar Sesión',
         icon: 'pi pi-power-off',
         command: () => {

@@ -2,13 +2,14 @@
   .logo {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     text-decoration: none;
   }
 
   .logo-img {
-    height: 32px;
+    height: 56px; /* aumentado para mejor visibilidad */
     width: auto;
+    object-fit: contain;
   }
 
   .brand {
@@ -26,11 +27,39 @@
     position: relative;
   }
 
+  /* Header container adjustments to give más presencia al logo */
+  .header {
+    background: var(--color-white);
+    padding: 12px 24px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    position: sticky;
+    top: 0;
+    z-index: 120;
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 12px;
+  }
+
   /* Responsive adjustments */
   @media (max-width: 640px) {
+    .logo-img { height: 40px; }
     .brand { font-size: 18px; }
     .nav { gap: 12px; }
     .header-inner { padding: 0 12px; }
+  }
+
+  /* Ajustes para pantallas grandes */
+  @media (min-width: 1200px) {
+    .logo-img { height: 72px; }
+    .brand { font-size: 26px; }
   }
 
   .nav a {

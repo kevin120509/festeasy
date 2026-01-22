@@ -43,6 +43,36 @@
                     >
                 </div>
 
+                <!-- Categoría de Servicio -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Tipo de Servicio *
+                    </label>
+                    <div class="relative">
+                        <select 
+                            [(ngModel)]="categoriaId" 
+                            (change)="onCategoryChange()"
+                            name="categoriaId"
+                            [disabled]="loadingCategories()"
+                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all appearance-none cursor-pointer disabled:opacity-50"
+                        >
+                            <option value="" disabled selected>
+                                {{ loadingCategories() ? 'Cargando servicios...' : 'Selecciona un tipo de servicio' }}
+                            </option>
+                            @for (cat of categorias(); track cat.id) {
+                                <option [value]="cat.id">{{ cat.nombre }}</option>
+                            }
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
+                            @if (loadingCategories()) {
+                                <span class="material-symbols-outlined text-gray-400 animate-spin text-sm">progress_activity</span>
+                            } @else {
+                                <span class="material-symbols-outlined text-gray-500">expand_more</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Fecha y Hora -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -132,21 +162,6 @@
                         </button>
                         <span class="text-gray-500 dark:text-gray-400">personas</span>
                     </div>
-                </div>
-
-                <!-- Descripción opcional -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        <span class="material-symbols-outlined text-sm align-middle mr-1">description</span>
-                        Descripción adicional (opcional)
-                    </label>
-                    <textarea 
-                        [(ngModel)]="descripcion" 
-                        name="descripcion"
-                        rows="3"
-                        placeholder="Cuéntanos más sobre tu evento, requisitos especiales, etc."
-                        class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all resize-none"
-                    ></textarea>
                 </div>
 
                 <!-- Botón principal -->

@@ -154,6 +154,32 @@ export class SupabaseDataService {
         return data;
     }
 
+    /**
+     * Elimina una solicitud por ID
+     */
+    async deleteRequestById(id: string) {
+        // Primero intentamos eliminar las cotizaciones asociadas si no hay cascade en DB
+        // Esto es un "best effort"
+        await this.supabase.from('cotizaciones').delete().eq('solicitud_id', id);
+
+        const { error, count } = await this.supabase
+            .from('solicitudes')
+            .delete({ count: 'exact' })
+            .eq('id', id);
+            
+        if (error) {
+            console.error('Error DB delete:', error);
+            throw error;
+        }
+        
+        if (count === 0) {
+            console.warn('No se eliminó ninguna fila. RLS o ID incorrecto.');
+            throw new Error('No se pudo eliminar la solicitud de la base de datos (Permisos insuficientes o no encontrada).');
+        }
+
+        return { success: true, count };
+    }
+
     // ==========================================
     // Paquetes
     // ==========================================

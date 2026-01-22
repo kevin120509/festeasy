@@ -3,13 +3,12 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
-import { HeaderComponent } from '../../../shared/header/header';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
     selector: 'app-revisar-solicitud',
     standalone: true,
-    imports: [CommonModule, HeaderComponent],
+    imports: [CommonModule],
     templateUrl: './revisar.html'
 })
 export class RevisarSolicitudComponent implements OnInit {

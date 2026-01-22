@@ -1,9 +1,9 @@
-<div class="min-h-screen bg-gray-50 pb-12">
+<div class="min-h-screen bg-red-50 pb-12">
     <!-- Header Hero -->
     <div class="bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div class="flex items-center gap-4 mb-4">
-                <button routerLink="/cliente/dashboard" class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+                <button routerLink="/cliente/dashboard" class="p-2 rounded-full hover:bg-red-100 transition-colors">
                     <span class="material-symbols-outlined text-gray-600">arrow_back</span>
                 </button>
                 <nav class="flex" aria-label="Breadcrumb">
@@ -20,7 +20,7 @@
                     <p class="mt-1 text-sm text-gray-500">Gestiona y da seguimiento a tus eventos</p>
                 </div>
                 <a routerLink="/cliente/solicitudes/crear"
-                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 transform hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-indigo-200"
+                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 transform hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-red-200"
                     aria-label="Crear nueva solicitud">
                     <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -33,36 +33,36 @@
             <!-- Tabs -->
             <div class="mt-8 border-b border-gray-100">
                 <nav class="-mb-px flex space-x-8">
-                    <button (click)="setTab('todas')" [class.border-indigo-500]="activeTab() === 'todas'"
-                        [class.text-indigo-600]="activeTab() === 'todas'"
+                    <button (click)="setTab('todas')" [class.border-red-500]="activeTab() === 'todas'"
+                        [class.text-red-600]="activeTab() === 'todas'"
                         [class.border-transparent]="activeTab() !== 'todas'"
                         [class.text-gray-500]="activeTab() !== 'todas'"
                         class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
                         Todas
                     </button>
-                    <button (click)="setTab('activas')" [class.border-indigo-500]="activeTab() === 'activas'"
-                        [class.text-indigo-600]="activeTab() === 'activas'"
+                    <button (click)="setTab('activas')" [class.border-red-500]="activeTab() === 'activas'"
+                        [class.text-red-600]="activeTab() === 'activas'"
                         [class.border-transparent]="activeTab() !== 'activas'"
                         [class.text-gray-500]="activeTab() !== 'activas'"
                         class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
                         Activas
                     </button>
-                    <button (click)="setTab('cotizando')" [class.border-indigo-500]="activeTab() === 'cotizando'"
-                        [class.text-indigo-600]="activeTab() === 'cotizando'"
+                    <button (click)="setTab('cotizando')" [class.border-red-500]="activeTab() === 'cotizando'"
+                        [class.text-red-600]="activeTab() === 'cotizando'"
                         [class.border-transparent]="activeTab() !== 'cotizando'"
                         [class.text-gray-500]="activeTab() !== 'cotizando'"
                         class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
                         Cotizando
                     </button>
-                    <button (click)="setTab('contratadas')" [class.border-indigo-500]="activeTab() === 'contratadas'"
-                        [class.text-indigo-600]="activeTab() === 'contratadas'"
+                    <button (click)="setTab('contratadas')" [class.border-red-500]="activeTab() === 'contratadas'"
+                        [class.text-red-600]="activeTab() === 'contratadas'"
                         [class.border-transparent]="activeTab() !== 'contratadas'"
                         [class.text-gray-500]="activeTab() !== 'contratadas'"
                         class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
                         Contratadas
                     </button>
-                    <button (click)="setTab('finalizadas')" [class.border-indigo-500]="activeTab() === 'finalizadas'"
-                        [class.text-indigo-600]="activeTab() === 'finalizadas'"
+                    <button (click)="setTab('finalizadas')" [class.border-red-500]="activeTab() === 'finalizadas'"
+                        [class.text-red-600]="activeTab() === 'finalizadas'"
                         [class.border-transparent]="activeTab() !== 'finalizadas'"
                         [class.text-gray-500]="activeTab() !== 'finalizadas'"
                         class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
@@ -98,7 +98,7 @@
             <p class="mt-1 text-sm text-gray-500">Comienza creando tu primera solicitud de servicio.</p>
             <div class="mt-6">
                 <a routerLink="/cliente/solicitudes/crear"
-                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 transform hover:scale-105 transition-all"
+                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 transform hover:scale-105 transition-all"
                     aria-label="Crear nueva solicitud - vacio">
                     <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                         fill="currentColor">
@@ -132,7 +132,7 @@
                     <!-- Date Badge -->
                     <div
                         class="absolute bottom-4 left-4 flex items-center bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg text-sm text-gray-700 shadow-sm">
-                        <svg class="mr-1.5 h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        <svg class="mr-1.5 h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none"
                             viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -146,7 +146,7 @@
                     <div class="flex-1">
                         <div class="flex justify-between items-start">
                             <div>
-                                <p class="text-xs font-medium text-indigo-600 mb-1 tracking-wide uppercase">{{
+                                <p class="text-xs font-medium text-red-600 mb-1 tracking-wide uppercase">{{
                                     sol.categoria }}</p>
                                 <h3 class="text-lg font-bold text-gray-900 line-clamp-1 mb-2">{{ sol.titulo_evento }}
                                 </h3>
@@ -166,7 +166,7 @@
                         <div class="flex items-center space-x-2 mt-2 pt-4 border-t border-gray-50"
                             *ngIf="sol.cotizaciones_count > 0">
                             <div
-                                class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold text-xs">
+                                class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-xs">
                                 {{ sol.cotizaciones_count }}
                             </div>
                             <span class="text-sm font-medium text-gray-700">Cotizaciones Recibidas</span>
@@ -177,9 +177,15 @@
                     </div>
 
                     <div class="mt-6 flex items-center justify-between">
-                        <div></div>
+                        <div>
+                             <button *ngIf="sol.estado === 'finalizado'" (click)="eliminarSolicitud(sol.id)"
+                                class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
+                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                Eliminar
+                            </button>
+                        </div>
                         <button *ngIf="sol.estado === 'cotizando'"
-                            class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1.5 rounded-md transition-colors font-medium">
+                            class="text-xs bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-md transition-colors font-medium">
                             Ver Cotizaciones
                         </button>
                     </div>

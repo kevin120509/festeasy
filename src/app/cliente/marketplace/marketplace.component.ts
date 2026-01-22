@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 
@@ -11,6 +11,7 @@ import { ApiService } from '../../services/api.service';
 })
 export class MarketplaceComponent implements OnInit {
     private api = inject(ApiService);
+    private router = inject(Router);
     providers = signal<any[]>([]);
     searchQuery = signal('');
     eventoActual = signal<any>(null);
@@ -22,6 +23,10 @@ export class MarketplaceComponent implements OnInit {
     // Mapa de categorías por proveedor (basado en sus paquetes)
     // Key: usuario_id del proveedor, Value: Set de IDs de categorías que ofrece
     providerCategoriesMap = new Map<string, Set<string>>();
+
+    goBack() {
+        this.router.navigate(['/cliente/solicitudes/crear']);
+    }
 
     // Mapping robusto de iconos de categoría (igual que en crear-evento)
     getCategoryIcon(token?: string): string {
@@ -51,7 +56,11 @@ export class MarketplaceComponent implements OnInit {
     ngOnInit(): void {
         const eventoStr = sessionStorage.getItem('eventoActual');
         if (eventoStr) {
-            this.eventoActual.set(JSON.parse(eventoStr));
+            const evento = JSON.parse(eventoStr);
+            this.eventoActual.set(evento);
+            if (evento.categoriaId) {
+                this.categoriaSeleccionada.set(evento.categoriaId);
+            }
         }
 
         // Cargar categorías

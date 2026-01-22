@@ -56,4 +56,13 @@ export class LoginComponent {
             this.loading = false;
         }
     }
+
+    async signInWithGoogle() {
+        try {
+            await this.auth.loginWithGoogle();
+        } catch (error: any) {
+            console.error('Error Google Login:', error);
+            this.error = 'Error al iniciar con Google: ' + error.message;
+        }
+    }
 }

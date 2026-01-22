@@ -8,8 +8,8 @@
             <div class="metrics-grid">
                 <div class="metric-card">
                     <div class="metric-header"><div class="metric-icon blue">📋</div></div>
-                    <p class="metric-label">Total Solicitudes</p>
-                    <p class="metric-value">{{ misSolicitudes().length }}</p>
+                    <p class="metric-label">Servicios Reservados</p>
+                    <p class="metric-value">{{ reservadas().length }}</p>
                 </div>
                 <div class="metric-card">
                     <div class="metric-header"><div class="metric-icon amber">⏳</div></div>
@@ -47,7 +47,7 @@
                                 </thead>
                                 <tbody>
                                     @for (act of reservadas(); track act.id) {
-                                    <tr [routerLink]="['/cliente/seguimiento', act.id]" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
+                                    <tr [class.finalizada]="act.estado === 'finalizado'" [routerLink]="act.estado !== 'finalizado' ? ['/cliente/seguimiento', act.id] : null" style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
                                         <td>
                                             <div style="display: flex; align-items: center; gap: 12px;">
                                                 <div style="font-size: 20px;">🎉</div>
@@ -58,11 +58,19 @@
                                             </div>
                                         </td>
                                         <td>{{ act.fecha }}</td>
-                                        <td><span class="estado-badge estado-reservado">Confirmado</span></td>
                                         <td>
-                                            <span class="text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full flex items-center gap-1 w-fit">
-                                                <span>📍</span> Ver seguimiento
-                                            </span>
+                                            <span *ngIf="act.estado === 'finalizado'" class="estado-badge estado-completado">Finalizado</span>
+                                            <span *ngIf="act.estado !== 'finalizado'" class="estado-badge estado-reservado">Confirmado</span>
+                                        </td>
+                                        <td>
+                                            <ng-container *ngIf="act.estado === 'finalizado'; else seguimientoBtn">
+                                                <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;" (click)="eliminarSolicitud(act.id); $event.stopPropagation();">Eliminar</button>
+                                            </ng-container>
+                                            <ng-template #seguimientoBtn>
+                                                <span class="text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full flex items-center gap-1 w-fit">
+                                                    <span>📍</span> Ver seguimiento
+                                                </span>
+                                            </ng-template>
                                         </td>
                                     </tr>
                                     }
@@ -151,7 +159,6 @@
                                 <div style="font-size: 48px; margin-bottom: 16px;">📬</div>
                                 <h3>Bandeja vacía</h3>
                                 <p>No tienes solicitudes esperando respuesta.</p>
-                                <button class="btn-primary" style="margin-top: 16px;" routerLink="/cliente/marketplace">Crear nueva solicitud</button>
                             </div>
                         }
                     }

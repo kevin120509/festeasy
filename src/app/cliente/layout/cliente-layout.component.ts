@@ -1,9 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
 import { AuthService } from '../../services/auth.service';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-cliente-layout',
@@ -13,7 +15,10 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ClienteLayoutComponent implements OnInit {
   auth = inject(AuthService);
+  private router = inject(Router);
   items: MenuItem[] = [];
+  showSidebar = true;
+  private sub: Subscription | null = null;
 
   ngOnInit(): void {
     this.items = [
@@ -28,17 +33,7 @@ export class ClienteLayoutComponent implements OnInit {
         routerLink: '/cliente/solicitudes'
       },
       {
-        label: 'Marketplace',
-        icon: 'pi pi-shopping-bag',
-        routerLink: '/cliente/marketplace'
-      },
-      {
         separator: true
-      },
-      {
-        label: 'Configuración',
-        icon: 'pi pi-cog',
-        routerLink: '/cliente/configuracion'
       },
       {
         label: 'Cerrar Sesión',
@@ -48,5 +43,18 @@ export class ClienteLayoutComponent implements OnInit {
         }
       }
     ];
+
+    // Ocultar sidebar en rutas de proveedor (ej: /cliente/proveedor/:id)
+    this.sub = this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd)
+    ).subscribe((ev: any) => {
+      const url: string = ev.urlAfterRedirects || ev.url || '';
+      // Si la ruta comienza con /cliente/proveedor ocultamos el sidebar
+      this.showSidebar = !url.startsWith('/cliente/proveedor');
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
   }
 }

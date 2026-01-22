@@ -3,14 +3,13 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, switchMap, map } from 'rxjs';
 import { ApiService } from '../../services/api.service';
-import { HeaderComponent } from '../../shared/header/header';
 import { ProviderPackage } from '../../models';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
     selector: 'app-proveedor-detalle',
     standalone: true,
-    imports: [CommonModule, HeaderComponent],
+    imports: [CommonModule],
     templateUrl: './proveedor-detalle.html'
 })
 export class ProveedorDetalleComponent implements OnInit {
@@ -184,6 +183,10 @@ export class ProveedorDetalleComponent implements OnInit {
             console.error('Error al procesar selección:', e);
             alert('Error al procesar selección: ' + (e.message || 'Error desconocido'));
         }
+    }
+
+    goBack(): void {
+        this.router.navigate(['/cliente/marketplace']);
     }
 
     private async addItemsToCartAsync(cartId: string, pkgIds: string[], selection: Record<string, number>) {

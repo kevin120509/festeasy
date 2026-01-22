@@ -53,6 +53,42 @@ export const routes: Routes = [
 
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
+    { 
+        path: 'cliente/proveedor/:id', 
+        component: ProveedorDetalleComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' } 
+    },
+    { 
+        path: 'cliente/marketplace', 
+        component: MarketplaceComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' } 
+    },
+    { 
+        path: 'cliente/solicitudes/crear', 
+        component: CrearEventoComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' } 
+    },
+    { 
+        path: 'cliente/solicitudes/revisar', 
+        component: RevisarSolicitudComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' } 
+    },
+    { 
+        path: 'cliente/solicitud-enviada', 
+        component: SolicitudEnviadaComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' } 
+    },
+    { 
+        path: 'cliente/seguimiento/:id', 
+        component: SeguimientoEventoComponent,
+        canActivate: [roleGuard],
+        data: { role: 'client' } 
+    },
     {
         path: 'cliente',
         component: ClienteLayoutComponent,
@@ -60,16 +96,10 @@ export const routes: Routes = [
         data: { role: 'client' },
         children: [
             { path: 'dashboard', component: ClienteDashboardComponent },
-            { path: 'marketplace', component: MarketplaceComponent },
-            { path: 'proveedor/:id', component: ProveedorDetalleComponent },
             { path: 'carrito', component: CarritoComponent },
             { path: 'solicitudes', component: MisSolicitudesComponent },
-            { path: 'solicitudes/crear', component: CrearEventoComponent },
-            { path: 'solicitudes/revisar', component: RevisarSolicitudComponent },
             { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
             { path: 'pagos/:id', component: PagoComponent },
-            { path: 'solicitud-enviada', component: SolicitudEnviadaComponent },
-            { path: 'seguimiento/:id', component: SeguimientoEventoComponent },
             { path: 'configuracion', component: ClienteConfiguracionComponent },
         ]
     },

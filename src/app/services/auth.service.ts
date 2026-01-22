@@ -81,6 +81,18 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
+  async loginWithGoogle() {
+    const { data, error } = await this.supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin
+      }
+    });
+    
+    if (error) throw error;
+    return data;
+  }
+
   getToken(): string | null {
     // Return token from current session if available
     // We can't synchronously get it easily from Supabase client without async getSession
