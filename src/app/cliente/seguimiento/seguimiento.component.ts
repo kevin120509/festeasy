@@ -3,21 +3,30 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../services/api.service';
+import {
+    esDiaDelEvento,
+    faltanTresHorasParaEvento,
+    formatearFechaEvento,
+    guardarPinEnLocalStorage,
+    obtenerPinAlmacenado
+} from '../../utils/date.utils';
+
 
 @Component({
     selector: 'app-seguimiento-evento',
     standalone: true,
     imports: [CommonModule, RouterLink],
-    templateUrl: './seguimiento.component.html'
+    templateUrl: './seguimiento.component.html',
+    styleUrl: './seguimiento.component.css'
 })
 export class SeguimientoEventoComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
-    private api = inject(ApiService);
-    
+    public api = inject(ApiService);
+
     loading = signal(true);
     evento = signal<any>(null);
     items = signal<any[]>([]);
-    
+
     // Countdown signals
     diasRestantes = signal(0);
     horasRestantes = signal(0);
@@ -81,6 +90,11 @@ export class SeguimientoEventoComponent implements OnInit, OnDestroy {
                 this.items.set(items);
                 this.iniciarCountdown(evento.fecha_servicio);
                 this.loading.set(false);
+
+                // 🔍 DEBUG: Verificar datos del PIN
+                console.log('📌 DEBUG PIN - Estado:', evento.estado);
+                console.log('📌 DEBUG PIN - pin_validacion:', evento.pin_validacion);
+                console.log('📌 DEBUG PIN - Datos completos de la solicitud:', evento);
             },
             error: (err) => {
                 console.error('❌ Error fatal cargando detalles del evento:', err);
@@ -92,9 +106,12 @@ export class SeguimientoEventoComponent implements OnInit, OnDestroy {
 
     iniciarCountdown(fechaStr: string) {
         const target = new Date(fechaStr).getTime();
-        
+
         this.actualizarTiempo(target);
         this.timer = setInterval(() => this.actualizarTiempo(target), 1000 * 60); // Update every minute
+
+        // Verificar si faltan 3 horas para el evento (para notificaciones)
+        this.verificarNotificacionTresHoras(fechaStr);
     }
 
     actualizarTiempo(target: number) {
@@ -108,6 +125,54 @@ export class SeguimientoEventoComponent implements OnInit, OnDestroy {
             this.diasRestantes.set(0);
             this.horasRestantes.set(0);
         }
+    }
+
+    /**
+     * 🔒 LÓGICA DE ACTIVACIÓN: Verifica si hoy es el día del evento
+     * Esta función se usa en el template para mostrar/ocultar el PIN
+     */
+    esDiaDelEvento(fechaServicio: string): boolean {
+        const resultado = esDiaDelEvento(fechaServicio);
+
+        // Si es el día del evento y hay PIN, guardarlo en localStorage
+        if (resultado) {
+            const evento = this.evento();
+            if (evento?.pin_validacion && evento?.id) {
+                guardarPinEnLocalStorage(evento.id, evento.pin_validacion);
+            }
+        }
+
+        return resultado;
+    }
+
+    /**
+     * 📅 Formatea la fecha del evento para mostrar al usuario
+     */
+    formatearFecha(fechaServicio: string): string {
+        return formatearFechaEvento(fechaServicio);
+    }
+
+    /**
+     * 🔔 NOTIFICACIÓN: Verifica si faltan 3 horas para el evento
+     * Emite log para preparar envío de notificación al cliente
+     */
+    private verificarNotificacionTresHoras(fechaServicio: string): void {
+        if (faltanTresHorasParaEvento(fechaServicio)) {
+            console.log(`🔔 Notificación lista para enviar al cliente: Tu PIN ya está disponible`);
+            console.log(`📅 Evento programado para: ${formatearFechaEvento(fechaServicio)}`);
+
+            // TODO: Aquí se puede implementar la integración con servicio de notificaciones
+            // Por ejemplo: this.notificationService.enviarNotificacionPin(clienteId);
+        }
+    }
+
+    /**
+     * 💾 Obtiene el PIN del localStorage (para acceso offline)
+     */
+    obtenerPinGuardado(): string | null {
+        const evento = this.evento();
+        if (!evento?.id) return null;
+        return obtenerPinAlmacenado(evento.id);
     }
 
     ngOnDestroy() {

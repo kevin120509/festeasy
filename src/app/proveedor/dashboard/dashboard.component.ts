@@ -5,6 +5,7 @@ import { SupabaseDataService } from '../../services/supabase-data.service';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+import { ValidarPin } from '../validar-pin/validar-pin';
 
 // Interface para las solicitudes de la tabla
 interface RequestRow {
@@ -20,7 +21,7 @@ interface RequestRow {
 @Component({
     selector: 'app-proveedor-dashboard',
     standalone: true,
-    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe, ProviderNavComponent],
+    imports: [RouterLink, CommonModule, DatePipe, CurrencyPipe, ProviderNavComponent, ValidarPin],
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.css'
 })
@@ -53,6 +54,10 @@ export class ProveedorDashboardComponent implements OnInit {
 
     // Control del menú desplegable
     menuAbierto = signal<string | null>(null);
+
+    // Control del modal de validación de PIN
+    mostrarModalPin = signal(false);
+    solicitudSeleccionada = signal<string>('');
 
     async ngOnInit() {
         await this.cargarDatosDashboard();
@@ -190,6 +195,7 @@ export class ProveedorDashboardComponent implements OnInit {
         if (proximosEventos.length > 0) {
             const proximo = proximosEventos[0];
             this.proximaCita.set({
+                id: proximo.id,
                 titulo: proximo.titulo_evento || 'Evento Próximo',
                 ubicacion: proximo.direccion_servicio || 'Ubicación por confirmar',
                 fecha: new Date(proximo.fecha_servicio),
@@ -334,5 +340,41 @@ export class ProveedorDashboardComponent implements OnInit {
     getNombreNegocio(): string {
         const user = this.auth.currentUser();
         return user?.nombre_negocio || user?.nombre || 'Proveedor';
+    }
+
+    /**
+     * Abrir modal de validación de PIN para una solicitud específica
+     */
+    abrirModalPin(solicitudId?: string) {
+        if (solicitudId) {
+            this.solicitudSeleccionada.set(solicitudId);
+            this.mostrarModalPin.set(true);
+        } else {
+            // Si no se proporciona ID, usar la próxima cita
+            const proximaCita = this.proximaCita();
+            if (proximaCita && proximaCita.id) {
+                this.solicitudSeleccionada.set(proximaCita.id);
+                this.mostrarModalPin.set(true);
+            } else {
+                alert('No hay solicitudes disponibles para validar');
+            }
+        }
+    }
+
+    /**
+     * Cerrar modal de validación de PIN
+     */
+    cerrarModalPin() {
+        this.mostrarModalPin.set(false);
+        this.solicitudSeleccionada.set('');
+    }
+
+    /**
+     * Manejar PIN validado exitosamente
+     */
+    async onPinValidado(solicitud: any) {
+        console.log('✅ PIN validado exitosamente para solicitud:', solicitud);
+        // Recargar datos del dashboard
+        await this.cargarDatosDashboard();
     }
 }
