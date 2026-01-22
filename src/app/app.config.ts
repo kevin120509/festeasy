@@ -31,19 +31,18 @@ const MyPreset = definePreset(Aura, {
 });
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideBrowserGlobalErrorListeners(),
-    { provide: LOCALE_ID, useValue: 'es' },
-    provideRouter(routes),
-    provideHttpClient(),
-    provideAnimationsAsync(),
-    providePrimeNG({
-        theme: {
-            preset: MyPreset,
-            options: {
-                darkModeSelector: '.my-app-dark'
+    providers: [
+        provideBrowserGlobalErrorListeners(),
+        { provide: LOCALE_ID, useValue: 'es' },
+        provideRouter(routes),
+        provideHttpClient(),
+        providePrimeNG({
+            theme: {
+                preset: MyPreset,
+                options: {
+                    darkModeSelector: '.my-app-dark'
+                }
             }
-        }
-    })
-  ]
+        })
+    ]
 };

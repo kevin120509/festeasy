@@ -3,6 +3,10 @@ import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+import { ValidarPin } from '../validar-pin/validar-pin';
+import { ServiceRequest } from '../../models';
+import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
+
 
 interface SolicitudProveedor {
     id: string;
@@ -21,18 +25,22 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe],
+    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
-    private auth = inject(AuthService);
-    private api = inject(ApiService);
+    public auth = inject(AuthService);
+    public api = inject(ApiService);
 
     tabActivo = signal<TabType>('pendientes');
     isLoading = signal(true);
     mensajeExito = signal('');
     mensajeError = signal('');
     procesando = signal<string | null>(null);
+
+    // Control del modal de validación de PIN
+    mostrarModalPin = signal(false);
+    solicitudSeleccionada = signal<string>('');
 
     solicitudes = signal<SolicitudProveedor[]>([]);
 
@@ -167,5 +175,55 @@ export class SolicitudesComponent implements OnInit {
         if (diffHoras < 24) return `Hace ${diffHoras}h`;
         const diffDias = Math.floor(diffHoras / 24);
         return `Hace ${diffDias} día${diffDias > 1 ? 's' : ''}`;
+    }
+
+    /**
+     * Abrir modal de validación de PIN
+     */
+    abrirModalPin(solicitudId: string) {
+        this.solicitudSeleccionada.set(solicitudId);
+        this.mostrarModalPin.set(true);
+    }
+
+    /**
+     * Cerrar modal de validación de PIN
+     */
+    cerrarModalPin() {
+        this.mostrarModalPin.set(false);
+        this.solicitudSeleccionada.set('');
+    }
+
+    /**
+     * Manejar PIN validado exitosamente
+     */
+    onPinValidado(solicitud: ServiceRequest) {
+        console.log('✅ PIN validado exitosamente:', solicitud);
+
+        // Actualizar la solicitud en la lista con el nuevo estado
+        this.solicitudes.update(list =>
+            list.map(s => s.id === solicitud.id ? { ...s, estado: 'en_progreso' as const } : s)
+        );
+
+        // Mostrar mensaje de éxito
+        this.mensajeExito.set('¡PIN validado! Servicio iniciado correctamente.');
+        setTimeout(() => this.mensajeExito.set(''), 3000);
+
+        // Cerrar modal
+        this.cerrarModalPin();
+    }
+
+    /**
+     * 🔒 LÓGICA DE ACTIVACIÓN: Verifica si hoy es el día del evento
+     * Controla la habilitación del botón "Validar PIN"
+     */
+    esDiaDelEvento(fechaServicio: string): boolean {
+        return esDiaDelEvento(fechaServicio);
+    }
+
+    /**
+     * 📅 Formatea la fecha del evento para mostrar al proveedor
+     */
+    formatearFechaCompleta(fechaServicio: string): string {
+        return formatearFechaEvento(fechaServicio);
     }
 }

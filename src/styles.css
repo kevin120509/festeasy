@@ -1,5 +1,4 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import 'leaflet/dist/leaflet.css';
 @import 'primeicons/primeicons.css';
 
 :root {
@@ -27,7 +26,8 @@
 
 body {
   font-family: 'Outfit', 'Inter', sans-serif;
-  background-color: #f8fafc; /* bg-slate-50 */
+  background-color: #f8fafc;
+  /* bg-slate-50 */
   color: var(--color-dark);
   line-height: 1.6;
 }

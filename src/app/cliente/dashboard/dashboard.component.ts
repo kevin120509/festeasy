@@ -1,5 +1,5 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
@@ -19,6 +19,8 @@ export class ClienteDashboardComponent implements OnInit {
     supabaseData = inject(SupabaseDataService);
     calService = inject(CalendarioFechaService);
 
+    router = inject(Router);
+
     items: MenuItem[] | undefined;
 
     // Métricas
@@ -35,14 +37,16 @@ export class ClienteDashboardComponent implements OnInit {
     reservadas = signal<any[]>([]);
     pendientesPago = signal<any[]>([]);
     pendientesRespuesta = signal<any[]>([]);
+    historial = signal<any[]>([]);
 
     // Tab activo
-    activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes'>('reservadas');
+    activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes' | 'historial'>('reservadas');
 
     // Todas las solicitudes del cliente
     misSolicitudes = signal<any[]>([]);
 
     loading = signal(true);
+    showQuickRequestModal = signal(true);
 
     ngOnInit(): void {
         this.items = [
@@ -68,6 +72,15 @@ export class ClienteDashboardComponent implements OnInit {
             }
         ];
         this.cargarDatos();
+    }
+
+    closeQuickRequestModal() {
+        this.showQuickRequestModal.set(false);
+    }
+
+    navigateToCreateRequest() {
+        this.closeQuickRequestModal();
+        this.router.navigate(['/cliente/solicitudes/crear']);
     }
 
     async cargarDatos(): Promise<void> {
@@ -111,6 +124,7 @@ export class ClienteDashboardComponent implements OnInit {
                 this.reservadas.set(mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(r.estado)));
                 this.pendientesPago.set(mappedRequests.filter(r => r.estado === 'esperando_anticipo'));
                 this.pendientesRespuesta.set(mappedRequests.filter(r => r.estado === 'pendiente_aprobacion'));
+                this.historial.set(mappedRequests.filter(r => ['rechazada', 'cancelada', 'abandonada'].includes(r.estado)));
 
                 // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
@@ -124,7 +138,9 @@ export class ClienteDashboardComponent implements OnInit {
                 // Set initial tab based on content priority
                 if (this.reservadas().length > 0) this.activeTab.set('reservadas');
                 else if (this.pendientesPago().length > 0) this.activeTab.set('por_pagar');
-                else this.activeTab.set('pendientes');
+                else if (this.pendientesRespuesta().length > 0) this.activeTab.set('pendientes');
+                else if (this.historial().length > 0) this.activeTab.set('historial');
+                else this.activeTab.set('reservadas');
 
                 this.loading.set(false);
             },
@@ -135,7 +151,7 @@ export class ClienteDashboardComponent implements OnInit {
         });
     }
 
-    setActiveTab(tab: 'reservadas' | 'por_pagar' | 'pendientes') {
+    setActiveTab(tab: 'reservadas' | 'por_pagar' | 'pendientes' | 'historial') {
         this.activeTab.set(tab);
     }
 
@@ -179,6 +195,6 @@ export class ClienteDashboardComponent implements OnInit {
 
     getUserName(): string {
         const user = this.auth.currentUser();
-        return user?.nombre || user?.email || user?.correo_electronico || 'Usuario';
+        return user?.nombre_completo || user?.nombre || user?.email || user?.correo_electronico || 'Usuario';
     }
 }

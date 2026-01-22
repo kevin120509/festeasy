@@ -1,4 +1,31 @@
 <div class="dashboard-content">
+            <!-- Modal de Solicitud Rápida -->
+            @if (showQuickRequestModal()) {
+                <div class="modal-overlay">
+                    <div class="modal-card">
+                        <!-- Botón Cerrar (X) -->
+                        <button (click)="closeQuickRequestModal()" class="modal-close-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+
+                        <div class="text-center mt-2 mb-6">
+                            <div class="modal-icon-wrapper">
+                                <span style="font-size: 32px;">🎉</span>
+                            </div>
+                            <h2 class="modal-title">¡Pide un servicio de forma rápida!</h2>
+                            <p class="modal-subtitle">Organiza tu fiesta en minutos con los mejores proveedores.</p>
+                        </div>
+
+                        <button (click)="navigateToCreateRequest()" class="modal-action-btn">
+                            <span>✨</span>
+                            Pedir servicio para mi fiesta
+                        </button>
+                    </div>
+                </div>
+            }
+
             <div class="welcome-section">
                 <h1>¡Hola, {{ getUserName() }}! 👋</h1>
                 <p>Gestiona tus eventos y solicitudes desde aquí.</p>
@@ -29,6 +56,9 @@
                     </button>
                     <button class="tab-btn" [class.active]="activeTab() === 'por_pagar'" (click)="setActiveTab('por_pagar')">
                         💳 Pendiente por Pagar ({{ pendientesPago().length }})
+                    </button>
+                    <button class="tab-btn" [class.active]="activeTab() === 'historial'" (click)="setActiveTab('historial')">
+                        📜 Historial ({{ historial().length }})
                     </button>
                 </div>
 
@@ -159,6 +189,50 @@
                                 <div style="font-size: 48px; margin-bottom: 16px;">📬</div>
                                 <h3>Bandeja vacía</h3>
                                 <p>No tienes solicitudes esperando respuesta.</p>
+                            </div>
+                        }
+                    }
+
+                    <!-- HISTORIAL -->
+                    @if (activeTab() === 'historial') {
+                        @if (historial().length > 0) {
+                            <table class="activity-table">
+                                <thead>
+                                    <tr>
+                                        <th>Evento / Proveedor</th>
+                                        <th>Fecha</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @for (act of historial(); track act.id) {
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td>
+                                            <div style="display: flex; align-items: center; gap: 12px;">
+                                                <div style="font-size: 20px;">📜</div>
+                                                <div>
+                                                    <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
+                                                    <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ act.fecha }}</td>
+                                        <td>
+                                            <span [class]="'estado-badge ' + getEstadoClass(act.estado)">{{ act.estadoLabel }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;" (click)="eliminarSolicitud(act.id)">Eliminar</button>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        } @else {
+                            <div style="padding: 48px; text-align: center;">
+                                <div style="font-size: 48px; margin-bottom: 16px;">📜</div>
+                                <h3>Historial vacío</h3>
+                                <p>No tienes solicitudes rechazadas, canceladas o abandonadas.</p>
                             </div>
                         }
                     }

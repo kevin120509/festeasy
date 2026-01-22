@@ -125,6 +125,8 @@ export interface ServiceRequest {
     expiracion_anticipo?: string;
     pin_seguridad?: string;
     pin_validado_en?: string;
+    pin_validacion?: string;
+    fecha_validacion_pin?: string | Date;
     provider?: ProviderProfile; // Joined data
     client?: ClientProfile; // Joined data
     items?: RequestItem[]; // Joined data
