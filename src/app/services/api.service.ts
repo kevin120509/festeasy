@@ -191,7 +191,7 @@ export class ApiService {
                 .from('paquetes_proveedor')
                 .select('*, categoria:categorias_servicio(nombre)')
                 .eq('proveedor_usuario_id', providerUserId)
-                .eq('estado', 'publicado')
+                // .eq('estado', 'publicado') // Allow all packages for now
         ).pipe(
             map(packages => {
                 console.log('🔍 API: Paquetes encontrados (por usuario_id):', packages);
