@@ -60,6 +60,9 @@ export class RevisarSolicitudComponent implements OnInit {
         }
 
         try {
+            // Asegurar que el usuario tenga un perfil de cliente (previene error de FK)
+            await this.auth.ensureClientProfile();
+
             const eventoData = this.evento();
             const proveedorData = this.proveedor();
             const fechaServicio = new Date(eventoData.fecha + 'T' + (eventoData.hora || '12:00'));

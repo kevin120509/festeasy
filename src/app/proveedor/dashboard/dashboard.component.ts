@@ -178,45 +178,70 @@ export class ProveedorDashboardComponent implements OnInit {
         console.log('📋 Solicitudes para tabla:', solicitudesFormateadas.length);
     }
 
-    /**
-     * Calcular la próxima cita (evento más cercano)
-     */
     private calcularProximaCita(solicitudes: any[]) {
         const ahora = new Date();
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
 
-        // Filtrar solicitudes confirmadas con fecha futura
-        const proximosEventos = solicitudes
+        // 1. Filtrar solicitudes confirmadas
+        const confirmados = solicitudes.filter(s => {
+            const estado = s.estado?.toLowerCase();
+            return ['reservado', 'pagado', 'en_progreso', 'aceptado', 'confirmado'].includes(estado);
+        });
+
+        if (confirmados.length === 0) {
+            this.setSinEventos();
+            return;
+        }
+
+        // 2. Buscar el evento más cercano (hoy o futuro)
+        const proximos = confirmados
             .filter(s => {
-                const estado = s.estado?.toLowerCase();
-                const esConfirmado = ['reservado', 'pagado', 'en_progreso', 'aceptado', 'confirmado'].includes(estado);
-                const fechaFutura = new Date(s.fecha_servicio) > ahora;
-                return esConfirmado && fechaFutura;
+                const fechaEvento = new Date(s.fecha_servicio);
+                fechaEvento.setHours(0, 0, 0, 0);
+                return fechaEvento.getTime() >= hoy.getTime();
             })
             .sort((a, b) => new Date(a.fecha_servicio).getTime() - new Date(b.fecha_servicio).getTime());
 
-        if (proximosEventos.length > 0) {
-            const proximo = proximosEventos[0];
-            this.proximaCita.set({
-                id: proximo.id,
-                titulo: proximo.titulo_evento || 'Evento Próximo',
-                ubicacion: proximo.direccion_servicio || 'Ubicación por confirmar',
-                fecha: new Date(proximo.fecha_servicio),
-                montoTotal: proximo.monto_total || proximo.monto || 0,
-                imagenMapa: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=200&fit=crop'
-            });
-        } else {
-            // Fallback: Próxima cita ficticia si no hay eventos confirmados
-            this.proximaCita.set({
-                id: null,
-                titulo: 'Sin eventos próximos',
-                ubicacion: 'No hay citas confirmadas',
-                fecha: new Date(),
-                montoTotal: 0,
-                imagenMapa: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=200&fit=crop'
-            });
+        if (proximos.length > 0) {
+            this.setProximaCitaData(proximos[0]);
+            console.log('📅 Próxima cita (futura o hoy):', proximos[0]);
+            return;
         }
 
-        console.log('📅 Próxima cita:', this.proximaCita());
+        // 3. Si no hay futuros, mostrar el más reciente aunque sea pasado
+        // (Para que el dashboard no se vea vacío justo después de un evento)
+        const pasados = confirmados
+            .sort((a, b) => new Date(b.fecha_servicio).getTime() - new Date(a.fecha_servicio).getTime());
+
+        if (pasados.length > 0) {
+            this.setProximaCitaData(pasados[0]);
+            console.log('📅 Mostrando evento más reciente (pasado):', pasados[0]);
+        } else {
+            this.setSinEventos();
+        }
+    }
+
+    private setProximaCitaData(proximo: any) {
+        this.proximaCita.set({
+            id: proximo.id,
+            titulo: proximo.titulo_evento || 'Evento',
+            ubicacion: proximo.direccion_servicio || 'Ubicación por confirmar',
+            fecha: new Date(proximo.fecha_servicio),
+            montoTotal: proximo.monto_total || proximo.monto || 0,
+            imagenMapa: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=200&fit=crop'
+        });
+    }
+
+    private setSinEventos() {
+        this.proximaCita.set({
+            id: null,
+            titulo: 'Sin eventos próximos',
+            ubicacion: 'No hay citas confirmadas',
+            fecha: new Date(),
+            montoTotal: 0,
+            imagenMapa: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=200&fit=crop'
+        });
     }
 
     /**

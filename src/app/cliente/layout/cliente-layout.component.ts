@@ -61,6 +61,14 @@ export class ClienteLayoutComponent implements OnInit {
     return window.innerWidth > 768 && window.innerWidth <= 1024;
   }
 
+  navigateToItem(item: any) {
+    if (item.command) {
+      item.command({});
+    } else if (item.routerLink) {
+      this.router.navigate([item.routerLink]);
+    }
+  }
+
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
   }

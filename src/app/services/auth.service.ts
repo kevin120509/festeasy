@@ -131,4 +131,59 @@ export class AuthService {
   getUserRole(): string | null {
     return this.currentUser()?.rol || null;
   }
+
+  /**
+   * Asegura que el usuario actual tenga un registro en perfil_cliente.
+   * Útil para proveedores que quieren contratar servicios o usuarios nuevos.
+   */
+  async ensureClientProfile(): Promise<void> {
+    const user = this.currentUser();
+    if (!user) return;
+
+    // Si ya tiene profile_id y es de cliente, ya estamos listos
+    if (user.profile_id && user.rol === 'client') return;
+
+    // Verificar si ya existe en la tabla perfil_cliente
+    const { data: profile } = await this.supabase
+      .from('perfil_cliente')
+      .select('*')
+      .eq('usuario_id', user.id)
+      .maybeSingle();
+
+    if (profile) {
+      // Si existe pero no estaba en el signal, actualizar signal
+      this.currentUser.update(curr => ({
+        ...curr,
+        profile_id: profile.id,
+        ...profile
+      }));
+      return;
+    }
+
+    // Si no existe, crearlo
+    const { data: { user: authUser } } = await this.supabase.auth.getUser();
+    const nombre = authUser?.user_metadata?.['nombre'] || authUser?.user_metadata?.['nombre_completo'] || 'Usuario';
+
+    const { data: newProfile, error } = await this.supabase
+      .from('perfil_cliente')
+      .insert({
+        usuario_id: user.id,
+        nombre_completo: nombre,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error creating fallback client profile:', error);
+      throw error;
+    }
+
+    if (newProfile) {
+      this.currentUser.update(curr => ({
+        ...curr,
+        profile_id: newProfile.id,
+        ...newProfile
+      }));
+    }
+  }
 }

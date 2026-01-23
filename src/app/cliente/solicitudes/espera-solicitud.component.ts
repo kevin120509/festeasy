@@ -11,15 +11,41 @@ export class EsperaSolicitudComponent implements OnInit {
   router = inject(Router);
   proveedor: any = null;
   solicitud: any = null;
-  tiempoRestante: number = 24 * 60 * 60; // 24 horas en segundos
+  tiempoRestante: number = 24 * 60 * 60;
+  windowHours: number = 24;
   intervalId: any;
 
   ngOnInit() {
-    // Recuperar datos de navegación o localStorage
     const nav = history.state;
     this.proveedor = nav.proveedor || JSON.parse(localStorage.getItem('solicitud_proveedor') || '{}');
     this.solicitud = nav.solicitud || JSON.parse(localStorage.getItem('solicitud_evento') || '{}');
+
+    this.calcularDeadlineDinamico();
     this.iniciarContador();
+  }
+
+  private calcularDeadlineDinamico() {
+    if (!this.solicitud?.fecha) {
+      this.tiempoRestante = 24 * 3600;
+      this.windowHours = 24;
+      return;
+    }
+
+    // Calcular horas hasta el evento
+    const ahora = new Date();
+    const fechaEvento = new Date(`${this.solicitud.fecha}T${this.solicitud.hora || '00:00'}`);
+    const msHastaEvento = fechaEvento.getTime() - ahora.getTime();
+    const horasHastaEvento = msHastaEvento / (1000 * 3600);
+
+    if (horasHastaEvento > 24) {
+      this.windowHours = 24;
+    } else if (horasHastaEvento > 12) {
+      this.windowHours = 6;
+    } else {
+      this.windowHours = 3;
+    }
+
+    this.tiempoRestante = this.windowHours * 3600;
   }
 
   iniciarContador() {
@@ -28,6 +54,10 @@ export class EsperaSolicitudComponent implements OnInit {
         this.tiempoRestante--;
       }
     }, 1000);
+  }
+
+  get windowHoursText() {
+    return `${this.windowHours} horas`;
   }
 
   get tiempoFormateado() {
