@@ -1,0 +1,22 @@
+1- CAMBIOS EN LA INTERFAZ DE SOLICITUDES DE Proveedor
+2- CAMBIOS ENLA INTERFAZ DE CLIETNE Y PROVEDOR EN EL MENU EN LA VISTA MOVIL
+3- SERVICIOS DE VALDICACION DE FECHAS, USUARIOS, PAQEUTES Y ELIMINACION AUTOMATICA DE SOLICITUDES VENCIDAS
+4- SE BORRO INFORMACION DE LA BASE DE DATOS COMO TODOS LOS SERVICIOS, ALGUNOS PROVEDORES, PAQUETES ETC.
+5- BRIAN AGREGO EL PIN, REVISAR LOS CAMBIOS FINALES
+
+
+revisar cambios y errores
+errores:
+los errores son los sigueintes:
+no cargan los servicios en el marketplace
+no cargan los paquetes en el marketplace
+no cargan los servicios en la bandeja de solicitudes del proveedor
+no cargan los paquetes en la bandeja de solicitudes del proveedor
+no cargan los servicios en la bandeja de solicitudes del cliente
+no cargan los paquetes en la bandeja de solicitudes del cliente
+no cargan los servicios en la bandeja de solicitudes del proveedor
+no cargan los paquetes en la bandeja de solicitudes del proveedor
+no cargan los servicios en la bandeja de solicitudes del cliente
+no cargan los paquetes en la bandeja de solicitudes 
+del cliente
+en general crear otro perdil para probar los cambios
