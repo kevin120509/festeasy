@@ -177,13 +177,29 @@
                 @if (solicitud()?.estado === 'reservado') {
                 <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200">
                     <p class="text-amber-800 text-sm font-bold mb-4 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-lg">info</span>
-                        Recordatorio de Seguridad
+                        <span class="material-symbols-outlined text-lg">key</span>
+                        Validación de Seguridad
                     </p>
-                    <p class="text-amber-700 text-xs leading-relaxed mb-4">
-                        Recuerda solicitar el **PIN de 4 dígitos** al cliente el día del evento para iniciar el servicio
-                        oficialmente.
+
+                    <button (click)="esDiaDelEvento(solicitud()?.fecha_servicio) ? abrirModalPin() : null"
+                        [disabled]="!esDiaDelEvento(solicitud()?.fecha_servicio)" [class]="esDiaDelEvento(solicitud()?.fecha_servicio) 
+                            ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100' 
+                            : 'bg-slate-300 cursor-not-allowed'"
+                        class="w-full py-4 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all mb-4">
+                        <span class="material-symbols-outlined">verified_user</span>
+                        <span>Validar PIN del Cliente</span>
+                    </button>
+
+                    @if (!esDiaDelEvento(solicitud()?.fecha_servicio)) {
+                    <p class="text-amber-700 text-[10px] leading-relaxed text-center font-medium">
+                        El botón se activará el día del evento:<br>
+                        <strong>{{ formatearFechaCompleta(solicitud()?.fecha_servicio) }}</strong>
                     </p>
+                    } @else {
+                    <p class="text-green-700 text-[10px] leading-relaxed text-center font-bold">
+                        ¡Hoy es el evento! Solicita el PIN al cliente.
+                    </p>
+                    }
                 </div>
                 }
             </div>

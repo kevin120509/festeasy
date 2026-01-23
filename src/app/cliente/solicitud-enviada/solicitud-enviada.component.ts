@@ -61,6 +61,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                                 id: sol.id,
                                 fechaEnvio: sol.creado_en || new Date().toISOString(),
                                 estado: sol.estado,
+                                pin_validacion: sol.pin_validacion,
                                 evento,
                                 proveedor: {
                                     nombre: proveedor.nombre_negocio || proveedor.nombre || 'Proveedor',

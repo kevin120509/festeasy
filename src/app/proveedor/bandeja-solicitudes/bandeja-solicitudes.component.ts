@@ -4,6 +4,9 @@ import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { ConfirmationService } from 'primeng/api';
+import { ValidarPin } from '../validar-pin/validar-pin';
+import { ServiceRequest } from '../../models';
+import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
 
 interface SolicitudBandeja {
     id: string;
@@ -29,7 +32,7 @@ import { RouterModule } from '@angular/router';
 @Component({
     selector: 'app-bandeja-solicitudes',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin],
     providers: [ConfirmationService],
     templateUrl: './bandeja-solicitudes.component.html'
 })
@@ -43,6 +46,10 @@ export class BandejaSolicitudesComponent implements OnInit {
     mensajeExito = signal('');
     mensajeError = signal('');
     procesando = signal<string | null>(null);
+
+    // Control del modal de validación de PIN
+    mostrarModalPin = signal(false);
+    solicitudSeleccionada = signal<string>('');
 
     solicitudes = signal<SolicitudBandeja[]>([]);
 
@@ -239,5 +246,55 @@ export class BandejaSolicitudesComponent implements OnInit {
             year: 'numeric'
         };
         return fecha.toLocaleDateString('es-MX', opciones);
+    }
+
+    /**
+     * Abrir modal de validación de PIN
+     */
+    abrirModalPin(solicitudId: string) {
+        this.solicitudSeleccionada.set(solicitudId);
+        this.mostrarModalPin.set(true);
+    }
+
+    /**
+     * Cerrar modal de validación de PIN
+     */
+    cerrarModalPin() {
+        this.mostrarModalPin.set(false);
+        this.solicitudSeleccionada.set('');
+    }
+
+    /**
+     * Manejar PIN validado exitosamente
+     */
+    onPinValidado(solicitud: ServiceRequest) {
+        console.log('✅ PIN validado exitosamente:', solicitud);
+
+        // Actualizar la solicitud en la lista con el nuevo estado
+        this.solicitudes.update(list =>
+            list.map(s => s.id === solicitud.id ? { ...s, estado: 'en_progreso' as const } : s)
+        );
+
+        // Mostrar mensaje de éxito
+        this.mensajeExito.set('¡PIN validado! Servicio iniciado correctamente.');
+        setTimeout(() => this.mensajeExito.set(''), 4000);
+
+        // Cerrar modal
+        this.cerrarModalPin();
+    }
+
+    /**
+     * 🔒 LÓGICA DE ACTIVACIÓN: Verifica si hoy es el día del evento
+     * Controla la habilitación del botón "Validar PIN"
+     */
+    esDiaDelEvento(fechaServicio: string): boolean {
+        return esDiaDelEvento(fechaServicio);
+    }
+
+    /**
+     * 📅 Formatea la fecha del evento para mostrar al proveedor
+     */
+    formatearFechaCompleta(fechaServicio: string): string {
+        return formatearFechaEvento(fechaServicio);
     }
 }

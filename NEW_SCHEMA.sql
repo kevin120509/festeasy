@@ -198,6 +198,8 @@ CREATE TABLE public.solicitudes (
   expiracion_anticipo timestamp with time zone,
   pin_seguridad character varying,
   pin_validado_en timestamp with time zone,
+  pin_validacion text,
+  fecha_validacion_pin timestamp with time zone,
   CONSTRAINT solicitudes_pkey PRIMARY KEY (id),
   CONSTRAINT fk_solicitud_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_solicitud_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),

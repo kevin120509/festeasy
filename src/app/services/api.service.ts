@@ -228,6 +228,8 @@ export class ApiService {
                 const payload = {
                     ...data,
                     cliente_usuario_id: user.id,
+                    pin_validacion: Math.floor(1000 + Math.random() * 9000).toString(),
+                    estado: data.estado || 'pendiente_aprobacion'
                 };
 
                 return this.fromSupabase(this.supabase.from('solicitudes').insert(payload).select().single());

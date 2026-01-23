@@ -123,7 +123,6 @@ export interface ServiceRequest {
     link_pago_anticipo?: string;
     link_pago_liquidacion?: string;
     expiracion_anticipo?: string;
-    pin_seguridad?: string;
     pin_validado_en?: string;
     pin_validacion?: string;
     fecha_validacion_pin?: string | Date;

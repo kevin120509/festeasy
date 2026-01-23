@@ -157,22 +157,18 @@ export class ValidarPin {
       if (solicitud.pin_validacion !== this.fullPin) {
         // 🔴 PIN INCORRECTO
         this.errorMessage = 'PIN incorrecto. Inténtalo de nuevo';
-
-        // Activar animación de shake
         this.showShakeAnimation = true;
+        this.cdr.detectChanges(); // ✅ Actualizar interfaz
 
-        // Esperar un momento antes de limpiar los inputs (para que se vea la animación)
+        // Esperar un momento antes de limpiar los inputs
         setTimeout(() => {
+          this.pinDigits = ['', '', '', ''];
           this.resetPin();
           this.showShakeAnimation = false;
+          this.cdr.detectChanges(); // ✅ Actualizar interfaz
         }, 500);
 
-        // Limpiar el mensaje de error después de 4 segundos
-        setTimeout(() => {
-          this.errorMessage = '';
-        }, 4000);
-
-        return; // Salir del método (el finally se ejecutará)
+        return; // Salir del método
       }
 
       // 3. Actualizar la solicitud con la fecha de validación

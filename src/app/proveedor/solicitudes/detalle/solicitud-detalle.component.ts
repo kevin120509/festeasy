@@ -3,11 +3,13 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { ServiceRequest, RequestItem } from '../../../models';
+import { ValidarPin } from '../../validar-pin/validar-pin';
+import { esDiaDelEvento, formatearFechaEvento } from '../../../utils/date.utils';
 
 @Component({
     selector: 'app-solicitud-detalle',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin],
     templateUrl: './solicitud-detalle.component.html'
 })
 export class SolicitudDetalleComponent implements OnInit {
@@ -19,6 +21,11 @@ export class SolicitudDetalleComponent implements OnInit {
     items = signal<RequestItem[]>([]);
     isLoading = signal(true);
     mensajeError = signal('');
+    mensajeExito = signal('');
+
+    // Control del modal de validación de PIN
+    mostrarModalPin = signal(false);
+    solicitudSeleccionadaId = signal<string>('');
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');
@@ -77,5 +84,38 @@ export class SolicitudDetalleComponent implements OnInit {
         if (tel) {
             window.open(`https://wa.me/${tel.replace(/\s+/g, '')}`, '_blank');
         }
+    }
+
+    /**
+     * 🔒 LÓGICA DE PIN
+     */
+    abrirModalPin() {
+        const id = this.solicitud()?.id;
+        if (id) {
+            this.solicitudSeleccionadaId.set(id);
+            this.mostrarModalPin.set(true);
+        }
+    }
+
+    cerrarModalPin() {
+        this.mostrarModalPin.set(false);
+    }
+
+    onPinValidado(solicitudActualizada: ServiceRequest) {
+        console.log('✅ PIN validado en detalle:', solicitudActualizada);
+        this.solicitud.set(solicitudActualizada);
+        this.mensajeExito.set('¡PIN validado! Servicio iniciado.');
+        setTimeout(() => this.mensajeExito.set(''), 4000);
+        this.cerrarModalPin();
+    }
+
+    esDiaDelEvento(fecha: string | undefined): boolean {
+        if (!fecha) return false;
+        return esDiaDelEvento(fecha);
+    }
+
+    formatearFechaCompleta(fecha: string | undefined): string {
+        if (!fecha) return '';
+        return formatearFechaEvento(fecha);
     }
 }
