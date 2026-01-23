@@ -7,6 +7,8 @@ import { ConfirmationService } from 'primeng/api';
 import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
+import { AvatarModule } from 'primeng/avatar';
+
 
 
 interface SolicitudProveedor {
@@ -19,6 +21,9 @@ interface SolicitudProveedor {
     direccion_servicio: string;
     estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
     creado_en?: string;
+    client?: {
+        avatar_url?: string;
+    };
 }
 
 type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
@@ -26,7 +31,7 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin],
+    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin, AvatarModule],
     providers: [ConfirmationService],
     templateUrl: './solicitudes.html'
 })
@@ -105,7 +110,8 @@ export class SolicitudesComponent implements OnInit {
             fecha_servicio: req.fecha_servicio,
             direccion_servicio: req.direccion_servicio || 'Por definir',
             estado: req.estado || 'pendiente_aprobacion',
-            creado_en: req.creado_en
+            creado_en: req.creado_en,
+            client: req.cliente
         };
     }
 
