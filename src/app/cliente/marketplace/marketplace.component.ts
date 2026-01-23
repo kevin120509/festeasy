@@ -3,6 +3,8 @@ import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { MarketplaceService } from './marketplace.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
     selector: 'app-marketplace',
@@ -14,8 +16,10 @@ export class MarketplaceComponent implements OnInit {
     private api = inject(ApiService);
     private router = inject(Router);
     private marketplaceState = inject(MarketplaceService);
+    private supabaseData = inject(SupabaseDataService);
 
     providers = signal<any[]>([]);
+    unavailableProviders = signal<Set<string>>(new Set());
 
     // Usar estado persistente
     searchQuery = this.marketplaceState.searchQuery;
@@ -66,6 +70,20 @@ export class MarketplaceComponent implements OnInit {
             this.eventoActual.set(evento);
             if (evento.categoriaId) {
                 this.categoriaSeleccionada.set(evento.categoriaId);
+            }
+
+            // check availability for this date
+            if (evento.fecha) {
+                forkJoin({
+                    blocked: this.supabaseData.getAllBlockedProvidersByDate(evento.fecha),
+                    occupied: this.supabaseData.getAllOccupiedProvidersByDate(evento.fecha)
+                }).subscribe({
+                    next: ({ blocked, occupied }) => {
+                        const set = new Set([...blocked, ...occupied]);
+                        this.unavailableProviders.set(set);
+                        console.log('🚫 Providers unavailable for', evento.fecha, ':', set);
+                    }
+                });
             }
         }
 
@@ -140,6 +158,8 @@ export class MarketplaceComponent implements OnInit {
                 this.providerCategoriesMap.get(p.usuario_id)?.add(p.categoria_principal_id);
             }
 
+            const isUnavailable = this.unavailableProviders().has(p.usuario_id);
+
             return {
                 id: p.id,
                 usuario_id: p.usuario_id,
@@ -150,16 +170,23 @@ export class MarketplaceComponent implements OnInit {
                 rating: 5.0,
                 ubicacion: p.direccion_formato || 'Ciudad de México',
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
-                distancia: distancia
+                distancia: distancia,
+                disponible: !isUnavailable
             };
         });
 
-        // Ordenar por distancia
+        // Ordenar por distancia y disponibilidad
         if (evento?.coords) {
-            const someHaveCoords = procesados.some(p => p.distancia > 0);
-            if (someHaveCoords) {
-                procesados.sort((a, b) => a.distancia - b.distancia);
-            }
+            procesados.sort((a, b) => {
+                // Primero disponibles
+                if (a.disponible !== b.disponible) {
+                    return a.disponible ? -1 : 1;
+                }
+                return a.distancia - b.distancia;
+            });
+        } else {
+            // Solo por disponibilidad
+            procesados.sort((a, b) => (a.disponible === b.disponible ? 0 : a.disponible ? -1 : 1));
         }
 
         this.providers.set(procesados);

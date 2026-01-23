@@ -72,6 +72,20 @@ export class AgendaComponent implements OnInit {
     isLoading = signal<boolean>(false);
     providerId = signal<string>('');
 
+    // Notification system
+    notification = signal<{ message: string; type: 'success' | 'error' } | null>(null);
+
+    // Computed: Find selected day state without loop in template
+    selectedDayState = computed(() => {
+        const selected = this.selectedDate();
+        if (!selected) return null;
+        return this.calendarDays().find(d =>
+            d.date.getDate() === selected.getDate() &&
+            d.date.getMonth() === selected.getMonth() &&
+            d.date.getFullYear() === selected.getFullYear()
+        );
+    });
+
     // Computed values
     monthYear = computed(() => {
         const date = this.currentDate();
@@ -99,6 +113,13 @@ export class AgendaComponent implements OnInit {
         this.loadProviderEvents();  // Load events with strict status filters
     }
 
+    private formatDateISO(date: Date): string {
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const d = date.getDate().toString().padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     /**
      * Loads the provider data from authenticated user
      * Sets the providerId signal for calendar filtering
@@ -115,8 +136,14 @@ export class AgendaComponent implements OnInit {
             }
         } catch (error) {
             console.error('❌ Error loading provider data:', error);
+            this.showNotification('Error al cargar datos del proveedor', 'error');
             this.router.navigate(['/login']);
         }
+    }
+
+    showNotification(message: string, type: 'success' | 'error' = 'success') {
+        this.notification.set({ message, type });
+        setTimeout(() => this.notification.set(null), 5000);
     }
 
     /**
@@ -227,7 +254,7 @@ export class AgendaComponent implements OnInit {
      * @returns CalendarDay object with computed state
      */
     createCalendarDay(date: Date, isCurrentMonth: boolean): CalendarDay {
-        const dateString = date.toISOString().split('T')[0];
+        const dateString = this.formatDateISO(date);
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
@@ -326,31 +353,40 @@ export class AgendaComponent implements OnInit {
         }
 
         try {
-            const dateISO = date.toISOString().split('T')[0];
+            const dateISO = this.formatDateISO(date);
             await firstValueFrom(this.calService.bloquearFechaManual(providerId, dateISO));
             console.log(`✅ Date blocked successfully: ${date.toLocaleDateString('es-ES')}`);
+            this.showNotification(`Fecha bloqueada: ${date.toLocaleDateString('es-ES')}`);
             // Refresh calendar to show the blocked date
             this.loadProviderEvents();
         } catch (error) {
             console.error('❌ Error blocking date:', error);
-            alert('Error al bloquear la fecha. Por favor, intenta de nuevo.');
+            this.showNotification('Error al bloquear la fecha', 'error');
         }
     }
 
-    async unblockDate(blockId: string): Promise<void> {
-        if (!blockId) {
-            console.warn('⚠️  No block ID provided');
-            return;
-        }
+    async unblockDate(day: CalendarDay): Promise<void> {
+        if (!day) return;
+
+        const providerId = this.providerId();
+        const dateISO = this.formatDateISO(day.date);
 
         try {
-            await this.supabaseData.unblockDate(blockId);
-            console.log(`✅ Date unblocked successfully`);
-            // Refresh calendar to remove the blocked status
+            if (day.blockId) {
+                await this.supabaseData.unblockDate(day.blockId);
+            } else {
+                // Redundancia: intentar por fecha si no hay ID
+                await this.supabaseData.unblockDateByDate(providerId, dateISO);
+            }
+
+            console.log(`✅ Date unblocked successfully: ${dateISO}`);
+            this.showNotification('Fecha desbloqueada exitosamente');
+
+            // Refrescar eventos y calendario
             this.loadProviderEvents();
         } catch (error) {
             console.error('❌ Error unblocking date:', error);
-            alert('Error al desbloquear la fecha. Por favor, intenta de nuevo.');
+            this.showNotification('Error al desbloquear la fecha', 'error');
         }
     }
 

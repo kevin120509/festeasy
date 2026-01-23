@@ -14,6 +14,13 @@ export class SupabaseDataService {
         this.supabase = this.supabaseService.getClient();
     }
 
+    private formatDateISO(date: Date): string {
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const d = date.getDate().toString().padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     // ==========================================
     // Proveedores (Marketplace)
     // ==========================================
@@ -166,12 +173,12 @@ export class SupabaseDataService {
             .from('solicitudes')
             .delete({ count: 'exact' })
             .eq('id', id);
-            
+
         if (error) {
             console.error('Error DB delete:', error);
             throw error;
         }
-        
+
         if (count === 0) {
             console.warn('No se eliminó ninguna fila. RLS o ID incorrecto.');
             throw new Error('No se pudo eliminar la solicitud de la base de datos (Permisos insuficientes o no encontrada).');
@@ -253,10 +260,43 @@ export class SupabaseDataService {
     }
 
     /**
+     * Get all blocked providers for a specific date
+     */
+    getAllBlockedProvidersByDate(date: string): Observable<string[]> {
+        return from(this.supabase
+            .from('disponibilidad_bloqueada')
+            .select('provider_id')
+            .eq('fecha', date)
+        ).pipe(
+            map(({ data, error }) => {
+                if (error) return [];
+                return (data || []).map(b => b.provider_id);
+            })
+        );
+    }
+
+    /**
+     * Get all occupied providers for a specific date
+     */
+    getAllOccupiedProvidersByDate(date: string): Observable<string[]> {
+        return from(this.supabase
+            .from('solicitudes')
+            .select('proveedor_usuario_id')
+            .eq('fecha_servicio', date)
+            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado'])
+        ).pipe(
+            map(({ data, error }) => {
+                if (error) return [];
+                return (data || []).map(s => s.proveedor_usuario_id);
+            })
+        );
+    }
+
+    /**
      * Block a date manually
      */
     async blockDate(providerId: string, date: Date, motivo?: string) {
-        const dateString = date.toISOString().split('T')[0];
+        const dateString = this.formatDateISO(date);
 
         const { data, error } = await this.supabase
             .from('disponibilidad_bloqueada')
@@ -286,10 +326,24 @@ export class SupabaseDataService {
     }
 
     /**
+     * Unblock a previously blocked date using providerId and date
+     */
+    async unblockDateByDate(providerId: string, dateISO: string) {
+        const { error } = await this.supabase
+            .from('disponibilidad_bloqueada')
+            .delete()
+            .eq('provider_id', providerId)
+            .eq('fecha', dateISO);
+
+        if (error) throw error;
+        return { success: true };
+    }
+
+    /**
      * Get all events (occupied + blocked) for a specific date
      */
     getEventsForDate(providerId: string, date: Date): Observable<any[]> {
-        const dateString = date.toISOString().split('T')[0];
+        const dateString = this.formatDateISO(date);
 
         return from(this.supabase
             .from('solicitudes')

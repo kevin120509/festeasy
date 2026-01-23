@@ -13,13 +13,20 @@ import { map, catchError, switchMap } from 'rxjs/operators';
 export class CalendarioFechaService {
     private supabaseService = inject(SupabaseService);
 
+    private formatDateISO(date: Date): string {
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, '0');
+        const d = date.getDate().toString().padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     /**
      * 1. Agenda y Bloqueo de Fechas
      * Conecta a la base de datos para validar disponibilidad y prevenir agendamientos duplicados o bloqueados.
      */
     consultarDisponibilidad(providerId: string, fecha: Date): Observable<{ disponible: boolean, error?: string }> {
         const supabase = this.supabaseService.getClient();
-        const fechaISO = fecha.toISOString().split('T')[0];
+        const fechaISO = this.formatDateISO(fecha);
 
         // 1.1 Validación de Fechas Pasadas (Regla 2)
         if (!this.validarFechaFutura(fecha)) {

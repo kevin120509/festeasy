@@ -15,6 +15,7 @@ import { ConfirmationService } from 'primeng/api';
 })
 export class MisSolicitudesComponent implements OnInit {
     private service = inject(SolicitudesService);
+    private auth = inject(AuthService);
     private confirmationService = inject(ConfirmationService);
 
     // Estado
@@ -41,7 +42,7 @@ export class MisSolicitudesComponent implements OnInit {
     });
 
     async ngOnInit() {
-        const user = inject(AuthService).currentUser();
+        const user = this.auth.currentUser();
         if (user) {
             await this.service.limpiarSolicitudesExpiradas(user.id);
         }

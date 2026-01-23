@@ -23,6 +23,7 @@ export class RevisarSolicitudComponent implements OnInit {
     paquetes = signal<any[]>([]);
     total = signal<number>(0);
     isLoading = signal<boolean>(false);
+    notification = signal<{ message: string, type: 'success' | 'error' } | null>(null);
 
     ngOnInit() {
         // Cargar datos de sessionStorage
@@ -53,8 +54,8 @@ export class RevisarSolicitudComponent implements OnInit {
         const userSignal = this.auth.currentUser();
         const user = typeof userSignal === 'function' ? userSignal() : userSignal;
         if (!user) {
-            alert('Debes iniciar sesión para continuar');
-            this.router.navigate(['/login']);
+            this.notification.set({ message: 'Debes iniciar sesión para continuar', type: 'error' });
+            setTimeout(() => this.router.navigate(['/login']), 2500);
             return;
         }
 
@@ -66,7 +67,7 @@ export class RevisarSolicitudComponent implements OnInit {
             // 1. Validar Disponibilidad (Regla 1 y 2)
             const disp = await firstValueFrom(this.calService.consultarDisponibilidad(proveedorData.usuario_id, fechaServicio));
             if (!disp.disponible) {
-                alert(disp.error || 'El proveedor no está disponible para esa fecha.');
+                this.notification.set({ message: disp.error || 'El proveedor no está disponible para esa fecha.', type: 'error' });
                 this.isLoading.set(false);
                 return;
             }
@@ -161,7 +162,7 @@ export class RevisarSolicitudComponent implements OnInit {
 
         } catch (error: any) {
             console.error('Error al enviar solicitud:', error);
-            alert('Ocurrió un error al enviar la solicitud: ' + (error.message || 'Inténtalo de nuevo.'));
+            this.notification.set({ message: 'Ocurrió un error al enviar la solicitud: ' + (error.message || 'Inténtalo de nuevo.'), type: 'error' });
         } finally {
             this.isLoading.set(false);
         }

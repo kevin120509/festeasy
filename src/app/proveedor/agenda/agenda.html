@@ -253,7 +253,25 @@
     <div>
         <div style="background: #f7f7f7; min-height: 100vh; padding-top: 20px;">
             <!-- Page Header -->
+            <!-- Page Header -->
             <div style="max-width: 1400px; margin: 0 auto; padding: 0 24px 20px;">
+                <!-- Notifications -->
+                @if (notification()) {
+                <div class="mb-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div [class]="notification()?.type === 'success' ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800'"
+                        class="flex items-center gap-3 px-4 py-3 rounded-xl border shadow-sm">
+                        <span class="material-icons-outlined">
+                            {{ notification()?.type === 'success' ? 'check_circle' : 'error' }}
+                        </span>
+                        <p class="text-sm font-medium">{{ notification()?.message }}</p>
+                        <button (click)="notification.set(null)"
+                            class="ml-auto opacity-50 hover:opacity-100 transition-opacity">
+                            <span class="material-icons-outlined text-[18px]">close</span>
+                        </button>
+                    </div>
+                </div>
+                }
+
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin: 0;">Agenda de Disponibilidad
                     </h1>
@@ -273,7 +291,7 @@
                 <div class="calendar-card">
                     <!-- Calendar Header -->
                     <div class="calendar-header">
-                        <h2 class="calendar-title">Agenda de Disponibilidad</h2>
+                        <h2 class="calendar-title">Control de Citas</h2>
                         <div class="month-nav">
                             <button (click)="previousMonth()" class="nav-button">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,8 +328,8 @@
                     <!-- Calendar Grid -->
                     <div class="calendar-grid">
                         <!-- Weekday Headers -->
-                        @for (day of weekDays; track day) {
-                        <div class="weekday-header">{{ day }}</div>
+                        @for (dayName of weekDays; track dayName) {
+                        <div class="weekday-header">{{ dayName }}</div>
                         }
 
                         <!-- Calendar Days -->
@@ -335,24 +353,24 @@
                         }
                     </div>
 
-                    @if (selectedDate()) {
-                    @if (eventsForSelectedDate().length > 0) {
+                    @if (selectedDayState(); as day) {
+                    @if (day.state === 'occupied') {
                     <!-- Has Events -->
                     @for (event of eventsForSelectedDate(); track event.id) {
-                    <div>
+                    <div class="border-b border-slate-100 last:border-0 pb-4 mb-4 last:mb-0">
                         <div class="event-section">
                             <div class="event-label">Hora</div>
-                            <div class="event-value">{{ formatEventTime(event.fecha_servicio) }}</div>
+                            <div class="event-value font-semibold">{{ formatEventTime(event.fecha_servicio) }}</div>
                         </div>
 
                         <div class="event-section">
-                            <div class="event-label">Evento de Areli y Carlos</div>
+                            <div class="event-label">Evento</div>
                             <div class="event-value">{{ event.titulo_evento || 'Evento sin título' }}</div>
                         </div>
 
                         <div class="event-section">
                             <div class="event-label">Ubicación</div>
-                            <div class="event-value">{{ event.direccion_servicio || 'No especificada' }}</div>
+                            <div class="event-value text-sm">{{ event.direccion_servicio || 'No especificada' }}</div>
                         </div>
 
                         <button (click)="viewRequestDetails(event.id)" class="details-button">
@@ -360,45 +378,38 @@
                         </button>
                     </div>
                     }
-                    } @else {
-                    <!-- No Events - Available Day -->
-                    @for (day of calendarDays(); track day.date.getTime()) {
-                    @if (day.isSelected && day.state === 'available') {
+                    } @else if (day.state === 'blocked') {
                     <div class="empty-state">
-                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p style="font-size: 14px; margin-bottom: 20px;">No hay eventos en esta fecha</p>
-                        <button (click)="blockDateManually()" class="details-button">
+                        <div class="bg-red-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons-outlined text-red-400 text-[32px]">lock</span>
+                        </div>
+                        <p class="text-slate-800 font-bold mb-1">Fecha bloqueada</p>
+                        <p class="text-slate-500 text-sm mb-6">No has aceptado solicitudes para este día.</p>
+                        <button (click)="unblockDate(day)" class="details-button"
+                            style="background: white; color: #1a1a1a; border: 1px solid #e0e0e0; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                            Desbloquear Fecha
+                        </button>
+                    </div>
+                    } @else {
+                    <!-- Available Day -->
+                    <div class="empty-state">
+                        <div class="bg-slate-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons-outlined text-slate-300 text-[32px]">event_available</span>
+                        </div>
+                        <p class="text-slate-500 text-sm mb-6">No hay eventos en esta fecha</p>
+                        <button (click)="blockDateManually()"
+                            class="details-button bg-red-500 hover:bg-red-600 transition-colors">
                             Bloquear Fecha Manualmente
                         </button>
                     </div>
                     }
-                    @if (day.isSelected && day.state === 'blocked' && day.blockId) {
-                    <div class="empty-state">
-                        <svg class="empty-state-icon" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
-                                clip-rule="evenodd" />
-                        </svg>
-                        <p style="font-size: 14px; margin-bottom: 20px;">Esta fecha está bloqueada</p>
-                        <button (click)="unblockDate(day.blockId!)" class="details-button"
-                            style="background: white; color: #1a1a1a; border: 1px solid #e0e0e0;">
-                            Desbloquear Fecha
-                        </button>
-                    </div>
-                    }
-                    }
-                    }
                     } @else {
                     <!-- No Date Selected -->
                     <div class="empty-state">
-                        <svg class="empty-state-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
-                        </svg>
-                        <p style="font-size: 14px;">Selecciona un día del calendario para ver sus detalles</p>
+                        <div class="bg-slate-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons-outlined text-slate-300 text-[32px]">touch_app</span>
+                        </div>
+                        <p class="text-slate-500 text-sm">Selecciona un día del calendario para ver sus detalles</p>
                     </div>
                     }
                 </div>

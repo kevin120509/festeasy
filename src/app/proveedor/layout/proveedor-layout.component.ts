@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -14,6 +14,7 @@ import { AuthService } from '../../services/auth.service';
 })
 export class ProveedorLayoutComponent implements OnInit {
   auth = inject(AuthService);
+  private router = inject(Router);
   items: MenuItem[] = [];
 
   ngOnInit(): void {
@@ -56,5 +57,13 @@ export class ProveedorLayoutComponent implements OnInit {
 
   get isTablet(): boolean {
     return window.innerWidth > 768 && window.innerWidth <= 1024;
+  }
+
+  navigateToItem(item: any) {
+    if (item.command) {
+      item.command({});
+    } else if (item.routerLink) {
+      this.router.navigate([item.routerLink]);
+    }
   }
 }
