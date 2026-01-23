@@ -56,11 +56,11 @@ export class SolicitudesService {
     private mapearEstado(estadoDb: string): 'pendiente' | 'cotizando' | 'contratado' | 'finalizado' {
         // Normalizar a minúsculas para evitar problemas de case
         const estado = (estadoDb || '').toLowerCase();
-        
+
         // Mapeo simple de estados de DB a estados de UI
         switch (estado) {
             case 'pendiente_aprobacion': return 'pendiente';
-            case 'esperando_anticipo': return 'contratado'; 
+            case 'esperando_anticipo': return 'contratado';
             case 'reservado':
             case 'en_progreso':
             case 'entregado_pendiente_liq':
@@ -88,5 +88,34 @@ export class SolicitudesService {
 
     async eliminarSolicitud(id: string) {
         return this.supabaseData.deleteRequestById(id);
+    }
+
+    /**
+     * Limpia solicitudes que ya pasaron su fecha de servicio y siguen en estado 'pendiente'
+     * (sin respuestas o abandonadas)
+     */
+    async limpiarSolicitudesExpiradas(clientId: string): Promise<number> {
+        const today = new Date().toISOString().split('T')[0];
+
+        try {
+            const { data: expired } = await this.supabaseData.supabase
+                .from('solicitudes')
+                .select('id')
+                .eq('cliente_usuario_id', clientId)
+                .eq('estado', 'pendiente_aprobacion') // O 'pendiente' según mapeo
+                .lt('fecha_servicio', today);
+
+            if (expired && expired.length > 0) {
+                console.log(`🧹 Limpiando ${expired.length} solicitudes expiradas...`);
+                for (const req of expired) {
+                    await this.eliminarSolicitud(req.id);
+                }
+                return expired.length;
+            }
+            return 0;
+        } catch (error) {
+            console.error('Error limpiando solicitudes:', error);
+            return 0;
+        }
     }
 }

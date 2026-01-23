@@ -1,8 +1,9 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
@@ -10,7 +11,7 @@ import { filter, Subscription } from 'rxjs';
 @Component({
   selector: 'app-cliente-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent],
+  imports: [CommonModule, RouterOutlet, MenuComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
   templateUrl: './cliente-layout.component.html',
 })
 export class ClienteLayoutComponent implements OnInit {
@@ -44,14 +45,15 @@ export class ClienteLayoutComponent implements OnInit {
       }
     ];
 
-    // Ocultar sidebar en rutas de proveedor (ej: /cliente/proveedor/:id)
-    this.sub = this.router.events.pipe(
-      filter(e => e instanceof NavigationEnd)
-    ).subscribe((ev: any) => {
-      const url: string = ev.urlAfterRedirects || ev.url || '';
-      // Si la ruta comienza con /cliente/proveedor ocultamos el sidebar
-      this.showSidebar = !url.startsWith('/cliente/proveedor');
-    });
+    // Siempre mostrar sidebar en el layout de cliente
+    this.showSidebar = true;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(_event: any) { }
+
+  get isTablet(): boolean {
+    return window.innerWidth > 768 && window.innerWidth <= 1024;
   }
 
   ngOnDestroy(): void {

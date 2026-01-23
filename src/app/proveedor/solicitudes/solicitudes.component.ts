@@ -3,6 +3,7 @@ import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+import { ConfirmationService } from 'primeng/api';
 import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
@@ -26,11 +27,13 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
     selector: 'app-solicitudes',
     standalone: true,
     imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin],
+    providers: [ConfirmationService],
     templateUrl: './solicitudes.html'
 })
 export class SolicitudesComponent implements OnInit {
     public auth = inject(AuthService);
     public api = inject(ApiService);
+    private confirmationService = inject(ConfirmationService);
 
     tabActivo = signal<TabType>('pendientes');
     isLoading = signal(true);
@@ -136,24 +139,33 @@ export class SolicitudesComponent implements OnInit {
     rechazarSolicitud(solId: string) {
         if (this.procesando()) return;
 
-        if (!confirm('¿Estás seguro de rechazar esta solicitud?')) return;
+        this.confirmationService.confirm({
+            message: '¿Estás seguro de rechazar esta solicitud? El cliente será notificado de la cancelación.',
+            header: 'Confirmar Rechazo',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí, rechazar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+            accept: () => {
+                this.procesando.set(solId);
 
-        this.procesando.set(solId);
-
-        this.api.updateSolicitudEstado(solId, 'rechazada').subscribe({
-            next: () => {
-                this.solicitudes.update(list =>
-                    list.map(s => s.id === solId ? { ...s, estado: 'rechazada' as const } : s)
-                );
-                this.procesando.set(null);
-                this.mensajeExito.set('Solicitud rechazada');
-                setTimeout(() => this.mensajeExito.set(''), 3000);
-            },
-            error: (err) => {
-                console.error('Error rechazando solicitud:', err);
-                this.mensajeError.set('Error al rechazar la solicitud');
-                setTimeout(() => this.mensajeError.set(''), 3000);
-                this.procesando.set(null);
+                this.api.updateSolicitudEstado(solId, 'rechazada').subscribe({
+                    next: () => {
+                        this.solicitudes.update(list =>
+                            list.map(s => s.id === solId ? { ...s, estado: 'rechazada' as const } : s)
+                        );
+                        this.procesando.set(null);
+                        this.mensajeExito.set('Solicitud rechazada');
+                        setTimeout(() => this.mensajeExito.set(''), 3000);
+                    },
+                    error: (err) => {
+                        console.error('Error rechazando solicitud:', err);
+                        this.mensajeError.set('Error al rechazar la solicitud');
+                        setTimeout(() => this.mensajeError.set(''), 3000);
+                        this.procesando.set(null);
+                    }
+                });
             }
         });
     }

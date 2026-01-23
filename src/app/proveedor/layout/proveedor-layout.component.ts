@@ -1,14 +1,15 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-proveedor-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent],
+  imports: [CommonModule, RouterOutlet, MenuComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
   templateUrl: './proveedor-layout.component.html',
 })
 export class ProveedorLayoutComponent implements OnInit {
@@ -48,5 +49,12 @@ export class ProveedorLayoutComponent implements OnInit {
         }
       }
     ];
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(_event: any) { }
+
+  get isTablet(): boolean {
+    return window.innerWidth > 768 && window.innerWidth <= 1024;
   }
 }

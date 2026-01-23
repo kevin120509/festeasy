@@ -2,16 +2,20 @@ import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { SolicitudesService, SolicitudCliente } from './solicitudes.service';
+import { AuthService } from '../../services/auth.service';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-mis-solicitudes',
     standalone: true,
     imports: [CommonModule, RouterLink],
+    providers: [ConfirmationService],
     templateUrl: './solicitudes.component.html',
     styles: [] // Usaremos Tailwind en el HTML
 })
 export class MisSolicitudesComponent implements OnInit {
     private service = inject(SolicitudesService);
+    private confirmationService = inject(ConfirmationService);
 
     // Estado
     activeTab = signal<'todas' | 'activas' | 'cotizando' | 'contratadas' | 'finalizadas'>('todas');
@@ -36,7 +40,11 @@ export class MisSolicitudesComponent implements OnInit {
         });
     });
 
-    ngOnInit() {
+    async ngOnInit() {
+        const user = inject(AuthService).currentUser();
+        if (user) {
+            await this.service.limpiarSolicitudesExpiradas(user.id);
+        }
         this.cargarSolicitudes();
     }
 
@@ -81,21 +89,30 @@ export class MisSolicitudesComponent implements OnInit {
     }
 
     async eliminarSolicitud(id: string) {
-        if (!confirm('¿Estás seguro de que deseas eliminar esta solicitud permanentemente?')) return;
-        
-        try {
-            await this.service.eliminarSolicitud(id);
-            // Actualizar lista solo si tuvo éxito
-            this.allRequests.set(this.allRequests().filter(req => req.id !== id));
-            // Recargar para asegurar sincronía con DB
-            setTimeout(() => this.cargarSolicitudes(), 1000);
-        } catch (error: any) {
-            console.error('Error eliminando solicitud:', error);
-            // Mostrar mensaje específico si viene del servicio
-            const msg = error.message || 'No se pudo eliminar la solicitud. Inténtalo de nuevo.';
-            alert(msg);
-            // Revertir estado local si hubo error (aunque no lo cambiamos antes, recargar es bueno)
-            this.cargarSolicitudes();
-        }
+        this.confirmationService.confirm({
+            message: '¿Estás seguro de que deseas eliminar esta solicitud permanentemente? Esta acción no se puede deshacer.',
+            header: 'Confirmar Eliminación',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí, eliminar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+            accept: async () => {
+                try {
+                    // Eliminar localmente primero para feedback instantáneo
+                    const current = this.allRequests();
+                    this.allRequests.set(current.filter(req => req.id !== id));
+
+                    await this.service.eliminarSolicitud(id);
+                    console.log('✅ Solicitud eliminada con éxito');
+                } catch (error: any) {
+                    console.error('Error eliminando solicitud:', error);
+                    const msg = error.message || 'No se pudo eliminar la solicitud. Inténtalo de nuevo.';
+                    alert(msg);
+                    // Revertir si falló
+                    this.cargarSolicitudes();
+                }
+            }
+        });
     }
 }

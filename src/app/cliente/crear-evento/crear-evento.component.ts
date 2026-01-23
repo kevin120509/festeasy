@@ -99,6 +99,9 @@ export class CrearEventoComponent implements OnInit {
             return;
         }
 
+        if (this.isLoading) return;
+        this.isLoading = true;
+
         // Guardar datos del evento en sessionStorage para usarlos después
         const eventoData = {
             titulo: this.titulo,
@@ -112,6 +115,9 @@ export class CrearEventoComponent implements OnInit {
         sessionStorage.setItem('eventoActual', JSON.stringify(eventoData));
 
         // Navegar al marketplace para ver proveedores cercanos
-        this.router.navigate(['/cliente/marketplace']);
+        this.router.navigate(['/cliente/marketplace']).then(() => {
+            this.isLoading = false;
+        });
+
     }
 }

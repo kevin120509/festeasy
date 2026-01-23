@@ -2,6 +2,7 @@ import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+import { MarketplaceService } from './marketplace.service';
 
 @Component({
     selector: 'app-marketplace',
@@ -12,14 +13,19 @@ import { ApiService } from '../../services/api.service';
 export class MarketplaceComponent implements OnInit {
     private api = inject(ApiService);
     private router = inject(Router);
+    private marketplaceState = inject(MarketplaceService);
+
     providers = signal<any[]>([]);
-    searchQuery = signal('');
+
+    // Usar estado persistente
+    searchQuery = this.marketplaceState.searchQuery;
+    categoriaSeleccionada = this.marketplaceState.categoriaSeleccionada;
+
     eventoActual = signal<any>(null);
-    
+
     // Filtros
     categorias = signal<any[]>([]);
-    categoriaSeleccionada = signal<string>('');
-    
+
     // Mapa de categorías por proveedor (basado en sus paquetes)
     // Key: usuario_id del proveedor, Value: Set de IDs de categorías que ofrece
     providerCategoriesMap = new Map<string, Set<string>>();
@@ -81,7 +87,7 @@ export class MarketplaceComponent implements OnInit {
                 console.log('🏪 Proveedores obtenidos:', profiles);
                 const categoriesMap = new Map(this.categorias().map(c => [c.id, c.nombre]));
                 const evento = this.eventoActual();
-                
+
                 // Obtener IDs de todos los proveedores para buscar sus paquetes
                 const providerIds = profiles.map(p => p.usuario_id);
 
@@ -89,11 +95,11 @@ export class MarketplaceComponent implements OnInit {
                 this.api.getPackagesByProviderIds(providerIds).subscribe({
                     next: (packages) => {
                         console.log('📦 Paquetes de proveedores cargados:', packages);
-                        
+
                         // Construir mapa: Proveedor -> Categorías que ofrece
                         (packages || []).forEach(pkg => {
                             if (!pkg.proveedor_usuario_id) return;
-                            
+
                             if (!this.providerCategoriesMap.has(pkg.proveedor_usuario_id)) {
                                 this.providerCategoriesMap.set(pkg.proveedor_usuario_id, new Set());
                             }
@@ -139,9 +145,9 @@ export class MarketplaceComponent implements OnInit {
                 usuario_id: p.usuario_id,
                 nombre: p.nombre_negocio,
                 categoriaId: p.categoria_principal_id, // Mantenemos para referencia visual
-                categoria: categoriesMap.get(p.categoria_principal_id) || 'Servicios', 
+                categoria: categoriesMap.get(p.categoria_principal_id) || 'Servicios',
                 descripcion: p.descripcion,
-                rating: 5.0, 
+                rating: 5.0,
                 ubicacion: p.direccion_formato || 'Ciudad de México',
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
                 distancia: distancia
@@ -162,14 +168,14 @@ export class MarketplaceComponent implements OnInit {
     filteredProviders = computed(() => {
         const query = this.searchQuery().toLowerCase();
         const catId = this.categoriaSeleccionada();
-        
+
         return this.providers().filter(p => {
             const matchesQuery = !query || p.nombre.toLowerCase().includes(query);
-            
+
             // Nuevo filtro: Coincide si el proveedor ofrece CUALQUIER paquete de esa categoría
             // O si su categoría principal es esa.
             let matchesCategory = !catId; // Si no hay filtro, match true
-            
+
             if (catId) {
                 const providerCats = this.providerCategoriesMap.get(p.usuario_id);
                 // Verificar si el set de categorías del proveedor contiene la categoría seleccionada

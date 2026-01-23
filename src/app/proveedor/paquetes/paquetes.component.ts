@@ -4,6 +4,7 @@ import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { ConfirmationService } from 'primeng/api';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -52,6 +53,7 @@ export class PaquetesComponent implements OnInit {
   public authService = inject(AuthService);
   private router = inject(Router);
   private api = inject(ApiService);
+  private confirmationService = inject(ConfirmationService);
 
   // Paquetes
   paquetes = signal<Paquete[]>([]);
@@ -234,28 +236,34 @@ export class PaquetesComponent implements OnInit {
 
   // Eliminar paquete
   async eliminarPaquete(paquete: Paquete) {
-    if (!confirm(`¿Estás seguro de eliminar "${paquete.nombre}"?`)) {
-      return;
-    }
+    this.confirmationService.confirm({
+      message: `¿Estás seguro de eliminar el paquete "${paquete.nombre}"? Esta acción no se puede deshacer.`,
+      header: 'Confirmar Eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, eliminar',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+      accept: async () => {
+        try {
+          const { error } = await this.supabaseService.getClient()
+            .from('paquetes_proveedor')
+            .delete()
+            .eq('id', paquete.id);
 
-    try {
-      const { error } = await this.supabaseService.getClient()
-        .from('paquetes_proveedor')
-        .delete()
-        .eq('id', paquete.id);
+          if (error) throw error;
 
-      if (error) throw error;
+          // Eliminar localmente
+          this.paquetes.update(paquetes => paquetes.filter(p => p.id !== paquete.id));
 
-      // Eliminar localmente
-      this.paquetes.update(paquetes => paquetes.filter(p => p.id !== paquete.id));
-
-      this.successMessage.set('Paquete eliminado exitosamente');
-      setTimeout(() => this.successMessage.set(''), 3000);
-    } catch (error: any) {
-      this.errorMessage.set('Error al eliminar: ' + error.message);
-    }
-
-    this.menuAbierto.set(null);
+          this.successMessage.set('Paquete eliminado exitosamente');
+          setTimeout(() => this.successMessage.set(''), 3000);
+        } catch (error: any) {
+          this.errorMessage.set('Error al eliminar: ' + error.message);
+        }
+        this.menuAbierto.set(null);
+      }
+    });
   }
 
   // Editar paquete
@@ -506,6 +514,15 @@ export class PaquetesComponent implements OnInit {
     this.successMessage.set('');
 
     // Validaciones
+    if (!this.profile) {
+      await this.cargarPerfil();
+      if (!this.profile) {
+        this.errorMessage.set('No se pudo cargar tu perfil de proveedor. Por favor, intenta recargar la página.');
+        this.saving.set(false);
+        return;
+      }
+    }
+
     if (!this.packageData().nombre.trim()) {
       this.errorMessage.set('El nombre del paquete es obligatorio');
       this.saving.set(false);

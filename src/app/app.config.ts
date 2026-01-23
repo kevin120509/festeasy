@@ -8,6 +8,8 @@ import Aura from '@primeuix/themes/aura';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 
+import { ConfirmationService } from 'primeng/api';
+
 import { routes } from './app.routes';
 
 registerLocaleData(localeEs);
@@ -36,6 +38,7 @@ export const appConfig: ApplicationConfig = {
         { provide: LOCALE_ID, useValue: 'es' },
         provideRouter(routes),
         provideHttpClient(),
+        ConfirmationService,
         providePrimeNG({
             theme: {
                 preset: MyPreset,

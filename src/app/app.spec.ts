@@ -1,11 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { ConfirmationService } from 'primeng/api';
+import { provideRouter } from '@angular/router';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [App],
+      imports: [App, NoopAnimationsModule],
+      providers: [
+        ConfirmationService,
+        provideRouter([])
+      ]
     }).compileComponents();
   });
 
@@ -15,10 +22,10 @@ describe('App', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render title', async () => {
+  it('should have router-outlet', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, festeasy-frontend');
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });

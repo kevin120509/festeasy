@@ -3,6 +3,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+import { ConfirmationService } from 'primeng/api';
 
 interface SolicitudBandeja {
     id: string;
@@ -27,11 +28,13 @@ type TabType = 'pendientes' | 'aceptadas' | 'historial';
     selector: 'app-bandeja-solicitudes',
     standalone: true,
     imports: [CommonModule, CurrencyPipe],
+    providers: [ConfirmationService],
     templateUrl: './bandeja-solicitudes.component.html'
 })
 export class BandejaSolicitudesComponent implements OnInit {
     private auth = inject(AuthService);
     private api = inject(ApiService);
+    private confirmationService = inject(ConfirmationService);
 
     tabActivo = signal<TabType>('pendientes');
     isLoading = signal(true);
@@ -157,24 +160,56 @@ export class BandejaSolicitudesComponent implements OnInit {
     rechazarSolicitud(solicitud: SolicitudBandeja): void {
         if (this.procesando()) return;
 
-        if (!confirm(`¿Estás seguro de rechazar la solicitud de ${solicitud.cliente_nombre}?`)) return;
+        this.confirmationService.confirm({
+            message: `¿Estás seguro de rechazar la solicitud de ${solicitud.cliente_nombre}? El cliente será notificado automáticamente.`,
+            header: 'Confirmar Rechazo',
+            icon: 'pi pi-exclamation-circle',
+            acceptLabel: 'Sí, rechazar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-danger p-button-sm px-4',
+            rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+            accept: () => {
+                this.procesando.set(solicitud.id);
 
-        this.procesando.set(solicitud.id);
+                this.api.updateSolicitudEstado(solicitud.id, 'rechazada').subscribe({
+                    next: () => {
+                        this.solicitudes.update(list =>
+                            list.map(s => s.id === solicitud.id ? { ...s, estado: 'rechazada' as const } : s)
+                        );
+                        this.procesando.set(null);
+                        this.mensajeExito.set('Solicitud rechazada correctamente');
+                        setTimeout(() => this.mensajeExito.set(''), 4000);
+                    },
+                    error: (err) => {
+                        console.error('Error rechazando solicitud:', err);
+                        this.mensajeError.set('Error al rechazar la solicitud');
+                        setTimeout(() => this.mensajeError.set(''), 4000);
+                        this.procesando.set(null);
+                    }
+                });
+            }
+        });
+    }
 
-        this.api.updateSolicitudEstado(solicitud.id, 'rechazada').subscribe({
-            next: () => {
-                this.solicitudes.update(list =>
-                    list.map(s => s.id === solicitud.id ? { ...s, estado: 'rechazada' as const } : s)
-                );
-                this.procesando.set(null);
-                this.mensajeExito.set('Solicitud rechazada');
-                setTimeout(() => this.mensajeExito.set(''), 4000);
-            },
-            error: (err) => {
-                console.error('Error rechazando solicitud:', err);
-                this.mensajeError.set('Error al rechazar la solicitud');
-                setTimeout(() => this.mensajeError.set(''), 4000);
-                this.procesando.set(null);
+    eliminarDelHistorial(solicitud: SolicitudBandeja): void {
+        this.confirmationService.confirm({
+            message: `¿Deseas eliminar este registro del historial? Esta acción solo lo quitará de tu vista y no afectará al cliente.`,
+            header: 'Eliminar del Historial',
+            icon: 'pi pi-trash',
+            acceptLabel: 'Eliminar',
+            rejectLabel: 'Conservar',
+            acceptButtonStyleClass: 'p-button-danger p-button-sm px-4',
+            rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+            accept: () => {
+                this.procesando.set(solicitud.id);
+                // Aquí solo filtramos localmente ya que es "limpiar historial" del proveedor
+                // En una app real, podrías llamar a un endpoint de "archivar"
+                setTimeout(() => {
+                    this.solicitudes.update(list => list.filter(s => s.id !== solicitud.id));
+                    this.procesando.set(null);
+                    this.mensajeExito.set('Registro eliminado del historial');
+                    setTimeout(() => this.mensajeExito.set(''), 3000);
+                }, 500);
             }
         });
     }

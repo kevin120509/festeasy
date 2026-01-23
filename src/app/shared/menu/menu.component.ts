@@ -8,7 +8,7 @@ import { MenuItem } from 'primeng/api';
   standalone: true,
   imports: [CommonModule, MenuModule],
   template: `
-    <div class="menu-container">
+    <div class="menu-container" [class.mini]="miniMode">
       <p-menu [model]="items" styleClass="custom-sidebar-menu"></p-menu>
     </div>
   `,
@@ -45,9 +45,18 @@ import { MenuItem } from 'primeng/api';
     }
     :host ::ng-deep .p-menu-item-text {
       font-weight: 500 !important;
+      transition: opacity 0.3s ease;
+    }
+    .menu-container.mini :host ::ng-deep .p-menu-item-text {
+      display: none !important;
+    }
+    .menu-container.mini :host ::ng-deep .p-menu-item-icon {
+      margin-right: 0 !important;
+      font-size: 1.4rem !important;
     }
   `]
 })
 export class MenuComponent {
   @Input() items: MenuItem[] = [];
+  @Input() miniMode: boolean = false;
 }
