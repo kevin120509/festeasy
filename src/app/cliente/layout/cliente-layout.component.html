@@ -34,10 +34,100 @@
         object-fit: contain;
     }
 
+    .menu-wrapper {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    /* Perfil en Sidebar */
+    .sidebar-profile {
+        padding: 16px;
+        border-top: 1px solid var(--color-gray-border);
+        background: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .profile-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: var(--color-primary-light, #fee2e2);
+        color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 16px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        flex: 1;
+        min-width: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .profile-name {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--color-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .profile-email {
+        font-size: 11px;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
     .main-content {
         flex: 1;
         margin-left: 260px;
         transition: all 0.3s ease;
+    }
+
+    /* Tablet Mode (mini sidebar) */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .sidebar {
+            width: 80px;
+        }
+
+        .main-content {
+            margin-left: 80px;
+        }
+
+        .sidebar-logo {
+            padding: 8px;
+        }
+
+        .sidebar-logo img {
+            height: 40px;
+        }
+
+        .sidebar-profile {
+            justify-content: center;
+            padding: 16px 8px;
+        }
+
+        .profile-info {
+            display: none;
+        }
     }
 
     /* Bottom Nav (Mobile Only) */
@@ -75,25 +165,7 @@
         font-size: 20px;
     }
 
-    /* Tablet Mode (768px - 1024px): Mini Sidebar */
-    @media (min-width: 769px) and (max-width: 1024px) {
-        .sidebar {
-            width: 80px;
-        }
-
-        .main-content {
-            margin-left: 80px;
-        }
-
-        .sidebar-logo img {
-            height: 40px;
-        }
-
-        /* Hide text in menu via CSS in menu component if possible, 
-           or we can use global CSS here to target it */
-    }
-
-    /* Mobile Mode (< 768px): Bottom Bar */
+    /* Mobile Mode (< 768px) */
     @media (max-width: 768px) {
         .sidebar {
             display: none;
@@ -106,7 +178,6 @@
         .main-content {
             margin-left: 0;
             padding-bottom: 70px;
-            /* Space for bottom nav */
         }
     }
 </style>
@@ -118,7 +189,25 @@
             <img src="assets/festeasy.jpeg" alt="FESTEASY"
                 onerror="this.outerHTML='<span style=font-size:24px;font-weight:700;color:#E91E63>FESTEASY</span>'">
         </div>
-        <app-menu [items]="items" [miniMode]="isTablet"></app-menu>
+
+        <div class="menu-wrapper">
+            <app-menu [items]="items" [miniMode]="isTablet"></app-menu>
+        </div>
+
+        <!-- Perfil al fondo -->
+        <div class="sidebar-profile">
+            <div class="profile-avatar">
+                @if (auth.currentUser()?.avatar_url) {
+                <img [src]="auth.currentUser()?.avatar_url" alt="Perfil">
+                } @else {
+                {{ (auth.currentUser()?.nombre_completo || 'U').charAt(0) }}
+                }
+            </div>
+            <div class="profile-info">
+                <span class="profile-name">{{ auth.currentUser()?.nombre_completo || 'Usuario' }}</span>
+                <span class="profile-email">{{ auth.currentUser()?.email }}</span>
+            </div>
+        </div>
     </aside>
 
     <!-- Main Content -->

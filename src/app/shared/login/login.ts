@@ -1,14 +1,15 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
 import { AuthService } from '../../services/auth.service';
 import { HeaderComponent } from '../header/header';
 import { CommonModule } from '@angular/common';
+
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [RouterLink, FormsModule],
+    imports: [RouterLink, FormsModule, CommonModule],
     templateUrl: './login.html'
 })
 export class LoginComponent {
@@ -20,6 +21,11 @@ export class LoginComponent {
     password = '';
     error = '';
     loading = false;
+    passwordVisible = signal(false);
+
+    togglePasswordVisibility() {
+        this.passwordVisible.update(v => !v);
+    }
 
     async login() {
         this.loading = true;
@@ -32,7 +38,7 @@ export class LoginComponent {
                 if (!rol) rol = user.user_metadata['rol'] || 'client';
 
                 const profile = await this.supabaseAuth.getUserProfile(user.id, rol as any);
-                
+
                 this.auth.login(session.access_token, {
                     ...profile,
                     profile_id: (profile as any)?.id ?? null,

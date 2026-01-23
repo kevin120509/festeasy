@@ -34,6 +34,11 @@ export class ClienteLayoutComponent implements OnInit {
         routerLink: '/cliente/solicitudes'
       },
       {
+        label: 'Configuración',
+        icon: 'pi pi-cog',
+        routerLink: '/cliente/configuracion'
+      },
+      {
         separator: true
       },
       {
@@ -60,3 +65,4 @@ export class ClienteLayoutComponent implements OnInit {
     this.sub?.unsubscribe();
   }
 }
+

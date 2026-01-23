@@ -10,7 +10,7 @@ export class AuthService {
   private supabase = inject(SupabaseService).getClient();
   private supabaseAuth = inject(SupabaseAuthService);
   private router = inject(Router);
-  
+
   // Signals for state
   isLoggedIn = signal(false);
   currentUser = signal<any>(null);
@@ -23,12 +23,12 @@ export class AuthService {
 
   private async initialize() {
     try {
-        const { data: { session } } = await this.supabase.auth.getSession();
-        if (session?.user) {
-            await this.loadUserProfile(session.user);
-        }
+      const { data: { session } } = await this.supabase.auth.getSession();
+      if (session?.user) {
+        await this.loadUserProfile(session.user);
+      }
     } catch (error) {
-        console.error('Error initializing auth:', error);
+      console.error('Error initializing auth:', error);
     }
   }
 
@@ -40,20 +40,20 @@ export class AuthService {
   private async loadUserProfile(user: any) {
     // 1. Determine role from DB (source of truth)
     let rol = await this.supabaseAuth.determineUserRole(user.id);
-    
+
     // 2. Fallback to metadata if DB check fails (e.g. new user not yet in profile table)
     if (!rol) {
-        rol = user.user_metadata?.rol || 'client';
+      rol = user.user_metadata?.rol || 'client';
     }
 
     const table = rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
-    
+
     const { data: profile } = await this.supabase
-        .from(table)
-        .select('*')
-        .eq('usuario_id', user.id)
-        .single();
-    
+      .from(table)
+      .select('*')
+      .eq('usuario_id', user.id)
+      .single();
+
     const fullUser = {
       ...profile,
       profile_id: profile?.id ?? null,
@@ -64,6 +64,13 @@ export class AuthService {
 
     this.isLoggedIn.set(true);
     this.currentUser.set(fullUser);
+  }
+
+  async refreshUserProfile() {
+    const { data: { user } } = await this.supabase.auth.getUser();
+    if (user) {
+      await this.loadUserProfile(user);
+    }
   }
 
   // Legacy method used by Login component
@@ -88,7 +95,7 @@ export class AuthService {
         redirectTo: window.location.origin
       }
     });
-    
+
     if (error) throw error;
     return data;
   }
@@ -105,12 +112,12 @@ export class AuthService {
     // ApiService's getHeaders() calls this.
     // We'll rely on the localStorage key we used to use? 
     // No, we want to remove "festeasy_token".
-    
+
     // Quick fix: Attempt to read from Supabase local storage entry if possible, 
     // or just return empty string as we are moving away from HTTP Client for core logic.
-    return localStorage.getItem('sb-ghlosgnopdmrowiygxdm-auth-token') 
-        ? JSON.parse(localStorage.getItem('sb-ghlosgnopdmrowiygxdm-auth-token')!).access_token 
-        : null;
+    return localStorage.getItem('sb-ghlosgnopdmrowiygxdm-auth-token')
+      ? JSON.parse(localStorage.getItem('sb-ghlosgnopdmrowiygxdm-auth-token')!).access_token
+      : null;
   }
 
   isClient(): boolean {

@@ -1,9 +1,8 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
-
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { ValidarPin } from '../validar-pin/validar-pin';
 
@@ -29,6 +28,7 @@ export class ProveedorDashboardComponent implements OnInit {
     // Servicios
     private auth = inject(AuthService);
     private supabaseData = inject(SupabaseDataService);
+    private router = inject(Router);
 
     // Fecha actual formateada
     fechaHoy = new Date();
@@ -136,16 +136,17 @@ export class ProveedorDashboardComponent implements OnInit {
         const hoy = new Date();
         hoy.setHours(0, 0, 0, 0);
         const nuevasHoy = solicitudes.filter(s => {
-            const fechaCreacion = new Date(s.created_at);
+            const fechaCreacion = new Date(s.creado_en);
             fechaCreacion.setHours(0, 0, 0, 0);
             return fechaCreacion.getTime() === hoy.getTime() &&
                 (s.estado === 'pendiente_aprobacion' || s.estado === 'pendiente');
         }).length;
 
-        // Eventos confirmados: estado 'reservado' o 'aceptado'
-        const confirmados = solicitudes.filter(s =>
-            s.estado === 'reservado' || s.estado === 'aceptado' || s.estado === 'en_progreso'
-        ).length;
+        // Eventos confirmados: estado 'reservado', 'pagado', etc.
+        const confirmados = solicitudes.filter(s => {
+            const estado = s.estado?.toLowerCase();
+            return ['reservado', 'pagado', 'en_progreso', 'aceptado', 'confirmado'].includes(estado);
+        }).length;
 
         this.stats.update(stats => ({
             ...stats,
@@ -169,7 +170,7 @@ export class ProveedorDashboardComponent implements OnInit {
                 ubicacion: req.direccion_servicio || 'Ubicación no especificada',
                 fechaServicio: new Date(req.fecha_servicio),
                 estado: this.mapEstado(req.estado),
-                monto: req.presupuesto_max || req.monto,
+                monto: req.monto_total || req.monto,
                 cliente_nombre: req.perfil_cliente?.nombre_completo || 'Cliente'
             }));
 
@@ -186,7 +187,8 @@ export class ProveedorDashboardComponent implements OnInit {
         // Filtrar solicitudes confirmadas con fecha futura
         const proximosEventos = solicitudes
             .filter(s => {
-                const esConfirmado = s.estado === 'reservado' || s.estado === 'aceptado';
+                const estado = s.estado?.toLowerCase();
+                const esConfirmado = ['reservado', 'pagado', 'en_progreso', 'aceptado', 'confirmado'].includes(estado);
                 const fechaFutura = new Date(s.fecha_servicio) > ahora;
                 return esConfirmado && fechaFutura;
             })
@@ -199,7 +201,7 @@ export class ProveedorDashboardComponent implements OnInit {
                 titulo: proximo.titulo_evento || 'Evento Próximo',
                 ubicacion: proximo.direccion_servicio || 'Ubicación por confirmar',
                 fecha: new Date(proximo.fecha_servicio),
-                montoTotal: proximo.presupuesto_max || proximo.monto || 0,
+                montoTotal: proximo.monto_total || proximo.monto || 0,
                 imagenMapa: 'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=400&h=200&fit=crop'
             });
         } else {
@@ -305,8 +307,9 @@ export class ProveedorDashboardComponent implements OnInit {
      * Ver detalles de una solicitud
      */
     verDetalles(id: string) {
-        console.log('Ver detalles de solicitud:', id);
-        // TODO: Navegar a página de detalles o abrir modal
+        if (!id) return;
+        console.log('Navegando a detalles de solicitud:', id);
+        this.router.navigate(['/proveedor/solicitudes', id]);
         this.menuAbierto.set(null);
     }
 

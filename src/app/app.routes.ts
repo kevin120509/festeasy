@@ -40,6 +40,7 @@ import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.co
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
 import { UserManagementComponent } from './admin/users/user-management.component';
 import { ProviderApprovalComponent } from './admin/provider-approval/provider-approval.component';
+import { SolicitudDetalleComponent } from './proveedor/solicitudes/detalle/solicitud-detalle.component';
 
 export const routes: Routes = [
     // General
@@ -84,6 +85,7 @@ export const routes: Routes = [
         data: { role: 'provider' },
         children: [
             { path: 'dashboard', component: ProveedorDashboardComponent },
+            { path: 'solicitudes/:id', component: SolicitudDetalleComponent },
             { path: 'solicitudes', component: BandejaSolicitudesComponent },
             { path: 'bandeja', component: BandejaSolicitudesComponent },
             { path: 'agenda', component: AgendaComponent },

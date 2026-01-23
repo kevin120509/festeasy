@@ -148,13 +148,16 @@ export class ApiService {
         return this.http.get<ClientProfile[]>(`${this.API_URL}/perfil-cliente`, { headers: this.getHeaders() });
     }
 
-    getClientProfile(id: string): Observable<ClientProfile> {
-        return this.http.get<ClientProfile>(`${this.API_URL}/perfil-cliente/${id}`, { headers: this.getHeaders() });
+    getClientProfile(userId: string): Observable<ClientProfile> {
+        return this.fromSupabase<ClientProfile>(
+            this.supabase.from('perfil_cliente').select('*').eq('usuario_id', userId).single()
+        );
     }
 
     updateClientProfile(id: string, data: Partial<ClientProfile>): Observable<ClientProfile> {
-        // Backend usa token para identificar usuario, ignoramos ID
-        return this.http.put<ClientProfile>(`${this.API_URL}/perfil`, data, { headers: this.getHeaders() });
+        return this.fromSupabase<ClientProfile>(
+            this.supabase.from('perfil_cliente').update(data).eq('id', id).select().single()
+        );
     }
 
     // ==========================================
@@ -191,7 +194,7 @@ export class ApiService {
                 .from('paquetes_proveedor')
                 .select('*, categoria:categorias_servicio(nombre)')
                 .eq('proveedor_usuario_id', providerUserId)
-                // .eq('estado', 'publicado') // Allow all packages for now
+            // .eq('estado', 'publicado') // Allow all packages for now
         ).pipe(
             map(packages => {
                 console.log('🔍 API: Paquetes encontrados (por usuario_id):', packages);
@@ -424,7 +427,7 @@ export class ApiService {
     getRequestById(id: string): Observable<any> {
         return from(this.supabase
             .from('solicitudes')
-            .select('*')
+            .select('*, client:perfil_cliente!solicitudes_cliente_perfil_fkey(*)')
             .eq('id', id)
             .single()
         ).pipe(
@@ -432,7 +435,7 @@ export class ApiService {
                 if (error) throw error;
                 if (!request) throw new Error('Solicitud no encontrada');
 
-                // Obtener perfil del proveedor manualmente
+                // Obtener perfil del proveedor manualmente (opcional si ya viene en el objeto o no se usa)
                 return from(this.supabase
                     .from('perfil_proveedor')
                     .select('*')
@@ -478,7 +481,7 @@ export class ApiService {
     // Obtener paquetes de una lista de proveedores para filtrado avanzado
     getPackagesByProviderIds(providerIds: string[]): Observable<any[]> {
         if (!providerIds.length) return new Observable(obs => obs.next([]));
-        
+
         return this.fromSupabase(
             this.supabase
                 .from('paquetes_proveedor')

@@ -1,0 +1,193 @@
+<div class="min-h-screen bg-slate-50 pb-12">
+    <!-- Header de Navegación -->
+    <div class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <button (click)="volver()"
+                class="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors font-semibold py-2">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Volver a Solicitudes</span>
+            </button>
+            <div class="flex items-center gap-3">
+                @if (solicitud()) {
+                <span class="px-3 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full uppercase">
+                    {{ solicitud()?.estado }}
+                </span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-6 pt-8">
+        @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary"></div>
+            <p class="text-slate-500 font-medium">Cargando detalles del evento...</p>
+        </div>
+        } @else if (mensajeError()) {
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+            <span class="material-symbols-outlined text-red-400 text-5xl mb-4">error</span>
+            <h2 class="text-red-800 text-xl font-bold mb-2">¡Ups! Algo salió mal</h2>
+            <p class="text-red-600 mb-6">{{ mensajeError() }}</p>
+            <button (click)="volver()"
+                class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-700 transition-colors">
+                Regresar
+            </button>
+        </div>
+        } @else if (solicitud()) {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna Izquierda: Detalles del Evento e Items -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Tarjeta Principal: Info del Evento -->
+                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <h1 class="text-3xl font-black text-slate-900 mb-2">{{ solicitud()?.titulo_evento }}</h1>
+                            <p class="text-slate-500 font-medium flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">event</span>
+                                {{ formatearFecha(solicitud()!.fecha_servicio) }}
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+                            <div class="space-y-1">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ubicación del
+                                    Servicio</p>
+                                <p class="text-slate-700 font-semibold flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">location_on</span>
+                                    {{ solicitud()?.direccion_servicio }}
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Número de
+                                    Solicitud</p>
+                                <p class="text-slate-700 font-semibold">#{{ solicitud()?.numero_solicitud }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Desglose de Servicios -->
+                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-8 border-b border-slate-100">
+                        <h2 class="text-xl font-bold text-slate-800">Servicios Contratados</h2>
+                    </div>
+                    <div class="p-0">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead
+                                    class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest text-left">
+                                    <tr>
+                                        <th class="px-8 py-4">Paquete / Servicio</th>
+                                        <th class="px-8 py-4 text-center">Cant.</th>
+                                        <th class="px-8 py-4 text-right">Precio Unit.</th>
+                                        <th class="px-8 py-4 text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @for (item of items(); track item.id) {
+                                    <tr class="hover:bg-slate-50 transition-colors">
+                                        <td class="px-8 py-5">
+                                            <p class="text-slate-800 font-bold">{{ item.nombre_paquete_snapshot }}</p>
+                                        </td>
+                                        <td class="px-8 py-5 text-center text-slate-600 font-semibold">
+                                            {{ item.cantidad }}
+                                        </td>
+                                        <td class="px-8 py-5 text-right text-slate-600">
+                                            {{ item.precio_unitario | currency:'MXN' }}
+                                        </td>
+                                        <td class="px-8 py-5 text-right text-slate-900 font-bold">
+                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN' }}
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
+                        <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total del Evento</span>
+                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN'
+                            }}</span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Columna Derecha: Cliente y Pagos -->
+            <div class="space-y-8">
+                <!-- Tarjeta del Cliente -->
+                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Información del Cliente
+                    </h2>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div
+                            class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-2xl font-black">
+                            @if (solicitud()?.client?.avatar_url) {
+                            <img [src]="solicitud()?.client?.avatar_url" class="w-full h-full object-cover rounded-2xl"
+                                alt="Cliente">
+                            } @else {
+                            {{ solicitud()?.client?.nombre_completo?.charAt(0) }}
+                            }
+                        </div>
+                        <div>
+                            <h3 class="text-slate-800 font-bold text-lg leading-tight">{{
+                                solicitud()?.client?.nombre_completo }}</h3>
+                            <p class="text-slate-500 text-sm font-medium">Cliente Registrado</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        @if (solicitud()?.client?.telefono) {
+                        <button (click)="contactarCliente()"
+                            class="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-200">
+                            <span class="material-symbols-outlined">chat</span>
+                            <span>Enviar WhatsApp</span>
+                        </button>
+                        }
+                    </div>
+                </section>
+
+                <!-- Estado de Pagos -->
+                <section class="bg-slate-900 rounded-3xl p-8 text-white">
+                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Resumen Financiero
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-400 text-sm">Anticipo (50%)</span>
+                            <div class="text-right">
+                                <p class="font-bold">{{ (solicitud()?.monto_total || 0) / 2 | currency:'MXN' }}</p>
+                                <span
+                                    class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-6 border-t border-white/10">
+                            <span class="text-slate-400 text-sm">Saldo Pendiente</span>
+                            <div class="text-right">
+                                <p class="font-bold">{{ (solicitud()?.monto_total || 0) / 2 | currency:'MXN' }}</p>
+                                <span
+                                    class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-black uppercase">Por
+                                    Liquidar</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Acciones Especiales (PIN) -->
+                @if (solicitud()?.estado === 'reservado') {
+                <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200">
+                    <p class="text-amber-800 text-sm font-bold mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">info</span>
+                        Recordatorio de Seguridad
+                    </p>
+                    <p class="text-amber-700 text-xs leading-relaxed mb-4">
+                        Recuerda solicitar el **PIN de 4 dígitos** al cliente el día del evento para iniciar el servicio
+                        oficialmente.
+                    </p>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </main>
+</div>

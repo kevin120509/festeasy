@@ -24,10 +24,12 @@ interface SolicitudBandeja {
 
 type TabType = 'pendientes' | 'aceptadas' | 'historial';
 
+import { RouterModule } from '@angular/router';
+
 @Component({
     selector: 'app-bandeja-solicitudes',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe],
+    imports: [CommonModule, CurrencyPipe, RouterModule],
     providers: [ConfirmationService],
     templateUrl: './bandeja-solicitudes.component.html'
 })

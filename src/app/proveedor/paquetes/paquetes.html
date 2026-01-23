@@ -121,7 +121,19 @@
                                 Archivado
                             </span>
                         </div>
-                        <h3 class="text-jet-black dark:text-white text-xl font-bold truncate">{{ paquete.nombre }}</h3>
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                                @if (authService.currentUser()?.avatar_url) {
+                                <img [src]="authService.currentUser()?.avatar_url" class="w-full h-full object-cover">
+                                } @else {
+                                <span class="text-[10px] font-black text-slate-400 font-bold">{{
+                                    (authService.currentUser()?.nombre_negocio || 'P').charAt(0) }}</span>
+                                }
+                            </div>
+                            <h3 class="text-jet-black dark:text-white text-xl font-bold truncate">{{ paquete.nombre }}
+                            </h3>
+                        </div>
                         <p class="text-primary font-black text-lg">${{ paquete.precio_base | number:'1.2-2' }} <span
                                 class="text-xs text-gray-400 font-medium">/ servicio</span></p>
                         <div class="flex items-center gap-6 mt-2 text-gray-500 dark:text-gray-400">

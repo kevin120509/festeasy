@@ -164,8 +164,9 @@ export class ProveedorConfiguracionComponent implements OnInit {
             usuario_id: userId
         };
         this.api.updateProviderProfile(this.profile()!.id, data).subscribe({
-            next: (updatedProfile) => {
+            next: async (updatedProfile) => {
                 this.profile.set(updatedProfile);
+                await this.auth.refreshUserProfile();
                 this.successMessage.set('Perfil actualizado exitosamente');
                 this.saving.set(false);
                 setTimeout(() => this.successMessage.set(''), 3000);

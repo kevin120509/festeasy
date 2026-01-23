@@ -217,7 +217,7 @@
                         <span class="material-symbols-outlined text-lg">chat</span>
                         <span>Contactar Cliente</span>
                     </button>
-                    <button
+                    <button [routerLink]="['/proveedor/solicitudes', solicitud.id]"
                         class="flex-1 py-5 bg-slate-50 hover:bg-slate-100 text-primary font-bold text-sm flex items-center justify-center gap-2 transition-colors">
                         <span class="material-symbols-outlined text-lg">visibility</span>
                         <span>Ver Detalles</span>
