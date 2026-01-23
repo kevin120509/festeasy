@@ -75,7 +75,7 @@ export class RevisarSolicitudComponent implements OnInit {
             // 2. Calcular SLA (Regla 3)
             const sla = this.calService.aplicarReglaSLA(eventoData.fecha + 'T' + (eventoData.hora || '12:00'));
 
-            // 3. Crear la solicitud con SLA
+            // 3. Crear la solicitud
             const solicitudPayload = {
                 cliente_usuario_id: user.id,
                 proveedor_usuario_id: proveedorData.usuario_id,
@@ -85,9 +85,7 @@ export class RevisarSolicitudComponent implements OnInit {
                 monto_total: this.total(),
                 estado: 'pendiente_aprobacion',
                 latitud_servicio: 0,
-                longitud_servicio: 0,
-                horas_respuesta_max: sla.horas_respuesta_max,
-                es_urgente: sla.es_urgente
+                longitud_servicio: 0
             };
             const solicitud = await firstValueFrom(this.api.createRequest(solicitudPayload));
             if (!solicitud?.id) throw new Error('No se pudo crear la solicitud (sin id).');

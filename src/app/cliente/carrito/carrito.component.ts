@@ -195,9 +195,7 @@ export class CarritoComponent implements OnInit {
                     estado: 'pendiente_aprobacion',
                     monto_total: item.precio * item.cantidad,
                     monto_anticipo: 0,
-                    monto_liquidacion: 0,
-                    horas_respuesta_max: sla.horas_respuesta_max,
-                    es_urgente: sla.es_urgente
+                    monto_liquidacion: 0
                 };
 
                 console.log('📤 Enviando solicitud:', solicitud);

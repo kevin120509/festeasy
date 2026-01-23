@@ -248,8 +248,8 @@ export class SupabaseDataService {
         return from(this.supabase
             .from('disponibilidad_bloqueada')
             .select('*')
-            .eq('provider_id', providerId)
-            .order('fecha', { ascending: true })
+            .eq('proveedor_usuario_id', providerId)
+            .order('fecha_bloqueada', { ascending: true })
         ).pipe(
             map(({ data, error }) => {
                 if (error && error.code === '42P01') return [];
@@ -265,12 +265,12 @@ export class SupabaseDataService {
     getAllBlockedProvidersByDate(date: string): Observable<string[]> {
         return from(this.supabase
             .from('disponibilidad_bloqueada')
-            .select('provider_id')
-            .eq('fecha', date)
+            .select('proveedor_usuario_id')
+            .eq('fecha_bloqueada', date)
         ).pipe(
             map(({ data, error }) => {
                 if (error) return [];
-                return (data || []).map(b => b.provider_id);
+                return (data || []).map(b => b.proveedor_usuario_id);
             })
         );
     }
@@ -301,8 +301,8 @@ export class SupabaseDataService {
         const { data, error } = await this.supabase
             .from('disponibilidad_bloqueada')
             .insert({
-                provider_id: providerId,
-                fecha: dateString,
+                proveedor_usuario_id: providerId,
+                fecha_bloqueada: dateString,
                 motivo: motivo || null
             })
             .select()
@@ -316,27 +316,27 @@ export class SupabaseDataService {
      * Unblock a previously blocked date
      */
     async unblockDate(blockId: string) {
-        const { error } = await this.supabase
+        const { error, count } = await this.supabase
             .from('disponibilidad_bloqueada')
-            .delete()
+            .delete({ count: 'exact' })
             .eq('id', blockId);
 
         if (error) throw error;
-        return { success: true };
+        return { success: true, count };
     }
 
     /**
      * Unblock a previously blocked date using providerId and date
      */
     async unblockDateByDate(providerId: string, dateISO: string) {
-        const { error } = await this.supabase
+        const { error, count } = await this.supabase
             .from('disponibilidad_bloqueada')
-            .delete()
-            .eq('provider_id', providerId)
-            .eq('fecha', dateISO);
+            .delete({ count: 'exact' })
+            .eq('proveedor_usuario_id', providerId)
+            .eq('fecha_bloqueada', dateISO);
 
         if (error) throw error;
-        return { success: true };
+        return { success: true, count };
     }
 
     /**

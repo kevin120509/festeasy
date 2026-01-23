@@ -268,7 +268,7 @@ export class AgendaComponent implements OnInit {
 
         // Check if date is manually blocked
         const blockedDate = this.blockedDates().find(block =>
-            block.fecha === dateString
+            block.fecha_bloqueada === dateString
         );
         const isBlocked = !!blockedDate;
 
@@ -354,13 +354,17 @@ export class AgendaComponent implements OnInit {
 
         try {
             const dateISO = this.formatDateISO(date);
-            await firstValueFrom(this.calService.bloquearFechaManual(providerId, dateISO));
-            console.log(`✅ Date blocked successfully: ${date.toLocaleDateString('es-ES')}`);
+            const res = await firstValueFrom(this.calService.bloquearFechaManual(providerId, dateISO));
+            console.log(`✅ Fecha bloqueada con éxito: ${dateISO}`, res);
+
+            // Actualización reactiva local
+            this.blockedDates.update(list => [...list, { id: res.id, fecha_bloqueada: dateISO, proveedor_usuario_id: providerId }]);
+            this.generateCalendar();
+
             this.showNotification(`Fecha bloqueada: ${date.toLocaleDateString('es-ES')}`);
-            // Refresh calendar to show the blocked date
             this.loadProviderEvents();
         } catch (error) {
-            console.error('❌ Error blocking date:', error);
+            console.error('❌ Error al bloquear fecha:', error);
             this.showNotification('Error al bloquear la fecha', 'error');
         }
     }
@@ -372,21 +376,37 @@ export class AgendaComponent implements OnInit {
         const dateISO = this.formatDateISO(day.date);
 
         try {
-            if (day.blockId) {
-                await this.supabaseData.unblockDate(day.blockId);
-            } else {
-                // Redundancia: intentar por fecha si no hay ID
-                await this.supabaseData.unblockDateByDate(providerId, dateISO);
-            }
+            console.log(`🗑️ Iniciando proceso de desbloqueo: ${dateISO}`);
 
-            console.log(`✅ Date unblocked successfully: ${dateISO}`);
+            // 1. ACTUALIZACIÓN LOCAL INMEDIATA (Zero Latency)
+            // Esto elimina el círculo de la UI al instante
+            this.blockedDates.update(list => list.filter(b => b.fecha_bloqueada !== dateISO && b.id !== day.blockId));
+            this.generateCalendar();
+
             this.showNotification('Fecha desbloqueada exitosamente');
 
-            // Refrescar eventos y calendario
-            this.loadProviderEvents();
+            // 2. Operaciones en Base de Datos (en segundo plano)
+            if (day.blockId) {
+                await this.supabaseData.unblockDate(day.blockId);
+            }
+            // Borrado redundante para asegurar limpieza total
+            await this.supabaseData.unblockDateByDate(providerId, dateISO);
+
+            console.log(`✅ Borrado confirmado en DB para: ${dateISO}`);
+
+            // 3. SINCRONIZACIÓN CON RETARDO
+            // Esperamos 2.5 segundos para dar tiempo a que la DB procese el borrado
+            // Esto evita que loadProviderEvents traiga datos viejos (race condition)
+            setTimeout(() => {
+                console.log('🔄 Sincronizando con el servidor para verificar estado final...');
+                this.loadProviderEvents();
+            }, 2500);
+
         } catch (error) {
-            console.error('❌ Error unblocking date:', error);
+            console.error('❌ Error al desbloquear fecha:', error);
             this.showNotification('Error al desbloquear la fecha', 'error');
+            // En caso de error real, recargamos para recuperar el estado
+            this.loadProviderEvents();
         }
     }
 

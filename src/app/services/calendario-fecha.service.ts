@@ -37,8 +37,8 @@ export class CalendarioFechaService {
         return from(
             supabase.from('disponibilidad_bloqueada')
                 .select('*')
-                .eq('provider_id', providerId)
-                .eq('fecha', fechaISO)
+                .eq('proveedor_usuario_id', providerId)
+                .eq('fecha_bloqueada', fechaISO)
                 .maybeSingle()
         ).pipe(
             switchMap(({ data: bloqueo }) => {
@@ -145,8 +145,8 @@ export class CalendarioFechaService {
         const supabase = this.supabaseService.getClient();
         return from(
             supabase.from('disponibilidad_bloqueada').insert({
-                provider_id: providerId,
-                fecha: fechaISO,
+                proveedor_usuario_id: providerId,
+                fecha_bloqueada: fechaISO,
                 motivo: motivo
             }).select().single()
         ).pipe(
