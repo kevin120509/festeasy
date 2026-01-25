@@ -97,7 +97,7 @@ export class RevisarSolicitudComponent implements OnInit {
 
             const eventoData = this.evento();
             const proveedorData = this.proveedor();
-            const fechaServicio = new Date(eventoData.fecha + 'T' + (eventoData.hora || '12:00'));
+            const fechaServicio = new Date(eventoData.fecha + 'T' + (eventoData.horaInicio || '12:00'));
 
             // 1. Validar Disponibilidad (Regla 1 y 2)
             const disp = await firstValueFrom(this.calService.consultarDisponibilidad(proveedorData.usuario_id, fechaServicio));
@@ -108,7 +108,16 @@ export class RevisarSolicitudComponent implements OnInit {
             }
 
             // 2. Calcular SLA (Regla 3)
-            const sla = this.calService.aplicarReglaSLA(eventoData.fecha + 'T' + (eventoData.hora || '12:00'));
+            const sla = this.calService.aplicarReglaSLA(eventoData.fecha + 'T' + (eventoData.horaInicio || '12:00'));
+
+            // Construir título con horario e invitados
+            const horarioStr = eventoData.horaInicio && eventoData.horaFin
+                ? `(${eventoData.horaInicio} - ${eventoData.horaFin})`
+                : (eventoData.hora ? `(${eventoData.hora})` : '');
+
+            const invitadosStr = eventoData.invitados ? ` - ${eventoData.invitados} invitados` : '';
+
+            const tituloCompleto = `${eventoData.titulo} ${horarioStr}${invitadosStr}`;
 
             // 3. Crear la solicitud
             const solicitudPayload = {
@@ -116,7 +125,7 @@ export class RevisarSolicitudComponent implements OnInit {
                 proveedor_usuario_id: proveedorData.usuario_id,
                 fecha_servicio: eventoData.fecha,
                 direccion_servicio: eventoData.ubicacion,
-                titulo_evento: eventoData.titulo,
+                titulo_evento: tituloCompleto,
                 monto_total: this.total(),
                 estado: 'pendiente_aprobacion',
                 latitud_servicio: 0,
@@ -174,13 +183,13 @@ export class RevisarSolicitudComponent implements OnInit {
 
             // 3. Preparar datos para la pantalla de confirmación
             const fechaRaw = solicitud?.fecha_servicio || eventoData.fecha || eventoData.fecha_servicio || '';
-            const horaRaw = solicitud?.hora_servicio || eventoData.hora || eventoData.hora_servicio || '';
+            const horaRaw = horarioStr.trim().replace(/^\(|\)$/g, ''); // Extract "XX:XX - YY:YY" from "(XX:XX - YY:YY)"
             const fechaDisplay = fechaRaw ? new Date(fechaRaw).toLocaleDateString('es-MX') : '';
 
             const eventoParaMostrar = {
-                titulo_evento: solicitud?.titulo_evento || eventoData.titulo || eventoData.titulo_evento || 'Evento',
+                titulo_evento: solicitud?.titulo_evento || tituloCompleto,
                 fecha_servicio: fechaDisplay,
-                hora_servicio: horaRaw || '',
+                hora_servicio: horaRaw,
                 invitados: solicitud?.invitados ?? eventoData.invitados ?? 0,
                 ubicacion: solicitud?.direccion_servicio || eventoData.ubicacion,
                 descripcion: solicitud?.descripcion || eventoData.descripcion || ''

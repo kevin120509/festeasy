@@ -71,7 +71,11 @@ export class SolicitudDetalleComponent implements OnInit {
 
     formatearFecha(fechaStr: string): string {
         if (!fechaStr) return '';
-        return new Date(fechaStr).toLocaleDateString('es-MX', {
+        // Fix timezone issue by appending time or splitting
+        // new Date('2026-01-30') is UTC, so -6h is previous day 18:00
+        // new Date('2026-01-30T00:00:00') is Local
+        const fecha = new Date(fechaStr + 'T00:00:00');
+        return fecha.toLocaleDateString('es-MX', {
             weekday: 'long',
             day: 'numeric',
             month: 'long',
@@ -79,8 +83,29 @@ export class SolicitudDetalleComponent implements OnInit {
         });
     }
 
+    getHora(): string {
+        const titulo = this.solicitud()?.titulo_evento || '';
+        const match = titulo.match(/\(([^)]+)\)/); // Finds text inside ()
+        return match ? match[1] : 'Por definir';
+    }
+
+    getInvitados(): string {
+        const titulo = this.solicitud()?.titulo_evento || '';
+        const match = titulo.match(/- (\d+) invitados/); // Finds "- N invitados"
+        return match ? match[1] : 'No especificado';
+    }
+
+    getTituloReal(): string {
+        let titulo = this.solicitud()?.titulo_evento || '';
+        // Remove time
+        titulo = titulo.replace(/\s*\([^)]+\)/, '');
+        // Remove guests
+        titulo = titulo.replace(/\s*-\s*\d+\s*invitados/, '');
+        return titulo.trim();
+    }
+
     contactarCliente(): void {
-        const tel = this.solicitud()?.client?.telefono;
+        const tel = (this.solicitud() as any)?.cliente?.telefono;
         if (tel) {
             window.open(`https://wa.me/${tel.replace(/\s+/g, '')}`, '_blank');
         }

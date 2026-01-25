@@ -4,6 +4,7 @@ import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
@@ -32,7 +33,7 @@ import { RouterModule } from '@angular/router';
 @Component({
     selector: 'app-bandeja-solicitudes',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin, ConfirmDialogModule],
     providers: [ConfirmationService],
     templateUrl: './bandeja-solicitudes.component.html'
 })
@@ -238,7 +239,10 @@ export class BandejaSolicitudesComponent implements OnInit {
 
     formatearFecha(fechaStr: string): string {
         if (!fechaStr) return 'Por definir';
-        const fecha = new Date(fechaStr);
+        // Fix timezone issue by appending time or splitting
+        // new Date('2026-01-30') is UTC, so -6h is previous day 18:00
+        // new Date('2026-01-30T00:00:00') is Local
+        const fecha = new Date(fechaStr.includes('T') ? fechaStr : fechaStr + 'T00:00:00');
         const opciones: Intl.DateTimeFormatOptions = {
             weekday: 'short',
             day: 'numeric',

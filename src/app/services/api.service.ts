@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, throwError, from, map, switchMap } from 'rxjs';
+import { Observable, throwError, from, map, switchMap, forkJoin, of } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
@@ -299,20 +299,50 @@ export class ApiService {
             switchMap((res: any) => {
                 if (res.error) throw res.error;
                 const userId = res.data.user?.id;
-                if (!userId) return [];
+                if (!userId) return of([]);
 
-                // JOIN con perfil_cliente usando la nueva FK
+                // 1. Obtener solicitudes
                 return from(this.supabase
                     .from('solicitudes')
-                    .select('*, cliente:perfil_cliente!solicitudes_cliente_perfil_fkey(nombre_completo, telefono, avatar_url)')
+                    .select('*')
                     .eq('proveedor_usuario_id', userId)
                     .order('creado_en', { ascending: false })
+                ).pipe(
+                    switchMap((resRequests: any) => {
+                        if (resRequests.error) throw resRequests.error;
+                        const requests = resRequests.data || [];
+                        if (requests.length === 0) return of([]);
+
+                        // Obtener IDs de clientes únicos
+                        const clientIds = [...new Set(requests.map((r: any) => r.cliente_usuario_id))];
+
+                        // 2. Obtener perfiles de clientes
+                        return from(this.supabase
+                            .from('perfil_cliente')
+                            .select('usuario_id, nombre_completo, telefono, avatar_url')
+                            .in('usuario_id', clientIds)
+                        ).pipe(
+                            map((resProfiles: any) => {
+                                if (resProfiles.error) console.error('Error fetching client profiles', resProfiles.error);
+
+                                const profilesMap = new Map();
+                                (resProfiles.data || []).forEach((p: any) => profilesMap.set(p.usuario_id, p));
+
+                                // 3. Combinar datos
+                                return requests.map((r: any) => ({
+                                    ...r,
+                                    cliente: profilesMap.get(r.cliente_usuario_id) || {
+                                        nombre_completo: 'Cliente no encontrado',
+                                        telefono: '',
+                                        avatar_url: null
+                                    }
+                                }));
+                            })
+                        );
+                    })
                 );
             }),
-            map((res: any) => {
-                if (res.error) throw res.error;
-                return res.data || [];
-            })
+            map((res: any) => res) // Pass through the array
         );
     }
 
@@ -429,7 +459,7 @@ export class ApiService {
     getRequestById(id: string): Observable<any> {
         return from(this.supabase
             .from('solicitudes')
-            .select('*, client:perfil_cliente!solicitudes_cliente_perfil_fkey(*)')
+            .select('*')
             .eq('id', id)
             .single()
         ).pipe(
@@ -437,16 +467,15 @@ export class ApiService {
                 if (error) throw error;
                 if (!request) throw new Error('Solicitud no encontrada');
 
-                // Obtener perfil del proveedor manualmente (opcional si ya viene en el objeto o no se usa)
-                return from(this.supabase
-                    .from('perfil_proveedor')
-                    .select('*')
-                    .eq('usuario_id', request.proveedor_usuario_id)
-                    .single()
-                ).pipe(
-                    map(({ data: profile }) => ({
+                // Obtener perfiles manualmente para asegurar que llegan
+                return forkJoin({
+                    provider: from(this.supabase.from('perfil_proveedor').select('*').eq('usuario_id', request.proveedor_usuario_id).maybeSingle()),
+                    client: from(this.supabase.from('perfil_cliente').select('*').eq('usuario_id', request.cliente_usuario_id).maybeSingle())
+                }).pipe(
+                    map(({ provider, client }) => ({
                         ...request,
-                        perfil_proveedor: profile
+                        perfil_proveedor: provider.data,
+                        cliente: client.data // Aquí asignamos el cliente explícitamente
                     }))
                 );
             })

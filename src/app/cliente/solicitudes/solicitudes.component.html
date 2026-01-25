@@ -114,8 +114,8 @@
         <!-- List Grid -->
         <div *ngIf="!loading() && filteredRequests().length > 0"
             class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div *ngFor="let sol of filteredRequests()"
-                class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100 flex flex-col">
+            <div *ngFor="let sol of filteredRequests()" [routerLink]="['/cliente/solicitudes', sol.id]"
+                class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100 flex flex-col cursor-pointer">
 
                 <!-- Card Image & Badge -->
                 <div class="relative h-48 bg-gray-200 overflow-hidden">
@@ -178,7 +178,8 @@
 
                     <div class="mt-6 flex items-center justify-between">
                         <div>
-                             <button *ngIf="sol.estado === 'finalizado'" (click)="eliminarSolicitud(sol.id)"
+                            <button *ngIf="sol.estado === 'finalizado'"
+                                (click)="$event.stopPropagation(); eliminarSolicitud(sol.id)"
                                 class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
                                 <span class="material-symbols-outlined text-[16px]">delete</span>
                                 Eliminar

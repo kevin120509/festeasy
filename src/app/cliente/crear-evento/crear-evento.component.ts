@@ -23,7 +23,8 @@ export class CrearEventoComponent implements OnInit {
     // Datos del evento
     titulo = '';
     fecha = '';
-    hora = '12:00';
+    horaInicio = '12:00';
+    horaFin = '16:00';
     ubicacion = '';
     invitados = 50;
     categoriaId = '';
@@ -87,13 +88,13 @@ export class CrearEventoComponent implements OnInit {
     }
 
     buscarProveedores() {
-        if (!this.titulo || !this.fecha || !this.hora || !this.ubicacion || !this.categoriaId) {
+        if (!this.titulo || !this.fecha || !this.horaInicio || !this.horaFin || !this.ubicacion || !this.categoriaId) {
             this.error = 'Por favor completa todos los campos obligatorios.';
             return;
         }
 
         // VALIDACIÓN DE FECHA PASADA
-        const fechaSeleccionada = new Date(this.fecha + 'T' + this.hora);
+        const fechaSeleccionada = new Date(this.fecha + 'T' + this.horaInicio);
         if (!this.calService.validarFechaFutura(fechaSeleccionada)) {
             this.error = 'No puedes agendar un evento en el pasado. Por favor selecciona una fecha válida.';
             return;
@@ -106,7 +107,8 @@ export class CrearEventoComponent implements OnInit {
         const eventoData = {
             titulo: this.titulo,
             fecha: this.fecha,
-            hora: this.hora,
+            horaInicio: this.horaInicio,
+            horaFin: this.horaFin,
             ubicacion: this.ubicacion,
             invitados: this.invitados,
             categoriaId: this.categoriaId,
