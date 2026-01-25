@@ -19,7 +19,7 @@
                 </div>
             </div>
 
-            <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">¿Qué evento estás planeando?</h2>
+            <h2 class="text-2xl font-bold text-center text-gray-900 dark:text-white mb-2">¿Qué servicio quieres para tu evento?</h2>
             <p class="text-center text-gray-500 dark:text-gray-400 mb-8">Cuéntanos los detalles y te mostraremos los mejores proveedores cercanos</p>
 
             @if (error) {
@@ -32,13 +32,13 @@
                 <!-- Título del evento -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Nombre del evento *
+                        Nombre de la solicitud *
                     </label>
                     <input 
                         type="text" 
                         [(ngModel)]="titulo" 
                         name="titulo"
-                        placeholder="Ej: Fiesta de cumpleaños, Boda, XV Años..."
+                        placeholder="Ej: Solicitud banquete boda, Sesión de fotos XV años..."
                         class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     >
                 </div>
@@ -78,7 +78,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <span class="material-symbols-outlined text-sm align-middle mr-1">calendar_month</span>
-                            Fecha del evento *
+                            Fecha en que se requiere el servicio *
                         </label>
                         <input 
                             type="date" 
@@ -90,7 +90,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <span class="material-symbols-outlined text-sm align-middle mr-1">schedule</span>
-                            Hora del evento *
+                            Hora en que se requiere el servicio *
                         </label>
                         <input 
                             type="time" 
@@ -105,7 +105,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <span class="material-symbols-outlined text-sm align-middle mr-1">location_on</span>
-                        Ubicación del evento *
+                        Ubicación donde se requiere el servicio *
                     </label>
                     <div class="flex gap-2">
                         <input 
@@ -136,7 +136,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         <span class="material-symbols-outlined text-sm align-middle mr-1">groups</span>
-                        Número aproximado de invitados
+                        Cantidad aproximada de personas
                     </label>
                     <div class="flex items-center gap-4">
                         <button 

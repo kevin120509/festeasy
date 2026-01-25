@@ -73,6 +73,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
                         @for (pkg of packages(); track pkg.id) {
+                        <a [routerLink]="['/cliente/paquete', pkg.id]" class="block">
                         <!-- Dynamic Package Card -->
                         <div
                             class="bg-surface border border-[#f4f0f0] rounded-lg overflow-hidden hover:shadow-hover transition-all duration-300 group flex flex-col h-full bg-white dark:bg-[#1a1a1a] dark:border-gray-800"
@@ -113,19 +114,19 @@
                                     
                                     <!-- Quantity Controls -->
                                     <div class="flex items-center bg-gray-50 dark:bg-gray-800 rounded-lg p-1 border border-gray-200 dark:border-gray-700" *ngIf="getQuantity(pkg.id) > 0; else addButton">
-                                        <button (click)="updateQuantity(pkg, -1)" 
+                                        <button (click)="updateQuantity(pkg, -1); $event.preventDefault()" 
                                             class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors">
                                             <span class="material-symbols-outlined text-sm">remove</span>
                                         </button>
                                         <span class="w-8 text-center font-bold text-sm">{{ getQuantity(pkg.id) }}</span>
-                                        <button (click)="updateQuantity(pkg, 1)"
+                                        <button (click)="updateQuantity(pkg, 1); $event.preventDefault()"
                                             class="w-8 h-8 flex items-center justify-center rounded-md hover:bg-white dark:hover:bg-gray-700 text-primary transition-colors">
                                             <span class="material-symbols-outlined text-sm">add</span>
                                         </button>
                                     </div>
                                     
                                     <ng-template #addButton>
-                                        <button (click)="updateQuantity(pkg, 1)"
+                                        <button (click)="updateQuantity(pkg, 1); $event.preventDefault()"
                                             class="bg-gray-100 hover:bg-primary hover:text-white text-gray-700 p-3 rounded-lg transition-all active:scale-95 flex items-center justify-center dark:bg-gray-800 dark:text-white">
                                             <span class="material-symbols-outlined">add_shopping_cart</span>
                                         </button>
@@ -135,6 +136,7 @@
                                 </div>
                             </div>
                         </div>
+                        </a>
                         } @empty {
                         <p class="col-span-2 text-center text-gray-500 py-8">No hay paquetes disponibles por el momento.
                         </p>

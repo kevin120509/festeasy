@@ -83,6 +83,20 @@ export class SupabaseDataService {
         );
     }
 
+    getPackageById(id: string): Observable<any> {
+        return from(this.supabase
+            .from('paquetes_proveedor')
+            .select(`*, perfil_proveedor(*), items_paquete:items_paquete(*)`)
+            .eq('id', id)
+            .single()
+        ).pipe(
+            map(({ data, error }) => {
+                if (error) throw error;
+                return data;
+            })
+        );
+    }
+
     // ==========================================
     // Solicitudes (Eventos)
     // ==========================================

@@ -120,11 +120,6 @@ export class PaquetesComponent implements OnInit {
     estado: 'publicado' as 'borrador' | 'publicado' | 'archivado'
   });
 
-  // Items del inventario
-  items = signal<PackageItem[]>([]);
-  newItemName = signal('');
-  newItemQuantity = signal(1);
-
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
   newChargeName = signal('');
@@ -200,7 +195,8 @@ export class PaquetesComponent implements OnInit {
   toggleMenu(paqueteId: string) {
     if (this.menuAbierto() === paqueteId) {
       this.menuAbierto.set(null);
-    } else {
+    }
+    else {
       this.menuAbierto.set(paqueteId);
     }
   }
@@ -282,7 +278,6 @@ export class PaquetesComponent implements OnInit {
 
     // Cargar detalles JSON si existe
     if (paquete.detalles_json) {
-      this.items.set(paquete.detalles_json.items || []);
       this.extraCharges.set(paquete.detalles_json.cargos_adicionales || []);
 
       if (paquete.detalles_json.imagenes) {
@@ -372,24 +367,8 @@ export class PaquetesComponent implements OnInit {
 
   prevStep() {
     if (this.currentStep() > 1) {
-      this.currentStep.update(step => step - 1);
+      this.currentStep.update(step => step + 1);
     }
-  }
-
-  // Gestión de items
-  addItem() {
-    const name = this.newItemName().trim();
-    const quantity = this.newItemQuantity();
-
-    if (name && quantity > 0) {
-      this.items.update(items => [...items, { nombre: name, cantidad: quantity }]);
-      this.newItemName.set('');
-      this.newItemQuantity.set(1);
-    }
-  }
-
-  removeItem(index: number) {
-    this.items.update(items => items.filter((_, i) => i !== index));
   }
 
   // Gestión de cargos adicionales
@@ -538,12 +517,7 @@ export class PaquetesComponent implements OnInit {
       this.saving.set(false);
       return;
     }
-    if (this.items().length === 0) {
-      this.errorMessage.set('Debes agregar al menos un item al paquete');
-      this.saving.set(false);
-      return;
-    }
-
+    
     try {
       const packageToSave: any = {
         proveedor_usuario_id: this.profile.usuario_id,
@@ -553,7 +527,6 @@ export class PaquetesComponent implements OnInit {
         precio_base: this.packageData().precio_base,
         estado: 'publicado',
         detalles_json: {
-          items: this.items(),
           cargos_adicionales: this.extraCharges(),
           imagenes: this.images().map(img => ({
             url: img.url,
@@ -614,7 +587,6 @@ export class PaquetesComponent implements OnInit {
       precio_base: 0,
       estado: 'publicado'
     });
-    this.items.set([]);
     this.extraCharges.set([]);
     this.images.set([]);
     this.currentStep.set(1);

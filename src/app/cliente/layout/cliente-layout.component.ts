@@ -1,12 +1,12 @@
-import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
 import { Router, NavigationEnd } from '@angular/router';
-import { filter, Subscription } from 'rxjs';
+import { filter, Subscription, map } from 'rxjs';
 
 @Component({
   selector: 'app-cliente-layout',
@@ -14,12 +14,15 @@ import { filter, Subscription } from 'rxjs';
   imports: [CommonModule, RouterOutlet, MenuComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
   templateUrl: './cliente-layout.component.html',
 })
-export class ClienteLayoutComponent implements OnInit {
+export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDestroy
   auth = inject(AuthService);
   private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute); // Inject ActivatedRoute
   items: MenuItem[] = [];
   showSidebar = true;
+  isSidebarExpanded = signal(true);
   private sub: Subscription | null = null;
+  private routerSubscription: Subscription | null = null; // New subscription for router events
 
   ngOnInit(): void {
     this.items = [
@@ -50,8 +53,23 @@ export class ClienteLayoutComponent implements OnInit {
       }
     ];
 
-    // Siempre mostrar sidebar en el layout de cliente
-    this.showSidebar = true;
+    // Listen to router events to determine sidebar visibility
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(() => {
+        let route = this.activatedRoute;
+        while (route.firstChild) {
+          route = route.firstChild;
+        }
+        return route.snapshot.data['hideSidebar'];
+      })
+    ).subscribe((hideSidebar: boolean) => {
+      this.showSidebar = !hideSidebar;
+    });
+  }
+
+  toggleSidebar() {
+    this.isSidebarExpanded.update(value => !value);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -71,6 +89,7 @@ export class ClienteLayoutComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
+    this.routerSubscription?.unsubscribe(); // Unsubscribe from router events
   }
 }
 

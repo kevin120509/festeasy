@@ -1,0 +1,113 @@
+<div class="sticky top-0 z-50 bg-white/90 dark:bg-[#1a1a1a]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+    <div class="max-w-[1280px] mx-auto px-4 md:px-10 flex items-center gap-4 py-4">
+        <button (click)="goBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
+        </button>
+        <span class="font-bold text-lg text-gray-900 dark:text-white">Volver</span>
+    </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="!package()" class="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+    <div class="text-center">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+        <p class="text-gray-500">Cargando paquete...</p>
+    </div>
+</div>
+
+<!-- Main Content Wrapper -->
+<main *ngIf="package()" class="bg-gray-50 dark:bg-gray-900 font-sans">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <!-- Back Button -->
+        <button (click)="goBack()" class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light font-semibold mb-8 transition-colors">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Volver
+        </button>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Left Column: Details -->
+            <div class="lg:col-span-2">
+                <!-- Image Hero -->
+                <div class="h-80 rounded-2xl overflow-hidden shadow-lg mb-8 relative">
+                    <img [src]="package()?.imagen_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=60'" 
+                         alt="Imagen del paquete {{package().nombre}}" 
+                         class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/50"></div>
+                    <div class="absolute bottom-6 left-6">
+                        <h1 class="text-4xl font-extrabold text-white tracking-tight">{{ package().nombre }}</h1>
+                        <p class="text-lg text-white/80 mt-1">Ofrecido por: {{ package().perfil_proveedor.nombre_negocio }}</p>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Descripción del Paquete</h2>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        {{ package().descripcion || 'No hay descripción disponible para este paquete.' }}
+                    </p>
+                </div>
+
+                <!-- Incluidos -->
+                <div *ngIf="package()?.extra_charges && package()!.extra_charges.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Personaliza tu Paquete</h2>
+                    <ul class="space-y-4">
+                        <li *ngFor="let item of package()?.extra_charges" class="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl">
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-white">{{ item.nombre }}</p>
+                                <p class="text-sm text-primary dark:text-primary-light font-medium">+${{ item.precio | number:'1.2-2' }}</p>
+                            </div>
+                            <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+                                <button (click)="updateIncludedQuantity(item.nombre, -1)" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
+                                    <span class="material-symbols-outlined">remove</span>
+                                </button>
+                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{ getIncludedQuantity(item.nombre) }}</span>
+                                <button (click)="updateIncludedQuantity(item.nombre, 1)" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Right Column: Summary -->
+            <div class="lg:col-span-1">
+                <div class="sticky top-24">
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">Resumen del Pedido</h2>
+                        
+                        <!-- Base Package -->
+                        <div class="flex justify-between items-center mb-6">
+                            <div>
+                                <p class="font-semibold text-gray-800 dark:text-white">Paquete Principal</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${{ package().precio_base | number:'1.2-2' }} / c.u.</p>
+                            </div>
+                            <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+                                <button (click)="decrementarCantidad()" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
+                                    <span class="material-symbols-outlined">remove</span>
+                                </button>
+                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{ cantidadSeleccionada() }}</span>
+                                <button (click)="incrementarCantidad()" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
+                                    <span class="material-symbols-outlined">add</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Total Section -->
+                        <div class="border-t border-gray-100 dark:border-gray-700 pt-6 space-y-4">
+                            <div class="flex justify-between items-center text-lg">
+                                <p class="font-semibold text-gray-800 dark:text-white">Subtotal</p>
+                                <p class="font-bold text-gray-900 dark:text-white">${{ total() | number:'1.2-2' }}</p>
+                            </div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">El precio final puede variar y se confirmará con el proveedor.</p>
+                            <button (click)="goToCheckout()" class="w-full bg-primary hover:bg-red-700 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                                Continuar
+                                <span class="material-symbols-outlined">arrow_forward</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

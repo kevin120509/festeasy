@@ -20,6 +20,23 @@
         transition: all 0.3s ease;
     }
 
+    .sidebar.mini-sidebar {
+        transform: translateX(-100%);
+        width: 0;
+    }
+
+    .sidebar.mini-sidebar .sidebar-logo img {
+        height: 40px;
+    }
+
+    .sidebar.mini-sidebar .profile-info {
+        display: none;
+    }
+
+    .sidebar.mini-sidebar .sidebar-profile {
+        justify-content: center;
+    }
+
     .sidebar-logo {
         padding: 24px;
         display: flex;
@@ -102,6 +119,36 @@
         transition: all 0.3s ease;
     }
 
+    .main-content.full-width {
+        margin-left: 0;
+    }
+
+    .main-content.mini-sidebar {
+        margin-left: 0;
+    }
+
+    .sidebar-toggle {
+        position: absolute;
+        top: 20px;
+        right: -15px;
+        width: 30px;
+        height: 30px;
+        background: white;
+        border: 1px solid var(--color-gray-border);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 110;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+    }
+
+    .sidebar-toggle:hover {
+        transform: scale(1.1);
+    }
+
     /* Tablet Mode (mini sidebar) */
     @media (min-width: 769px) and (max-width: 1024px) {
         .sidebar {
@@ -127,6 +174,10 @@
 
         .profile-info {
             display: none;
+        }
+
+        .sidebar-toggle {
+            display: none; /* Hide toggle on tablet, as it's always mini */
         }
     }
 
@@ -184,19 +235,27 @@
             margin-left: 0;
             padding-bottom: 70px;
         }
+
+        .sidebar-toggle {
+            display: none; /* Hide toggle on mobile */
+        }
     }
 </style>
 
 <div class="dashboard-layout">
     <!-- Sidebar Desktop/Tablet -->
-    <aside *ngIf="showSidebar" class="sidebar">
+    <aside *ngIf="showSidebar" class="sidebar" [class.mini-sidebar]="!isSidebarExpanded()">
+        <button (click)="toggleSidebar()" class="sidebar-toggle">
+            <span class="material-symbols-outlined">{{ isSidebarExpanded() ? 'chevron_left' : 'chevron_right' }}</span>
+        </button>
+
         <div class="sidebar-logo">
             <img src="assets/festeasy.jpeg" alt="FESTEASY"
                 onerror="this.outerHTML='<span style=font-size:24px;font-weight:700;color:#E91E63>FESTEASY</span>'">
         </div>
 
         <div class="menu-wrapper">
-            <app-menu [items]="items" [miniMode]="isTablet"></app-menu>
+            <app-menu [items]="items" [miniMode]="!isSidebarExpanded() || isTablet"></app-menu>
         </div>
 
         <!-- Perfil al fondo -->
@@ -216,7 +275,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" [class.full-width]="!showSidebar" [class.mini-sidebar]="showSidebar && !isSidebarExpanded()">
         <router-outlet></router-outlet>
     </main>
 

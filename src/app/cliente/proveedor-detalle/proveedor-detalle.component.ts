@@ -1,6 +1,6 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin, switchMap, map } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { ProviderPackage } from '../../models';
@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
     selector: 'app-proveedor-detalle',
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, RouterLink],
     templateUrl: './proveedor-detalle.html'
 })
 export class ProveedorDetalleComponent implements OnInit {

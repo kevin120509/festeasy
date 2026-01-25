@@ -40,6 +40,7 @@ import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.co
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
 import { UserManagementComponent } from './admin/users/user-management.component';
 import { ProviderApprovalComponent } from './admin/provider-approval/provider-approval.component';
+import { PaqueteDetalleComponent } from './cliente/paquete-detalle/paquete-detalle.component';
 import { SolicitudDetalleComponent } from './proveedor/solicitudes/detalle/solicitud-detalle.component';
 
 export const routes: Routes = [
@@ -61,11 +62,12 @@ export const routes: Routes = [
         data: { role: 'client' },
         children: [
             { path: 'dashboard', component: ClienteDashboardComponent },
-            { path: 'marketplace', component: MarketplaceComponent },
+            { path: 'marketplace', component: MarketplaceComponent, data: { hideSidebar: true } },
             { path: 'solicitudes/crear', component: CrearEventoComponent },
             { path: 'solicitudes/revisar', component: RevisarSolicitudComponent },
             { path: 'solicitud-enviada', component: SolicitudEnviadaComponent },
-            { path: 'proveedor/:id', component: ProveedorDetalleComponent },
+            { path: 'proveedor/:id', component: ProveedorDetalleComponent, data: { hideSidebar: true } },
+            { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
             { path: 'seguimiento/:id', component: SeguimientoEventoComponent },
             { path: 'carrito', component: CarritoComponent },
             { path: 'solicitudes', component: MisSolicitudesComponent },

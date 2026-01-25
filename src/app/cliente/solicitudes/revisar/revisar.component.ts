@@ -44,7 +44,11 @@ export class RevisarSolicitudComponent implements OnInit {
         this.paquetes.set(pkgs);
 
         // Calcular total
-        const totalAmount = pkgs.reduce((acc: number, curr: any) => acc + (curr.subtotal || 0), 0);
+        const totalAmount = pkgs.reduce((acc: number, curr: any) => {
+            const packageTotal = curr.subtotal || 0;
+            const incluidosTotal = (curr.incluidos || []).reduce((inclAcc: number, incl: any) => inclAcc + (incl.subtotal || 0), 0);
+            return acc + packageTotal + incluidosTotal;
+        }, 0);
         this.total.set(totalAmount);
     }
 
@@ -94,13 +98,21 @@ export class RevisarSolicitudComponent implements OnInit {
             if (!solicitud?.id) throw new Error('No se pudo crear la solicitud (sin id).');
 
             // 2. Crear los items de la solicitud
-            const itemsPayload = this.paquetes().map(pkg => ({
-                solicitud_id: solicitud.id,
-                paquete_id: pkg.id,
-                nombre_paquete_snapshot: pkg.nombre,
-                cantidad: pkg.cantidad,
-                precio_unitario: pkg.precio_base
-            }));
+            const itemsPayload = this.paquetes().map(pkg => {
+                const incluidosTotal = (pkg.incluidos || []).reduce((acc: number, incl: any) => acc + (incl.subtotal || 0), 0);
+                const precioTotalUnitario = pkg.precio_base + (incluidosTotal / pkg.cantidad);
+
+                const incluidosSnapshot = (pkg.incluidos || []).map((incl: any) => `\n- ${incl.nombre} (x${incl.cantidad})`).join('');
+                const nombreSnapshot = pkg.nombre + (incluidosSnapshot ? `\nIncluye:${incluidosSnapshot}` : '');
+
+                return {
+                    solicitud_id: solicitud.id,
+                    paquete_id: pkg.id,
+                    nombre_paquete_snapshot: nombreSnapshot,
+                    cantidad: pkg.cantidad,
+                    precio_unitario: precioTotalUnitario
+                };
+            });
 
             const createdItems = await firstValueFrom(this.api.createSolicitudItems(itemsPayload));
             console.log('🔔 Items creados en BD (respuesta insert):', createdItems);

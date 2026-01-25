@@ -405,48 +405,10 @@
                         </div>
                     </div>
 
-                    <!-- Items Incluidos -->
+                    <!-- Incluidos (antes Cargos Adicionales) -->
                     <div
                         class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Items Incluidos</h3>
-
-                        <div class="flex gap-3 mb-4">
-                            <input type="text" [value]="newItemName()"
-                                (input)="newItemName.set($any($event.target).value)"
-                                class="flex-1 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                placeholder="Nombre del item" />
-                            <input type="number" [value]="newItemQuantity()"
-                                (input)="newItemQuantity.set(+$any($event.target).value)"
-                                class="w-20 px-3 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 text-center"
-                                min="1" />
-                            <button (click)="addItem()"
-                                class="px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
-                                <span class="material-icons-outlined">add</span>
-                            </button>
-                        </div>
-
-                        <div class="space-y-2">
-                            <div *ngFor="let item of items(); let i = index"
-                                class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
-                                <span class="text-sm text-slate-700 dark:text-slate-300">{{ item.nombre }}</span>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-xs font-bold text-slate-500">x{{ item.cantidad }}</span>
-                                    <button (click)="removeItem(i)" class="text-red-400 hover:text-red-600">
-                                        <span class="material-icons-outlined text-sm">close</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <p *ngIf="items().length === 0" class="text-sm text-slate-400 text-center py-4">
-                                No hay items agregados
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Cargos Adicionales -->
-                    <div
-                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Cargos Adicionales
-                            (Opcionales)</h3>
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Incluidos (Opcionales)</h3>
 
                         <div class="flex gap-3 mb-4">
                             <input type="text" [value]="newChargeName()"
@@ -581,16 +543,7 @@
                             </div>
                         </div>
 
-                        <div *ngIf="items().length > 0" class="mt-6">
-                            <h4 class="font-bold text-slate-800 dark:text-white mb-3">Items incluidos:</h4>
-                            <ul class="space-y-2">
-                                <li *ngFor="let item of items()"
-                                    class="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-                                    <span class="material-icons-outlined text-primary text-sm">check_circle</span>
-                                    {{ item.nombre }} (x{{ item.cantidad }})
-                                </li>
-                            </ul>
-                        </div>
+
                     </div>
                 </div>
             </div>
