@@ -301,4 +301,7 @@
         (closeModal)="cerrarModalPin()" (pinValidado)="onPinValidado($any($event))">
     </app-validar-pin>
     }
+
+    <!-- Diálogo de Confirmación Global -->
+    <p-confirmDialog [style]="{width: '50vw'}" [baseZIndex]="10000"></p-confirmDialog>
 </div>

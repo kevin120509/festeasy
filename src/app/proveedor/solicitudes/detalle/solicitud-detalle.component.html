@@ -41,10 +41,14 @@
                 <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
                     <div class="flex flex-col gap-6">
                         <div>
-                            <h1 class="text-3xl font-black text-slate-900 mb-2">{{ solicitud()?.titulo_evento }}</h1>
+                            <h1 class="text-3xl font-black text-slate-900 mb-2">{{ getTituloReal() }}</h1>
                             <p class="text-slate-500 font-medium flex items-center gap-2">
                                 <span class="material-symbols-outlined text-base">event</span>
                                 {{ formatearFecha(solicitud()!.fecha_servicio) }}
+                            </p>
+                            <p class="text-slate-500 font-medium flex items-center gap-2 mt-1">
+                                <span class="material-symbols-outlined text-base">schedule</span>
+                                {{ getHora() }}
                             </p>
                         </div>
 
@@ -55,6 +59,14 @@
                                 <p class="text-slate-700 font-semibold flex items-start gap-2">
                                     <span class="material-symbols-outlined text-primary text-lg">location_on</span>
                                     {{ solicitud()?.direccion_servicio }}
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Invitados
+                                    Confirmados</p>
+                                <p class="text-slate-700 font-semibold flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">groups</span>
+                                    {{ getInvitados() }} personas
                                 </p>
                             </div>
                             <div class="space-y-1">
@@ -120,28 +132,32 @@
                     </h2>
                     <div class="flex items-center gap-4 mb-6">
                         <div
-                            class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-2xl font-black">
-                            @if (solicitud()?.client?.avatar_url) {
-                            <img [src]="solicitud()?.client?.avatar_url" class="w-full h-full object-cover rounded-2xl"
+                            class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-2xl font-black overflow-hidden">
+                            @if (solicitud()?.cliente?.avatar_url) {
+                            <img [src]="solicitud()?.cliente?.avatar_url" class="w-full h-full object-cover"
                                 alt="Cliente">
                             } @else {
-                            {{ solicitud()?.client?.nombre_completo?.charAt(0) }}
+                            {{ solicitud()?.cliente?.nombre_completo?.charAt(0) || 'C' }}
                             }
                         </div>
                         <div>
                             <h3 class="text-slate-800 font-bold text-lg leading-tight">{{
-                                solicitud()?.client?.nombre_completo }}</h3>
+                                solicitud()?.cliente?.nombre_completo || 'Cliente' }}</h3>
                             <p class="text-slate-500 text-sm font-medium">Cliente Registrado</p>
                         </div>
                     </div>
 
                     <div class="space-y-4">
-                        @if (solicitud()?.client?.telefono) {
+                        @if (solicitud()?.cliente?.telefono) {
                         <button (click)="contactarCliente()"
                             class="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-200">
                             <span class="material-symbols-outlined">chat</span>
                             <span>Enviar WhatsApp</span>
                         </button>
+                        } @else {
+                        <div class="text-center p-4 bg-slate-50 rounded-xl">
+                            <span class="text-slate-400 text-xs font-medium">Teléfono no disponible</span>
+                        </div>
                         }
                     </div>
                 </section>
@@ -206,4 +222,10 @@
         </div>
         }
     </main>
+
+    <!-- Modal de Validación de PIN -->
+    @if (mostrarModalPin()) {
+    <app-validar-pin [solicitudId]="solicitudSeleccionadaId()" [isOpen]="mostrarModalPin()"
+        (closeModal)="cerrarModalPin()" (pinValidado)="onPinValidado($event)"></app-validar-pin>
+    }
 </div>

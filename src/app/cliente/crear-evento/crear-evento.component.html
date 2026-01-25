@@ -90,14 +90,27 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                             <span class="material-symbols-outlined text-sm align-middle mr-1">schedule</span>
-                            Hora en que se requiere el servicio *
+                            Horario del servicio (Inicio - Fin) *
                         </label>
-                        <input 
-                            type="time" 
-                            [(ngModel)]="hora" 
-                            name="hora"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        >
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <input 
+                                    type="time" 
+                                    [(ngModel)]="horaInicio" 
+                                    name="horaInicio"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                >
+                            </div>
+                            <div class="flex items-center text-gray-400 font-bold">-</div>
+                            <div class="flex-1">
+                                <input 
+                                    type="time" 
+                                    [(ngModel)]="horaFin" 
+                                    name="horaFin"
+                                    class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                                >
+                            </div>
+                        </div>
                     </div>
                 </div>
 
