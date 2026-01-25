@@ -37,6 +37,11 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
         routerLink: '/cliente/solicitudes'
       },
       {
+        label: 'Carrito',
+        icon: 'pi pi-shopping-cart',
+        routerLink: '/cliente/carrito'
+      },
+      {
         label: 'Configuración',
         icon: 'pi pi-cog',
         routerLink: '/cliente/configuracion'

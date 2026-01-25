@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 @Component({
     selector: 'app-solicitud-enviada',
     standalone: true,
@@ -12,6 +13,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private api = inject(ApiService);
+    private supabaseData = inject(SupabaseDataService);
     private timerInterval: any;
 
     // Datos de la solicitud enviada
@@ -25,6 +27,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
 
     // Estado
     tiempoAgotado = signal(false);
+    eliminando = signal(false);
 
     // Estado del proveedor
     providerReplied = signal(false);
@@ -173,5 +176,32 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     irAPagar() {
         const id = this.solicitudData().id;
         this.router.navigate(['/cliente/pagos', id]);
+    }
+
+    puedeEliminar(): boolean {
+        const data = this.solicitudData();
+        if (!data) return false;
+        return !this.providerReplied() && (data.estado === 'pendiente_aprobacion' || data.estado === 'pendiente');
+    }
+
+    async eliminarSolicitud() {
+        const data = this.solicitudData();
+        if (!data || !this.puedeEliminar() || this.eliminando()) return;
+
+        const confirmar = window.confirm('¿Deseas eliminar esta solicitud? Esta acción no se puede deshacer.');
+        if (!confirmar) return;
+
+        this.eliminando.set(true);
+        try {
+            await this.supabaseData.deleteRequestById(data.id);
+            sessionStorage.removeItem('solicitudEnviada');
+            sessionStorage.removeItem('eventoActual');
+            this.router.navigate(['/cliente/solicitudes']);
+        } catch (error: any) {
+            console.error('Error eliminando solicitud:', error);
+            alert(error?.message || 'No se pudo eliminar la solicitud. Intenta de nuevo.');
+        } finally {
+            this.eliminando.set(false);
+        }
     }
 }

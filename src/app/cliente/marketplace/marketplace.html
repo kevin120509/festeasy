@@ -2,22 +2,25 @@
     class="sticky top-0 z-50 bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-md border-b border-[#f4f0f0] dark:border-gray-800 shadow-sm">
     <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Row 1: Logo, Search, Actions -->
-        <div class="h-16 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
+        <div class="h-16 flex items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
                 <button (click)="goBack()"
                     class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
                 </button>
-                <h1 class="text-2xl font-bold text-primary whitespace-nowrap">FestEasy</h1>
+                <h1 class="text-xl sm:text-2xl font-bold text-primary whitespace-nowrap">
+                    <span class="hidden sm:inline">FestEasy</span>
+                </h1>
             </div>
 
-            <div class="flex-1 max-w-2xl mx-4">
+            <div class="flex-1 max-w-lg mx-auto">
                 <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
                     class="w-full px-4 py-2 rounded-xl bg-gray-100 dark:bg-gray-800 focus:ring-2 focus:ring-primary focus:outline-none transition-shadow"
-                    placeholder="Buscar proveedores por nombre...">
+                    placeholder="Buscar proveedores...">
             </div>
 
-            <div class="flex gap-4">
+            <div class="flex gap-2">
+                 <!-- Potentially add action buttons here if needed in the future -->
             </div>
         </div>
 
@@ -54,7 +57,7 @@
         </div>
     </div>
 </header>
-<main class="max-w-[1440px] mx-auto p-8">
+<main class="max-w-[1440px] mx-auto p-4 sm:p-6 lg:p-8">
     <h2 class="text-3xl font-bold mb-8">Proveedores encontrados</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @for (provider of filteredProviders(); track provider.id) {
