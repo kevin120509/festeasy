@@ -317,21 +317,119 @@
 
     /* Responsive */
     @media (max-width: 900px) {
+        .landing-header {
+            padding: 20px 30px;
+        }
+
+        .hero {
+            padding: 40px 30px;
+        }
+
         .hero-content {
             grid-template-columns: 1fr;
             text-align: center;
+            gap: 40px;
         }
 
         .hero-buttons {
             justify-content: center;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-media {
+            order: -1;
+        }
+
+        .hero-text h1 {
+            font-size: 38px;
         }
 
         .features-grid {
             grid-template-columns: 1fr;
         }
 
+        .features {
+            padding: 80px 30px;
+        }
+
+        .cta-section {
+            padding: 60px 30px;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .landing-header {
+            padding: 15px 20px;
+        }
+
+        .landing-logo img {
+            height: 40px;
+        }
+
+        .landing-logo-text {
+            font-size: 22px;
+        }
+
+        .landing-access-btn {
+            padding: 10px 24px;
+            font-size: 14px;
+        }
+
+        .hero {
+            padding: 30px 20px;
+        }
+
         .hero-text h1 {
-            font-size: 36px;
+            font-size: 32px;
+        }
+
+        .hero-text p {
+            font-size: 16px;
+        }
+
+        .hero-buttons .btn-primary,
+        .hero-buttons .btn-outline {
+            padding: 14px 28px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .hero-video-container {
+            height: 250px;
+        }
+
+        .hero-card {
+            display: none;
+        }
+
+        .features {
+            padding: 60px 20px;
+        }
+
+        .features-header h2 {
+            font-size: 32px;
+        }
+
+        .feature-card {
+            padding: 30px;
+        }
+
+        .cta-section {
+            padding: 50px 20px;
+        }
+
+        .cta-section h2 {
+            font-size: 28px;
+        }
+
+        .cta-section p {
+            font-size: 16px;
+        }
+
+        .footer {
+            padding: 30px 20px;
         }
     }
 </style>

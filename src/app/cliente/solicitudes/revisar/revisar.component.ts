@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 import { CalendarioFechaService } from '../../../services/calendario-fecha.service';
+import { SolicitudDataService } from '../../../services/solicitud-data.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -17,6 +18,7 @@ export class RevisarSolicitudComponent implements OnInit {
     private api = inject(ApiService);
     private auth = inject(AuthService);
     private calService = inject(CalendarioFechaService);
+    private solicitudDataService = inject(SolicitudDataService);
 
     evento = signal<any>(null);
     proveedor = signal<any>(null);
@@ -52,6 +54,32 @@ export class RevisarSolicitudComponent implements OnInit {
         this.total.set(totalAmount);
     }
 
+    agregarAlCarrito() {
+        const proveedorActual = this.proveedor();
+
+        const solicitud = {
+            id: Date.now(), // Temporary ID
+            evento: this.evento(),
+            proveedor: proveedorActual,
+            paquetes: this.paquetes(),
+            total: this.total(),
+            estado: 'pendiente_por_mandar'
+        };
+
+        const agregado = this.solicitudDataService.agregarAlCarrito(solicitud);
+
+        if (!agregado) {
+            this.notification.set({ message: 'Esta solicitud ya está en tu carrito para esa fecha.', type: 'error' });
+            return;
+        }
+
+        this.notification.set({ message: 'Solicitud agregada al carrito', type: 'success' });
+
+        setTimeout(() => {
+            this.router.navigate(['/cliente/carrito']);
+        }, 1500);
+    }
+    
     async enviarSolicitud() {
         if (this.isLoading()) return;
         this.isLoading.set(true);
@@ -178,6 +206,9 @@ export class RevisarSolicitudComponent implements OnInit {
 
             console.log('Confirmación solicitud:', { datosConfirmacion, solicitud });
             sessionStorage.setItem('solicitudEnviada', JSON.stringify(datosConfirmacion));
+
+            // Si estaba en el carrito, eliminarla (evita duplicados y limpia el estado)
+            this.solicitudDataService.removerPorProveedor(proveedorData.usuario_id);
 
             // 4. Navegar a confirmación
             this.router.navigate(['/cliente/solicitud-enviada']);

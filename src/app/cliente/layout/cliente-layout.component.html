@@ -21,8 +21,7 @@
     }
 
     .sidebar.mini-sidebar {
-        transform: translateX(-100%);
-        width: 0;
+        width: 50px; /* Make it compact but visible */
     }
 
     .sidebar.mini-sidebar .sidebar-logo img {
@@ -124,13 +123,13 @@
     }
 
     .main-content.mini-sidebar {
-        margin-left: 0;
+        margin-left: 50px; /* Match new mini-sidebar width */
     }
 
     .sidebar-toggle {
         position: absolute;
         top: 20px;
-        right: -15px;
+        right: -15px; /* Default position when sidebar is expanded */
         width: 30px;
         height: 30px;
         background: white;
@@ -142,7 +141,13 @@
         cursor: pointer;
         z-index: 110;
         box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: transform 0.3s ease;
+        transition: all 0.3s ease; /* Change to all to transition right property */
+    }
+
+    /* Adjust toggle button position when sidebar is mini */
+    .sidebar.mini-sidebar .sidebar-toggle {
+        right: -15px; /* Keep it at -15px from the now 50px wide sidebar */
+        transform: translateX(0); /* Ensure it's not moved by the previous transform */
     }
 
     .sidebar-toggle:hover {

@@ -170,6 +170,11 @@
                             <span class="material-symbols-outlined">send</span>
                             }
                         </button>
+                        <button (click)="agregarAlCarrito()" [disabled]="isLoading()"
+                            class="w-full mt-2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 px-6 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+                            <span class="material-symbols-outlined">add_shopping_cart</span>
+                            Agregar al Carrito
+                        </button>
 
                         <p class="text-xs text-center text-gray-400 mt-4">
                             Al enviar la solicitud, aceptas nuestros términos y condiciones. El proveedor tiene 24 horas
