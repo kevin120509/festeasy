@@ -176,7 +176,7 @@ export class ValidarPin {
         .from('solicitudes')
         .update({
           fecha_validacion_pin: new Date().toISOString(),
-          estado: 'en_progreso',
+          estado: 'finalizado',
           actualizado_en: new Date().toISOString()
         })
         .eq('id', this.solicitudId)
@@ -188,7 +188,7 @@ export class ValidarPin {
       }
 
       // 4. Éxito ✅
-      this.successMessage = '¡PIN validado correctamente! Servicio iniciado.';
+      this.successMessage = '¡PIN validado! Servicio finalizado exitosamente.';
       this.cdr.detectChanges(); // ✅ Actualizar interfaz
 
       // Cerrar modal y emitir evento después de mostrar el mensaje

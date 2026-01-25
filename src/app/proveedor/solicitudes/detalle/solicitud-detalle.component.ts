@@ -129,7 +129,7 @@ export class SolicitudDetalleComponent implements OnInit {
     onPinValidado(solicitudActualizada: ServiceRequest) {
         console.log('✅ PIN validado en detalle:', solicitudActualizada);
         this.solicitud.set(solicitudActualizada);
-        this.mensajeExito.set('¡PIN validado! Servicio iniciado.');
+        this.mensajeExito.set('¡PIN validado! Servicio finalizado exitosamente.');
         setTimeout(() => this.mensajeExito.set(''), 4000);
         this.cerrarModalPin();
     }

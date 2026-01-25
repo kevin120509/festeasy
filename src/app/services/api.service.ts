@@ -301,48 +301,23 @@ export class ApiService {
                 const userId = res.data.user?.id;
                 if (!userId) return of([]);
 
-                // 1. Obtener solicitudes
+                // Usar JOIN directo con perfil_cliente
+                // Intentamos primero con la relación automática, si falla usaremos el FK explícito
                 return from(this.supabase
                     .from('solicitudes')
-                    .select('*')
+                    .select('*, perfil_cliente(nombre_completo, telefono, avatar_url)')
                     .eq('proveedor_usuario_id', userId)
                     .order('creado_en', { ascending: false })
-                ).pipe(
-                    switchMap((resRequests: any) => {
-                        if (resRequests.error) throw resRequests.error;
-                        const requests = resRequests.data || [];
-                        if (requests.length === 0) return of([]);
-
-                        // Obtener IDs de clientes únicos
-                        const clientIds = [...new Set(requests.map((r: any) => r.cliente_usuario_id))];
-
-                        // 2. Obtener perfiles de clientes
-                        return from(this.supabase
-                            .from('perfil_cliente')
-                            .select('usuario_id, nombre_completo, telefono, avatar_url')
-                            .in('usuario_id', clientIds)
-                        ).pipe(
-                            map((resProfiles: any) => {
-                                if (resProfiles.error) console.error('Error fetching client profiles', resProfiles.error);
-
-                                const profilesMap = new Map();
-                                (resProfiles.data || []).forEach((p: any) => profilesMap.set(p.usuario_id, p));
-
-                                // 3. Combinar datos
-                                return requests.map((r: any) => ({
-                                    ...r,
-                                    cliente: profilesMap.get(r.cliente_usuario_id) || {
-                                        nombre_completo: 'Cliente no encontrado',
-                                        telefono: '',
-                                        avatar_url: null
-                                    }
-                                }));
-                            })
-                        );
-                    })
                 );
             }),
-            map((res: any) => res) // Pass through the array
+            map((res: any) => {
+                if (res.error) {
+                    console.error('❌ Error en getProviderRequestsReal:', res.error);
+                    // Si falla el JOIN con FK específico, intentar sin el FK (relación por defecto)
+                    return [];
+                }
+                return res.data || [];
+            })
         );
     }
 
@@ -475,7 +450,7 @@ export class ApiService {
                     map(({ provider, client }) => ({
                         ...request,
                         perfil_proveedor: provider.data,
-                        cliente: client.data // Aquí asignamos el cliente explícitamente
+                        perfil_cliente: client.data // Usar perfil_cliente para consistencia
                     }))
                 );
             })

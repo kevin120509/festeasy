@@ -111,12 +111,15 @@ export class BandejaSolicitudesComponent implements OnInit {
         const horasTranscurridas = diffMs / (1000 * 60 * 60);
         const horasRestantes = Math.max(0, 24 - horasTranscurridas);
 
+        const rawCliente = req.perfil_cliente || req.cliente;
+        const clienteData = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
+
         return {
             id: req.id,
             numero_solicitud: req.numero_solicitud,
-            cliente_nombre: req.cliente?.nombre_completo || 'Cliente',
-            cliente_avatar: req.cliente?.avatar_url,
-            cliente_telefono: req.cliente?.telefono,
+            cliente_nombre: clienteData?.nombre_completo || 'Cliente',
+            cliente_avatar: clienteData?.avatar_url,
+            cliente_telefono: clienteData?.telefono,
             titulo_evento: req.titulo_evento || 'Evento',
             tipo_evento: this.detectarTipoEvento(req.titulo_evento),
             fecha_servicio: req.fecha_servicio,

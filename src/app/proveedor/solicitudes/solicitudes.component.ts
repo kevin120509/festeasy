@@ -101,17 +101,20 @@ export class SolicitudesComponent implements OnInit {
     }
 
     private mapearSolicitud(req: any): SolicitudProveedor {
+        const rawCliente = req.perfil_cliente || req.cliente;
+        const clienteData = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
+
         return {
             id: req.id,
-            cliente_nombre: req.cliente?.nombre_completo || 'Cliente',
-            cliente_telefono: req.cliente?.telefono,
+            cliente_nombre: clienteData?.nombre_completo || 'Cliente',
+            cliente_telefono: clienteData?.telefono,
             titulo_evento: req.titulo_evento || 'Reservación',
             monto_total: req.monto_total || 0,
             fecha_servicio: req.fecha_servicio,
             direccion_servicio: req.direccion_servicio || 'Por definir',
             estado: req.estado || 'pendiente_aprobacion',
             creado_en: req.creado_en,
-            client: req.cliente
+            client: clienteData
         };
     }
 
@@ -219,11 +222,11 @@ export class SolicitudesComponent implements OnInit {
 
         // Actualizar la solicitud en la lista con el nuevo estado
         this.solicitudes.update(list =>
-            list.map(s => s.id === solicitud.id ? { ...s, estado: 'en_progreso' as const } : s)
+            list.map(s => s.id === solicitud.id ? { ...s, estado: 'finalizado' as const } : s)
         );
 
         // Mostrar mensaje de éxito
-        this.mensajeExito.set('¡PIN validado! Servicio iniciado correctamente.');
+        this.mensajeExito.set('¡PIN validado! Servicio finalizado exitosamente.');
         setTimeout(() => this.mensajeExito.set(''), 3000);
 
         // Cerrar modal
