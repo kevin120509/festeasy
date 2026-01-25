@@ -1,8 +1,10 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { HeaderComponent } from '../../shared/header/header';
+
+declare var paypal: any;
 
 @Component({
     selector: 'app-pago',
@@ -10,7 +12,7 @@ import { HeaderComponent } from '../../shared/header/header';
     imports: [CommonModule, HeaderComponent],
     templateUrl: './pago.component.html'
 })
-export class PagoComponent implements OnInit {
+export class PagoComponent implements OnInit, AfterViewInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private api = inject(ApiService);
@@ -28,11 +30,16 @@ export class PagoComponent implements OnInit {
         }
     }
 
+    ngAfterViewInit() {
+        // Los botones se renderizarán cuando la solicitud esté cargada
+    }
+
     cargarSolicitud(id: string) {
         this.api.getRequestById(id).subscribe({
             next: (data) => {
                 this.solicitud.set(data);
                 this.loading.set(false);
+                setTimeout(() => this.renderPaypalButtons(), 100);
             },
             error: (err) => {
                 console.error('Error cargando solicitud para pago', err);
@@ -42,29 +49,56 @@ export class PagoComponent implements OnInit {
         });
     }
 
-    async procesarPago() {
-        if (this.procesando()) return;
-        this.procesando.set(true);
+    renderPaypalButtons() {
+        if (!document.getElementById('paypal-button-container')) return;
 
-        // Simular delay de red
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        paypal.Buttons({
+            createOrder: (data: any, actions: any) => {
+                return actions.order.create({
+                    purchase_units: [{
+                        description: `Evento: ${this.solicitud().titulo_evento}`,
+                        amount: {
+                            currency_code: 'MXN',
+                            value: this.solicitud().monto_total.toString()
+                        }
+                    }]
+                });
+            },
+            onApprove: async (data: any, actions: any) => {
+                this.procesando.set(true);
+                const order = await actions.order.capture();
+                console.log('Pago capturado:', order);
+                this.finalizarPago('paypal', order.id);
+            },
+            onError: (err: any) => {
+                console.error('Error en PayPal:', err);
+                alert('Hubo un error con PayPal. Inténtalo de nuevo.');
+            }
+        }).render('#paypal-button-container');
+    }
 
+    async finalizarPago(metodo: string, referencia: string) {
         try {
-            // Actualizar estado de la solicitud a 'reservado' (o 'en_progreso')
-            // y registrar el pago (aquí simplificado, solo actualizamos estado)
             const id = this.solicitud().id;
-            
             await this.api.updateRequestStatus(id, 'reservado').toPromise();
-            
+
             // Éxito
             alert('¡Pago realizado con éxito! Tu evento ha sido confirmado.');
             this.router.navigate(['/cliente/solicitudes', id]);
-            
+
         } catch (error) {
-            console.error('Error procesando pago:', error);
-            alert('Hubo un error al procesar el pago. Inténtalo de nuevo.');
+            console.error('Error finalizando pago:', error);
+            alert('Hubo un error al confirmar el pago en nuestro sistema.');
         } finally {
             this.procesando.set(false);
         }
+    }
+
+    // Método anterior para compatibilidad o pruebas manuales (si se desea mantener)
+    async procesarPagoSimulado() {
+        if (this.procesando()) return;
+        this.procesando.set(true);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        this.finalizarPago('demo', 'simulated-ref');
     }
 }
