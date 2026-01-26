@@ -119,7 +119,7 @@ export class CalendarioFechaService {
         return from(
             supabase.from('solicitudes')
                 .update({
-                    estado: 'finalizada',
+                    estado: 'finalizado',
                     actualizado_en: ahoraISO
                 })
                 .lt('fecha_servicio', ahoraISO)

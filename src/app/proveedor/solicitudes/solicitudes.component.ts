@@ -107,8 +107,8 @@ export class SolicitudesComponent implements OnInit {
 
         // Búsqueda exhaustiva del nombre
         const nombreFinal = clienteData?.nombre_completo ||
-            clienteData?.nombre_negocio || 6
-        clienteData?.nombre ||
+            clienteData?.nombre_negocio ||
+            clienteData?.nombre ||
             req.cliente_nombre ||
             'Cliente';
 

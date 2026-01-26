@@ -208,67 +208,71 @@
                 }
             </div>
             <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <p class="text-lg font-bold text-gray-900 dark:text-white">Total Estimado</p>
+                <p class="text-2xl font-extrabold text-primary">${{ solicitudData().total.toLocaleString() }} MXN</p>
+            </div>
+        </div>
 
-                <!-- Próximos pasos -->
-                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-8"
-                    *ngIf="solicitudData().estado === 'pendiente_aprobacion'">
-                    <h3 class="font-bold text-blue-900 dark:text-blue-300 mb-3 flex items-center gap-2">
-                        <span class="material-symbols-outlined">info</span>
-                        ¿Qué sigue?
-                    </h3>
-                    <ol class="space-y-3 text-sm text-blue-800 dark:text-blue-300">
-                        <li class="flex items-start gap-2">
-                            <span
-                                class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
-                            <span>El proveedor revisará tu solicitud y te enviará una cotización formal.</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span
-                                class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
-                            <span>Recibirás una notificación cuando el proveedor responda.</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span
-                                class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
-                            <span>Podrás aceptar, rechazar o negociar la cotización.</span>
-                        </li>
-                        <li class="flex items-start gap-2">
-                            <span
-                                class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
-                            <span>Una vez aceptada, realizarás el pago del anticipo para confirmar.</span>
-                        </li>
-                    </ol>
-                </div>
-
-                <!-- Botones de acción -->
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <button (click)="verMisSolicitudes()"
-                        class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
-                        <span class="material-symbols-outlined">list_alt</span>
-                        Ver Mis Solicitudes
-                    </button>
-
-                    @if (solicitudData().estado === 'esperando_anticipo') {
-                    <button (click)="irAPagar()"
-                        class="flex-1 bg-primary hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
-                        <span class="material-symbols-outlined">payments</span>
-                        Pagar Servicio
-                    </button>
-                    } @else {
-                    <button (click)="crearOtroEvento()"
-                        class="flex-1 bg-primary hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
-                        <span class="material-symbols-outlined">add</span>
-                        Crear Otra solicitud
-                    </button>
-                    }
-                </div>
-                } @else {
-                <!-- Estado de carga o sin datos -->
-                <div class="text-center py-12">
+        <!-- Próximos pasos -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-8"
+            *ngIf="solicitudData().estado === 'pendiente_aprobacion'">
+            <h3 class="font-bold text-blue-900 dark:text-blue-300 mb-3 flex items-center gap-2">
+                <span class="material-symbols-outlined">info</span>
+                ¿Qué sigue?
+            </h3>
+            <ol class="space-y-3 text-sm text-blue-800 dark:text-blue-300">
+                <li class="flex items-start gap-2">
                     <span
-                        class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 animate-spin">progress_activity</span>
-                    <p class="mt-4 text-gray-500 dark:text-gray-400">Cargando información...</p>
-                </div>
-                }
+                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
+                    <span>El proveedor revisará tu solicitud y te enviará una cotización formal.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
+                    <span>Recibirás una notificación cuando el proveedor responda.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
+                    <span>Podrás aceptar, rechazar o negociar la cotización.</span>
+                </li>
+                <li class="flex items-start gap-2">
+                    <span
+                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
+                    <span>Una vez aceptada, realizarás el pago del anticipo para confirmar.</span>
+                </li>
+            </ol>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex flex-col sm:flex-row gap-4">
+            <button (click)="verMisSolicitudes()"
+                class="flex-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all hover:bg-gray-50 dark:hover:bg-gray-700">
+                <span class="material-symbols-outlined">list_alt</span>
+                Ver Mis Solicitudes
+            </button>
+
+            @if (solicitudData().estado === 'esperando_anticipo') {
+            <button (click)="irAPagar()"
+                class="flex-1 bg-primary hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
+                <span class="material-symbols-outlined">payments</span>
+                Pagar Servicio
+            </button>
+            } @else {
+            <button (click)="crearOtroEvento()"
+                class="flex-1 bg-primary hover:bg-red-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all">
+                <span class="material-symbols-outlined">add</span>
+                Crear Otra solicitud
+            </button>
+            }
+        </div>
+        } @else {
+        <!-- Estado de carga o sin datos -->
+        <div class="text-center py-12">
+            <span
+                class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 animate-spin">progress_activity</span>
+            <p class="mt-4 text-gray-500 dark:text-gray-400">Cargando información...</p>
+        </div>
+        }
     </main>
 </div>
