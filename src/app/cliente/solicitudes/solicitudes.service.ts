@@ -6,10 +6,10 @@ import { SupabaseDataService } from '../../services/supabase-data.service';
 export interface SolicitudCliente {
     id: string;
     titulo_evento: string;
-    categoria: string; // 'Música', 'Catering', etc. (Derivado o mock por ahora)
+    categoria: string;
     fecha_evento: string; // ISO date
     creada_en: string; // ISO date
-    estado: 'pendiente' | 'cotizando' | 'contratado' | 'finalizado';
+    estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
     cotizaciones_count: number;
     imagen_url?: string;
 }
@@ -35,7 +35,7 @@ export class SolicitudesService {
                     fecha_evento: req.fecha_servicio,
                     direccion_servicio: req.direccion_servicio || '',
                     creada_en: req.created_at || req.creado_en, // Supabase usa created_at
-                    estado: this.mapearEstado(req.estado),
+                    estado: req.estado as any, // Pasar el estado real de la DB
                     cotizaciones_count: 0, // TODO: Count real quotes
                     imagen_url: this.getImagenCategoria(this.inferirCategoria(req))
                 }));

@@ -105,30 +105,35 @@ export class ClienteDashboardComponent implements OnInit {
                 this.misSolicitudes.set(requests);
 
                 // Mapear a actividades para la tabla
-                const mappedRequests = requests.map(req => ({
-                    id: req.id,
-                    proveedor: req.perfil_proveedor?.nombre_negocio || 'Proveedor',
-                    servicio: req.titulo_evento || 'Evento Especial',
-                    fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
-                    estado: req.estado,
-                    estadoLabel: this.formatEstado(req.estado),
-                    monto: req.monto_total || 0,
-                    // Additional fields for reserved view
-                    hora: req.hora_servicio || '12:00',
-                    direccion: req.direccion_servicio || 'Ubicación no disponible'
-                }));
+                const mappedRequests = requests.map(req => {
+                    const rawProv = req.perfil_proveedor;
+                    const provData = Array.isArray(rawProv) ? rawProv[0] : rawProv;
+
+                    return {
+                        id: req.id,
+                        proveedor: provData?.nombre_negocio || 'Proveedor',
+                        servicio: req.titulo_evento || 'Evento Especial',
+                        fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
+                        estado: req.estado,
+                        estadoLabel: this.formatEstado(req.estado),
+                        monto: req.monto_total || 0,
+                        // Additional fields for reserved view
+                        hora: req.hora_servicio || '12:00',
+                        direccion: req.direccion_servicio || 'Ubicación no disponible'
+                    };
+                });
 
                 this.actividades.set(mappedRequests);
 
                 // Categorizar
-                this.reservadas.set(mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(r.estado)));
+                this.reservadas.set(mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)));
                 this.pendientesPago.set(mappedRequests.filter(r => r.estado === 'esperando_anticipo'));
                 this.pendientesRespuesta.set(mappedRequests.filter(r => r.estado === 'pendiente_aprobacion'));
-                this.historial.set(mappedRequests.filter(r => ['rechazada', 'cancelada', 'abandonada'].includes(r.estado)));
+                this.historial.set(mappedRequests.filter(r => ['rechazada', 'cancelada', 'abandonada', 'finalizado'].includes(r.estado)));
 
                 // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
-                const reservadasCount = mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(r.estado)).length;
+                const reservadasCount = mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)).length;
 
                 this.metricas.set({
                     solicitudesTotales: reservadasCount,

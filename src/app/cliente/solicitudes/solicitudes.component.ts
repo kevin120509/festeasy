@@ -33,9 +33,9 @@ export class MisSolicitudesComponent implements OnInit {
         if (tab === 'todas') return requests;
 
         return requests.filter(req => {
-            if (tab === 'activas') return ['pendiente', 'cotizando', 'contratado'].includes(req.estado);
-            if (tab === 'cotizando') return req.estado === 'cotizando';
-            if (tab === 'contratadas') return req.estado === 'contratado';
+            if (tab === 'activas') return ['pendiente_aprobacion', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
+            if (tab === 'cotizando') return req.estado === 'pendiente_aprobacion'; // En este sistema, pendiente es cotizando
+            if (tab === 'contratadas') return ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
             if (tab === 'finalizadas') return req.estado === 'finalizado';
             return true;
         });
@@ -82,9 +82,15 @@ export class MisSolicitudesComponent implements OnInit {
     // Helper para clases de badge
     getStatusBadgeClass(estado: string): string {
         switch (estado) {
-            case 'cotizando': return 'bg-red-50 text-red-600';
-            case 'contratado': return 'bg-green-50 text-green-600';
-            case 'pendiente': return 'bg-gray-100 text-gray-500';
+            case 'pendiente_aprobacion': return 'bg-amber-50 text-amber-600';
+            case 'esperando_anticipo': return 'bg-blue-50 text-blue-600';
+            case 'reservado': return 'bg-indigo-50 text-indigo-600';
+            case 'en_progreso': return 'bg-orange-50 text-orange-600';
+            case 'entregado_pendiente_liq': return 'bg-purple-50 text-purple-600';
+            case 'finalizado': return 'bg-green-50 text-green-600';
+            case 'rechazada':
+            case 'cancelada':
+            case 'abandonada': return 'bg-red-50 text-red-600';
             default: return 'bg-gray-50 text-gray-600';
         }
     }

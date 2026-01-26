@@ -55,6 +55,11 @@ export class AuthService {
       .single();
 
     const fullUser = {
+      nombre_completo: profile?.nombre_completo ||
+        user.user_metadata?.nombre ||
+        user.user_metadata?.nombre_completo ||
+        user.email?.split('@')[0] ||
+        'Usuario',
       ...profile,
       profile_id: profile?.id ?? null,
       id: user.id,
@@ -162,7 +167,10 @@ export class AuthService {
 
     // Si no existe, crearlo
     const { data: { user: authUser } } = await this.supabase.auth.getUser();
-    const nombre = authUser?.user_metadata?.['nombre'] || authUser?.user_metadata?.['nombre_completo'] || 'Usuario';
+    const nombre = authUser?.user_metadata?.['nombre'] ||
+      authUser?.user_metadata?.['nombre_completo'] ||
+      authUser?.email?.split('@')[0] ||
+      'Usuario';
 
     const { data: newProfile, error } = await this.supabase
       .from('perfil_cliente')

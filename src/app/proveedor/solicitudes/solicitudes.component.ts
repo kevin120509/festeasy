@@ -21,7 +21,7 @@ interface SolicitudProveedor {
     direccion_servicio: string;
     estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
     creado_en?: string;
-    client?: {
+    cliente?: {
         avatar_url?: string;
     };
 }
@@ -101,20 +101,28 @@ export class SolicitudesComponent implements OnInit {
     }
 
     private mapearSolicitud(req: any): SolicitudProveedor {
-        const rawCliente = req.perfil_cliente || req.cliente;
+        // Intentar obtener los datos del cliente de varias propiedades posibles por el JOIN
+        const rawCliente = req.cliente || req.perfil_cliente;
         const clienteData = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
+
+        // Búsqueda exhaustiva del nombre
+        const nombreFinal = clienteData?.nombre_completo ||
+            clienteData?.nombre_negocio ||
+            clienteData?.nombre ||
+            req.cliente_nombre ||
+            'Cliente';
 
         return {
             id: req.id,
-            cliente_nombre: clienteData?.nombre_completo || 'Cliente',
+            cliente_nombre: nombreFinal,
             cliente_telefono: clienteData?.telefono,
-            titulo_evento: req.titulo_evento || 'Reservación',
+            titulo_evento: req.titulo_evento,
             monto_total: req.monto_total || 0,
             fecha_servicio: req.fecha_servicio,
             direccion_servicio: req.direccion_servicio || 'Por definir',
             estado: req.estado || 'pendiente_aprobacion',
             creado_en: req.creado_en,
-            client: clienteData
+            cliente: clienteData
         };
     }
 

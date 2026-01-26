@@ -59,7 +59,9 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                                 subtotal: (it.precio_unitario || 0) * (it.cantidad || 0)
                             }));
 
-                            const proveedor = sol.perfil_proveedor || {};
+                            const rawProv = sol.perfil_proveedor;
+                            const proveedor = (Array.isArray(rawProv) ? rawProv[0] : rawProv) || {};
+
                             const datos = {
                                 id: sol.id,
                                 fechaEnvio: sol.creado_en || new Date().toISOString(),

@@ -266,29 +266,45 @@ export class ApiService {
 
     getClientRequests(): Observable<any[]> {
         return from(this.supabase.auth.getUser()).pipe(map(u => {
-            return this.supabase.from('solicitudes').select('*, provider:perfil_proveedor(*)').eq('cliente_usuario_id', u.data.user?.id);
+            return this.supabase.from('solicitudes').select('*').eq('cliente_usuario_id', u.data.user?.id);
         })) as any;
     }
 
-    // Obtener solicitudes del cliente con datos completos
+    // Obtener solicitudes del cliente con datos completos (Resiliente a falta de FK)
     getClientRequestsReal(): Observable<any[]> {
         return from(this.supabase.auth.getUser()).pipe(
-            switchMap((res: any) => {
-                if (res.error) throw res.error;
-                const userId = res.data.user?.id;
-                if (!userId) return [];
+            switchMap((authRes: any) => {
+                const userId = authRes.data.user?.id;
+                if (!userId) return of([]);
 
-                // Solicitudes sin JOIN - no hay FK directa a perfil_proveedor
                 return from(this.supabase
                     .from('solicitudes')
                     .select('*')
                     .eq('cliente_usuario_id', userId)
                     .order('creado_en', { ascending: false })
+                ).pipe(
+                    switchMap((res: any) => {
+                        if (res.error) throw res.error;
+                        const solicitudes = res.data || [];
+                        if (solicitudes.length === 0) return of([]);
+
+                        // Resolver perfiles de proveedor para cada solicitud de forma paralela
+                        const observables = solicitudes.map((req: any) => {
+                            return from(this.supabase
+                                .from('perfil_proveedor')
+                                .select('*')
+                                .eq('usuario_id', req.proveedor_usuario_id)
+                                .maybeSingle()
+                            ).pipe(
+                                map(({ data: provider }) => ({
+                                    ...req,
+                                    provider: provider || { nombre_negocio: 'Proveedor no encontrado' }
+                                }))
+                            );
+                        });
+                        return forkJoin(observables) as Observable<any[]>;
+                    })
                 );
-            }),
-            map((res: any) => {
-                if (res.error) throw res.error;
-                return res.data || [];
             })
         );
     }
@@ -296,31 +312,105 @@ export class ApiService {
     // Obtener solicitudes del proveedor (para que pueda aceptar/rechazar)
     getProviderRequestsReal(): Observable<any[]> {
         return from(this.supabase.auth.getUser()).pipe(
-            switchMap((res: any) => {
-                if (res.error) throw res.error;
-                const userId = res.data.user?.id;
-                if (!userId) return of([]);
+            switchMap((authRes: any) => {
+                const user = authRes.data.user;
+                if (!user) return of([]);
 
-                // Usar JOIN directo con perfil_cliente
-                // Intentamos primero con la relación automática, si falla usaremos el FK explícito
+                const userId = user.id;
+
+                // Usar select explícito con la FK para asegurar que Supabase traiga los perfiles
+                // Usamos el alias 'cliente' para que coincida con nuestro modelo ServiceRequest
                 return from(this.supabase
                     .from('solicitudes')
-                    .select('*, perfil_cliente(nombre_completo, telefono, avatar_url)')
+                    .select(`
+                        *,
+                        cliente:perfil_cliente!solicitudes_cliente_perfil_fkey (
+                            nombre_completo,
+                            telefono,
+                            avatar_url
+                        )
+                    `)
                     .eq('proveedor_usuario_id', userId)
                     .order('creado_en', { ascending: false })
                 );
             }),
-            map((res: any) => {
+            switchMap((res: any) => {
+                console.log('🔍 RAW Supabase Response (Provider Requests):', res.data);
                 if (res.error) {
                     console.error('❌ Error en getProviderRequestsReal:', res.error);
-                    // Si falla el JOIN con FK específico, intentar sin el FK (relación por defecto)
-                    return [];
+                    return of([]);
                 }
-                return res.data || [];
+
+                const solicitudes = res.data || [];
+                console.log('🔍 Muestra de datos RAW (Primera Solicitud):', JSON.stringify(solicitudes[0], null, 2));
+
+                if (solicitudes.length === 0) return of([]);
+
+                // Procesar cada solicitud para buscar perfil de proveedor si el de cliente falta
+                const observables = solicitudes.map((req: any) => {
+                    const rawJoin = req.cliente;
+                    const clienteData = Array.isArray(rawJoin) ? rawJoin[0] : rawJoin;
+
+                    if (clienteData?.nombre_completo) {
+                        console.log(`✅ Nombre encontrado vía JOIN para solicitud ${req.id}:`, clienteData.nombre_completo);
+                        return of({ ...req, cliente: clienteData });
+                    }
+
+                    console.log(`⚠️ Solicitud ${req.id} sin nombre vía JOIN. Buscando en perfil_cliente para user_id: ${req.cliente_usuario_id}`);
+
+                    // FALLBACK: Buscar secuencialmente en perfil_cliente y luego en perfil_proveedor
+                    return from(this.supabase
+                        .from('perfil_cliente')
+                        .select('nombre_completo, telefono, avatar_url')
+                        .eq('usuario_id', req.cliente_usuario_id)
+                        .maybeSingle()
+                    ).pipe(
+                        switchMap(({ data: pCliente, error: errC }) => {
+                            if (errC) console.error(`❌ Error rescatando perfil_cliente para ${req.id}:`, errC);
+
+                            if (pCliente?.nombre_completo) {
+                                console.log(`✅ Nombre rescatado de perfil_cliente para ${req.id}:`, pCliente.nombre_completo);
+                                return of({ ...req, cliente: pCliente });
+                            }
+
+                            console.log(`⚠️ No se encontró perfil_cliente para ${req.id}. Buscando en perfil_proveedor...`);
+
+                            // Si no hay perfil_cliente, buscar en perfil_proveedor
+                            return from(this.supabase
+                                .from('perfil_proveedor')
+                                .select('nombre_negocio, telefono, avatar_url')
+                                .eq('usuario_id', req.cliente_usuario_id)
+                                .maybeSingle()
+                            ).pipe(
+                                map(({ data: prov, error: errP }) => {
+                                    if (errP) console.error(`❌ Error rescatando perfil_proveedor para ${req.id}:`, errP);
+
+                                    const provData = prov as any;
+                                    const finalCliente = prov ? {
+                                        nombre_completo: provData.nombre_negocio || provData.nombre_completo || 'Proveedor como Cliente',
+                                        telefono: provData.telefono,
+                                        avatar_url: provData.avatar_url
+                                    } : null;
+
+                                    if (finalCliente) {
+                                        console.log(`✅ Nombre rescatado de perfil_proveedor para ${req.id}:`, finalCliente.nombre_completo);
+                                    } else {
+                                        console.warn(`🛑 NO SE ENCONTRÓ NINGÚN PERFIL para user_id: ${req.cliente_usuario_id} en solicitud ${req.id}`);
+                                    }
+
+                                    return {
+                                        ...req,
+                                        cliente: finalCliente
+                                    };
+                                })
+                            );
+                        })
+                    );
+                });
+                return forkJoin(observables) as Observable<any[]>;
             })
         );
     }
-
     // Actualizar estado de solicitud (para proveedor aceptar/rechazar)
     updateSolicitudEstado(id: string, estado: string): Observable<any> {
         return this.fromSupabase(
@@ -434,24 +524,57 @@ export class ApiService {
     getRequestById(id: string): Observable<any> {
         return from(this.supabase
             .from('solicitudes')
-            .select('*')
+            .select(`
+                        *,
+                        cliente: perfil_cliente!solicitudes_cliente_perfil_fkey(
+                            id,
+                            nombre_completo,
+                            telefono,
+                            avatar_url
+                        )
+                        `)
             .eq('id', id)
             .single()
         ).pipe(
             switchMap(({ data: request, error }) => {
-                if (error) throw error;
-                if (!request) throw new Error('Solicitud no encontrada');
+                if (error) {
+                    console.error('❌ Error cargando solicitud base:', error);
+                    // Como último recurso, intentar sin el JOIN si este falló por RLS de la relación
+                    return from(this.supabase.from('solicitudes').select('*').eq('id', id).single()).pipe(
+                        map(res => res.data)
+                    );
+                }
+                return of(request);
+            }),
+            switchMap((request: any) => {
+                if (!request) return throwError(() => new Error('Solicitud no encontrada'));
 
-                // Obtener perfiles manualmente para asegurar que llegan
+                const rawCliente = request.cliente;
+                const clienteExistente = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
+
                 return forkJoin({
                     provider: from(this.supabase.from('perfil_proveedor').select('*').eq('usuario_id', request.proveedor_usuario_id).maybeSingle()),
-                    client: from(this.supabase.from('perfil_cliente').select('*').eq('usuario_id', request.cliente_usuario_id).maybeSingle())
+                    clientManual: clienteExistente?.nombre_completo ? of({ data: clienteExistente }) : from(this.supabase.from('perfil_cliente').select('*').eq('usuario_id', request.cliente_usuario_id).maybeSingle()),
+                    clientAsProvider: (clienteExistente?.nombre_completo || false) ? of({ data: null }) : from(this.supabase.from('perfil_proveedor').select('nombre_negocio, telefono, avatar_url').eq('usuario_id', request.cliente_usuario_id).maybeSingle())
                 }).pipe(
-                    map(({ provider, client }) => ({
-                        ...request,
-                        perfil_proveedor: provider.data,
-                        perfil_cliente: client.data // Usar perfil_cliente para consistencia
-                    }))
+                    map(({ provider, clientManual, clientAsProvider }: any) => {
+                        let clienteData = clientManual.data || clienteExistente;
+
+                        // Si después de todo sigue sin haber nombre, usar los datos de proveedor si existen
+                        if (!clienteData?.nombre_completo && clientAsProvider.data) {
+                            clienteData = {
+                                nombre_completo: clientAsProvider.data.nombre_negocio || clientAsProvider.data.nombre_completo,
+                                telefono: clientAsProvider.data.telefono,
+                                avatar_url: clientAsProvider.data.avatar_url
+                            };
+                        }
+
+                        return {
+                            ...request,
+                            perfil_proveedor: provider.data,
+                            cliente: clienteData
+                        };
+                    })
                 );
             })
         );

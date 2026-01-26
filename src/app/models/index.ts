@@ -127,7 +127,7 @@ export interface ServiceRequest {
     pin_validacion?: string;
     fecha_validacion_pin?: string | Date;
     provider?: ProviderProfile; // Joined data
-    client?: ClientProfile; // Joined data
+    cliente?: ClientProfile; // Joined data
     items?: RequestItem[]; // Joined data
     presupuesto_max?: number;
     horas_respuesta_max?: number;

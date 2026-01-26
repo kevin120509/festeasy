@@ -73,12 +73,28 @@ export class SupabaseDataService {
         // Para el marketplace general, si quisiéramos mostrar paquetes destacados
         return from(this.supabase
             .from('paquetes_proveedor')
-            .select('*, perfil_proveedor(nombre_negocio)')
+            .select('*')
         ).pipe(
-            map(({ data, error }) => {
-                if (error && error.code === '42P01') return [];
+            switchMap(({ data: paquetes, error }) => {
+                if (error && error.code === '42P01') return of([]);
                 if (error) throw error;
-                return data || [];
+                if (!paquetes || paquetes.length === 0) return of([]);
+
+                // Resolver perfiles de proveedor manualmente
+                const observables = paquetes.map((pkg: any) => {
+                    return from(this.supabase
+                        .from('perfil_proveedor')
+                        .select('nombre_negocio, avatar_url')
+                        .eq('usuario_id', pkg.proveedor_usuario_id)
+                        .maybeSingle()
+                    ).pipe(
+                        map(({ data: provider }) => ({
+                            ...pkg,
+                            perfil_proveedor: provider
+                        }))
+                    );
+                });
+                return forkJoin(observables);
             })
         );
     }
@@ -86,13 +102,26 @@ export class SupabaseDataService {
     getPackageById(id: string): Observable<any> {
         return from(this.supabase
             .from('paquetes_proveedor')
-            .select(`*, perfil_proveedor(*), items_paquete:items_paquete(*)`)
+            .select(`*, items_paquete:items_paquete(*)`)
             .eq('id', id)
             .single()
         ).pipe(
-            map(({ data, error }) => {
+            switchMap(({ data: pkg, error }) => {
                 if (error) throw error;
-                return data;
+                if (!pkg) return of(null);
+
+                // Resolver perfil de proveedor manualmente
+                return from(this.supabase
+                    .from('perfil_proveedor')
+                    .select('*')
+                    .eq('usuario_id', pkg.proveedor_usuario_id)
+                    .maybeSingle()
+                ).pipe(
+                    map(({ data: provider }) => ({
+                        ...pkg,
+                        perfil_proveedor: provider
+                    }))
+                );
             })
         );
     }
@@ -107,32 +136,28 @@ export class SupabaseDataService {
             .eq('cliente_usuario_id', clientId)
             .order('creado_en', { ascending: false })
         ).pipe(
-            switchMap(({ data: requests, error }) => {
+            switchMap(({ data: solicitudes, error }) => {
                 if (error) {
-                    if (error.code === '42P01') return of([]); // Table doesn't exist
+                    if (error.code === '42P01') return of([]);
                     throw error;
                 }
-                if (!requests || requests.length === 0) return of([]);
+                if (!solicitudes || solicitudes.length === 0) return of([]);
 
-                // Extract unique provider IDs
-                const providerIds = [...new Set(requests.map((r: any) => r.proveedor_usuario_id))];
-
-                // Fetch provider profiles
-                return from(this.supabase
-                    .from('perfil_proveedor')
-                    .select('*')
-                    .in('usuario_id', providerIds)
-                ).pipe(
-                    map(({ data: profiles }) => {
-                        const profilesMap = new Map(profiles?.map((p: any) => [p.usuario_id, p]));
-
-                        // Merge requests with provider profiles
-                        return requests.map((req: any) => ({
+                // Resolver perfiles de proveedor manualmente
+                const observables = solicitudes.map((req: any) => {
+                    return from(this.supabase
+                        .from('perfil_proveedor')
+                        .select('*')
+                        .eq('usuario_id', req.proveedor_usuario_id)
+                        .maybeSingle()
+                    ).pipe(
+                        map(({ data: provider }) => ({
                             ...req,
-                            perfil_proveedor: profilesMap.get(req.proveedor_usuario_id) || { nombre_negocio: 'Proveedor Desconocido' }
-                        }));
-                    })
-                );
+                            perfil_proveedor: provider
+                        }))
+                    );
+                });
+                return forkJoin(observables);
             })
         );
     }
@@ -140,14 +165,30 @@ export class SupabaseDataService {
     getRequestsByProvider(providerId: string): Observable<any[]> {
         return from(this.supabase
             .from('solicitudes')
-            .select('*, perfil_cliente(*)')
+            .select('*')
             .eq('proveedor_usuario_id', providerId)
             .order('creado_en', { ascending: false })
         ).pipe(
-            map(({ data, error }) => {
-                if (error && error.code === '42P01') return [];
+            switchMap(({ data: solicitudes, error }) => {
+                if (error && error.code === '42P01') return of([]);
                 if (error) throw error;
-                return data || [];
+                if (!solicitudes || solicitudes.length === 0) return of([]);
+
+                // Resolver perfiles de cliente manualmente
+                const observables = solicitudes.map((req: any) => {
+                    return from(this.supabase
+                        .from('perfil_cliente')
+                        .select('*')
+                        .eq('usuario_id', req.cliente_usuario_id)
+                        .maybeSingle()
+                    ).pipe(
+                        map(({ data: clientProfile }) => ({
+                            ...req,
+                            perfil_cliente: clientProfile
+                        }))
+                    );
+                });
+                return forkJoin(observables);
             })
         );
     }

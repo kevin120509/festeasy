@@ -41,6 +41,7 @@ export class SolicitudDetalleComponent implements OnInit {
         this.isLoading.set(true);
         this.api.getRequestById(id).subscribe({
             next: (data) => {
+                console.log('📌 Detalle de solicitud cargado:', data);
                 this.solicitud.set(data);
                 this.cargarItems(id);
             },

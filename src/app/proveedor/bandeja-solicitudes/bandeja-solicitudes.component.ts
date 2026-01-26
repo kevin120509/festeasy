@@ -111,13 +111,20 @@ export class BandejaSolicitudesComponent implements OnInit {
         const horasTranscurridas = diffMs / (1000 * 60 * 60);
         const horasRestantes = Math.max(0, 24 - horasTranscurridas);
 
-        const rawCliente = req.perfil_cliente || req.cliente;
+        const rawCliente = req.cliente || req.perfil_cliente;
         const clienteData = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
+
+        // Búsqueda exhaustiva del nombre
+        const nombreFinal = clienteData?.nombre_completo ||
+            clienteData?.nombre_negocio ||
+            clienteData?.nombre ||
+            req.cliente_nombre || // Fallback a propiedad directa si existe
+            'Cliente';
 
         return {
             id: req.id,
             numero_solicitud: req.numero_solicitud,
-            cliente_nombre: clienteData?.nombre_completo || 'Cliente',
+            cliente_nombre: nombreFinal,
             cliente_avatar: clienteData?.avatar_url,
             cliente_telefono: clienteData?.telefono,
             titulo_evento: req.titulo_evento || 'Evento',
@@ -277,9 +284,9 @@ export class BandejaSolicitudesComponent implements OnInit {
     onPinValidado(solicitud: ServiceRequest) {
         console.log('✅ PIN validado exitosamente:', solicitud);
 
-        // Actualizar la solicitud en la lista con el nuevo estado
+        // Actualizar la solicitud en la lista con el nuevo estado (finalizado)
         this.solicitudes.update(list =>
-            list.map(s => s.id === solicitud.id ? { ...s, estado: 'en_progreso' as const } : s)
+            list.map(s => s.id === solicitud.id ? { ...s, estado: 'finalizado' as const } : s)
         );
 
         // Mostrar mensaje de éxito
