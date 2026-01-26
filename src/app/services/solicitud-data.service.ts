@@ -73,7 +73,7 @@ export class SolicitudDataService {
         localStorage.setItem('carrito', JSON.stringify(carrito));
     }
 
-    async enviarSolicitud(item: any, user: any) {
+    async enviarSolicitud(item: any, user: any): Promise<string> {
         const { evento, proveedor, paquetes, total } = item;
 
         const solicitudPayload = {
@@ -100,8 +100,8 @@ export class SolicitudDataService {
         }));
 
         await firstValueFrom(this.api.createSolicitudItems(itemsPayload));
+        return solicitud.id;
     }
-
 
     // Guarda la solicitud y los items en la base de datos
     guardarSolicitudCompleta(solicitud: any, proveedor: any, paquetes: any[]): Observable<any> {

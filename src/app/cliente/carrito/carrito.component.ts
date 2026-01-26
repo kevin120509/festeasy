@@ -25,7 +25,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     isLoading = signal<boolean>(false);
     notification = signal<{ message: string, type: 'success' | 'error' } | null>(null);
 
-    constructor() {}
+    constructor() { }
 
     ngOnInit(): void {
         this.carritoSubscription = this.solicitudDataService.getCarrito().subscribe(carrito => {
@@ -42,7 +42,7 @@ export class CarritoComponent implements OnInit, OnDestroy {
     get total() {
         return this.items().reduce((sum, item) => sum + item.total, 0);
     }
-    
+
     removeItem(id: number) {
         this.solicitudDataService.removerDelCarrito(id);
     }
@@ -57,12 +57,14 @@ export class CarritoComponent implements OnInit, OnDestroy {
         }
 
         const itemsToSend = [...this.items()];
+        const createdIds: string[] = [];
 
         try {
             for (const item of itemsToSend) {
-                await this.solicitudDataService.enviarSolicitud(item, user);
+                const id = await this.solicitudDataService.enviarSolicitud(item, user);
+                if (id) createdIds.push(id);
             }
-            
+
             this.solicitudDataService.limpiarCarrito();
 
             this.notification.set({ message: 'Todas las solicitudes han sido enviadas', type: 'success' });

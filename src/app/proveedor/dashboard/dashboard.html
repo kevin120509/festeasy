@@ -1,12 +1,6 @@
 <!-- Contenido Principal -->
 <div class="min-h-screen bg-slate-50">
     <main class="p-4 sm:p-8 max-w-7xl mx-auto">
-        <!-- Cabecera -->
-        <div class="mb-8">
-            <p class="text-sm text-slate-500 mb-1">{{ fechaHoy | date:'EEEE, d \'de\' MMMM \'de\' y':'es-MX' }}</p>
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">Hola, {{ getNombreNegocio() }}</h1>
-        </div>
-
         <!-- Grid de Tarjetas de Estadísticas (3 columnas) -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <!-- Nuevas Solicitudes -->
@@ -140,52 +134,53 @@
                 </div>
                 <div class="p-6">
                     @if (proximaCita() && proximaCita().id) {
-                        <!-- Mini mapa o imagen -->
-                        <div class="relative h-32 bg-slate-100 rounded-xl overflow-hidden mb-4">
-                            <img [src]="proximaCita()?.imagenMapa" alt="Ubicación" class="w-full h-full object-cover">
-                            <!-- Pin de ubicación -->
-                            <div class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md">
-                                <span class="material-icons-outlined text-red-500 text-[20px]">location_on</span>
-                            </div>
+                    <!-- Mini mapa o imagen -->
+                    <div class="relative h-32 bg-slate-100 rounded-xl overflow-hidden mb-4">
+                        <img [src]="proximaCita()?.imagenMapa" alt="Ubicación" class="w-full h-full object-cover">
+                        <!-- Pin de ubicación -->
+                        <div class="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-md">
+                            <span class="material-icons-outlined text-red-500 text-[20px]">location_on</span>
+                        </div>
+                    </div>
+
+                    <!-- Detalles del evento -->
+                    <h4 class="text-base font-bold text-slate-800 mb-3">{{ proximaCita()?.titulo }}</h4>
+
+                    <div class="space-y-2.5 mb-4">
+                        <div class="flex items-start gap-2">
+                            <span class="material-icons-outlined text-slate-400 text-[20px]">place</span>
+                            <p class="text-sm text-slate-600 flex-1">{{ proximaCita()?.ubicacion }}</p>
                         </div>
 
-                        <!-- Detalles del evento -->
-                        <h4 class="text-base font-bold text-slate-800 mb-3">{{ proximaCita()?.titulo }}</h4>
-
-                        <div class="space-y-2.5 mb-4">
-                            <div class="flex items-start gap-2">
-                                <span class="material-icons-outlined text-slate-400 text-[20px]">place</span>
-                                <p class="text-sm text-slate-600 flex-1">{{ proximaCita()?.ubicacion }}</p>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <span class="material-icons-outlined text-slate-400 text-[20px]">event</span>
-                                <p class="text-sm text-slate-600">
-                                    {{ proximaCita()?.fecha | date:'d MMMM y, h:mm a':'es-MX' }}
-                                </p>
-                            </div>
-
-                            <div class="flex items-center gap-2">
-                                <span class="material-icons-outlined text-slate-400 text-[20px]">payments</span>
-                                <p class="text-sm font-bold text-slate-800">
-                                    {{ proximaCita()?.montoTotal | currency:'MXN':'symbol-narrow':'1.0-0' }}
-                                </p>
-                            </div>
+                        <div class="flex items-center gap-2">
+                            <span class="material-icons-outlined text-slate-400 text-[20px]">event</span>
+                            <p class="text-sm text-slate-600">
+                                {{ proximaCita()?.fecha | date:'d MMMM y, h:mm a':'es-MX' }}
+                            </p>
                         </div>
 
-                        <!-- Botón Ver detalles -->
-                        <button (click)="verDetalles(proximaCita().id)"
-                            class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-semibold text-sm transition-colors shadow-sm hover:shadow-md">
-                            Ver detalles completos
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <span class="material-icons-outlined text-slate-400 text-[20px]">payments</span>
+                            <p class="text-sm font-bold text-slate-800">
+                                {{ proximaCita()?.montoTotal | currency:'MXN':'symbol-narrow':'1.0-0' }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Botón Ver detalles -->
+                    <button (click)="verDetalles(proximaCita().id)"
+                        class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-semibold text-sm transition-colors shadow-sm hover:shadow-md">
+                        Ver detalles completos
+                    </button>
                     } @else {
-                        <div class="py-12 text-center">
-                            <div class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <span class="material-icons-outlined text-slate-300 text-[32px]">event_busy</span>
-                            </div>
-                            <h4 class="text-sm font-bold text-slate-800 mb-1">Sin eventos próximos</h4>
-                            <p class="text-xs text-slate-500 px-4">Cuando confirmes una solicitud, aparecerá aquí como tu siguiente cita.</p>
+                    <div class="py-12 text-center">
+                        <div class="h-16 w-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <span class="material-icons-outlined text-slate-300 text-[32px]">event_busy</span>
                         </div>
+                        <h4 class="text-sm font-bold text-slate-800 mb-1">Sin eventos próximos</h4>
+                        <p class="text-xs text-slate-500 px-4">Cuando confirmes una solicitud, aparecerá aquí como tu
+                            siguiente cita.</p>
+                    </div>
                     }
                 </div>
             </div>

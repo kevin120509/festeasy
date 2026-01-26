@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
+import { HeaderDashboardComponent } from '../../shared/header-dashboard/header-dashboard.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-proveedor-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
   templateUrl: './proveedor-layout.component.html',
 })
 export class ProveedorLayoutComponent implements OnInit {
