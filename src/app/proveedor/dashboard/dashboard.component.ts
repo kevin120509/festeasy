@@ -12,7 +12,7 @@ interface RequestRow {
     evento: string;
     ubicacion: string;
     fechaServicio: Date;
-    estado: 'esperando_anticipo' | 'reservado' | 'pendiente';
+    estado: string;
     monto?: number;
     cliente_nombre?: string;
 }
@@ -285,40 +285,47 @@ export class ProveedorDashboardComponent implements OnInit {
     /**
      * Mapear estado de Supabase a estado de la UI
      */
-    private mapEstado(estado: string): 'esperando_anticipo' | 'reservado' | 'pendiente' {
-        const estadosMap: Record<string, 'esperando_anticipo' | 'reservado' | 'pendiente'> = {
-            'reservado': 'reservado',
-            'aceptado': 'reservado',
-            'pendiente_aprobacion': 'pendiente',
-            'pendiente': 'pendiente',
-            'en_negociacion': 'esperando_anticipo',
-            'esperando_anticipo': 'esperando_anticipo'
-        };
-        return estadosMap[estado] || 'pendiente';
+    private mapEstado(estado: string): string {
+        // Pasar el estado tal cual para que se muestre correctamente
+        // Los estados válidos son: pendiente_aprobacion, esperando_anticipo, reservado,
+        // en_progreso, entregado_pendiente_liq, finalizado, rechazada, cancelada
+        return estado || 'pendiente';
     }
 
     /**
      * Obtener clases CSS para badges de estado
      */
     getEstadoClasses(estado: string): string {
-        const clases = {
+        const clases: Record<string, string> = {
+            'pendiente_aprobacion': 'bg-amber-50 text-amber-600 border border-amber-100',
             'esperando_anticipo': 'bg-orange-50 text-orange-600 border border-orange-100',
-            'reservado': 'bg-blue-50 text-blue-600 border border-blue-100',
+            'reservado': 'bg-green-50 text-green-600 border border-green-100',
+            'en_progreso': 'bg-blue-50 text-blue-600 border border-blue-100',
+            'entregado_pendiente_liq': 'bg-purple-50 text-purple-600 border border-purple-100',
+            'finalizado': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+            'rechazada': 'bg-red-50 text-red-600 border border-red-100',
+            'cancelada': 'bg-slate-100 text-slate-600 border border-slate-200',
             'pendiente': 'bg-yellow-50 text-yellow-600 border border-yellow-100'
         };
-        return clases[estado as keyof typeof clases] || clases.pendiente;
+        return clases[estado] || clases['pendiente'];
     }
 
     /**
      * Obtener texto legible para estados
      */
     getEstadoTexto(estado: string): string {
-        const textos = {
+        const textos: Record<string, string> = {
+            'pendiente_aprobacion': 'Pendiente',
             'esperando_anticipo': 'Esperando Anticipo',
             'reservado': 'Reservado',
+            'en_progreso': 'En Progreso',
+            'entregado_pendiente_liq': 'Por Liquidar',
+            'finalizado': '✓ Finalizado',
+            'rechazada': 'Rechazada',
+            'cancelada': 'Cancelada',
             'pendiente': 'Pendiente'
         };
-        return textos[estado as keyof typeof textos] || 'Pendiente';
+        return textos[estado] || estado;
     }
 
     /**

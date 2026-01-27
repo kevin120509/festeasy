@@ -71,7 +71,7 @@ export const routes: Routes = [
             { path: 'carrito', component: CarritoComponent },
             { path: 'solicitudes', component: MisSolicitudesComponent },
             { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
-            { path: 'pagos/:id', component: PagoComponent },
+            { path: 'pago/:id', component: PagoComponent },
             { path: 'configuracion', component: ClienteConfiguracionComponent },
         ]
     },
