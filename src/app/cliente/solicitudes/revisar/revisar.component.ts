@@ -116,8 +116,7 @@ export class RevisarSolicitudComponent implements OnInit {
                 monto_total: this.total(),
                 estado: 'pendiente_aprobacion',
                 latitud_servicio: 0,
-                longitud_servicio: 0,
-                invitados: eventoData.invitados ?? 0
+                longitud_servicio: 0
             };
             const solicitud = await firstValueFrom(this.api.createRequest(solicitudPayload));
             if (!solicitud?.id) throw new Error('No se pudo crear la solicitud (sin id).');
