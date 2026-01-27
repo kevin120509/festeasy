@@ -25,6 +25,15 @@ export class PaqueteDetalleComponent implements OnInit {
   cantidadSeleccionada = signal(1);
   selectedIncluded = signal<Record<string, number>>({});
 
+  coverImageUrl = computed(() => {
+    const pkg = this.package();
+    if (!pkg || !pkg.detalles_json || !pkg.detalles_json.imagenes || pkg.detalles_json.imagenes.length === 0) {
+      return 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=60'; // Default image
+    }
+    const portada = pkg.detalles_json.imagenes.find((img: any) => img.isPortada);
+    return portada?.url || pkg.detalles_json.imagenes[0].url;
+  });
+
   total = computed(() => {
     const pkg = this.package();
     if (!pkg) return 0;
