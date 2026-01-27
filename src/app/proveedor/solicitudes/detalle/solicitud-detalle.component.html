@@ -147,42 +147,32 @@
                         </div>
                     </div>
 
-                    <div class="space-y-4">
-                        @if (solicitud()?.cliente?.telefono) {
-                        <button (click)="contactarCliente()"
-                            class="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-green-200">
-                            <span class="material-symbols-outlined">chat</span>
-                            <span>Enviar WhatsApp</span>
-                        </button>
-                        } @else {
-                        <div class="text-center p-4 bg-slate-50 rounded-xl">
-                            <span class="text-slate-400 text-xs font-medium">Teléfono no disponible</span>
-                        </div>
-                        }
-                    </div>
+
                 </section>
 
                 <!-- Estado de Pagos -->
-                <section class="bg-slate-900 rounded-3xl p-8 text-white">
+                <section class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
                     <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Resumen Financiero
                     </h2>
 
                     <div class="space-y-6">
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-400 text-sm">Anticipo (50%)</span>
+                            <span class="text-slate-500 text-sm font-medium">Anticipo (50%)</span>
                             <div class="text-right">
-                                <p class="font-bold">{{ (solicitud()?.monto_total || 0) / 2 | currency:'MXN' }}</p>
+                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_total || 0) / 2 |
+                                    currency:'MXN' }}</p>
                                 <span
-                                    class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
+                                    class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
                             </div>
                         </div>
 
-                        <div class="flex justify-between items-center pt-6 border-t border-white/10">
-                            <span class="text-slate-400 text-sm">Saldo Pendiente</span>
+                        <div class="flex justify-between items-center pt-6 border-t border-slate-100">
+                            <span class="text-slate-500 text-sm font-medium">Saldo Pendiente</span>
                             <div class="text-right">
-                                <p class="font-bold">{{ (solicitud()?.monto_total || 0) / 2 | currency:'MXN' }}</p>
+                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_total || 0) / 2 |
+                                    currency:'MXN' }}</p>
                                 <span
-                                    class="text-[10px] bg-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-black uppercase">Por
+                                    class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-black uppercase">Por
                                     Liquidar</span>
                             </div>
                         </div>
