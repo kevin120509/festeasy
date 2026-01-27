@@ -6,7 +6,7 @@ import { SupabaseDataService } from '../../services/supabase-data.service';
 @Component({
     selector: 'app-solicitud-enviada',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule],
     templateUrl: './solicitud-enviada.component.html'
 })
 export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
