@@ -1,12 +1,14 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
+
+
 @Component({
     selector: 'app-solicitud-enviada',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule],
     templateUrl: './solicitud-enviada.component.html'
 })
 export class SolicitudEnviadaComponent implements OnInit, OnDestroy {

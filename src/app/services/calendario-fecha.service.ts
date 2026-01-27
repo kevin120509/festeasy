@@ -22,7 +22,11 @@ export class CalendarioFechaService {
 
     /**
      * 1. Agenda y Bloqueo de Fechas
-     * Conecta a la base de datos para validar disponibilidad y prevenir agendamientos duplicados o bloqueados.
+     * Conecta a la base de datos para validar disponibilidad.
+     * 
+     * ⚠️ CAMBIO IMPORTANTE: Ya NO se bloquea por citas existentes.
+     * Los proveedores pueden aceptar múltiples pedidos el mismo día.
+     * Solo se bloquean fechas con bloqueos manuales (vacaciones) o fechas pasadas.
      */
     consultarDisponibilidad(providerId: string, fecha: Date): Observable<{ disponible: boolean, error?: string }> {
         const supabase = this.supabaseService.getClient();
@@ -33,7 +37,7 @@ export class CalendarioFechaService {
             return of({ disponible: false, error: 'No puedes agendar citas en fechas que ya han pasado.' });
         }
 
-        // 1.2 Validar si la fecha está bloqueada por el proveedor (Regla 1)
+        // 1.2 Validar si la fecha está bloqueada MANUALMENTE por el proveedor (vacaciones)
         return from(
             supabase.from('disponibilidad_bloqueada')
                 .select('*')
@@ -41,28 +45,12 @@ export class CalendarioFechaService {
                 .eq('fecha_bloqueada', fechaISO)
                 .maybeSingle()
         ).pipe(
-            switchMap(({ data: bloqueo }) => {
+            map(({ data: bloqueo }) => {
                 if (bloqueo) {
-                    return of({ disponible: false, error: 'El proveedor no se encuentra disponible en la fecha seleccionada.' });
+                    return { disponible: false, error: 'El proveedor no se encuentra disponible en la fecha seleccionada (vacaciones/bloqueo manual).' };
                 }
-
-                // 1.3 Validar si ya existe una cita confirmada en esa misma fecha
-                return from(
-                    supabase.from('solicitudes')
-                        .select('id')
-                        .eq('proveedor_usuario_id', providerId)
-                        .filter('fecha_servicio', 'gte', `${fechaISO}T00:00:00`)
-                        .filter('fecha_servicio', 'lte', `${fechaISO}T23:59:59`)
-                        .in('estado', ['confirmada', 'reservado', 'pagado', 'en_progreso'])
-                        .maybeSingle()
-                ).pipe(
-                    map(({ data: cita }) => {
-                        if (cita) {
-                            return { disponible: false, error: 'Esta fecha ya ha sido reservada por otro servicio.' };
-                        }
-                        return { disponible: true };
-                    })
-                );
+                // ✅ DISPONIBLE: El proveedor puede aceptar múltiples servicios el mismo día
+                return { disponible: true };
             }),
             catchError(err => {
                 console.error('Error al consultar disponibilidad:', err);
@@ -110,7 +98,9 @@ export class CalendarioFechaService {
 
     /**
      * 4. Gestión de Citas Vencidas
-     * Detecta citas pasadas y las mueve automáticamente al estado "finalizada".
+     * Detecta citas pasadas y las mueve automáticamente al estado "finalizado".
+     * 
+     * ⚠️ IMPORTANTE: El estado debe ser 'finalizado' (masculino) según el esquema de la BD
      */
     gestionarCitasVencidas(): Observable<any> {
         const supabase = this.supabaseService.getClient();

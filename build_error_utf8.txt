@@ -1,0 +1,228 @@
+﻿[33mÔØ»[39m Building...
+[32mÔ£ö[39m Building...
+Application bundle generation failed. [5.534 seconds] - 2026-01-27T03:47:27.199Z
+
+node.exe : 
+[1m[33m[33mÔû▓ [43
+;33m[[43;30mWARNING[
+43;33m][0m 
+[1mNG8113: 
+RouterLink is not 
+used within the 
+template of SolicitudE
+nviadaComponent[0m 
+[1m[35m[plugin 
+angular-compiler][0m
+En C:\Users\Usuario 1\
+AppData\Roaming\npm\ng
+.ps1: 24 Carácter: 5
++     & "node$exe"  "$
+basedir/node_modules/@
+angular/cli/bin/ng.js"
+ $arg ...
++     ~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~
+    + CategoryInfo    
+          : No    
+tSpecified: (    
+[1m[33m[33mÔ    
+...r-compiler]    
+[0m:String) [    ], 
+RemoteExcep    tion
+    + FullyQualifi    
+edErrorId : Na    
+tiveCommandErr    or
+ 
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+ts:11:28:
+[37m      11 Ôöé     
+imports: 
+[CommonModule, 
+[32mRouterLink[37m],
+         ÔòÁ          
+                   
+[32m~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;3
+1m[[41;97mERROR[41;3
+1m][0m [1mNG5002: 
+Unexpected closing 
+tag "div". It may 
+happen when the tag 
+has already been 
+closed by another 
+tag. For more info 
+see https://www.w3.org
+/TR/html5/syntax.html#
+closing-elements-that-
+have-implied-end-tags
+[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+html:320:12:
+[37m      320 Ôöé    
+         
+[32m</div>[37m
+          ÔòÁ         
+    [32m~~~~~~[0m
+
+  Error occurs in the 
+template of component 
+SolicitudEnviadaCompon
+ent.
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+ts:12:17:
+[37m      12 Ôöé     
+templateUrl: [32m'./s
+olicitud-enviada.compo
+nent.html'[37m
+         ÔòÁ          
+        [32m~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~[0m
+
+
+[31mX [41;31m[[41;9
+7mERROR[41;31m][0m 
+[1mNG5002: 
+Unexpected closing 
+tag "div". It may 
+happen when the tag 
+has already been 
+closed by another 
+tag. For more info 
+see https://www.w3.org
+/TR/html5/syntax.html#
+closing-elements-that-
+have-implied-end-tags
+[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+html:321:0:
+[37m      321 Ôöé 
+[32m</div>[37m
+          ÔòÁ 
+[32m~~~~~~[0m
+
+  Error occurs in the 
+template of component 
+SolicitudEnviadaCompon
+ent.
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+ts:12:17:
+[37m      12 Ôöé     
+templateUrl: [32m'./s
+olicitud-enviada.compo
+nent.html'[37m
+         ÔòÁ          
+        [32m~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~[0m
+
+
+[31mX [41;31m[[41;9
+7mERROR[41;31m][0m 
+[1mNG5002: 
+Unexpected closing 
+tag "main". It may 
+happen when the tag 
+has already been 
+closed by another 
+tag. For more info 
+see https://www.w3.org
+/TR/html5/syntax.html#
+closing-elements-that-
+have-implied-end-tags
+[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+html:330:0:
+[37m      330 Ôöé 
+[32m</main>[37m
+          ÔòÁ 
+[32m~~~~~~~[0m
+
+  Error occurs in the 
+template of component 
+SolicitudEnviadaCompon
+ent.
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+ts:12:17:
+[37m      12 Ôöé     
+templateUrl: [32m'./s
+olicitud-enviada.compo
+nent.html'[37m
+         ÔòÁ          
+        [32m~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~[0m
+
+
+[31mX [41;31m[[41;9
+7mERROR[41;31m][0m 
+[1mNG5002: 
+Unexpected closing 
+tag "div". It may 
+happen when the tag 
+has already been 
+closed by another 
+tag. For more info 
+see https://www.w3.org
+/TR/html5/syntax.html#
+closing-elements-that-
+have-implied-end-tags
+[0m [1m[35m[plugin 
+angular-compiler][0m
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+html:331:0:
+[37m      331 Ôöé 
+[32m</div>[37m
+          ÔòÁ 
+[32m~~~~~~[0m
+
+  Error occurs in the 
+template of component 
+SolicitudEnviadaCompon
+ent.
+
+    src/app/cliente/so
+licitud-enviada/solici
+tud-enviada.component.
+ts:12:17:
+[37m      12 Ôöé     
+templateUrl: [32m'./s
+olicitud-enviada.compo
+nent.html'[37m
+         ÔòÁ          
+        [32m~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
+~~~~~[0m
+
+[39m[22m

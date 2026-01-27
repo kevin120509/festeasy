@@ -316,12 +316,12 @@
                             <span>Disponible</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-dot blocked"></div>
-                            <span>Bloqueado</span>
+                            <div class="legend-dot occupied"></div>
+                            <span>Con servicios (disponible)</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-dot occupied"></div>
-                            <span>Ocupado</span>
+                            <div class="legend-dot blocked"></div>
+                            <span>Bloqueado (vacaciones)</span>
                         </div>
                     </div>
 
@@ -357,24 +357,57 @@
                     @if (day.state === 'occupied') {
                     <!-- Has Events -->
                     @for (event of eventsForSelectedDate(); track event.id) {
-                    <div class="border-b border-slate-100 last:border-0 pb-4 mb-4 last:mb-0">
-                        <div class="event-section">
-                            <div class="event-label">Hora</div>
-                            <div class="event-value font-semibold">{{ formatEventTime(event.fecha_servicio) }}</div>
+                    <div class="border-b border-slate-100 last:border-0 pb-6 mb-6 last:mb-0">
+                        <!-- Event Status Badge -->
+                        <div class="mb-4">
+                            <span [class]="event.estado === 'confirmado' || event.estado === 'pagado' || event.estado === 'reservado' 
+                                ? 'bg-emerald-100 text-emerald-700' 
+                                : 'bg-amber-100 text-amber-700'"
+                                class="text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded-md">
+                                {{ event.estado === 'pendiente_aprobacion' ? 'Por Aprobar' : (event.estado | titlecase)
+                                }}
+                            </span>
                         </div>
 
                         <div class="event-section">
                             <div class="event-label">Evento</div>
-                            <div class="event-value">{{ event.titulo_evento || 'Evento sin título' }}</div>
+                            <div class="event-value font-bold text-lg text-slate-800">{{ event.titulo_evento || 'Evento
+                                sin título' }}</div>
                         </div>
 
                         <div class="event-section">
-                            <div class="event-label">Ubicación</div>
-                            <div class="event-value text-sm">{{ event.direccion_servicio || 'No especificada' }}</div>
+                            <div class="event-label">Hora del Servicio</div>
+                            <div class="event-value font-medium text-slate-600 flex items-center gap-2">
+                                <span class="material-icons-outlined text-sm">schedule</span>
+                                {{ formatEventTime(event.fecha_servicio) }}
+                            </div>
                         </div>
 
-                        <button (click)="viewRequestDetails(event.id)" class="details-button">
-                            Ver Detalles Completos
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="event-section">
+                                <div class="event-label">Cliente</div>
+                                <div class="event-value font-medium text-slate-700">{{
+                                    event.perfil_cliente?.nombre_completo || 'No disponible' }}</div>
+                            </div>
+                            <div class="event-section">
+                                <div class="event-label">Teléfono</div>
+                                <div class="event-value font-medium text-slate-700 flex items-center gap-1">
+                                    <span class="material-icons-outlined text-sm">phone</span>
+                                    {{ event.perfil_cliente?.telefono || 'No disponible' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="event-section mb-6">
+                            <div class="event-label">Ubicación</div>
+                            <div class="event-value text-sm text-slate-500 flex items-start gap-1">
+                                <span class="material-icons-outlined text-sm mt-0.5">location_on</span>
+                                {{ event.direccion_servicio || 'No especificada' }}
+                            </div>
+                        </div>
+
+                        <button (click)="viewRequestDetails(event.id)" class="details-button" style="margin-top: 0;">
+                            Ver Solicitud Completa
                         </button>
                     </div>
                     }
