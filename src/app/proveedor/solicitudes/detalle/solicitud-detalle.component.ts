@@ -125,7 +125,7 @@ export class SolicitudDetalleComponent implements OnInit {
     onPinValidado(solicitudActualizada: ServiceRequest) {
         console.log('✅ PIN validado en detalle:', solicitudActualizada);
         this.solicitud.set(solicitudActualizada);
-        this.mensajeExito.set('¡PIN validado! Servicio finalizado exitosamente.');
+        this.mensajeExito.set('¡PIN validado! El cliente puede proceder con el pago de liquidación.');
         setTimeout(() => this.mensajeExito.set(''), 4000);
         this.cerrarModalPin();
     }
@@ -138,5 +138,17 @@ export class SolicitudDetalleComponent implements OnInit {
     formatearFechaCompleta(fecha: string | undefined): string {
         if (!fecha) return '';
         return formatearFechaEvento(fecha);
+    }
+
+    /**
+     * 🔄 Refrescar datos de la solicitud
+     */
+    refrescarDatos(): void {
+        const id = this.solicitud()?.id;
+        if (id) {
+            this.cargarDetalle(id);
+            this.mensajeExito.set('Datos actualizados');
+            setTimeout(() => this.mensajeExito.set(''), 2000);
+        }
     }
 }

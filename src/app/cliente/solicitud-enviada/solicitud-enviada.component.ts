@@ -179,7 +179,19 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
 
     irAPagar() {
         const id = this.solicitudData().id;
-        this.router.navigate(['/cliente/pagos', id]);
+        this.router.navigate(['/cliente/pago', id]);
+    }
+
+    irAPagarLiquidacion() {
+        const id = this.solicitudData().id;
+        this.router.navigate(['/cliente/pago', id]);
+    }
+
+    calcularLiquidacion(): number {
+        const data = this.solicitudData();
+        if (!data) return 0;
+        // Si hay monto_liquidacion definido, usarlo, sino calcular el 70%
+        return data.monto_liquidacion || Math.round((data.total || 0) * 0.7);
     }
 
     puedeEliminar(): boolean {

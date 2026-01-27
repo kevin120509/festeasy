@@ -8,7 +8,56 @@
             <p class="text-gray-500">Cargando información de pago...</p>
         </div>
         } @else if (solicitud()) {
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Confirmar Pago</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">{{ tituloPago() }}</h1>
+
+        <!-- Mensaje si ya se pagó -->
+        @if (pagoYaCompletado()) {
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-2xl p-8 mb-6 text-center">
+            <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span class="material-symbols-outlined text-3xl">check_circle</span>
+            </div>
+            <h2 class="text-xl font-bold text-green-800 dark:text-green-200 mb-2">
+                @if (solicitud().estado === 'finalizado') {
+                    ¡Pago Completado!
+                } @else {
+                    Anticipo Ya Pagado
+                }
+            </h2>
+            <p class="text-green-700 dark:text-green-300 mb-6">
+                @if (solicitud().estado === 'finalizado') {
+                    Este servicio ya ha sido pagado completamente. No hay pagos pendientes.
+                } @else {
+                    El anticipo de este servicio ya fue pagado. El servicio está reservado.
+                }
+            </p>
+            <button (click)="volverASolicitudes()"
+                class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-colors">
+                Volver a Mis Solicitudes
+            </button>
+        </div>
+        } @else {
+        <!-- Banner informativo según tipo de pago -->
+        @if (tipoPago() === 'liquidacion') {
+        <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4 mb-6">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-green-600">check_circle</span>
+                <div>
+                    <p class="font-bold text-green-800 dark:text-green-200">¡Servicio completado!</p>
+                    <p class="text-sm text-green-700 dark:text-green-300">El proveedor ha validado la entrega del servicio. Realiza el pago final para completar la transacción.</p>
+                </div>
+            </div>
+        </div>
+        } @else {
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-blue-600">info</span>
+                <div>
+                    <p class="font-bold text-blue-800 dark:text-blue-200">Pago de anticipo (30%)</p>
+                    <p class="text-sm text-blue-700 dark:text-blue-300">Al pagar el anticipo, tu evento quedará reservado. El 70% restante se pagará después del servicio.</p>
+                </div>
+            </div>
+        </div>
+        }
 
         <!-- Resumen de la Orden -->
         <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-6">
@@ -28,10 +77,29 @@
 
             <div class="border-t border-gray-100 dark:border-gray-700 my-4"></div>
 
+            <!-- Desglose de montos -->
+            <div class="space-y-2 mb-4">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Monto Total del Servicio</span>
+                    <span class="text-gray-700 dark:text-gray-300">${{ solicitud().monto_total?.toLocaleString() }} MXN</span>
+                </div>
+                @if (tipoPago() === 'liquidacion') {
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-500">Anticipo pagado (30%)</span>
+                    <span class="text-green-600">-${{ (solicitud().monto_anticipo || (solicitud().monto_total * 0.3))?.toLocaleString() }} MXN</span>
+                </div>
+                }
+            </div>
+
+            <div class="border-t border-gray-100 dark:border-gray-700 my-4"></div>
+
             <div class="flex justify-between items-center">
-                <span class="text-lg font-bold text-gray-900 dark:text-white">Total a Pagar</span>
-                <span class="text-2xl font-extrabold text-primary">${{ solicitud().monto_total?.toLocaleString()
-                    }}</span>
+                <div>
+                    <span class="text-lg font-bold text-gray-900 dark:text-white">
+                        {{ tipoPago() === 'liquidacion' ? 'Liquidación a Pagar (70%)' : 'Anticipo a Pagar (30%)' }}
+                    </span>
+                </div>
+                <span class="text-2xl font-extrabold text-primary">${{ montoPagar()?.toLocaleString() }} MXN</span>
             </div>
         </div>
 
@@ -61,20 +129,32 @@
             </div>
         </div>
 
-        <!-- Botón Pagar Real con PayPal -->
+        <!-- Información de PayPal Sandbox -->
+        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
+            <div class="flex items-center gap-2 mb-2">
+                <span class="material-symbols-outlined text-blue-600">info</span>
+                <span class="font-bold text-blue-800 dark:text-blue-200">Modo Sandbox (Pruebas)</span>
+            </div>
+            <p class="text-sm text-blue-700 dark:text-blue-300">
+                Usa las credenciales de prueba de PayPal para completar el pago.
+            </p>
+        </div>
+
+        <!-- Botón Pagar con PayPal -->
         <div id="paypal-button-container" class="mt-6"></div>
 
         @if (procesando()) {
         <div class="text-center py-4">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
-            <p class="text-gray-500 text-sm">Procesando pago con PayPal...</p>
+            <p class="text-gray-500 text-sm">Procesando pago...</p>
         </div>
         }
 
         <p class="text-center text-xs text-gray-400 mt-6 flex items-center justify-center gap-1">
             <span class="material-symbols-outlined text-sm">security</span>
-            Pagos procesados de forma segura por PayPal con encriptación de 256-bits.
+            Pagos procesados de forma segura con encriptación de 256-bits.
         </p>
+        } <!-- Cierre de @if (!pagoYaCompletado()) -->
         }
     </main>
 </div>

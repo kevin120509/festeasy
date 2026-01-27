@@ -175,6 +175,16 @@ export class SeguimientoEventoComponent implements OnInit, OnDestroy {
         return obtenerPinAlmacenado(evento.id);
     }
 
+    /**
+     * 💰 Calcula el monto de liquidación (70% del total)
+     */
+    calcularLiquidacion(): number {
+        const evento = this.evento();
+        if (!evento) return 0;
+        // Si hay monto_liquidacion definido, usarlo, sino calcular el 70%
+        return evento.monto_liquidacion || Math.round((evento.monto_total || 0) * 0.7);
+    }
+
     ngOnDestroy() {
         if (this.timer) clearInterval(this.timer);
     }
