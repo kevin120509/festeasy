@@ -30,6 +30,7 @@ interface PackageItem {
 interface ExtraCharge {
   nombre: string;
   precio: number;
+  descripcion: string;
 }
 
 interface PackageImage {
@@ -118,6 +119,7 @@ export class PaquetesComponent implements OnInit {
   extraCharges = signal<ExtraCharge[]>([]);
   newChargeName = signal('');
   newChargePrice = signal(0);
+  newChargeDescription = signal('');
 
   // Imágenes
   images = signal<PackageImage[]>([]);
@@ -337,11 +339,13 @@ export class PaquetesComponent implements OnInit {
   addExtraCharge() {
     const name = this.newChargeName().trim();
     const price = this.newChargePrice();
+    const description = this.newChargeDescription().trim();
 
     if (name && price > 0) {
-      this.extraCharges.update(charges => [...charges, { nombre: name, precio: price }]);
+      this.extraCharges.update(charges => [...charges, { nombre: name, precio: price, descripcion: description }]);
       this.newChargeName.set('');
       this.newChargePrice.set(0);
+      this.newChargeDescription.set('');
     }
   }
 
