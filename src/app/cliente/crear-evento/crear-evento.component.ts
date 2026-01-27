@@ -24,7 +24,6 @@ export class CrearEventoComponent implements OnInit {
     titulo = '';
     fecha = '';
     horaInicio = '12:00';
-    horaFin = '16:00';
     ubicacion = '';
     invitados = 50;
     categoriaId = '';
@@ -88,7 +87,7 @@ export class CrearEventoComponent implements OnInit {
     }
 
     buscarProveedores() {
-        if (!this.titulo || !this.fecha || !this.horaInicio || !this.horaFin || !this.ubicacion || !this.categoriaId) {
+        if (!this.titulo || !this.fecha || !this.horaInicio || !this.ubicacion || !this.categoriaId) {
             this.error = 'Por favor completa todos los campos obligatorios.';
             return;
         }
@@ -108,7 +107,6 @@ export class CrearEventoComponent implements OnInit {
             titulo: this.titulo,
             fecha: this.fecha,
             horaInicio: this.horaInicio,
-            horaFin: this.horaFin,
             ubicacion: this.ubicacion,
             invitados: this.invitados,
             categoriaId: this.categoriaId,
