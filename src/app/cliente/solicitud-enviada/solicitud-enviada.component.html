@@ -4,7 +4,6 @@
         class="sticky top-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800">
         <div class="max-w-3xl mx-auto px-4 py-4 flex items-center justify-between">
             <h1 class="text-xl font-bold text-gray-900 dark:text-white">Solicitud Enviada</h1>
-            <a routerLink="/cliente/dashboard" class="text-primary font-medium text-sm">Ir al inicio</a>
         </div>
     </div>
 
@@ -241,31 +240,31 @@
         </div>
 
         <!-- Próximos pasos -->
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6 mb-8"
+        <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-2xl p-6 mb-8"
             *ngIf="solicitudData().estado === 'pendiente_aprobacion'">
-            <h3 class="font-bold text-blue-900 dark:text-blue-300 mb-3 flex items-center gap-2">
+            <h3 class="font-bold text-red-900 dark:text-red-300 mb-3 flex items-center gap-2">
                 <span class="material-symbols-outlined">info</span>
                 ¿Qué sigue?
             </h3>
-            <ol class="space-y-3 text-sm text-blue-800 dark:text-blue-300">
+            <ol class="space-y-3 text-sm text-red-800 dark:text-red-300">
                 <li class="flex items-start gap-2">
                     <span
-                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
+                        class="w-6 h-6 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">1</span>
                     <span>El proveedor revisará tu solicitud y te enviará una cotización formal.</span>
                 </li>
                 <li class="flex items-start gap-2">
                     <span
-                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
+                        class="w-6 h-6 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">2</span>
                     <span>Recibirás una notificación cuando el proveedor responda.</span>
                 </li>
                 <li class="flex items-start gap-2">
                     <span
-                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
+                        class="w-6 h-6 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">3</span>
                     <span>Podrás aceptar, rechazar o negociar la cotización.</span>
                 </li>
                 <li class="flex items-start gap-2">
                     <span
-                        class="w-6 h-6 rounded-full bg-blue-200 dark:bg-blue-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
+                        class="w-6 h-6 rounded-full bg-red-200 dark:bg-red-800 flex items-center justify-center flex-shrink-0 text-xs font-bold">4</span>
                     <span>Una vez aceptada, realizarás el pago del anticipo para confirmar.</span>
                 </li>
             </ol>

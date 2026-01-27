@@ -1,5 +1,6 @@
 import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
@@ -38,6 +39,7 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 export class SolicitudesComponent implements OnInit {
     public auth = inject(AuthService);
     public api = inject(ApiService);
+    private router = inject(Router);
     private confirmationService = inject(ConfirmationService);
 
     tabActivo = signal<TabType>('pendientes');
@@ -128,6 +130,10 @@ export class SolicitudesComponent implements OnInit {
 
     cambiarTab(tab: TabType) {
         this.tabActivo.set(tab);
+    }
+
+    verDetalles(solicitudId: string) {
+        this.router.navigate(['/proveedor/solicitudes', solicitudId]);
     }
 
     aceptarSolicitud(solId: string) {
