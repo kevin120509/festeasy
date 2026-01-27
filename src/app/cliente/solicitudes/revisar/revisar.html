@@ -57,11 +57,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1">Horario
                             </p>
                             <p class="font-semibold text-gray-900 dark:text-white">
-                                @if (evento().horaInicio && evento().horaFin) {
-                                {{ evento().horaInicio }} - {{ evento().horaFin }}
-                                } @else {
-                                {{ evento().hora }}
-                                }
+                                {{ evento().horaInicio }}
                             </p>
                         </div>
                         <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
