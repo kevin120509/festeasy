@@ -265,19 +265,24 @@
             </div>
         </div>
         } @else {
+        <!-- Estado de carga o sin datos -->
+        <div class="text-center py-12">
+            <span class="material-symbols-outlined text-6xl text-gray-300 dark:text-gray-600 animate-spin">progress_activity</span>
+            <p class="mt-4 text-gray-500 dark:text-gray-400">Cargando información...</p>
+        </div>
         <div class="text-center py-20">
             <div class="w-16 h-16 text-red-500 mx-auto">
                 <span class="material-symbols-outlined">error</span>
             </div>
             <h2 class="text-2xl font-bold text-gray-800 dark:text-white mt-4">No se encontró la solicitud</h2>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">No pudimos cargar los datos de la solicitud. Es posible que
-                haya sido eliminada o que el enlace sea incorrecto.</p>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">No pudimos cargar los datos de la solicitud. Es posible que haya sido eliminada o que el enlace sea incorrecto.</p>
             <div class="mt-8">
                 <a routerLink="/cliente/solicitudes"
                     class="bg-primary text-white font-bold py-3 px-6 rounded-lg shadow-md hover:bg-primary-dark transition-colors">
                     Volver a Mis Solicitudes
                 </a>
             </div>
+        </div>
         </div>
         }
     </main>

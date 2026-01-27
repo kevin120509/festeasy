@@ -105,12 +105,7 @@ export class SolicitudDetalleComponent implements OnInit {
         return titulo.trim();
     }
 
-    contactarCliente(): void {
-        const tel = (this.solicitud() as any)?.cliente?.telefono;
-        if (tel) {
-            window.open(`https://wa.me/${tel.replace(/\s+/g, '')}`, '_blank');
-        }
-    }
+
 
     /**
      * 🔒 LÓGICA DE PIN
