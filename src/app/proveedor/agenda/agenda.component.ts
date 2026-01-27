@@ -252,6 +252,10 @@ export class AgendaComponent implements OnInit {
      * @param date - The date for this calendar day
      * @param isCurrentMonth - Whether this date belongs to the current month
      * @returns CalendarDay object with computed state
+     *
+     * ⚠️ IMPORTANTE: Los días con estado 'occupied' (con servicios) siguen siendo CLICKEABLES.
+     * El proveedor puede aceptar múltiples pedidos el mismo día.
+     * Solo los días 'blocked' (vacaciones/bloqueo manual) están deshabilitados.
      */
     createCalendarDay(date: Date, isCurrentMonth: boolean): CalendarDay {
         const dateString = this.formatDateISO(date);
@@ -261,21 +265,23 @@ export class AgendaComponent implements OnInit {
         const normalizedDate = new Date(date);
         normalizedDate.setHours(0, 0, 0, 0);
 
-        // Check if date is occupied (has confirmed events)
+        // Check if date has confirmed events (shows indicator but remains clickable)
         const isOccupied = this.occupiedDates().some(event =>
             event.fecha_servicio.startsWith(dateString)
         );
 
-        // Check if date is manually blocked
+        // Check if date is manually blocked (vacations - NOT clickable)
         const blockedDate = this.blockedDates().find(block =>
             block.fecha_bloqueada === dateString
         );
         const isBlocked = !!blockedDate;
 
-        // Determine state priority: occupied > blocked > available
+        // Determine state priority: blocked > occupied > available
+        // 'occupied' = tiene servicios pero sigue disponible para más
+        // 'blocked' = bloqueado manualmente (vacaciones), NO disponible
         let state: 'available' | 'occupied' | 'blocked' = 'available';
-        if (isOccupied) state = 'occupied';
-        else if (isBlocked) state = 'blocked';
+        if (isBlocked) state = 'blocked';  // Prioridad 1: Bloqueo manual
+        else if (isOccupied) state = 'occupied';  // Prioridad 2: Tiene servicios (pero sigue disponible)
 
         // Check if this date is currently selected
         const selected = this.selectedDate();
