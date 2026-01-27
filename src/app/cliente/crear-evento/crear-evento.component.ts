@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { GeoService } from '../../services/geo.service';
-import { CalendarioFechaService } from '../../services/calendario-fecha.service';
 
 @Component({
     selector: 'app-crear-evento',
@@ -17,7 +16,6 @@ export class CrearEventoComponent implements OnInit {
     api = inject(ApiService);
     ngZone = inject(NgZone);
     geo = inject(GeoService);
-    calService = inject(CalendarioFechaService);
     cdr = inject(ChangeDetectorRef);
 
     // Datos del evento
@@ -94,7 +92,8 @@ export class CrearEventoComponent implements OnInit {
 
         // VALIDACIÓN DE FECHA PASADA
         const fechaSeleccionada = new Date(this.fecha + 'T' + this.horaInicio);
-        if (!this.calService.validarFechaFutura(fechaSeleccionada)) {
+        const hoy = new Date();
+        if (fechaSeleccionada < hoy) {
             this.error = 'No puedes agendar un evento en el pasado. Por favor selecciona una fecha válida.';
             return;
         }
