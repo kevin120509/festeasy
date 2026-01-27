@@ -1,6 +1,6 @@
 <header
     class="sticky top-0 z-50 bg-white/95 dark:bg-[#1a1a1a]/95 backdrop-blur-md border-b border-[#f4f0f0] dark:border-gray-800 shadow-sm">
-    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="w-full px-4 sm:px-6 lg:px-8">
         <!-- Row 1: Logo, Search, Actions -->
         <div class="h-16 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
@@ -8,9 +8,6 @@
                     class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
                     <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
                 </button>
-                <h1 class="text-xl sm:text-2xl font-bold text-primary whitespace-nowrap">
-                    <span class="hidden sm:inline">FestEasy</span>
-                </h1>
             </div>
 
             <div class="flex-1 max-w-lg mx-auto">
@@ -20,7 +17,7 @@
             </div>
 
             <div class="flex gap-2">
-                 <!-- Potentially add action buttons here if needed in the future -->
+                <!-- Potentially add action buttons here if needed in the future -->
             </div>
         </div>
 
@@ -57,7 +54,7 @@
         </div>
     </div>
 </header>
-<main class="max-w-[1440px] mx-auto p-4 sm:p-6 lg:p-8">
+<main class="w-full p-4 sm:p-6 lg:p-8">
     <h2 class="text-3xl font-bold mb-8">Proveedores encontrados</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         @for (provider of filteredProviders(); track provider.id) {

@@ -21,7 +21,11 @@
     }
 
     .sidebar.mini-sidebar {
-        width: 50px; /* Make it compact but visible */
+        width: 60px;
+    }
+
+    .sidebar.mini-sidebar .sidebar-logo {
+        padding: 12px 4px;
     }
 
     .sidebar.mini-sidebar .sidebar-logo img {
@@ -123,13 +127,15 @@
     }
 
     .main-content.mini-sidebar {
-        margin-left: 50px; /* Match new mini-sidebar width */
+        margin-left: 60px;
+        /* Match new mini-sidebar width */
     }
 
     .sidebar-toggle {
         position: absolute;
         top: 20px;
-        right: -15px; /* Default position when sidebar is expanded */
+        right: -15px;
+        /* Default position when sidebar is expanded */
         width: 30px;
         height: 30px;
         background: white;
@@ -140,14 +146,17 @@
         justify-content: center;
         cursor: pointer;
         z-index: 110;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        transition: all 0.3s ease; /* Change to all to transition right property */
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        /* Change to all to transition right property */
     }
 
     /* Adjust toggle button position when sidebar is mini */
     .sidebar.mini-sidebar .sidebar-toggle {
-        right: -15px; /* Keep it at -15px from the now 50px wide sidebar */
-        transform: translateX(0); /* Ensure it's not moved by the previous transform */
+        right: -15px;
+        /* Keep it at -15px from the now 50px wide sidebar */
+        transform: translateX(0);
+        /* Ensure it's not moved by the previous transform */
     }
 
     .sidebar-toggle:hover {
@@ -182,7 +191,8 @@
         }
 
         .sidebar-toggle {
-            display: none; /* Hide toggle on tablet, as it's always mini */
+            display: none;
+            /* Hide toggle on tablet, as it's always mini */
         }
     }
 
@@ -198,7 +208,8 @@
         border-top: 1px solid var(--color-gray-border);
         z-index: 1000;
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-        display: none; /* Default hidden */
+        display: none;
+        /* Default hidden */
     }
 
     .nav-item {
@@ -242,7 +253,8 @@
         }
 
         .sidebar-toggle {
-            display: none; /* Hide toggle on mobile */
+            display: none;
+            /* Hide toggle on mobile */
         }
     }
 </style>
@@ -255,8 +267,8 @@
         </button>
 
         <div class="sidebar-logo">
-            <img src="assets/festeasy.jpeg" alt="FESTEASY"
-                onerror="this.outerHTML='<span style=font-size:24px;font-weight:700;color:#E91E63>FESTEASY</span>'">
+            <img [src]="isSidebarExpanded() ? 'assets/festeasy.png' : 'assets/image.png'" alt="FESTEASY"
+                onerror="this.src='assets/festeasy.png'">
         </div>
 
         <div class="menu-wrapper">
@@ -280,7 +292,8 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="main-content" [class.full-width]="!showSidebar" [class.mini-sidebar]="showSidebar && !isSidebarExpanded()">
+    <main class="main-content" [class.full-width]="!showSidebar"
+        [class.mini-sidebar]="showSidebar && !isSidebarExpanded()">
         <router-outlet></router-outlet>
     </main>
 
