@@ -101,10 +101,6 @@
                     <!-- Info -->
                     <div class="flex-1 flex flex-col gap-1 min-w-0">
                         <div class="flex items-center gap-3">
-                            <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded"
-                                [ngClass]="getCategoryColor(paquete.categoria)">
-                                {{ paquete.categoria?.nombre || 'Sin categoría' }}
-                            </span>
                             <span *ngIf="paquete.estado === 'publicado'"
                                 class="flex items-center text-green-500 text-[10px] font-bold uppercase tracking-wider">
                                 <span class="size-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
@@ -311,18 +307,6 @@
             <div *ngIf="currentStep() === 1" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
                 <div class="lg:col-span-7 space-y-6">
                     <div
-                        class="bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30 rounded-2xl p-4 flex gap-4">
-                        <span class="material-icons-outlined text-amber-500">tips_and_updates</span>
-                        <div>
-                            <h4 class="text-sm font-bold text-amber-900 dark:text-amber-200">Recomendación importante
-                            </h4>
-                            <p class="text-sm text-amber-800/80 dark:text-amber-200/70 mt-1">
-                                La categoría que elijas determina qué solicitudes de clientes podrás ver en tu panel.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div
                         class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
                         <div class="space-y-2">
                             <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -332,18 +316,6 @@
                                 (input)="updateField('nombre', $any($event.target).value)"
                                 class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
                                 placeholder="Ej: Paquete de Sonido e Iluminación" />
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                Categoría <span class="text-primary">*</span>
-                            </label>
-                            <select [value]="packageData().categoria_servicio_id"
-                                (change)="updateField('categoria_servicio_id', $any($event.target).value)"
-                                class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
-                                <option value="">Selecciona una categoría</option>
-                                <option *ngFor="let cat of categories()" [value]="cat.id">{{ cat.nombre }}</option>
-                            </select>
                         </div>
 
                         <div class="space-y-2">
@@ -373,9 +345,6 @@
                                     class="material-icons-outlined text-5xl text-slate-300 dark:text-gray-500">image</span>
                             </div>
                             <div class="p-5">
-                                <span class="text-[10px] font-bold text-primary uppercase tracking-wider">
-                                    {{ getCategoryName(packageData().categoria_servicio_id) || 'Categoría' }}
-                                </span>
                                 <h4 class="text-lg font-bold text-slate-800 dark:text-white mt-1 truncate">
                                     {{ packageData().nombre || 'Nombre del paquete' }}
                                 </h4>
@@ -528,9 +497,6 @@
                     </div>
 
                     <div class="p-8">
-                        <span class="text-xs font-bold text-primary uppercase tracking-wider">
-                            {{ getCategoryName(packageData().categoria_servicio_id) }}
-                        </span>
                         <h2 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ packageData().nombre }}
                         </h2>
                         <p class="text-slate-500 dark:text-slate-400 mt-4">{{ packageData().descripcion }}</p>
