@@ -1,10 +1,10 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, throwError, from, map, switchMap, forkJoin, of } from 'rxjs';
+import { Observable, throwError, from, map, switchMap, forkJoin, of, Subject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { SupabaseService } from './supabase.service';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import {
     User, ClientProfile, ProviderProfile, Cart, CartItem,
@@ -18,6 +18,10 @@ export class ApiService {
     private supabaseService = inject(SupabaseService);
     private supabase: SupabaseClient;
     private auth = inject(AuthService);
+
+    // Real-time subscription management
+    private solicitudesChannel: RealtimeChannel | null = null;
+    private solicitudFinalizadaSubject = new Subject<{ solicitud_id: string; destinatario_id: string; autor_id: string }>();
 
     constructor() {
         this.supabase = this.supabaseService.getClient();
@@ -602,6 +606,18 @@ export class ApiService {
         return this.fromSupabase(query);
     }
 
+    createReview(reviewData: {
+        solicitud_id: string;
+        autor_id: string;
+        destinatario_id: string;
+        calificacion: number;
+        comentario?: string;
+    }): Observable<any> {
+        return this.fromSupabase(
+            this.supabase.from('resenas').insert(reviewData).select().single()
+        );
+    }
+
     // Paquetes del proveedor - Versión que obtiene todos
     getProviderPackages(): Observable<ProviderPackage[]> {
         return this.fromSupabase(this.supabase.from('paquetes_proveedor').select('*'));
@@ -617,5 +633,76 @@ export class ApiService {
                 .select('proveedor_usuario_id, categoria_servicio_id, categoria:categorias_servicio(nombre, id)')
                 .in('proveedor_usuario_id', providerIds)
         );
+    }
+
+    // ==========================================
+    // REALTIME LISTENERS
+    // ==========================================
+
+    /**
+     * 🔔 LISTENER DE TIEMPO REAL PARA SOLICITUDES FINALIZADAS
+     * Escucha cambios en la tabla 'solicitudes' cuando el estado cambia a 'finalizado'
+     * Emite un evento cuando el estado de una solicitud cambia a 'finalizado'
+     * y el cliente_id coincide con el usuario actual.
+     * 
+     * @returns Observable que emite { solicitud_id, destinatario_id, autor_id } cuando se finaliza una solicitud
+     */
+    listenToSolicitudFinalizada(): Observable<{ solicitud_id: string; destinatario_id: string; autor_id: string }> {
+        // Si ya existe un canal, reutilizarlo en lugar de crear uno nuevo
+        if (!this.solicitudesChannel) {
+            console.log('🔔 Creando nuevo canal de Realtime para solicitudes...');
+            this.inicializarCanalSolicitudes();
+        } else {
+            console.log('♻️ Reutilizando canal existente de solicitudes');
+        }
+
+        return this.solicitudFinalizadaSubject.asObservable();
+    }
+
+    /**
+     * Inicializa el canal de Realtime para escuchar cambios en solicitudes
+     */
+    private inicializarCanalSolicitudes(): void {
+        this.solicitudesChannel = this.supabase
+            .channel('solicitudes-changes')
+            .on(
+                'postgres_changes',
+                {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'solicitudes',
+                    filter: `estado=eq.finalizado`
+                },
+                (payload: any) => {
+                    console.log('📡 Cambio detectado en Realtime:', payload);
+
+                    const newRecord = payload.new;
+                    const oldRecord = payload.old;
+
+                    // Solo emitir si el estado cambió a 'finalizado'
+                    if (newRecord.estado === 'finalizado' && oldRecord?.estado !== 'finalizado') {
+                        console.log('✅ Estado cambió a finalizado, emitiendo evento...');
+                        this.solicitudFinalizadaSubject.next({
+                            solicitud_id: newRecord.id,
+                            destinatario_id: newRecord.proveedor_usuario_id,
+                            autor_id: newRecord.cliente_usuario_id
+                        });
+                    }
+                }
+            )
+            .subscribe((status) => {
+                console.log('📊 Estado del canal Realtime:', status);
+            });
+    }
+
+    /**
+     * Detiene el listener de solicitudes y cierra el canal
+     */
+    stopListeningToSolicitudes(): void {
+        if (this.solicitudesChannel) {
+            console.log('🔕 Cerrando canal de Realtime...');
+            this.supabase.removeChannel(this.solicitudesChannel);
+            this.solicitudesChannel = null;
+        }
     }
 }
