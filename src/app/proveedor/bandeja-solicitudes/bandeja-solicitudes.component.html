@@ -169,10 +169,16 @@
 
                 <!-- Footer con Acciones -->
                 @if (solicitud.estado === 'pendiente_aprobacion') {
-                <div class="flex border-t border-primary/5">
+                <div class="grid grid-cols-3 border-t border-primary/5">
+                    <!-- Botón Ver Detalles -->
+                    <button [routerLink]="['/proveedor/solicitudes', solicitud.id]"
+                        class="py-5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-sm flex items-center justify-center gap-2 transition-colors">
+                        <span class="material-symbols-outlined text-lg">visibility</span>
+                        <span>Ver Detalles</span>
+                    </button>
                     <!-- Botón Rechazar -->
                     <button (click)="rechazarSolicitud(solicitud)" [disabled]="procesando() === solicitud.id"
-                        class="flex-1 py-5 bg-slate-50 hover:bg-slate-100 text-slate-500 font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
+                        class="py-5 bg-slate-50 hover:bg-slate-100 text-slate-500 font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-50">
                         @if (procesando() === solicitud.id) {
                         <div class="animate-spin rounded-full h-5 w-5 border-2 border-slate-400 border-t-transparent">
                         </div>
@@ -183,7 +189,7 @@
                     </button>
                     <!-- Botón Aceptar -->
                     <button (click)="aceptarSolicitud(solicitud)" [disabled]="procesando() === solicitud.id"
-                        class="flex-1 py-5 btn-success-gradient text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50">
+                        class="py-5 btn-success-gradient text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50">
                         @if (procesando() === solicitud.id) {
                         <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
                         } @else {
@@ -199,7 +205,6 @@
                 === 'en_progreso' || solicitud.estado === 'entregado_pendiente_liq') {
                 <div class="flex flex-col border-t border-primary/5">
                     <div class="flex">
-
                         <button [routerLink]="['/proveedor/solicitudes', solicitud.id]"
                             class="flex-1 py-5 bg-slate-50 hover:bg-slate-100 text-primary font-bold text-sm flex items-center justify-center gap-2 transition-colors">
                             <span class="material-symbols-outlined text-lg">visibility</span>

@@ -69,6 +69,38 @@
         </div>
         }
 
+        <!-- 💰 TARJETA DE PAGO DE LIQUIDACIÓN - Visible cuando el PIN fue validado -->
+        @if (evento().estado === 'entregado_pendiente_liq') {
+        <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 rounded-3xl shadow-lg my-4 text-white">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-white/20 p-3 rounded-full">
+                    <span class="material-symbols-outlined text-2xl">check_circle</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">¡Servicio Completado!</h3>
+                    <p class="text-green-100 text-sm">El proveedor ha validado la entrega del servicio</p>
+                </div>
+            </div>
+            
+            <div class="bg-white/10 backdrop-blur rounded-xl p-4 mb-4">
+                <div class="flex justify-between items-center">
+                    <span class="text-green-100">Monto de liquidación (70%)</span>
+                    <span class="text-2xl font-bold">${{ calcularLiquidacion() | number:'1.0-0' }} MXN</span>
+                </div>
+            </div>
+
+            <a [routerLink]="['/cliente/pago', evento().id]"
+                class="w-full flex items-center justify-center gap-2 bg-white text-green-600 font-bold py-3 px-6 rounded-xl hover:bg-green-50 transition-colors shadow-md">
+                <span class="material-symbols-outlined">payment</span>
+                Pagar Liquidación
+            </a>
+            
+            <p class="text-xs text-green-200 mt-3 text-center">
+                Completa el pago final para cerrar el servicio exitosamente
+            </p>
+        </div>
+        }
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <!-- Detalles -->
             <div class="md:col-span-2 space-y-6">

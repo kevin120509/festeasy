@@ -17,14 +17,35 @@ export class ProveedorDetalleComponent implements OnInit {
     private router = inject(Router);
     private api = inject(ApiService);
     private auth = inject(AuthService);
-    
+
     provider = signal<any>(null);
     packages = signal<ProviderPackage[]>([]);
     reviews = signal<any[]>([]);
     galeria = signal<string[]>([]);
-    
+
     // Mapa de cantidades seleccionadas { [packageId]: quantity }
     selectedQuantities = signal<Record<string, number>>({});
+
+    // Control de descripciones expandidas
+    expandedIndices = signal<Set<number>>(new Set());
+
+    toggleDescription(index: number, event: Event) {
+        event.preventDefault();
+        event.stopPropagation();
+        this.expandedIndices.update(set => {
+            const newSet = new Set(set);
+            if (newSet.has(index)) {
+                newSet.delete(index);
+            } else {
+                newSet.add(index);
+            }
+            return newSet;
+        });
+    }
+
+    isExpanded(index: number): boolean {
+        return this.expandedIndices().has(index);
+    }
 
     // Computed total
     totalSelection = computed(() => {
@@ -32,7 +53,7 @@ export class ProveedorDetalleComponent implements OnInit {
         const pkgs = this.packages();
         let total = 0;
         let count = 0;
-        
+
         pkgs.forEach(p => {
             const q = quant[p.id] || 0;
             if (q > 0) {
@@ -52,11 +73,11 @@ export class ProveedorDetalleComponent implements OnInit {
 
     cargarProveedor(id: string): void {
         console.log('📦 Cargando proveedor con ID:', id);
-        
+
         this.api.getProviderProfile(id).pipe(
             switchMap(profile => {
                 console.log('👤 Perfil obtenido:', profile);
-                
+
                 const providerData = {
                     id: profile.id,
                     usuario_id: profile.usuario_id,
@@ -69,11 +90,11 @@ export class ProveedorDetalleComponent implements OnInit {
                     reviews: 0
                 };
                 this.provider.set(providerData);
-                
+
                 // Usar profile.usuario_id porque paquetes_proveedor.proveedor_usuario_id guarda el usuario_id de auth
                 const providerUserId = profile.usuario_id || id;
                 console.log('📦 Buscando paquetes para usuario_id:', providerUserId);
-                
+
                 return forkJoin({
                     packages: this.api.getPackagesByProviderId(providerUserId!),
                     reviews: this.api.getReviews(id)
@@ -83,7 +104,7 @@ export class ProveedorDetalleComponent implements OnInit {
             next: ({ packages, reviews }) => {
                 console.log('📦 Paquetes obtenidos:', packages);
                 console.log('⭐ Reviews obtenidos:', reviews);
-                
+
                 // If no packages found using usuario_id, try fallback using provider signal ID
                 const currentProvider = this.provider();
                 if ((!packages || packages.length === 0) && currentProvider?.id) {
@@ -144,10 +165,15 @@ export class ProveedorDetalleComponent implements OnInit {
         return pkg.categoria?.nombre || 'Servicio';
     }
 
+    // Helper para verificar si tiene servicios extras
+    hasExtraServices(pkg: any): boolean {
+        return (pkg.detalles_json?.cargos_adicionales?.length > 0) || (pkg.detalles_json?.servicios_extras?.length > 0);
+    }
+
     async goToCheckout() {
         const selection = this.selectedQuantities();
         const pkgIds = Object.keys(selection);
-        
+
         if (pkgIds.length === 0) {
             alert('Selecciona al menos un paquete');
             return;
@@ -191,11 +217,11 @@ export class ProveedorDetalleComponent implements OnInit {
 
     private async addItemsToCartAsync(cartId: string, pkgIds: string[], selection: Record<string, number>) {
         const pkgs = this.packages();
-        
+
         for (const pid of pkgIds) {
             const pkg = pkgs.find(p => p.id === pid);
             if (!pkg) continue;
-            
+
             await this.api.addToCart({
                 carrito_id: cartId,
                 paquete_id: pid,

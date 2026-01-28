@@ -29,7 +29,7 @@
             <div class="lg:col-span-2">
                 <!-- Image Hero -->
                 <div class="h-80 rounded-2xl overflow-hidden shadow-lg mb-8 relative">
-                    <img [src]="package()?.imagen_url || 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=60'" 
+                    <img [src]="coverImageUrl()" 
                          alt="Imagen del paquete {{package().nombre}}" 
                          class="w-full h-full object-cover">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/50"></div>
@@ -49,11 +49,12 @@
 
                 <!-- Incluidos -->
                 <div *ngIf="package()?.extra_charges && package()!.extra_charges.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8">
-                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Personaliza tu Paquete</h2>
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Extras</h2>
                     <ul class="space-y-4">
                         <li *ngFor="let item of package()?.extra_charges" class="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl">
                             <div>
                                 <p class="font-semibold text-gray-800 dark:text-white">{{ item.nombre }}</p>
+                                <p *ngIf="item.descripcion" class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ item.descripcion }}</p>
                                 <p class="text-sm text-primary dark:text-primary-light font-medium">+${{ item.precio | number:'1.2-2' }}</p>
                             </div>
                             <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">

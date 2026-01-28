@@ -30,7 +30,6 @@ import { ProveedorRegistroComponent } from './proveedor/registro/registro.compon
 import { ProveedorDashboardComponent } from './proveedor/dashboard/dashboard.component';
 import { SolicitudesComponent } from './proveedor/solicitudes/solicitudes.component';
 import { BandejaSolicitudesComponent } from './proveedor/bandeja-solicitudes/bandeja-solicitudes.component';
-import { AgendaComponent } from './proveedor/agenda/agenda.component';
 import { NotificacionesComponent } from './proveedor/notificaciones/notificaciones.component';
 import { PaquetesComponent } from './proveedor/paquetes/paquetes.component';
 import { ProveedorConfiguracionComponent } from './proveedor/configuracion/configuracion';
@@ -72,7 +71,7 @@ export const routes: Routes = [
             { path: 'carrito', component: CarritoComponent },
             { path: 'solicitudes', component: MisSolicitudesComponent },
             { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
-            { path: 'pagos/:id', component: PagoComponent },
+            { path: 'pago/:id', component: PagoComponent },
             { path: 'configuracion', component: ClienteConfiguracionComponent },
         ]
     },
@@ -90,7 +89,6 @@ export const routes: Routes = [
             { path: 'solicitudes/:id', component: SolicitudDetalleComponent },
             { path: 'solicitudes', component: BandejaSolicitudesComponent },
             { path: 'bandeja', component: BandejaSolicitudesComponent },
-            { path: 'agenda', component: AgendaComponent },
             { path: 'notificaciones', component: NotificacionesComponent },
             { path: 'paquetes', component: PaquetesComponent },
             { path: 'configuracion', component: ProveedorConfiguracionComponent },

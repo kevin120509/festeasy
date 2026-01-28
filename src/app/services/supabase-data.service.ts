@@ -285,13 +285,17 @@ export class SupabaseDataService {
             .from('solicitudes')
             .select('id, fecha_servicio, titulo_evento, direccion_servicio, estado')
             .eq('proveedor_usuario_id', providerId)
-            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado'])
+            // Incluimos todos los estados que representen una solicitud activa (confirmada o pendiente)
+            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado', 'pendiente_aprobacion', 'esperando_anticipo', 'pendiente'])
             .order('fecha_servicio', { ascending: true })
         ).pipe(
             map(({ data, error }) => {
                 if (error && error.code === '42P01') return [];
                 if (error) throw error;
-                return data || [];
+                return (data || []).map((item: any) => ({
+                    ...item,
+                    estado: item.estado.toLowerCase()
+                }));
             })
         );
     }
@@ -406,7 +410,8 @@ export class SupabaseDataService {
             .eq('proveedor_usuario_id', providerId)
             .gte('fecha_servicio', dateString)
             .lt('fecha_servicio', `${dateString}T23:59:59`)
-            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado', 'en_progreso'])
+            // Incluimos todos los estados para que el proveedor vea qué hay en esa fecha
+            .in('estado', ['reservado', 'Reservado', 'pagado', 'Pagado', 'en_progreso', 'pendiente_aprobacion', 'esperando_anticipo', 'pendiente'])
         ).pipe(
             map(({ data, error }) => {
                 if (error && error.code === '42P01') return [];

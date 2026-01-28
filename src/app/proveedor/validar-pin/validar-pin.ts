@@ -172,11 +172,12 @@ export class ValidarPin {
       }
 
       // 3. Actualizar la solicitud con la fecha de validación
+      // El estado pasa a 'entregado_pendiente_liq' para esperar el pago de liquidación
       const { data: updatedSolicitud, error: updateError } = await client
         .from('solicitudes')
         .update({
           fecha_validacion_pin: new Date().toISOString(),
-          estado: 'finalizado',
+          estado: 'entregado_pendiente_liq',
           actualizado_en: new Date().toISOString()
         })
         .eq('id', this.solicitudId)
@@ -188,7 +189,7 @@ export class ValidarPin {
       }
 
       // 4. Éxito ✅
-      this.successMessage = '¡PIN validado! Servicio finalizado exitosamente.';
+      this.successMessage = '¡PIN validado! El cliente puede proceder con el pago de liquidación.';
       this.cdr.detectChanges(); // ✅ Actualizar interfaz
 
       // Cerrar modal y emitir evento después de mostrar el mensaje

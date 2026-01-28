@@ -190,6 +190,14 @@
                             class="text-xs bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-md transition-colors font-medium">
                             Ver Cotizaciones
                         </button>
+                        <!-- Botón de Pagar Liquidación -->
+                        <a *ngIf="sol.estado === 'entregado_pendiente_liq'"
+                            [routerLink]="['/cliente/pago', sol.id]"
+                            (click)="$event.stopPropagation()"
+                            class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
+                            <span class="material-symbols-outlined text-[16px]">payment</span>
+                            Pagar Liquidación
+                        </a>
                     </div>
                 </div>
             </div>

@@ -25,32 +25,32 @@ import { MenuItem } from 'primeng/api';
     :host ::ng-deep .p-menu {
         padding: 0;
     }
-    :host ::ng-deep .p-menu-item-link {
+    :host ::ng-deep .p-menuitem-link {
       padding: 12px 16px !important;
       border-radius: 8px !important;
       transition: all 0.2s !important;
       color: #334155 !important;
     }
-    :host ::ng-deep .p-menu-item-link:hover {
+    :host ::ng-deep .p-menuitem-link:hover {
       background: #fee2e2 !important;
       color: #ef4444 !important;
     }
-    :host ::ng-deep .p-menu-item-link:hover .p-menu-item-icon {
+    :host ::ng-deep .p-menuitem-link:hover .p-menuitem-icon {
       color: #ef4444 !important;
     }
-    :host ::ng-deep .p-menu-item-icon {
+    :host ::ng-deep .p-menuitem-icon {
       margin-right: 12px !important;
       color: #64748b !important;
       font-size: 1.1rem !important;
     }
-    :host ::ng-deep .p-menu-item-text {
+    :host ::ng-deep .p-menuitem-text {
       font-weight: 500 !important;
       transition: opacity 0.3s ease;
     }
-    .menu-container.mini :host ::ng-deep .p-menu-item-text {
+    :host ::ng-deep .menu-container.mini .p-menuitem-text {
       display: none !important;
     }
-    .menu-container.mini :host ::ng-deep .p-menu-item-icon {
+    :host ::ng-deep .menu-container.mini .p-menuitem-icon {
       margin-right: 0 !important;
       font-size: 1.4rem !important;
     }

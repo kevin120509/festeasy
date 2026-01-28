@@ -1,12 +1,14 @@
 import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
+
+
 @Component({
     selector: 'app-solicitud-enviada',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule],
     templateUrl: './solicitud-enviada.component.html'
 })
 export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
@@ -177,7 +179,19 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
 
     irAPagar() {
         const id = this.solicitudData().id;
-        this.router.navigate(['/cliente/pagos', id]);
+        this.router.navigate(['/cliente/pago', id]);
+    }
+
+    irAPagarLiquidacion() {
+        const id = this.solicitudData().id;
+        this.router.navigate(['/cliente/pago', id]);
+    }
+
+    calcularLiquidacion(): number {
+        const data = this.solicitudData();
+        if (!data) return 0;
+        // Si hay monto_liquidacion definido, usarlo, sino calcular el 70%
+        return data.monto_liquidacion || Math.round((data.total || 0) * 0.7);
     }
 
     puedeEliminar(): boolean {

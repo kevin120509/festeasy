@@ -284,13 +284,13 @@ export class BandejaSolicitudesComponent implements OnInit {
     onPinValidado(solicitud: ServiceRequest) {
         console.log('✅ PIN validado exitosamente:', solicitud);
 
-        // Actualizar la solicitud en la lista con el nuevo estado (finalizado)
+        // Actualizar la solicitud en la lista con el nuevo estado (pendiente de liquidación)
         this.solicitudes.update(list =>
-            list.map(s => s.id === solicitud.id ? { ...s, estado: 'finalizado' as const } : s)
+            list.map(s => s.id === solicitud.id ? { ...s, estado: 'entregado_pendiente_liq' as const } : s)
         );
 
         // Mostrar mensaje de éxito
-        this.mensajeExito.set('¡PIN validado! Servicio iniciado correctamente.');
+        this.mensajeExito.set('¡PIN validado! El cliente puede proceder con el pago de liquidación.');
         setTimeout(() => this.mensajeExito.set(''), 4000);
 
         // Cerrar modal

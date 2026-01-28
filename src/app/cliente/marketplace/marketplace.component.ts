@@ -19,7 +19,6 @@ export class MarketplaceComponent implements OnInit {
     private supabaseData = inject(SupabaseDataService);
 
     providers = signal<any[]>([]);
-    unavailableProviders = signal<Set<string>>(new Set());
 
     // Usar estado persistente
     searchQuery = this.marketplaceState.searchQuery;
@@ -72,19 +71,6 @@ export class MarketplaceComponent implements OnInit {
                 this.categoriaSeleccionada.set(evento.categoriaId);
             }
 
-            // check availability for this date
-            if (evento.fecha) {
-                forkJoin({
-                    blocked: this.supabaseData.getAllBlockedProvidersByDate(evento.fecha),
-                    occupied: this.supabaseData.getAllOccupiedProvidersByDate(evento.fecha)
-                }).subscribe({
-                    next: ({ blocked, occupied }) => {
-                        const set = new Set([...blocked, ...occupied]);
-                        this.unavailableProviders.set(set);
-                        console.log('🚫 Providers unavailable for', evento.fecha, ':', set);
-                    }
-                });
-            }
         }
 
         // Cargar categorías
@@ -158,8 +144,6 @@ export class MarketplaceComponent implements OnInit {
                 this.providerCategoriesMap.get(p.usuario_id)?.add(p.categoria_principal_id);
             }
 
-            const isUnavailable = this.unavailableProviders().has(p.usuario_id);
-
             return {
                 id: p.id,
                 usuario_id: p.usuario_id,
@@ -171,7 +155,7 @@ export class MarketplaceComponent implements OnInit {
                 ubicacion: p.direccion_formato || 'Ciudad de México',
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
                 distancia: distancia,
-                disponible: !isUnavailable
+                disponible: true
             };
         });
 

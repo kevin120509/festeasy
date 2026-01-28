@@ -36,11 +36,6 @@ export class ProveedorLayoutComponent implements OnInit {
         routerLink: '/proveedor/solicitudes'
       },
       {
-        label: 'Calendario',
-        icon: 'pi pi-calendar',
-        routerLink: '/proveedor/agenda'
-      },
-      {
         label: 'Configuración',
         icon: 'pi pi-cog',
         routerLink: '/proveedor/configuracion'

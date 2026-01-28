@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
-import { CalendarioFechaService } from '../../../services/calendario-fecha.service';
 import { SolicitudDataService } from '../../../services/solicitud-data.service';
 import { firstValueFrom } from 'rxjs';
 
@@ -17,7 +16,6 @@ export class RevisarSolicitudComponent implements OnInit {
     private router = inject(Router);
     private api = inject(ApiService);
     private auth = inject(AuthService);
-    private calService = inject(CalendarioFechaService);
     private solicitudDataService = inject(SolicitudDataService);
 
     evento = signal<any>(null);
@@ -79,7 +77,7 @@ export class RevisarSolicitudComponent implements OnInit {
             this.router.navigate(['/cliente/carrito']);
         }, 1500);
     }
-    
+
     async enviarSolicitud() {
         if (this.isLoading()) return;
         this.isLoading.set(true);
@@ -99,21 +97,8 @@ export class RevisarSolicitudComponent implements OnInit {
             const proveedorData = this.proveedor();
             const fechaServicio = new Date(eventoData.fecha + 'T' + (eventoData.horaInicio || '12:00'));
 
-            // 1. Validar Disponibilidad (Regla 1 y 2)
-            const disp = await firstValueFrom(this.calService.consultarDisponibilidad(proveedorData.usuario_id, fechaServicio));
-            if (!disp.disponible) {
-                this.notification.set({ message: disp.error || 'El proveedor no está disponible para esa fecha.', type: 'error' });
-                this.isLoading.set(false);
-                return;
-            }
-
-            // 2. Calcular SLA (Regla 3)
-            const sla = this.calService.aplicarReglaSLA(eventoData.fecha + 'T' + (eventoData.horaInicio || '12:00'));
-
             // Construir título con horario e invitados
-            const horarioStr = eventoData.horaInicio && eventoData.horaFin
-                ? `(${eventoData.horaInicio} - ${eventoData.horaFin})`
-                : (eventoData.hora ? `(${eventoData.hora})` : '');
+            const horarioStr = eventoData.horaInicio ? `(${eventoData.horaInicio})` : '';
 
             const invitadosStr = eventoData.invitados ? ` - ${eventoData.invitados} invitados` : '';
 
@@ -190,7 +175,7 @@ export class RevisarSolicitudComponent implements OnInit {
                 titulo_evento: solicitud?.titulo_evento || tituloCompleto,
                 fecha_servicio: fechaDisplay,
                 hora_servicio: horaRaw,
-                invitados: solicitud?.invitados ?? eventoData.invitados ?? 0,
+                invitados: eventoData.invitados ?? 0,
                 ubicacion: solicitud?.direccion_servicio || eventoData.ubicacion,
                 descripcion: solicitud?.descripcion || eventoData.descripcion || ''
             };

@@ -15,8 +15,6 @@ interface Paquete {
   descripcion: string;
   precio_base: number;
   estado: 'publicado' | 'borrador' | 'archivado';
-  categoria_servicio_id: string;
-  categoria?: { nombre: string };
   detalles_json?: any;
   creado_en: string;
   actualizado_en: string;
@@ -32,6 +30,7 @@ interface PackageItem {
 interface ExtraCharge {
   nombre: string;
   precio: number;
+  descripcion: string;
 }
 
 interface PackageImage {
@@ -108,13 +107,9 @@ export class PaquetesComponent implements OnInit {
   successMessage = signal('');
   errorMessage = signal('');
 
-  // Categorías
-  categories = signal<any[]>([]);
-
   // Datos del paquete
   packageData = signal({
     nombre: '',
-    categoria_servicio_id: '',
     descripcion: '',
     precio_base: 0,
     estado: 'publicado' as 'borrador' | 'publicado' | 'archivado'
@@ -124,6 +119,7 @@ export class PaquetesComponent implements OnInit {
   extraCharges = signal<ExtraCharge[]>([]);
   newChargeName = signal('');
   newChargePrice = signal(0);
+  newChargeDescription = signal('');
 
   // Imágenes
   images = signal<PackageImage[]>([]);
@@ -131,7 +127,6 @@ export class PaquetesComponent implements OnInit {
   async ngOnInit() {
     await this.cargarPerfil();
     await this.cargarPaquetes();
-    await this.cargarCategorias();
   }
 
   async cargarPaquetes() {
@@ -145,8 +140,7 @@ export class PaquetesComponent implements OnInit {
       const { data, error } = await this.supabaseService.getClient()
         .from('paquetes_proveedor')
         .select(`
-          *,
-          categoria:categorias_servicio(nombre)
+          *
         `)
         .eq('proveedor_usuario_id', this.profile.usuario_id)
         .order('creado_en', { ascending: false });
@@ -173,15 +167,6 @@ export class PaquetesComponent implements OnInit {
       this.profile = profile;
     } catch (err) {
       console.error('Error loading profile:', err);
-    }
-  }
-
-  async cargarCategorias() {
-    try {
-      const categories = await this.api.getServiceCategories().toPromise();
-      this.categories.set(categories || []);
-    } catch (error) {
-      console.error('Error cargando categorías:', error);
     }
   }
 
@@ -270,7 +255,6 @@ export class PaquetesComponent implements OnInit {
     // Cargar datos en el formulario
     this.packageData.set({
       nombre: paquete.nombre,
-      categoria_servicio_id: paquete.categoria_servicio_id,
       descripcion: paquete.descripcion,
       precio_base: paquete.precio_base,
       estado: paquete.estado
@@ -323,26 +307,6 @@ export class PaquetesComponent implements OnInit {
     return this.portadaImage?.url;
   }
 
-  // Helper: Obtener nombre de categoría
-  getCategoryName(id: string): string {
-    const cat = this.categories().find(c => c.id === id);
-    return cat ? cat.nombre : '';
-  }
-
-  // Helper: Obtener color de categoría
-  getCategoryColor(categoria?: { nombre: string }): string {
-    if (!categoria) return 'bg-gray-50 text-gray-600';
-
-    const nombre = categoria.nombre.toLowerCase();
-    if (nombre.includes('gastro') || nombre.includes('catering')) return 'bg-blue-50 text-blue-600';
-    if (nombre.includes('decora')) return 'bg-purple-50 text-purple-600';
-    if (nombre.includes('sonido') || nombre.includes('dj') || nombre.includes('luz')) return 'bg-orange-50 text-orange-600';
-    if (nombre.includes('foto')) return 'bg-pink-50 text-pink-600';
-    if (nombre.includes('pastel')) return 'bg-yellow-50 text-yellow-600';
-    if (nombre.includes('anima')) return 'bg-green-50 text-green-600';
-    return 'bg-gray-50 text-gray-600';
-  }
-
   // Helper: Obtener imagen de paquete
   getPackageImage(paquete: Paquete): string {
     if (paquete.detalles_json?.imagenes?.length > 0) {
@@ -375,11 +339,13 @@ export class PaquetesComponent implements OnInit {
   addExtraCharge() {
     const name = this.newChargeName().trim();
     const price = this.newChargePrice();
+    const description = this.newChargeDescription().trim();
 
     if (name && price > 0) {
-      this.extraCharges.update(charges => [...charges, { nombre: name, precio: price }]);
+      this.extraCharges.update(charges => [...charges, { nombre: name, precio: price, descripcion: description }]);
       this.newChargeName.set('');
       this.newChargePrice.set(0);
+      this.newChargeDescription.set('');
     }
   }
 
@@ -467,11 +433,6 @@ export class PaquetesComponent implements OnInit {
       return;
     }
 
-    if (!this.packageData().categoria_servicio_id) {
-      this.errorMessage.set('La categoría es obligatoria');
-      return;
-    }
-
     if (this.packageData().precio_base <= 0) {
       this.errorMessage.set('El precio base debe ser mayor a 0');
       return;
@@ -507,11 +468,6 @@ export class PaquetesComponent implements OnInit {
       this.saving.set(false);
       return;
     }
-    if (!this.packageData().categoria_servicio_id) {
-      this.errorMessage.set('Debes seleccionar una categoría');
-      this.saving.set(false);
-      return;
-    }
     if (this.packageData().precio_base <= 0) {
       this.errorMessage.set('El precio base debe ser mayor a 0');
       this.saving.set(false);
@@ -522,7 +478,6 @@ export class PaquetesComponent implements OnInit {
       const packageToSave: any = {
         proveedor_usuario_id: this.profile.usuario_id,
         nombre: this.packageData().nombre,
-        categoria_servicio_id: this.packageData().categoria_servicio_id,
         descripcion: this.packageData().descripcion,
         precio_base: this.packageData().precio_base,
         estado: 'publicado',
@@ -582,7 +537,6 @@ export class PaquetesComponent implements OnInit {
   private resetForm() {
     this.packageData.set({
       nombre: '',
-      categoria_servicio_id: '',
       descripcion: '',
       precio_base: 0,
       estado: 'publicado'
