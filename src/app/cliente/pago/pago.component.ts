@@ -35,21 +35,23 @@ export class PagoComponent implements OnInit, AfterViewInit {
     montoPagar = computed(() => {
         const sol = this.solicitud();
         if (!sol) return 0;
-        const montoTotal = sol.monto_total || 0;
-        
+
+        // Usar monto_total de la solicitud, o el total calculado de los items si es 0
+        const totalBase = sol.monto_total || sol.total_calculado || 0;
+
         if (this.tipoPago() === 'liquidacion') {
             // El 70% restante (liquidación)
-            return sol.monto_liquidacion || Math.round(montoTotal * 0.7);
+            return sol.monto_liquidacion || Math.round(totalBase * 0.7);
         } else {
             // El 30% de anticipo
-            return sol.monto_anticipo || Math.round(montoTotal * 0.3);
+            return sol.monto_anticipo || Math.round(totalBase * 0.3);
         }
     });
 
     // Título dinámico
     tituloPago = computed(() => {
-        return this.tipoPago() === 'liquidacion' 
-            ? 'Pago de Liquidación' 
+        return this.tipoPago() === 'liquidacion'
+            ? 'Pago de Liquidación'
             : 'Pago de Anticipo';
     });
 
@@ -76,21 +78,32 @@ export class PagoComponent implements OnInit, AfterViewInit {
     cargarSolicitud(id: string) {
         this.api.getRequestById(id).subscribe({
             next: (data) => {
-                this.solicitud.set(data);
-                this.loading.set(false);
-                
-                // Si el estado es 'finalizado', no hay nada que pagar
-                if (data.estado === 'finalizado') {
-                    // No renderizar botones, mostrar mensaje de ya pagado
-                    return;
+                const solicitudConItems = { ...data };
+
+                // Si el monto total es 0, intentamos recuperarlo de los items
+                if (!data.monto_total || data.monto_total === 0) {
+                    console.log('⚠️ Monto total es 0, recuperando items para calcular...');
+                    this.api.getRequestItems(id).subscribe({
+                        next: (items) => {
+                            const totalCalculado = items.reduce((acc, item) =>
+                                acc + ((item.precio_unitario || 0) * (item.cantidad || 0)), 0);
+
+                            console.log('✅ Total calculado desde items:', totalCalculado);
+                            solicitudConItems.total_calculado = totalCalculado;
+
+                            this.solicitud.set(solicitudConItems);
+                            this.finalizarCarga(solicitudConItems);
+                        },
+                        error: (err) => {
+                            console.error('Error recuperando items para cálculo:', err);
+                            this.solicitud.set(data);
+                            this.finalizarCarga(data);
+                        }
+                    });
+                } else {
+                    this.solicitud.set(data);
+                    this.finalizarCarga(data);
                 }
-                
-                // Si el estado es 'reservado' y el usuario llegó aquí, no permitir otro anticipo
-                if (data.estado === 'reservado') {
-                    return;
-                }
-                
-                setTimeout(() => this.renderPaypalButtons(), 100);
             },
             error: (err) => {
                 console.error('Error cargando solicitud para pago', err);
@@ -98,6 +111,27 @@ export class PagoComponent implements OnInit, AfterViewInit {
                 this.router.navigate(['/cliente/dashboard']);
             }
         });
+    }
+
+    private finalizarCarga(data: any) {
+        this.loading.set(false);
+
+        // Si el estado es 'finalizado', no hay nada que pagar
+        if (data.estado === 'finalizado') {
+            return;
+        }
+
+        // Si el estado es 'reservado' y el usuario llegó aquí, no permitir otro anticipo
+        if (data.estado === 'reservado') {
+            return;
+        }
+
+        // Solo renderizar si el monto es válido
+        if (this.montoPagar() > 0) {
+            setTimeout(() => this.renderPaypalButtons(), 100);
+        } else {
+            console.error('❌ No se pudo determinar un monto válido para el pago');
+        }
     }
 
     renderPaypalButtons() {
@@ -108,7 +142,7 @@ export class PagoComponent implements OnInit, AfterViewInit {
                 const descripcion = this.tipoPago() === 'liquidacion'
                     ? `Liquidación - Evento: ${this.solicitud().titulo_evento}`
                     : `Anticipo - Evento: ${this.solicitud().titulo_evento}`;
-                
+
                 return actions.order.create({
                     purchase_units: [{
                         description: descripcion,
@@ -136,17 +170,17 @@ export class PagoComponent implements OnInit, AfterViewInit {
         try {
             const id = this.solicitud().id;
             const esLiquidacion = this.tipoPago() === 'liquidacion';
-            
+
             // Determinar el nuevo estado
             const nuevoEstado = esLiquidacion ? 'finalizado' : 'reservado';
-            
+
             await this.api.updateRequestStatus(id, nuevoEstado).toPromise();
 
             // Mensaje de éxito
-            const mensaje = esLiquidacion 
+            const mensaje = esLiquidacion
                 ? '¡Pago de liquidación completado! El servicio ha sido finalizado exitosamente.'
                 : '¡Pago de anticipo realizado con éxito! Tu evento ha sido reservado.';
-            
+
             alert(mensaje);
             this.router.navigate(['/cliente/solicitudes', id]);
 
