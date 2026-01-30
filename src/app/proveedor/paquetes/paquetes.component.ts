@@ -1,9 +1,10 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { SubscriptionService } from '../../services/subscription.service';
 import { ConfirmationService } from 'primeng/api';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { CommonModule } from '@angular/common';
@@ -42,7 +43,7 @@ interface PackageImage {
 @Component({
   selector: 'app-paquetes',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './paquetes.html',
   styleUrl: './paquetes.css'
 })
@@ -53,6 +54,7 @@ export class PaquetesComponent implements OnInit {
   private router = inject(Router);
   private api = inject(ApiService);
   private confirmationService = inject(ConfirmationService);
+  public subscriptionService = inject(SubscriptionService);
 
   // Paquetes
   paquetes = signal<Paquete[]>([]);
@@ -98,6 +100,11 @@ export class PaquetesComponent implements OnInit {
     }
   });
 
+  // ⭐ Signal computado para validar si puede crear más paquetes según su plan
+  canCreate = computed(() =>
+    this.subscriptionService.canCreatePackage(this.paquetes().length)
+  );
+
   // Paso actual del stepper (para crear/editar)
   currentStep = signal(1);
 
@@ -112,8 +119,12 @@ export class PaquetesComponent implements OnInit {
     nombre: '',
     descripcion: '',
     precio_base: 0,
+    categoria_servicio_id: '' as string,
     estado: 'publicado' as 'borrador' | 'publicado' | 'archivado'
   });
+
+  // Categorías disponibles
+  categorias = signal<any[]>([]);
 
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
@@ -126,7 +137,22 @@ export class PaquetesComponent implements OnInit {
 
   async ngOnInit() {
     await this.cargarPerfil();
+    await this.cargarCategorias();
     await this.cargarPaquetes();
+  }
+
+  async cargarCategorias() {
+    try {
+      const categorias = await this.supabaseData.getServiceCategories();
+      this.categorias.set(categorias);
+
+      // Si hay categorías y no hay una seleccionada, seleccionar la primera
+      if (categorias.length > 0 && !this.packageData().categoria_servicio_id) {
+        this.packageData.update(data => ({ ...data, categoria_servicio_id: categorias[0].id }));
+      }
+    } catch (error) {
+      console.error('Error cargando categorías:', error);
+    }
   }
 
   async cargarPaquetes() {
@@ -257,6 +283,7 @@ export class PaquetesComponent implements OnInit {
       nombre: paquete.nombre,
       descripcion: paquete.descripcion,
       precio_base: paquete.precio_base,
+      categoria_servicio_id: (paquete as any).categoria_servicio_id || '',
       estado: paquete.estado
     });
 
@@ -473,10 +500,18 @@ export class PaquetesComponent implements OnInit {
       this.saving.set(false);
       return;
     }
-    
+
+    // ⭐ Validación de categoría (CRÍTICO para Supabase)
+    if (!this.packageData().categoria_servicio_id || this.packageData().categoria_servicio_id.trim() === '') {
+      this.errorMessage.set('⚠️ Debes seleccionar una categoría de servicio antes de guardar');
+      this.saving.set(false);
+      return;
+    }
+
     try {
       const packageToSave: any = {
         proveedor_usuario_id: this.profile.usuario_id,
+        categoria_servicio_id: this.packageData().categoria_servicio_id, // ⭐ CAMPO REQUERIDO
         nombre: this.packageData().nombre,
         descripcion: this.packageData().descripcion,
         precio_base: this.packageData().precio_base,
@@ -535,10 +570,14 @@ export class PaquetesComponent implements OnInit {
 
   // Resetear formulario
   private resetForm() {
+    // Mantener la primera categoría seleccionada si existe
+    const defaultCategoriaId = this.categorias().length > 0 ? this.categorias()[0].id : '';
+
     this.packageData.set({
       nombre: '',
       descripcion: '',
       precio_base: 0,
+      categoria_servicio_id: defaultCategoriaId,
       estado: 'publicado'
     });
     this.extraCharges.set([]);

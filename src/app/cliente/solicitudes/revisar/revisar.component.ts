@@ -98,9 +98,7 @@ export class RevisarSolicitudComponent implements OnInit {
             const fechaServicio = new Date(eventoData.fecha + 'T' + (eventoData.horaInicio || '12:00'));
 
             // Construir título con horario e invitados
-            const horarioStr = eventoData.horaInicio && eventoData.horaFin
-                ? `(${eventoData.horaInicio} - ${eventoData.horaFin})`
-                : (eventoData.hora ? `(${eventoData.hora})` : '');
+            const horarioStr = eventoData.horaInicio ? `(${eventoData.horaInicio})` : '';
 
             const invitadosStr = eventoData.invitados ? ` - ${eventoData.invitados} invitados` : '';
 
@@ -177,7 +175,7 @@ export class RevisarSolicitudComponent implements OnInit {
                 titulo_evento: solicitud?.titulo_evento || tituloCompleto,
                 fecha_servicio: fechaDisplay,
                 hora_servicio: horaRaw,
-                invitados: solicitud?.invitados ?? eventoData.invitados ?? 0,
+                invitados: eventoData.invitados ?? 0,
                 ubicacion: solicitud?.direccion_servicio || eventoData.ubicacion,
                 descripcion: solicitud?.descripcion || eventoData.descripcion || ''
             };

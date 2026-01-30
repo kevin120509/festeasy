@@ -1,0 +1,55 @@
+<div class="resenas-summary-container animate-fade-in">
+    <div class="summary-card shadow-2xl">
+        <!-- Header with Icon -->
+        <div class="header-icon-wrapper">
+            <div class="check-badge">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="3">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+            </div>
+        </div>
+
+        <!-- Titles -->
+        <h1 class="summary-title">¡Qué gran celebración, Mariana!</h1>
+        <p class="summary-subtitle">Tu evento ha finalizado. Ayúdanos a reconocer el talento de tus proveedores para que
+            sigan brillando.</p>
+
+        <!-- Vendors Grid -->
+        <div class="vendors-grid" *ngIf="!loading()">
+            @for (solicitud of solicitudes(); track solicitud.id) {
+            <div class="vendor-item">
+                <div class="avatar-container">
+                    <img [src]="solicitud.proveedor?.avatar_url || 'assets/default-avatar.png'"
+                        [alt]="solicitud.proveedor?.nombre_negocio" class="vendor-avatar">
+                    <div class="category-icon">
+                        <!-- Icono dinámico según categoría si estuviera disponible -->
+                        🎵
+                    </div>
+                </div>
+                <h3 class="vendor-name">{{ solicitud.proveedor?.nombre_negocio }}</h3>
+                <a [routerLink]="['/cliente/resenas/crear', solicitud.id]" class="calificar-link">Calificar</a>
+            </div>
+            }
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading()" class="py-10 text-center">
+            <div class="spinner"></div>
+            <p class="text-gray-500 mt-2">Cargando proveedores...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="!loading() && solicitudes().length === 0" class="py-10 text-center">
+            <p class="text-gray-500">No hay servicios pendientes por calificar en este evento.</p>
+        </div>
+
+        <!-- Bottom Actions -->
+        <div class="actions-wrapper">
+            <button (click)="calificarTodos()" class="btn-primary-gradient" [disabled]="solicitudes().length === 0">
+                Calificar a todos <span>★</span>
+            </button>
+            <button (click)="saltarPorAhora()" class="btn-skip">Saltar por ahora</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,72 @@
+<div class="resena-form-container animate-fade-in">
+    <div class="form-card shadow-2xl">
+
+        <!-- Header -->
+        <div class="header-section">
+            <div class="logo-text">FestEasy</div>
+            <h1 class="form-title">¡Tu evento ha finalizado!</h1>
+            <p class="form-subtitle">¿Qué te pareció el servicio de {{ solicitud()?.proveedor?.nombre_negocio }}?</p>
+        </div>
+
+        <!-- Body -->
+        <div class="form-body">
+
+            <!-- Stars Section -->
+            <div class="stars-section" (mouseleave)="clearHover()">
+                @for (i of [1, 2, 3, 4, 5]; track i) {
+                <button type="button" (click)="setPuntuacion(i)" (mouseenter)="setHover(i)" class="star-btn"
+                    [attr.aria-label]="'Calificar con ' + i + ' estrellas'">
+                    <svg class="star-icon" [class.active]="isEstrellaIluminada(i)" fill="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
+                    @if (puntuacionHover() === i) {
+                    <span class="star-ping"></span>
+                    }
+                </button>
+                }
+            </div>
+
+            <!-- Feedback Text -->
+            <p class="rating-feedback" *ngIf="puntuacionActual() > 0">
+                @switch (puntuacionActual()) {
+                @case (1) { <span class="text-red-500">😞 Necesita mejorar</span> }
+                @case (2) { <span class="text-orange-500">🙁 Podría ser mejor</span> }
+                @case (3) { <span class="text-yellow-500">😐 Aceptable</span> }
+                @case (4) { <span class="text-blue-500">😊 Muy bueno</span> }
+                @case (5) { <span class="text-green-500">🤩 ¡Excelente!</span> }
+                }
+            </p>
+
+            <!-- Textarea -->
+            <div class="textarea-wrapper">
+                <textarea [value]="comentario()" (input)="comentario.set($any($event.target).value)"
+                    placeholder="Cuéntanos más detalles (opcional)..." rows="4" maxlength="500"></textarea>
+            </div>
+
+            <!-- Error Message -->
+            @if (errorMessage()) {
+            <div class="error-msg">
+                {{ errorMessage() }}
+            </div>
+            }
+
+            <!-- Bottom Buttons -->
+            <div class="form-actions">
+                <button type="button" (click)="omitirResena()" class="btn-cancel" [disabled]="isSubmitting()">
+                    Ahora no
+                </button>
+                <button type="button" (click)="enviarResena()" class="btn-submit"
+                    [disabled]="puntuacionActual() === 0 || isSubmitting()">
+                    @if (isSubmitting()) {
+                    Cargando...
+                    } @else {
+                    Enviar Calificación
+                    }
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>

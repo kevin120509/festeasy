@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 import { Observable, from, map, switchMap, forkJoin, of } from 'rxjs';
+import { SubscriptionHistory } from '../models';
 
 @Injectable({
     providedIn: 'root'
@@ -419,5 +420,55 @@ export class SupabaseDataService {
                 return data || [];
             })
         );
+    }
+
+    /**
+     * Actualiza el plan de suscripción de un proveedor a Plus
+     * y registra el cambio en el historial de suscripciones
+     * @param providerId ID del usuario proveedor
+     * @param plan Plan de suscripción ('plus')
+     * @param amount Monto pagado por la suscripción
+     */
+    async upgradeProviderSubscription(providerId: string, plan: 'plus', amount: number): Promise<void> {
+        try {
+            // Operación 1: Actualizar el perfil del proveedor
+            const { error: profileError } = await this.supabase
+                .from('perfil_proveedor')
+                .update({ tipo_suscripcion_actual: plan })
+                .eq('usuario_id', providerId);
+
+            if (profileError) {
+                console.error('❌ Error al actualizar el perfil del proveedor:', profileError);
+                throw new Error(`Error al actualizar el perfil del proveedor: ${profileError.message}`);
+            }
+
+            // Operación 2: Crear registro en historial de suscripciones
+            const fechaInicio = new Date();
+            const fechaFin = new Date();
+            fechaFin.setDate(fechaFin.getDate() + 30); // Exactamente 30 días desde ahora
+
+            const subscriptionRecord: Partial<SubscriptionHistory> = {
+                proveedor_usuario_id: providerId,
+                plan: plan,
+                monto_pagado: amount,
+                fecha_inicio: fechaInicio.toISOString(),
+                fecha_fin: fechaFin.toISOString(),
+                estado_pago: 'pagado'
+            };
+
+            const { error: historyError } = await this.supabase
+                .from('historial_suscripciones')
+                .insert([subscriptionRecord]);
+
+            if (historyError) {
+                console.error('❌ Error al registrar el historial de suscripción:', historyError);
+                throw new Error(`Error al registrar el historial de suscripción: ${historyError.message}`);
+            }
+
+            console.log('✅ Suscripción actualizada exitosamente para el proveedor:', providerId);
+        } catch (error: any) {
+            console.error('❌ Error en upgradeProviderSubscription:', error);
+            throw error;
+        }
     }
 }

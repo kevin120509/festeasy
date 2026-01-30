@@ -1,10 +1,13 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
+import { SubscriptionService } from '../../services/subscription.service';
+import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ProviderProfile } from '../../models';
 
 @Component({
@@ -14,10 +17,12 @@ import { ProviderProfile } from '../../models';
     templateUrl: './configuracion.html',
     styleUrl: './configuracion.css'
 })
-export class ProveedorConfiguracionComponent implements OnInit {
+export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, AfterViewInit {
     auth = inject(AuthService);
     api = inject(ApiService);
     supabase = inject(SupabaseService);
+    supabaseData = inject(SupabaseDataService);
+    subscriptionService = inject(SubscriptionService);
     router = inject(Router);
 
     profile = signal<ProviderProfile | null>(null);
@@ -25,8 +30,10 @@ export class ProveedorConfiguracionComponent implements OnInit {
     saving = signal(false);
     uploadingAvatar = signal(false);
     detectingLocation = signal(false);
+    upgradingPlan = signal(false);
     successMessage = signal('');
     errorMessage = signal('');
+    paypalBlocked = signal(false);
 
     // Form data
     formData = signal({
@@ -255,10 +262,127 @@ export class ProveedorConfiguracionComponent implements OnInit {
         }
     }
 
-    updateField(field: string, value: any) {
+    async updateField(field: string, value: any) {
         this.formData.update(data => ({
             ...data,
             [field]: value
         }));
     }
+
+    // ==========================================
+    // PayPal Integration
+    // ==========================================
+
+    ngAfterViewInit() {
+        // Intentar renderizar botón si el plan es básico
+        if (this.subscriptionService.currentPlan() === 'basico') {
+            this.initPaypal();
+        }
+    }
+
+    ngOnDestroy() {
+        const container = document.getElementById('paypal-button-container');
+        if (container) {
+            container.innerHTML = '';
+        }
+        // Limpieza estricta del script del DOM
+        const script = document.getElementById('paypal-sdk');
+        if (script) {
+            script.remove();
+        }
+    }
+
+    async initPaypal() {
+        try {
+            await this.loadPaypalScript();
+            // Retraso para asegurar que el contenedor esté renderizado
+            setTimeout(() => {
+                this.renderPaypalButton();
+            }, 1000);
+        } catch (error) {
+            console.error('Error initializing PayPal:', error);
+            this.paypalBlocked.set(true);
+        }
+    }
+
+    private loadPaypalScript(): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (document.getElementById('paypal-sdk')) {
+                resolve();
+                return;
+            }
+
+            const script = document.createElement('script');
+            script.id = 'paypal-sdk';
+            script.src = `https://www.paypal.com/sdk/js?client-id=${environment.paypalClientId}&currency=MXN`;
+            script.onload = () => resolve();
+            script.onerror = (err) => {
+                console.error('PayPal SDK Load Error:', err);
+                this.paypalBlocked.set(true);
+                reject(err);
+            };
+            document.body.appendChild(script);
+        });
+    }
+
+    private renderPaypalButton() {
+        const container = document.getElementById('paypal-button-container');
+        if (!container) return; // Si no existe el contenedor, no hacer nada
+
+        // Limpiar contenedor por si acaso
+        container.innerHTML = '';
+
+        (window as any).paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'rect',
+                label: 'pay'
+            },
+            createOrder: (data: any, actions: any) => {
+                return actions.order.create({
+                    purchase_units: [{
+                        description: 'Suscripción FestEasy Plan Plus',
+                        amount: {
+                            value: '199.00' // Precio fijo por ahora
+                        }
+                    }]
+                });
+            },
+            onApprove: async (data: any, actions: any) => {
+                try {
+                    const order = await actions.order.capture();
+                    console.log('Pago exitoso:', order);
+
+                    const userId = this.auth.currentUser()?.id;
+                    if (userId) {
+                        this.upgradingPlan.set(true);
+
+                        // Llamar al servicio que actualiza DB y crea historial
+                        await this.supabaseData.upgradeProviderSubscription(userId, 'plus', 199.00);
+
+                        // Refrescar estado en la app
+                        await this.auth.refreshUserProfile();
+                        await this.loadProfile();
+
+                        this.successMessage.set('¡Bienvenido al Plan Plus! 🌟 Disfruta de todos los beneficios.');
+
+                        // Limpiar mensaje después de un tiempo
+                        setTimeout(() => this.successMessage.set(''), 5000);
+                    }
+                } catch (error) {
+                    console.error('Error processing payment approval:', error);
+                    this.errorMessage.set('Error al procesar la actualización del plan.');
+                } finally {
+                    this.upgradingPlan.set(false);
+                }
+            },
+            onError: (err: any) => {
+                console.error('PayPal error:', err);
+                this.errorMessage.set('Ocurrió un error con el procesador de pagos.');
+            }
+        }).render('#paypal-button-container');
+    }
+
 }
+
