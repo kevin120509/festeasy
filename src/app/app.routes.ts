@@ -37,6 +37,7 @@ import { NotificacionesComponent } from './proveedor/notificaciones/notificacion
 import { PaquetesComponent } from './proveedor/paquetes/paquetes.component';
 import { ProveedorConfiguracionComponent } from './proveedor/configuracion/configuracion';
 import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.component';
+import { ResenasRecibidasComponent } from './proveedor/resenas/resenas-recibidas.component';
 
 // Admin
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
@@ -76,6 +77,7 @@ export const routes: Routes = [
             { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
             { path: 'pago/:id', component: PagoComponent },
             { path: 'configuracion', component: ClienteConfiguracionComponent },
+            { path: 'resenas/resumen', component: ResenasSummaryComponent },
             { path: 'resenas/resumen/:eventoId', component: ResenasSummaryComponent },
             { path: 'resenas/crear/:solicitudId', component: ResenaFormComponent },
             { path: 'resenas/exito', component: ResenaExitoComponent },
@@ -97,6 +99,7 @@ export const routes: Routes = [
             { path: 'bandeja', component: BandejaSolicitudesComponent },
             { path: 'notificaciones', component: NotificacionesComponent },
             { path: 'paquetes', component: PaquetesComponent },
+            { path: 'resenas', component: ResenasRecibidasComponent },
             { path: 'configuracion', component: ProveedorConfiguracionComponent },
         ]
     },

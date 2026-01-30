@@ -131,7 +131,7 @@ import { AuthService } from '../../services/auth.service';
 export class RatingModalComponent implements OnInit {
   private apiService = inject(ApiService);
   private authService = inject(AuthService);
-  private dialogRef = inject(MatDialogRef<RatingModalComponent>);
+  public dialogRef = inject(MatDialogRef<RatingModalComponent>);
 
   // Inputs - Recibidos desde el dialog.open()
   solicitudId: string;
@@ -223,7 +223,7 @@ export class RatingModalComponent implements OnInit {
       // Preparar datos de la reseña
       const reviewData = {
         solicitud_id: this.solicitudId,
-        autor_id: user.id,
+        cliente_id: user.id,
         destinatario_id: this.destinatarioId,
         calificacion: this.rating(),
         comentario: this.comentario.trim() || undefined

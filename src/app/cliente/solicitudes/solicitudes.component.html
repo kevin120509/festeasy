@@ -180,19 +180,30 @@
                     <div class="mt-6 flex items-center justify-between">
                         <div>
                             <button *ngIf="sol.estado === 'finalizado'"
-                                (click)="$event.stopPropagation(); eliminarSolicitud(sol.id)"
                                 class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
                                 <span class="material-symbols-outlined text-[16px]">delete</span>
                                 Eliminar
                             </button>
+                            <a *ngIf="sol.estado === 'finalizado'" [routerLink]="['/cliente/resenas/crear', sol.id]"
+                                (click)="$event.stopPropagation()"
+                                class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
+                                <span class="material-symbols-outlined text-[16px]">star</span>
+                                Calificar
+                            </a>
                         </div>
                         <button *ngIf="sol.estado === 'pendiente_aprobacion'"
                             class="text-xs bg-red-50 hover:bg-red-100 text-red-700 px-3 py-1.5 rounded-md transition-colors font-medium">
                             Ver Cotizaciones
                         </button>
+                        <!-- Botón de Pagar Anticipo -->
+                        <a *ngIf="sol.estado === 'esperando_anticipo'" [routerLink]="['/cliente/pago', sol.id]"
+                            (click)="$event.stopPropagation()"
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
+                            <span class="material-symbols-outlined text-[16px]">payments</span>
+                            Pagar Anticipo
+                        </a>
                         <!-- Botón de Pagar Liquidación -->
-                        <a *ngIf="sol.estado === 'entregado_pendiente_liq'"
-                            [routerLink]="['/cliente/pago', sol.id]"
+                        <a *ngIf="sol.estado === 'entregado_pendiente_liq'" [routerLink]="['/cliente/pago', sol.id]"
                             (click)="$event.stopPropagation()"
                             class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
                             <span class="material-symbols-outlined text-[16px]">payment</span>

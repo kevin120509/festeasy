@@ -233,17 +233,36 @@ export class ApiService {
                     ...data,
                     cliente_usuario_id: user.id,
                     pin_validacion: Math.floor(1000 + Math.random() * 9000).toString(),
-                    estado: data.estado || 'pendiente_aprobacion'
+                    estado: data.estado || 'pendiente_aprobacion',
+                    creado_en: new Date().toISOString(),
+                    actualizado_en: new Date().toISOString()
                 };
 
-                return this.fromSupabase(this.supabase.from('solicitudes').insert(payload).select().single());
+                console.log('🚀 API: Creando solicitud con payload:', payload);
+
+                return this.fromSupabase(this.supabase.from('solicitudes').insert(payload).select().single()).pipe(
+                    tap(res => console.log('✅ API: Solicitud creada exitosamente:', res)),
+                    catchError(err => {
+                        console.error('❌ API: Error al crear solicitud:', err);
+                        // Log extra details if available
+                        if (err.details) console.error('🔍 Detalles del error:', err.details);
+                        if (err.hint) console.error('💡 Sugerencia:', err.hint);
+                        return throwError(() => err);
+                    })
+                );
             })
         );
     }
 
     createSolicitudItems(items: any[]): Observable<any> {
         console.log('🔁 API: Insertando items_solicitud:', items);
-        return this.fromSupabase(this.supabase.from('items_solicitud').insert(items).select()).pipe(
+        // Validar que no haya valores NaN en los precios
+        const validatedItems = items.map(it => ({
+            ...it,
+            precio_unitario: isNaN(it.precio_unitario) ? 0 : it.precio_unitario
+        }));
+
+        return this.fromSupabase(this.supabase.from('items_solicitud').insert(validatedItems).select()).pipe(
             tap((res: any) => console.log('✅ API: items_solicitud insertados:', res)),
             catchError(err => {
                 console.error('❌ API: Error insertando items_solicitud:', err);
@@ -608,7 +627,7 @@ export class ApiService {
 
     createReview(reviewData: {
         solicitud_id: string;
-        autor_id: string;
+        cliente_id: string;
         destinatario_id: string;
         calificacion: number;
         comentario?: string;

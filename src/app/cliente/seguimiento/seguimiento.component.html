@@ -81,7 +81,7 @@
                     <p class="text-green-100 text-sm">El proveedor ha validado la entrega del servicio</p>
                 </div>
             </div>
-            
+
             <div class="bg-white/10 backdrop-blur rounded-xl p-4 mb-4">
                 <div class="flex justify-between items-center">
                     <span class="text-green-100">Monto de liquidación (70%)</span>
@@ -94,10 +94,31 @@
                 <span class="material-symbols-outlined">payment</span>
                 Pagar Liquidación
             </a>
-            
+
             <p class="text-xs text-green-200 mt-3 text-center">
                 Completa el pago final para cerrar el servicio exitosamente
             </p>
+        </div>
+        }
+
+        <!-- ⭐ TARJETA DE RESEÑA - Visible cuando el servicio está finalizado -->
+        @if (evento().estado === 'finalizado') {
+        <div class="bg-gradient-to-r from-amber-400 to-orange-500 p-6 rounded-3xl shadow-lg my-4 text-white">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-white/20 p-3 rounded-full">
+                    <span class="material-symbols-outlined text-2xl">star</span>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold">¡Tu opinión importa!</h3>
+                    <p class="text-orange-100 text-sm">Ayuda a otros usuarios calificando este servicio</p>
+                </div>
+            </div>
+
+            <a [routerLink]="['/cliente/resenas/crear', evento().id]"
+                class="w-full flex items-center justify-center gap-2 bg-white text-orange-600 font-bold py-3 px-6 rounded-xl hover:bg-orange-50 transition-colors shadow-md">
+                <span class="material-symbols-outlined">rate_review</span>
+                Calificar Servicio
+            </a>
         </div>
         }
 

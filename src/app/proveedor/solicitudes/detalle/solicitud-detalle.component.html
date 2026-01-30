@@ -9,7 +9,7 @@
             </button>
             <div class="flex items-center gap-3">
                 <!-- Botón Refrescar -->
-                <button (click)="refrescarDatos()" 
+                <button (click)="refrescarDatos()"
                     class="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
                     title="Actualizar datos">
                     <span class="material-symbols-outlined text-lg">refresh</span>
@@ -27,15 +27,15 @@
                     'bg-slate-100 text-slate-700': !['pendiente_aprobacion', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado', 'rechazada', 'cancelada'].includes(solicitud()?.estado || '')
                 }">
                     @switch (solicitud()?.estado) {
-                        @case ('pendiente_aprobacion') { Pendiente }
-                        @case ('esperando_anticipo') { Esperando Pago }
-                        @case ('reservado') { Reservado }
-                        @case ('en_progreso') { En Progreso }
-                        @case ('entregado_pendiente_liq') { Por Liquidar }
-                        @case ('finalizado') { ✓ Finalizado }
-                        @case ('rechazada') { Rechazada }
-                        @case ('cancelada') { Cancelada }
-                        @default { {{ solicitud()?.estado }} }
+                    @case ('pendiente_aprobacion') { Pendiente }
+                    @case ('esperando_anticipo') { Esperando Pago }
+                    @case ('reservado') { Reservado }
+                    @case ('en_progreso') { En Progreso }
+                    @case ('entregado_pendiente_liq') { Por Liquidar }
+                    @case ('finalizado') { ✓ Finalizado }
+                    @case ('rechazada') { Rechazada }
+                    @case ('cancelada') { Cancelada }
+                    @default { {{ solicitud()?.estado }} }
                     }
                 </span>
                 }
@@ -53,7 +53,8 @@
                 </div>
                 <div>
                     <h2 class="text-2xl font-bold">¡Servicio Completado!</h2>
-                    <p class="text-emerald-100">Este servicio ha sido finalizado exitosamente. El cliente ha completado el pago de liquidación.</p>
+                    <p class="text-emerald-100">Este servicio ha sido finalizado exitosamente. El cliente ha completado
+                        el pago de liquidación.</p>
                 </div>
             </div>
         </div>
@@ -200,12 +201,16 @@
                         <div class="flex justify-between items-center">
                             <span class="text-slate-500 text-sm font-medium">Anticipo (30%)</span>
                             <div class="text-right">
-                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_anticipo || (solicitud()?.monto_total || 0) * 0.3) |
+                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_anticipo ||
+                                    (solicitud()?.monto_total || 0) * 0.3) |
                                     currency:'MXN' }}</p>
-                                @if (['reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(solicitud()?.estado || '')) {
-                                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
+                                @if (['reservado', 'en_progreso', 'entregado_pendiente_liq',
+                                'finalizado'].includes(solicitud()?.estado || '')) {
+                                <span
+                                    class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
                                 } @else {
-                                <span class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-black uppercase">Pendiente</span>
+                                <span
+                                    class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-black uppercase">Pendiente</span>
                                 }
                             </div>
                         </div>
@@ -213,31 +218,38 @@
                         <div class="flex justify-between items-center pt-6 border-t border-slate-100">
                             <span class="text-slate-500 text-sm font-medium">Liquidación (70%)</span>
                             <div class="text-right">
-                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_liquidacion || (solicitud()?.monto_total || 0) * 0.7) |
+                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_liquidacion ||
+                                    (solicitud()?.monto_total || 0) * 0.7) |
                                     currency:'MXN' }}</p>
                                 @if (solicitud()?.estado === 'finalizado') {
-                                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
+                                <span
+                                    class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
                                 } @else if (solicitud()?.estado === 'entregado_pendiente_liq') {
-                                <span class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-black uppercase">Por Liquidar</span>
+                                <span
+                                    class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-black uppercase">Por
+                                    Liquidar</span>
                                 } @else {
-                                <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black uppercase">Pendiente</span>
+                                <span
+                                    class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black uppercase">Pendiente</span>
                                 }
                             </div>
                         </div>
 
                         <!-- Total Ganado (solo si está finalizado) -->
                         @if (solicitud()?.estado === 'finalizado') {
-                        <div class="flex justify-between items-center pt-6 border-t-2 border-emerald-200 bg-emerald-50 -mx-8 px-8 py-4 -mb-8 rounded-b-3xl">
+                        <div
+                            class="flex justify-between items-center pt-6 border-t-2 border-emerald-200 bg-emerald-50 -mx-8 px-8 py-4 -mb-8 rounded-b-3xl">
                             <span class="text-emerald-700 text-sm font-bold">Total Ganado</span>
                             <div class="text-right">
-                                <p class="font-black text-emerald-700 text-xl">{{ solicitud()?.monto_total | currency:'MXN' }}</p>
+                                <p class="font-black text-emerald-700 text-xl">{{ solicitud()?.monto_total |
+                                    currency:'MXN' }}</p>
                             </div>
                         </div>
                         }
                     </div>
                 </section>
 
-                <!-- Acciones Especiales (PIN) -->
+                <!-- Acciones Especiales (PIN siempre activo) -->
                 @if (solicitud()?.estado === 'reservado') {
                 <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200">
                     <p class="text-amber-800 text-sm font-bold mb-4 flex items-center gap-2">
@@ -245,25 +257,15 @@
                         Validación de Seguridad
                     </p>
 
-                    <button (click)="esDiaDelEvento(solicitud()?.fecha_servicio) ? abrirModalPin() : null"
-                        [disabled]="!esDiaDelEvento(solicitud()?.fecha_servicio)" [class]="esDiaDelEvento(solicitud()?.fecha_servicio) 
-                            ? 'bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100' 
-                            : 'bg-slate-300 cursor-not-allowed'"
-                        class="w-full py-4 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all mb-4">
+                    <button (click)="abrirModalPin()"
+                        class="w-full py-4 bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all mb-4">
                         <span class="material-symbols-outlined">verified_user</span>
                         <span>Validar PIN del Cliente</span>
                     </button>
 
-                    @if (!esDiaDelEvento(solicitud()?.fecha_servicio)) {
-                    <p class="text-amber-700 text-[10px] leading-relaxed text-center font-medium">
-                        El botón se activará el día del evento:<br>
-                        <strong>{{ formatearFechaCompleta(solicitud()?.fecha_servicio) }}</strong>
+                    <p class="text-amber-700 text-[10px] leading-relaxed text-center font-bold">
+                        Solicita el PIN al cliente para confirmar la entrega del servicio.
                     </p>
-                    } @else {
-                    <p class="text-green-700 text-[10px] leading-relaxed text-center font-bold">
-                        ¡Hoy es el evento! Solicita el PIN al cliente.
-                    </p>
-                    }
                 </div>
                 }
             </div>

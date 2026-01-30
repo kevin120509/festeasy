@@ -20,6 +20,7 @@ export class PagoComponent implements OnInit, AfterViewInit {
     solicitud = signal<any>(null);
     loading = signal(true);
     procesando = signal(false);
+    showSuccessModal = signal(false);
 
     // Determinar el tipo de pago basado en el estado de la solicitud
     tipoPago = computed(() => {
@@ -36,16 +37,25 @@ export class PagoComponent implements OnInit, AfterViewInit {
         const sol = this.solicitud();
         if (!sol) return 0;
 
-        // Usar monto_total de la solicitud, o el total calculado de los items si es 0
-        const totalBase = sol.monto_total || sol.total_calculado || 0;
+        // Intentar obtener un total base de varias fuentes
+        const totalBase = Number(sol.monto_total) || Number(sol.total_calculado) || Number(sol.presupuesto_max) || 0;
+        if (totalBase <= 0) return 0;
 
+        let calculado = 0;
         if (this.tipoPago() === 'liquidacion') {
-            // El 70% restante (liquidación)
-            return sol.monto_liquidacion || Math.round(totalBase * 0.7);
+            // El 70% restante (liquidación) o el monto específico si existe
+            const liq = Number(sol.monto_liquidacion);
+            calculado = liq > 0 ? liq : (totalBase * 0.7);
         } else {
-            // El 30% de anticipo
-            return sol.monto_anticipo || Math.round(totalBase * 0.3);
+            // El 30% de anticipo o el monto específico si existe
+            const ant = Number(sol.monto_anticipo);
+            calculado = ant > 0 ? ant : (totalBase * 0.3);
         }
+
+        // Retornar con 2 decimales para evitar problemas de redondeo a cero en montos pequeños
+        // y asegurar que si el cálculo es > 0, el resultado sea al menos 0.01
+        if (calculado > 0 && calculado < 0.01) calculado = 0.01;
+        return parseFloat(calculado.toFixed(2));
     });
 
     // Título dinámico
@@ -127,10 +137,22 @@ export class PagoComponent implements OnInit, AfterViewInit {
         }
 
         // Solo renderizar si el monto es válido
-        if (this.montoPagar() > 0) {
+        const monto = this.montoPagar();
+        if (monto > 0) {
+            console.log(`✅ Monto a pagar determinado: ${monto} (${this.tipoPago()})`);
             setTimeout(() => this.renderPaypalButtons(), 100);
         } else {
             console.error('❌ No se pudo determinar un monto válido para el pago');
+            console.log('Detalles de la solicitud:', {
+                id: data.id,
+                estado: data.estado,
+                monto_total: data.monto_total,
+                monto_anticipo: data.monto_anticipo,
+                monto_liquidacion: data.monto_liquidacion,
+                total_calculado: data.total_calculado,
+                tipo_pago: this.tipoPago(),
+                monto_pagar_resultado: monto
+            });
         }
     }
 
@@ -138,6 +160,12 @@ export class PagoComponent implements OnInit, AfterViewInit {
         if (!document.getElementById('paypal-button-container')) return;
 
         paypal.Buttons({
+            style: {
+                color: 'black',
+                shape: 'rect',
+                label: 'pay',
+                height: 48
+            },
             createOrder: (data: any, actions: any) => {
                 const descripcion = this.tipoPago() === 'liquidacion'
                     ? `Liquidación - Evento: ${this.solicitud().titulo_evento}`
@@ -161,32 +189,43 @@ export class PagoComponent implements OnInit, AfterViewInit {
             },
             onError: (err: any) => {
                 console.error('Error en PayPal:', err);
-                alert('Hubo un error con PayPal. Inténtalo de nuevo.');
+                this.procesando.set(false);
             }
         }).render('#paypal-button-container');
     }
 
     async finalizarPago(metodo: string, referencia: string) {
         try {
-            const id = this.solicitud().id;
+            console.log('🔄 Iniciando finalización de pago:', { metodo, referencia });
+            const sol = this.solicitud();
+            const id = sol.id;
             const esLiquidacion = this.tipoPago() === 'liquidacion';
 
             // Determinar el nuevo estado
             const nuevoEstado = esLiquidacion ? 'finalizado' : 'reservado';
+            console.log(`📝 Actualizando estado de solicitud ${id} a: ${nuevoEstado}`);
 
-            await this.api.updateRequestStatus(id, nuevoEstado).toPromise();
+            // Intentar actualizar usando ApiService
+            try {
+                // Usamos firstValueFrom para manejarlo como promesa de forma moderna
+                const response = await this.api.updateRequestStatus(id, nuevoEstado).toPromise();
+                console.log('✅ Estado actualizado exitosamente:', response);
+            } catch (updateError: any) {
+                console.error('❌ Error al actualizar estado vía ApiService:', updateError);
+                // Si falla, intentamos una descripción más detallada del error
+                throw updateError;
+            }
 
-            // Mensaje de éxito
-            const mensaje = esLiquidacion
-                ? '¡Pago de liquidación completado! El servicio ha sido finalizado exitosamente.'
-                : '¡Pago de anticipo realizado con éxito! Tu evento ha sido reservado.';
+            // En lugar de alert, mostrar modal de éxito
+            this.showSuccessModal.set(true);
 
-            alert(mensaje);
-            this.router.navigate(['/cliente/solicitudes', id]);
+        } catch (error: any) {
+            console.error('CRITICAL: Error finalizando pago:', error);
+            let errorMsg = 'Hubo un error al confirmar el pago en nuestro sistema.';
+            if (error.message) errorMsg += `\nDetalle: ${error.message}`;
+            if (error.details) errorMsg += `\nInfo: ${error.details}`;
 
-        } catch (error) {
-            console.error('Error finalizando pago:', error);
-            alert('Hubo un error al confirmar el pago en nuestro sistema.');
+            alert(errorMsg);
         } finally {
             this.procesando.set(false);
         }
@@ -198,6 +237,16 @@ export class PagoComponent implements OnInit, AfterViewInit {
         this.procesando.set(true);
         await new Promise(resolve => setTimeout(resolve, 2000));
         this.finalizarPago('demo', 'simulated-ref');
+    }
+
+    cerrarModalYSalir() {
+        this.showSuccessModal.set(false);
+        const id = this.solicitud()?.id;
+        if (id) {
+            this.router.navigate(['/cliente/solicitudes', id]);
+        } else {
+            this.router.navigate(['/cliente/dashboard']);
+        }
     }
 
     volverASolicitudes() {
