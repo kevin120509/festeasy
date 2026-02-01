@@ -79,10 +79,15 @@ export class RevisarSolicitudComponent implements OnInit {
     }
 
     async enviarSolicitud() {
-        if (this.isLoading()) return;
+        console.log('按钮点击: enviarSolicitud (RevisarSolicitudComponent)');
+        if (this.isLoading()) {
+            console.warn('⚠️ enviarSolicitud bloqueado: isLoading es true');
+            return;
+        }
         this.isLoading.set(true);
-        const userSignal = this.auth.currentUser();
-        const user = typeof userSignal === 'function' ? userSignal() : userSignal;
+        const userValue = this.auth.currentUser();
+        console.log('👤 RevisarSolicitud: Estado del usuario:', !!userValue, userValue?.id);
+        const user = userValue;
         if (!user) {
             this.notification.set({ message: 'Debes iniciar sesión para continuar', type: 'error' });
             setTimeout(() => this.router.navigate(['/login']), 2500);
@@ -109,13 +114,20 @@ export class RevisarSolicitudComponent implements OnInit {
                 cliente_usuario_id: user.id,
                 proveedor_usuario_id: proveedorData.usuario_id,
                 fecha_servicio: eventoData.fecha,
-                direccion_servicio: eventoData.ubicacion,
+                direccion_servicio: eventoData.ubicacion || 'Sin dirección',
                 titulo_evento: tituloCompleto,
                 monto_total: this.total(),
                 estado: 'pendiente_aprobacion',
-                latitud_servicio: 0,
-                longitud_servicio: 0
+                latitud_servicio: eventoData.coords?.lat || 0,
+                longitud_servicio: eventoData.coords?.lng || 0
             };
+
+            console.log('📝 RevisarSolicitud: Iniciando proceso de envío. Payload:', solicitudPayload);
+
+            if (!solicitudPayload.proveedor_usuario_id) {
+                console.error('❌ Error: El proveedor no tiene un ID de usuario válido:', proveedorData);
+                throw new Error('No se pudo identificar al proveedor. Por favor, selecciona otro.');
+            }
             const solicitud = await firstValueFrom(this.api.createRequest(solicitudPayload));
             if (!solicitud?.id) throw new Error('No se pudo crear la solicitud (sin id).');
 

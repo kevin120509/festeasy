@@ -143,19 +143,32 @@ export class AuthService {
    */
   async ensureClientProfile(): Promise<void> {
     const user = this.currentUser();
-    if (!user) return;
+    console.log('🛡️ ensureClientProfile: Iniciando. User state:', !!user, user?.id);
+    if (!user) {
+      console.warn('🛡️ ensureClientProfile: No hay usuario en el signal.');
+      return;
+    }
 
     // Si ya tiene profile_id y es de cliente, ya estamos listos
-    if (user.profile_id && user.rol === 'client') return;
+    if (user.profile_id && user.rol === 'client') {
+      console.log('🛡️ ensureClientProfile: Ya tiene perfil de cliente activo.');
+      return;
+    }
 
+    console.log('🛡️ ensureClientProfile: Buscando perfil en DB para:', user.id);
     // Verificar si ya existe en la tabla perfil_cliente
-    const { data: profile } = await this.supabase
+    const { data: profile, error: fetchError } = await this.supabase
       .from('perfil_cliente')
       .select('*')
       .eq('usuario_id', user.id)
       .maybeSingle();
 
+    if (fetchError) {
+      console.error('🛡️ ensureClientProfile: Error buscando perfil:', fetchError);
+    }
+
     if (profile) {
+      console.log('🛡️ ensureClientProfile: Perfil encontrado en DB, actualizando signal.');
       // Si existe pero no estaba en el signal, actualizar signal
       this.currentUser.update(curr => ({
         ...curr,
@@ -165,6 +178,7 @@ export class AuthService {
       return;
     }
 
+    console.log('🛡️ ensureClientProfile: Perfil no existe. Creando uno nuevo...');
     // Si no existe, crearlo
     const { data: { user: authUser } } = await this.supabase.auth.getUser();
     const nombre = authUser?.user_metadata?.['nombre'] ||
@@ -182,11 +196,12 @@ export class AuthService {
       .single();
 
     if (error) {
-      console.error('Error creating fallback client profile:', error);
+      console.error('🛡️ ensureClientProfile: Error creando perfil fallback:', error);
       throw error;
     }
 
     if (newProfile) {
+      console.log('🛡️ ensureClientProfile: Perfil creado exitosamente.');
       this.currentUser.update(curr => ({
         ...curr,
         profile_id: newProfile.id,

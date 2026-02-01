@@ -131,22 +131,23 @@
     .hero-video-container {
         width: 100%;
         height: 420px;
-        background: linear-gradient(135deg, #E53935 0%, #FF7043 100%);
+        background: white;
         border-radius: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         overflow: hidden;
         position: relative;
-        box-shadow: 0 20px 60px rgba(233, 30, 99, 0.3);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
     }
 
     .hero-video-container video {
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        object-fit: contain;
         opacity: 0;
         transition: opacity 0.3s ease;
+        background: white;
     }
 
     .hero-video-container:hover video {
@@ -155,29 +156,15 @@
 
     .hero-video-placeholder {
         position: absolute;
-        font-size: 100px;
         transition: opacity 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
     }
 
     .hero-video-container:hover .hero-video-placeholder {
-        opacity: 0;
-    }
-
-    .hero-play-hint {
-        position: absolute;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(0, 0, 0, 0.6);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        opacity: 0.8;
-        transition: opacity 0.3s ease;
-    }
-
-    .hero-video-container:hover .hero-play-hint {
         opacity: 0;
     }
 
@@ -437,9 +424,8 @@
 <!-- Header -->
 <header class="landing-header">
     <a routerLink="/" class="landing-logo">
-        <img src="festeasy.jpeg" alt="FestEasy" loading="eager" fetchpriority="high"
-            onerror="this.style.display='none'">
-        <span class="landing-logo-text">FestEasy</span>
+        <img src="assets/festeasy.png" alt="FestEasy" loading="eager" fetchpriority="high"
+            style="height: 60px; width: auto;" onerror="this.style.display='none'">
     </a>
     <a routerLink="/login" class="landing-access-btn">Acceso</a>
 </header>
@@ -458,12 +444,12 @@
         </div>
         <div class="hero-media">
             <div class="hero-video-container" (mouseenter)="playVideo()" (mouseleave)="pauseVideo()">
-                <span class="hero-video-placeholder">🎉</span>
-                <video #heroVideo muted loop>
-                    <!-- Video temporalmente deshabilitado para evitar error 404 -->
-                    <!-- <source src="assets/festeasy-promo.mp4" type="video/mp4"> -->
+                <div class="hero-video-placeholder">
+                    <img src="assets/festeasy.png" alt="" style="width: 280px; height: auto; object-fit: contain;">
+                </div>
+                <video #heroVideo muted loop playsinline>
+                    <source src="assets/festeasy.mp4" type="video/mp4">
                 </video>
-                <span class="hero-play-hint">▶ Pasa el mouse para ver</span>
             </div>
             <div class="hero-card hero-card-1">
                 <strong>4.9★</strong> Rating promedio

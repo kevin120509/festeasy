@@ -9,7 +9,7 @@ import { RatingModalComponent } from '../examples/rating-modal/rating-modal.comp
     providedIn: 'root'
 })
 export class RatingModalService {
-    private dialog = inject(MatDialog);
+    public dialog = inject(MatDialog);
 
     /**
      * Abre el modal de calificación

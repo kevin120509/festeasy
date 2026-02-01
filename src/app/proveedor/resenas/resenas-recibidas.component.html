@@ -1,0 +1,94 @@
+<div class="min-h-screen bg-slate-50 p-4 sm:p-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-2xl font-bold text-slate-800">Mis Reseñas</h1>
+            <p class="text-slate-500 text-sm">Lo que tus clientes dicen sobre tu servicio</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div
+            class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8 flex flex-col sm:flex-row items-center gap-8">
+            <div class="text-center sm:text-left">
+                <p class="text-sm font-medium text-slate-500 mb-1">Calificación General</p>
+                <div class="flex items-center gap-3">
+                    <span class="text-5xl font-black text-slate-800">{{ stats().promedio }}</span>
+                    <div>
+                        <div class="flex star-rating">
+                            @for (star of getStars(5); track star) {
+                            <span class="material-icons text-[24px]" [class.empty-star]="star > stats().promedio">
+                                {{ star <= stats().promedio ? 'star' : (star - 0.5 <=stats().promedio ? 'star_half'
+                                    : 'star_outline' ) }} </span>
+                                    }
+                        </div>
+                        <p class="text-xs text-slate-400 font-medium">{{ stats().total }} valoraciones totales</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hidden sm:block w-px h-16 bg-slate-100"></div>
+
+            <div class="flex-1">
+                <p class="text-xs text-slate-400 mb-3 px-1 uppercase tracking-wider font-bold">Resumen de impacto</p>
+                <div class="bg-emerald-50 text-emerald-700 p-4 rounded-xl border border-emerald-100 text-sm">
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="material-icons-outlined text-[18px]">verified</span>
+                        <span class="font-bold">Servicio Premium</span>
+                    </div>
+                    Tus clientes valoran positivamente tu puntualidad y calidad. ¡Sigue así!
+                </div>
+            </div>
+        </div>
+
+        <!-- Reviews List -->
+        <div class="space-y-4">
+            @if (loading()) {
+            <div class="text-center py-12">
+                <div
+                    class="animate-spin h-8 w-8 border-4 border-red-500 border-t-transparent rounded-full mx-auto mb-4">
+                </div>
+                <p class="text-slate-500">Cargando comentarios...</p>
+            </div>
+            } @else {
+            @for (resena of resenas(); track resena.id) {
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="h-10 w-10 bg-slate-100 rounded-full overflow-hidden">
+                            <img *ngIf="resena.perfil_cliente?.avatar_url" [src]="resena.perfil_cliente.avatar_url"
+                                alt="Avatar" class="w-full h-full object-cover">
+                            <div *ngIf="!resena.perfil_cliente?.avatar_url"
+                                class="w-full h-full flex items-center justify-center text-slate-400 bg-slate-100 capitalize">
+                                {{ resena.perfil_cliente?.nombre_completo?.charAt(0) || 'U' }}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-bold text-slate-800">{{ resena.perfil_cliente?.nombre_completo ||
+                                'Cliente Anónimo' }}</h4>
+                            <p class="text-[11px] text-slate-400">{{ resena.fecha_creacion | date:'d MMMM, y':'es-MX' }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex star-rating text-[18px]">
+                        @for (star of getStars(5); track star) {
+                        <span class="material-icons text-[18px]"
+                            [class.empty-star]="star > resena.calificacion">star</span>
+                        }
+                    </div>
+                </div>
+                <p class="text-sm text-slate-600 leading-relaxed italic border-l-4 border-slate-100 pl-4 py-1">
+                    "{{ resena.comentario || 'Sin comentario' }}"
+                </p>
+            </div>
+            } @empty {
+            <div class="text-center py-16 bg-white rounded-2xl border border-dashed border-slate-200">
+                <span class="material-icons-outlined text-slate-200 text-[64px] mb-4">rate_review</span>
+                <h3 class="text-slate-800 font-bold mb-1">Aún no tienes reseñas</h3>
+                <p class="text-slate-400 text-sm px-8">Las opiniones de tus clientes aparecerán aquí una vez que
+                    completen sus eventos.</p>
+            </div>
+            }
+            }
+        </div>
+    </div>
+</div>

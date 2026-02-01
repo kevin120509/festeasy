@@ -35,7 +35,21 @@ export class ResenaFormComponent implements OnInit {
     }
 
     cargarDetalleSolicitud() {
-        this.resenasService.getSolicitudParaReview(this.solicitudId()!).subscribe({
+        const id = this.solicitudId();
+        if (!id) return;
+
+        // 1. Verificar si ya existe una reseña
+        this.resenasService.getReviewBySolicitud(id).subscribe(review => {
+            if (review) {
+                console.log('📝 Esta solicitud ya tiene una reseña:', review);
+                this.router.navigate(['/cliente/resenas/exito'], {
+                    queryParams: { msg: 'ya_calificado' }
+                });
+            }
+        });
+
+        // 2. Cargar detalle
+        this.resenasService.getSolicitudParaReview(id).subscribe({
             next: (data) => {
                 this.solicitud.set(data);
             },
@@ -80,19 +94,42 @@ export class ResenaFormComponent implements OnInit {
             return;
         }
 
-        try {
-            await this.resenasService.enviarResena({
-                usuario_cliente_id: user.id,
-                usuario_proveedor_id: this.solicitud().proveedor.usuario_id,
-                solicitud_id: this.solicitudId()!,
-                puntuacion: this.puntuacionActual(),
-                comentario: this.comentario()
-            });
+        if (!this.solicitud() || !this.solicitud().proveedor) {
+            this.errorMessage.set('La información del proveedor no se ha cargado correctamente.');
+            this.isSubmitting.set(false);
+            return;
+        }
 
+        console.log('📝 ResenaForm: Preparando envío de reseña...');
+        try {
+            const payload = {
+                cliente_id: user.id,
+                destinatario_id: this.solicitud().proveedor.usuario_id,
+                solicitud_id: this.solicitudId()!,
+                calificacion: this.puntuacionActual(),
+                comentario: this.comentario()
+            };
+
+            console.log('📝 ResenaForm: Payload final:', payload);
+
+            await this.resenasService.enviarResena(payload);
+
+            console.log('📝 ResenaForm: Envío exitoso, navegando...');
             this.router.navigate(['/cliente/resenas/exito']);
         } catch (err: any) {
-            console.error('Error enviando reseña', err);
-            this.errorMessage.set('Error al enviar la reseña. Inténtalo de nuevo.');
+            console.error('❌ ResenaForm: Error en el envío:', err);
+
+            if (err.code === '23505') {
+                this.errorMessage.set('Ya has calificado este servicio anteriormente.');
+                setTimeout(() => {
+                    this.router.navigate(['/cliente/resenas/exito'], {
+                        queryParams: { msg: 'ya_calificado' }
+                    });
+                }, 2000);
+            } else {
+                this.errorMessage.set('Error al enviar la reseña. Inténtalo de nuevo.');
+            }
+
             this.isSubmitting.set(false);
         }
     }

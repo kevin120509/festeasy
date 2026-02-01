@@ -73,7 +73,7 @@ export class RealtimeListenerExampleComponent implements OnInit, OnDestroy {
   // 3. Inyectamos las dependencias usando la sintaxis moderna
   private apiService = inject(ApiService);
   private router = inject(Router);
-  private dialog = inject(MatDialog); // <--- Esto resuelve el error de inyección
+  public dialog = inject(MatDialog); // <--- Esto resuelve el error de inyección
   private subscription?: Subscription;
 
   listenerActivo = signal(false);

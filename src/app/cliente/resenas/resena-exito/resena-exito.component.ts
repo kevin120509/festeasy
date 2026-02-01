@@ -15,4 +15,8 @@ export class ResenaExitoComponent {
     cerrar() {
         this.router.navigate(['/cliente/dashboard']);
     }
+
+    verOtros() {
+        this.router.navigate(['/cliente/resenas/resumen']);
+    }
 }

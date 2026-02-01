@@ -198,7 +198,7 @@ export interface CalendarBlock {
 export interface Review {
     id: string;
     solicitud_id: string;
-    autor_id: string;
+    cliente_id: string;
     destinatario_id: string;
     calificacion: number;
     comentario?: string;

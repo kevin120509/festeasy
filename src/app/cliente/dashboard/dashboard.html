@@ -156,8 +156,10 @@
                             <td data-label="Monto a Pagar" class="monto" style="color: #E91E63;">${{
                                 act.monto.toLocaleString() }}</td>
                             <td data-label="Acción">
-                                <button class="btn-primary" style="padding: 6px 12px; font-size: 12px;">Pagar
-                                    Ahora</button>
+                                <button [routerLink]="['/cliente/pago', act.id]" (click)="$event.stopPropagation()"
+                                    class="btn-primary" style="padding: 6px 12px; font-size: 12px;">
+                                    Pagar Ahora
+                                </button>
                             </td>
                         </tr>
                         }
@@ -246,8 +248,16 @@
                                     }}</span>
                             </td>
                             <td data-label="Acción">
-                                <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;"
-                                    (click)="eliminarSolicitud(act.id)">Eliminar</button>
+                                <div style="display: flex; gap: 8px;">
+                                    @if (act.estado === 'finalizado') {
+                                    <button [routerLink]="['/cliente/resenas/crear', act.id]" class="btn-primary"
+                                        style="padding: 6px 12px; font-size: 12px; background-color: #4CAF50;">
+                                        Calificar
+                                    </button>
+                                    }
+                                    <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;"
+                                        (click)="eliminarSolicitud(act.id)">Eliminar</button>
+                                </div>
                             </td>
                         </tr>
                         }

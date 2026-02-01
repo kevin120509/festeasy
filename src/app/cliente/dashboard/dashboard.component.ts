@@ -122,7 +122,7 @@ export class ClienteDashboardComponent implements OnInit {
 
                 // Categorizar
                 this.reservadas.set(mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)));
-                this.pendientesPago.set(mappedRequests.filter(r => r.estado === 'esperando_anticipo'));
+                this.pendientesPago.set(mappedRequests.filter(r => ['esperando_anticipo', 'entregado_pendiente_liq'].includes(r.estado)));
                 this.pendientesRespuesta.set(mappedRequests.filter(r => r.estado === 'pendiente_aprobacion'));
                 this.historial.set(mappedRequests.filter(r => ['rechazada', 'cancelada', 'abandonada', 'finalizado'].includes(r.estado)));
 

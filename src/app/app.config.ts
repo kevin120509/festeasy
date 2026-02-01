@@ -38,6 +38,7 @@ export const appConfig: ApplicationConfig = {
         { provide: LOCALE_ID, useValue: 'es' },
         provideRouter(routes),
         provideHttpClient(),
+        provideAnimationsAsync(),
         ConfirmationService,
         providePrimeNG({
             theme: {

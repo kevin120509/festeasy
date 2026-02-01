@@ -5,6 +5,7 @@ import { SupabaseDataService } from '../../services/supabase-data.service';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { ValidarPin } from '../validar-pin/validar-pin';
+import { ResenasService } from '../../services/resenas.service';
 
 // Interface para las solicitudes de la tabla
 interface RequestRow {
@@ -28,6 +29,7 @@ export class ProveedorDashboardComponent implements OnInit {
     // Servicios
     private auth = inject(AuthService);
     private supabaseData = inject(SupabaseDataService);
+    private resenasService = inject(ResenasService);
     private router = inject(Router);
 
     // Fecha actual formateada
@@ -43,7 +45,9 @@ export class ProveedorDashboardComponent implements OnInit {
         nuevasSolicitudes: 0,
         nuevasSolicitudesHoy: 0,
         eventosConfirmados: 0,
-        gananciasTotales: 0
+        gananciasTotales: 0,
+        ratingPromedio: 0,
+        totalResenas: 0
     });
 
     // Próxima cita destacada (calculada desde las solicitudes)
@@ -93,6 +97,9 @@ export class ProveedorDashboardComponent implements OnInit {
 
             // 6. Opcional: Obtener ganancias desde tabla pagos
             await this.calcularGanancias(user.id);
+
+            // 7. Obtener estadísticas de reseñas
+            this.cargarEstadisticasResenas(user.id);
 
             console.log('✅ Dashboard cargado exitosamente');
 
@@ -241,6 +248,19 @@ export class ProveedorDashboardComponent implements OnInit {
             fecha: new Date(),
             montoTotal: 0,
             imagenMapa: 'https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=200&fit=crop'
+        });
+    }
+
+    private cargarEstadisticasResenas(providerId: string) {
+        this.resenasService.getStatsProveedor(providerId).subscribe({
+            next: (data) => {
+                this.stats.update(stats => ({
+                    ...stats,
+                    ratingPromedio: data.promedio,
+                    totalResenas: data.total
+                }));
+            },
+            error: (err) => console.error('Error al cargar stats de reseñas:', err)
         });
     }
 

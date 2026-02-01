@@ -26,17 +26,20 @@ export class SolicitudesService {
         const user = this.auth.currentUser();
         if (!user || !user.id) return new Observable(obs => obs.next([]));
 
+        console.log('🔍 SolicitudesService: Cargando solicitudes para usuario:', user.id);
+
         return this.supabaseData.getRequestsByClient(user.id).pipe(
             map((requests: any[]) => {
+                console.log('🔍 SolicitudesService: Datos crudos desde DB:', requests);
                 return requests.map(req => ({
                     id: req.id,
                     titulo_evento: req.titulo_evento || 'Evento Sin Título',
                     categoria: this.inferirCategoria(req),
                     fecha_evento: req.fecha_servicio,
                     direccion_servicio: req.direccion_servicio || '',
-                    creada_en: req.created_at || req.creado_en, // Supabase usa created_at
-                    estado: req.estado as any, // Pasar el estado real de la DB
-                    cotizaciones_count: 0, // TODO: Count real quotes
+                    creada_en: req.created_at || req.creado_en,
+                    estado: req.estado as any,
+                    cotizaciones_count: 0,
                     imagen_url: this.getImagenCategoria(this.inferirCategoria(req))
                 }));
             })
@@ -95,18 +98,23 @@ export class SolicitudesService {
      * (sin respuestas o abandonadas)
      */
     async limpiarSolicitudesExpiradas(clientId: string): Promise<number> {
-        const today = new Date().toISOString().split('T')[0];
+        // En lugar de comparar con hoy estricto, comparamos con ayer para evitar problemas de zona horaria
+        // y asegurar que las solicitudes de HOY permanezcan visibles.
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
 
         try {
+            console.log('🧹 Limpiador: Buscando solicitudes con fecha <', yesterdayStr);
             const { data: expired } = await this.supabaseData.supabase
                 .from('solicitudes')
-                .select('id')
+                .select('id, fecha_servicio')
                 .eq('cliente_usuario_id', clientId)
-                .eq('estado', 'pendiente_aprobacion') // O 'pendiente' según mapeo
-                .lt('fecha_servicio', today);
+                .eq('estado', 'pendiente_aprobacion')
+                .lt('fecha_servicio', yesterdayStr);
 
             if (expired && expired.length > 0) {
-                console.log(`🧹 Limpiando ${expired.length} solicitudes expiradas...`);
+                console.log(`🧹 Limpiando ${expired.length} solicitudes expiradas...`, expired);
                 for (const req of expired) {
                     await this.eliminarSolicitud(req.id);
                 }

@@ -88,7 +88,7 @@ export class CrearResenaComponent {
 
             console.log('📝 Enviando reseña con datos:', {
                 solicitud_id: this.solicitudId,
-                autor_id: this.clienteId,
+                cliente_id: this.clienteId,
                 destinatario_id: this.proveedorId,
                 calificacion: this.puntuacionActual()
             });
@@ -98,7 +98,7 @@ export class CrearResenaComponent {
                 .from('resenas')
                 .insert({
                     solicitud_id: this.solicitudId,
-                    autor_id: this.clienteId,           // ✅ Nombre correcto según schema
+                    cliente_id: this.clienteId,           // ✅ Nombre correcto según schema
                     destinatario_id: this.proveedorId,  // ✅ Nombre correcto según schema
                     calificacion: this.puntuacionActual(), // ✅ Nombre correcto según schema
                     comentario: this.comentario() || null

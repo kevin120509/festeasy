@@ -4,9 +4,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-40 h-16 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl flex items-center justify-center">
-                        <span class="material-symbols-outlined text-white text-5xl mr-4">admin_panel_settings</span>
-                        <span class="text-white text-2xl font-bold tracking-wide hidden sm:inline">FestEasy</span>
+                    <div class="w-40 h-16 bg-white rounded-2xl flex items-center justify-center p-2">
+                        <img src="assets/festeasy.png" alt="FestEasy" class="h-10 w-auto">
                     </div>
                     <div>
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Panel de Administración</h1>
@@ -14,9 +13,12 @@
                     </div>
                 </div>
                 <nav class="flex items-center gap-4">
-                    <a routerLink="/admin/users" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm">Usuarios</a>
-                    <a routerLink="/admin/providers/approval" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm">Aprobaciones</a>
-                    <a routerLink="/" class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm">Salir</a>
+                    <a routerLink="/admin/users"
+                        class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm">Usuarios</a>
+                    <a routerLink="/admin/providers/approval"
+                        class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm">Aprobaciones</a>
+                    <a routerLink="/"
+                        class="text-gray-600 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium text-sm">Salir</a>
                 </nav>
             </div>
         </div>
@@ -26,120 +28,144 @@
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Loading State -->
         @if (isLoading()) {
-            <div class="flex items-center justify-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
-            </div>
+        <div class="flex items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+        </div>
         } @else {
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                <!-- Total Usuarios -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">group</span>
-                        </div>
-                        <span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+12%</span>
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Usuarios -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">group</span>
                     </div>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats().totalUsuarios }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Total Usuarios</p>
+                    <span
+                        class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+12%</span>
                 </div>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats().totalUsuarios }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Total Usuarios</p>
+            </div>
 
-                <!-- Proveedores -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                            <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">storefront</span>
-                        </div>
-                        <span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+8%</span>
+            <!-- Proveedores -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-purple-600 dark:text-purple-400">storefront</span>
                     </div>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats().totalProveedores }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Proveedores Activos</p>
+                    <span
+                        class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+8%</span>
                 </div>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats().totalProveedores }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Proveedores Activos</p>
+            </div>
 
-                <!-- Pendientes de Aprobación -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
-                            <span class="material-symbols-outlined text-amber-600 dark:text-amber-400">pending_actions</span>
-                        </div>
-                        @if (stats().proveedoresPendientes > 0) {
-                            <span class="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-full">Acción requerida</span>
-                        }
+            <!-- Pendientes de Aprobación -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 rounded-xl flex items-center justify-center">
+                        <span
+                            class="material-symbols-outlined text-amber-600 dark:text-amber-400">pending_actions</span>
                     </div>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats().proveedoresPendientes }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Pendientes Aprobación</p>
+                    @if (stats().proveedoresPendientes > 0) {
+                    <span
+                        class="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-1 rounded-full">Acción
+                        requerida</span>
+                    }
                 </div>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">{{ stats().proveedoresPendientes }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Pendientes Aprobación</p>
+            </div>
 
-                <!-- Ingresos del Mes -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <div class="flex items-center justify-between mb-4">
-                        <div class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                            <span class="material-symbols-outlined text-green-600 dark:text-green-400">payments</span>
-                        </div>
-                        <span class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+23%</span>
+            <!-- Ingresos del Mes -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <div
+                        class="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
+                        <span class="material-symbols-outlined text-green-600 dark:text-green-400">payments</span>
                     </div>
-                    <p class="text-3xl font-bold text-gray-900 dark:text-white">${{ stats().ingresosMes | number }}</p>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">Ingresos del Mes</p>
+                    <span
+                        class="text-xs font-medium text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded-full">+23%</span>
+                </div>
+                <p class="text-3xl font-bold text-gray-900 dark:text-white">${{ stats().ingresosMes | number }}</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Ingresos del Mes</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Activity -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Acciones Rápidas -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Acciones Rápidas</h2>
+                <div class="space-y-3">
+                    <a routerLink="/admin/providers/approval"
+                        class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
+                        <div
+                            class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span class="material-symbols-outlined text-amber-600 dark:text-amber-400">verified</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">Aprobar Proveedores</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ stats().proveedoresPendientes }}
+                                pendientes</p>
+                        </div>
+                    </a>
+                    <a routerLink="/admin/users"
+                        class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
+                        <div
+                            class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span
+                                class="material-symbols-outlined text-blue-600 dark:text-blue-400">manage_accounts</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">Gestionar Usuarios</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Ver todos los usuarios</p>
+                        </div>
+                    </a>
+                    <a routerLink="/admin/reportes"
+                        class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
+                        <div
+                            class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <span
+                                class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">analytics</span>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-white">Ver Reportes</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Estadísticas detalladas</p>
+                        </div>
+                    </a>
                 </div>
             </div>
 
-            <!-- Quick Actions & Activity -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Acciones Rápidas -->
-                <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Acciones Rápidas</h2>
-                    <div class="space-y-3">
-                        <a routerLink="/admin/providers/approval" 
-                           class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
-                            <div class="w-10 h-10 bg-amber-100 dark:bg-amber-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined text-amber-600 dark:text-amber-400">verified</span>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900 dark:text-white">Aprobar Proveedores</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ stats().proveedoresPendientes }} pendientes</p>
-                            </div>
-                        </a>
-                        <a routerLink="/admin/users" 
-                           class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
-                            <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">manage_accounts</span>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900 dark:text-white">Gestionar Usuarios</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Ver todos los usuarios</p>
-                            </div>
-                        </a>
-                        <a routerLink="/admin/reportes" 
-                           class="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors group">
-                            <div class="w-10 h-10 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <span class="material-symbols-outlined text-indigo-600 dark:text-indigo-400">analytics</span>
-                            </div>
-                            <div>
-                                <p class="font-medium text-gray-900 dark:text-white">Ver Reportes</p>
-                                <p class="text-xs text-gray-500 dark:text-gray-400">Estadísticas detalladas</p>
-                            </div>
-                        </a>
+            <!-- Actividad Reciente -->
+            <div
+                class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
+                <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Actividad Reciente</h2>
+                <div class="space-y-4">
+                    @for (actividad of actividadReciente(); track actividad.mensaje) {
+                    <div
+                        class="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                        <div
+                            class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
+                            <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">{{ actividad.icono
+                                }}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm text-gray-900 dark:text-white">{{ actividad.mensaje }}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">{{ actividad.tiempo }}</p>
+                        </div>
                     </div>
-                </div>
-
-                <!-- Actividad Reciente -->
-                <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700">
-                    <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Actividad Reciente</h2>
-                    <div class="space-y-4">
-                        @for (actividad of actividadReciente(); track actividad.mensaje) {
-                            <div class="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                                <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">{{ actividad.icono }}</span>
-                                </div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm text-gray-900 dark:text-white">{{ actividad.mensaje }}</p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ actividad.tiempo }}</p>
-                                </div>
-                            </div>
-                        }
-                    </div>
+                    }
                 </div>
             </div>
+        </div>
         }
     </main>
 </div>

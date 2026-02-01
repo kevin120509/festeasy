@@ -12,10 +12,10 @@ import { AuthService } from '../services/auth.service';
  * Permite al cliente dejar una reseña con calificación de 1-5 estrellas y comentario.
  */
 @Component({
-    selector: 'app-rating-modal',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-rating-modal',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="p-8">
       <!-- Header -->
       <div class="text-center mb-6">
@@ -117,117 +117,117 @@ import { AuthService } from '../services/auth.service';
       }
     </div>
   `,
-    styles: [`
+  styles: [`
     :host {
       display: block;
     }
   `]
 })
 export class RatingModalComponent implements OnInit {
-    private apiService = inject(ApiService);
-    private authService = inject(AuthService);
-    private dialogRef = inject(MatDialogRef<RatingModalComponent>);
+  private apiService = inject(ApiService);
+  private authService = inject(AuthService);
+  public dialogRef = inject(MatDialogRef<RatingModalComponent>);
 
-    // State
-    rating = signal(0);
-    hoverRating = signal(0);
-    comentario = '';
-    enviando = signal(false);
-    mostrarExito = signal(false);
-    showRatingError = signal(false);
-    errorMensaje = signal('');
+  // State
+  rating = signal(0);
+  hoverRating = signal(0);
+  comentario = '';
+  enviando = signal(false);
+  mostrarExito = signal(false);
+  showRatingError = signal(false);
+  errorMensaje = signal('');
 
-    constructor(@Inject(MAT_DIALOG_DATA) public data: { solicitud_id: string; destinatario_id: string }) { }
+  constructor(@Inject(MAT_DIALOG_DATA) public data: { solicitud_id: string; destinatario_id: string }) { }
 
-    ngOnInit(): void {
-        console.log('🎯 RatingModal inicializado con:', this.data);
+  ngOnInit(): void {
+    console.log('🎯 RatingModal inicializado con:', this.data);
+  }
+
+  /**
+   * Establece la calificación seleccionada
+   */
+  setRating(stars: number): void {
+    this.rating.set(stars);
+    this.showRatingError.set(false);
+    console.log('⭐ Calificación seleccionada:', stars);
+  }
+
+  /**
+   * Retorna el texto descriptivo de la calificación
+   */
+  getRatingText(): string {
+    const texts: Record<number, string> = {
+      1: '😞 Muy malo',
+      2: '😕 Malo',
+      3: '😐 Regular',
+      4: '😊 Bueno',
+      5: '🌟 Excelente'
+    };
+    return texts[this.rating()] || '';
+  }
+
+  /**
+   * Cancela y cierra el modal
+   */
+  onCancel(): void {
+    this.dialogRef.close();
+  }
+
+  /**
+   * Envía la reseña
+   */
+  async onSubmit(): Promise<void> {
+    // Validar calificación
+    if (this.rating() === 0) {
+      this.showRatingError.set(true);
+      return;
     }
 
-    /**
-     * Establece la calificación seleccionada
-     */
-    setRating(stars: number): void {
-        this.rating.set(stars);
-        this.showRatingError.set(false);
-        console.log('⭐ Calificación seleccionada:', stars);
-    }
+    this.enviando.set(true);
+    this.errorMensaje.set('');
 
-    /**
-     * Retorna el texto descriptivo de la calificación
-     */
-    getRatingText(): string {
-        const texts: Record<number, string> = {
-            1: '😞 Muy malo',
-            2: '😕 Malo',
-            3: '😐 Regular',
-            4: '😊 Bueno',
-            5: '🌟 Excelente'
-        };
-        return texts[this.rating()] || '';
-    }
+    try {
+      // Obtener el ID del usuario actual
+      const { data: { user } } = await this.apiService.getCurrentUser();
 
-    /**
-     * Cancela y cierra el modal
-     */
-    onCancel(): void {
-        this.dialogRef.close();
-    }
+      if (!user) {
+        throw new Error('Usuario no autenticado');
+      }
 
-    /**
-     * Envía la reseña
-     */
-    async onSubmit(): Promise<void> {
-        // Validar calificación
-        if (this.rating() === 0) {
-            this.showRatingError.set(true);
-            return;
+      // Preparar datos de la reseña
+      const reviewData = {
+        solicitud_id: this.data.solicitud_id,
+        cliente_id: user.id,
+        destinatario_id: this.data.destinatario_id,
+        calificacion: this.rating(),
+        comentario: this.comentario.trim() || undefined
+      };
+
+      console.log('📤 Enviando reseña:', reviewData);
+
+      // Enviar reseña
+      this.apiService.createReview(reviewData).subscribe({
+        next: (response) => {
+          console.log('✅ Reseña creada exitosamente:', response);
+          this.mostrarExito.set(true);
+
+          // Cerrar modal después de 2 segundos
+          setTimeout(() => {
+            this.dialogRef.close(response);
+          }, 2000);
+        },
+        error: (error) => {
+          console.error('❌ Error al crear reseña:', error);
+          this.errorMensaje.set(
+            error.message || 'Error al enviar la reseña. Por favor intenta de nuevo.'
+          );
+          this.enviando.set(false);
         }
-
-        this.enviando.set(true);
-        this.errorMensaje.set('');
-
-        try {
-            // Obtener el ID del usuario actual
-            const { data: { user } } = await this.apiService.getCurrentUser();
-
-            if (!user) {
-                throw new Error('Usuario no autenticado');
-            }
-
-            // Preparar datos de la reseña
-            const reviewData = {
-                solicitud_id: this.data.solicitud_id,
-                autor_id: user.id,
-                destinatario_id: this.data.destinatario_id,
-                calificacion: this.rating(),
-                comentario: this.comentario.trim() || undefined
-            };
-
-            console.log('📤 Enviando reseña:', reviewData);
-
-            // Enviar reseña
-            this.apiService.createReview(reviewData).subscribe({
-                next: (response) => {
-                    console.log('✅ Reseña creada exitosamente:', response);
-                    this.mostrarExito.set(true);
-
-                    // Cerrar modal después de 2 segundos
-                    setTimeout(() => {
-                        this.dialogRef.close(response);
-                    }, 2000);
-                },
-                error: (error) => {
-                    console.error('❌ Error al crear reseña:', error);
-                    this.errorMensaje.set(
-                        error.message || 'Error al enviar la reseña. Por favor intenta de nuevo.'
-                    );
-                    this.enviando.set(false);
-                }
-            });
-        } catch (error: any) {
-            console.error('❌ Error en onSubmit:', error);
-            this.errorMensaje.set(error.message || 'Error inesperado');
-            this.enviando.set(false);
-        }
+      });
+    } catch (error: any) {
+      console.error('❌ Error en onSubmit:', error);
+      this.errorMensaje.set(error.message || 'Error inesperado');
+      this.enviando.set(false);
     }
+  }
 }

@@ -33,8 +33,8 @@ export class MisSolicitudesComponent implements OnInit {
         if (tab === 'todas') return requests;
 
         return requests.filter(req => {
-            if (tab === 'activas') return ['pendiente_aprobacion', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
-            if (tab === 'cotizando') return req.estado === 'pendiente_aprobacion'; // En este sistema, pendiente es cotizando
+            if (tab === 'activas') return ['pendiente_aprobacion', 'pendiente', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
+            if (tab === 'cotizando') return ['pendiente_aprobacion', 'pendiente'].includes(req.estado);
             if (tab === 'contratadas') return ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
             if (tab === 'finalizadas') return req.estado === 'finalizado';
             return true;
