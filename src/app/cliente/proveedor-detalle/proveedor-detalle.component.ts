@@ -5,6 +5,7 @@ import { forkJoin, switchMap, map } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { ProviderPackage } from '../../models';
 import { AuthService } from '../../services/auth.service';
+import { ResenasService } from '../../services/resenas.service';
 
 @Component({
     selector: 'app-proveedor-detalle',
@@ -17,6 +18,7 @@ export class ProveedorDetalleComponent implements OnInit {
     private router = inject(Router);
     private api = inject(ApiService);
     private auth = inject(AuthService);
+    private resenasService = inject(ResenasService);
 
     provider = signal<any>(null);
     packages = signal<ProviderPackage[]>([]);
@@ -28,6 +30,11 @@ export class ProveedorDetalleComponent implements OnInit {
 
     // Control de descripciones expandidas
     expandedIndices = signal<Set<number>>(new Set());
+    activeTab = signal<'servicios' | 'resenas'>('servicios');
+
+    cambiarTab(tab: 'servicios' | 'resenas') {
+        this.activeTab.set(tab);
+    }
 
     toggleDescription(index: number, event: Event) {
         event.preventDefault();
@@ -78,32 +85,42 @@ export class ProveedorDetalleComponent implements OnInit {
             switchMap(profile => {
                 console.log('👤 Perfil obtenido:', profile);
 
+                // Limpiar ubicación repetida
+                const rawUbicacion = profile.direccion_formato || '';
+                const cleanUbicacion = rawUbicacion.split(' (')[0].trim();
+
                 const providerData = {
                     id: profile.id,
                     usuario_id: profile.usuario_id,
                     nombre: profile.nombre_negocio,
                     categoria: profile.categoria_principal_id || 'Servicios',
                     descripcion: profile.descripcion,
-                    rating: 4.8,
-                    ubicacion: profile.direccion_formato,
+                    rating: 0, // Se actualizará con las stats
+                    ubicacion: cleanUbicacion,
                     imagen: profile.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=800&q=60',
-                    reviews: 0
+                    reviews: 0,
+                    tipoSuscripcion: (profile.tipo_suscripcion_actual || 'basico').toLowerCase()
                 };
                 this.provider.set(providerData);
 
-                // Usar profile.usuario_id porque paquetes_proveedor.proveedor_usuario_id guarda el usuario_id de auth
                 const providerUserId = profile.usuario_id || id;
-                console.log('📦 Buscando paquetes para usuario_id:', providerUserId);
+                console.log('📦 Buscando paquetes y stats para usuario_id:', providerUserId);
 
                 return forkJoin({
                     packages: this.api.getPackagesByProviderId(providerUserId!),
-                    reviews: this.api.getReviews(id)
+                    reviews: this.resenasService.getResenasPorProveedor(providerUserId!),
+                    stats: this.resenasService.getStatsProveedor(providerUserId!)
                 });
             })
         ).subscribe({
-            next: ({ packages, reviews }) => {
-                console.log('📦 Paquetes obtenidos:', packages);
-                console.log('⭐ Reviews obtenidos:', reviews);
+            next: ({ packages, reviews, stats }) => {
+                console.log('📦 Resultados:', { packages, reviews, stats });
+
+                this.provider.update(p => ({
+                    ...p,
+                    rating: stats.promedio,
+                    reviews: stats.total
+                }));
 
                 // If no packages found using usuario_id, try fallback using provider signal ID
                 const currentProvider = this.provider();
@@ -122,7 +139,7 @@ export class ProveedorDetalleComponent implements OnInit {
                 } else {
                     this.packages.set(packages);
                 }
-                this.reviews.set(reviews.map((r: any, i: number) => ({ ...r, id: r.id || i, autor: r.autor || 'Cliente' })));
+                this.reviews.set(reviews.map((r: any, i: number) => ({ ...r, id: r.id || i, autor: r.perfil_cliente?.nombre_completo || 'Cliente' })));
                 this.provider.update(p => ({ ...p, reviews: reviews.length }));
             },
             error: (err) => console.error('❌ Error cargando proveedor:', err)

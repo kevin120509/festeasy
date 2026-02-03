@@ -16,9 +16,11 @@
                     <div>
                         <div class="flex star-rating">
                             @for (star of getStars(5); track star) {
-                            <span class="material-icons text-[24px]" [class.empty-star]="star > stats().promedio">
+                            <span class="material-symbols-outlined text-[24px]"
+                                [class.star-filled]="star <= stats().promedio"
+                                [class.empty-star]="star > stats().promedio">
                                 {{ star <= stats().promedio ? 'star' : (star - 0.5 <=stats().promedio ? 'star_half'
-                                    : 'star_outline' ) }} </span>
+                                    : 'star' ) }} </span>
                                     }
                         </div>
                         <p class="text-xs text-slate-400 font-medium">{{ stats().total }} valoraciones totales</p>
@@ -71,7 +73,7 @@
                     </div>
                     <div class="flex star-rating text-[18px]">
                         @for (star of getStars(5); track star) {
-                        <span class="material-icons text-[18px]"
+                        <span class="material-symbols-outlined text-[18px] star-filled"
                             [class.empty-star]="star > resena.calificacion">star</span>
                         }
                     </div>

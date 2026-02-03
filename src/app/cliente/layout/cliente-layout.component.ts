@@ -7,17 +7,19 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription, map } from 'rxjs';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-cliente-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, RouterLink, RouterLinkActive],
   templateUrl: './cliente-layout.component.html',
 })
 export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDestroy
   auth = inject(AuthService);
   private router = inject(Router);
-  private activatedRoute = inject(ActivatedRoute); // Inject ActivatedRoute
+  private activatedRoute = inject(ActivatedRoute);
+  private confirmationService = inject(ConfirmationService);
   items: MenuItem[] = [];
   showSidebar = true;
   isSidebarExpanded = signal(true);
@@ -53,7 +55,25 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
         label: 'Cerrar Sesión',
         icon: 'pi pi-power-off',
         command: () => {
-          this.auth.logout();
+          this.confirmationService.confirm({
+            message: '¿Estás seguro de que quieres cerrar tu sesión?',
+            header: 'Cerrar Sesión',
+            icon: 'pi pi-exclamation-triangle',
+            rejectLabel: 'Cancelar',
+            rejectButtonProps: {
+              label: 'Cancelar',
+              severity: 'secondary',
+              outlined: true
+            },
+            acceptLabel: 'Sí, Salir',
+            acceptButtonProps: {
+              label: 'Sí, Salir',
+              severity: 'danger'
+            },
+            accept: () => {
+              this.auth.logout();
+            }
+          });
         }
       }
     ];

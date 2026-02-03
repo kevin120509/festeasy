@@ -74,9 +74,19 @@
             <div class="space-y-1">
               <label class="text-xs font-black text-slate-400 uppercase tracking-widest pl-1">Teléfono</label>
               <input type="tel" [value]="formData().telefono"
-                (input)="updateField('telefono', $any($event.target).value)"
+                (input)="updateField('telefono', $any($event.target).value.replace(/[^0-9]/g, ''))" maxlength="12"
                 class="w-full bg-slate-50 border-none rounded-2xl px-5 py-4 font-semibold text-slate-700 focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                placeholder="10 dígitos">
+                [class.ring-2]="formData().telefono.length > 0 && (formData().telefono.length < 10 || formData().telefono.length > 12)"
+                [class.ring-red-500]="formData().telefono.length > 0 && (formData().telefono.length < 10 || formData().telefono.length > 12)"
+                placeholder="10 a 12 dígitos">
+
+              @if (formData().telefono.length > 0 && (formData().telefono.length < 10 || formData().telefono.length>
+                12)) {
+                <p class="text-[10px] text-red-500 font-bold pl-1 flex items-center gap-1">
+                  <span class="material-symbols-outlined text-xs">error</span>
+                  Debe tener entre 10 y 12 dígitos
+                </p>
+                }
             </div>
           </div>
         </div>

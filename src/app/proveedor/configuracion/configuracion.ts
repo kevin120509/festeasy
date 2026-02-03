@@ -2,6 +2,9 @@ import { Component, signal, inject, OnInit, OnDestroy, AfterViewInit } from '@an
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
@@ -13,7 +16,7 @@ import { ProviderProfile } from '../../models';
 @Component({
     selector: 'app-proveedor-configuracion',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink],
+    imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogModule, ToastModule],
     templateUrl: './configuracion.html',
     styleUrl: './configuracion.css'
 })
@@ -24,6 +27,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     supabaseData = inject(SupabaseDataService);
     subscriptionService = inject(SubscriptionService);
     router = inject(Router);
+    confirmationService = inject(ConfirmationService);
+    messageService = inject(MessageService);
 
     profile = signal<ProviderProfile | null>(null);
     loading = signal(false);
@@ -40,11 +45,16 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
         nombre_negocio: '',
         descripcion: '',
         telefono: '',
+        correo_contacto: '', // Nuevo campo
         ubicacion: '',
         latitud: 0,
         longitud: 0,
         radio_cobertura_km: 10,
-        avatar_url: ''
+        avatar_url: '',
+        // Datos bancarios
+        banco: '',
+        titular: '',
+        clabe: ''
     });
 
     ngOnInit() {
@@ -65,18 +75,29 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
         this.api.getProviderProfile(userId).subscribe({
             next: (profile) => {
                 this.profile.set(profile);
-                const ubicacion = profile.latitud && profile.longitud
-                    ? `${profile.direccion_formato || ''} (${profile.latitud}, ${profile.longitud})`
-                    : profile.direccion_formato || '';
+                const rawUbicacion = profile.direccion_formato || '';
+                // Limpiar coordenadas repetidas si existen en la cadena guardada
+                const cleanUbicacion = rawUbicacion.split(' (')[0].trim();
+
+                // Formatear para mostrar una sola vez las coordenadas actuales
+                const ubicacionDisplay = profile.latitud && profile.longitud
+                    ? `${cleanUbicacion} (${profile.latitud}, ${profile.longitud})`
+                    : cleanUbicacion;
+
+                const bankData = profile.datos_bancarios_json || {};
                 this.formData.set({
                     nombre_negocio: profile.nombre_negocio || '',
                     descripcion: profile.descripcion || '',
                     telefono: profile.telefono || '',
-                    ubicacion: ubicacion,
+                    correo_contacto: bankData.email_contacto_publico || bankData.correo_contacto || profile.correo_electronico || '',
+                    ubicacion: ubicacionDisplay,
                     latitud: profile.latitud || 0,
                     longitud: profile.longitud || 0,
                     radio_cobertura_km: profile.radio_cobertura_km || 10,
-                    avatar_url: profile.avatar_url || ''
+                    avatar_url: profile.avatar_url || '',
+                    banco: bankData.banco || '',
+                    titular: bankData.titular || '',
+                    clabe: bankData.clabe || ''
                 });
                 this.loading.set(false);
             },
@@ -159,6 +180,13 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
         this.successMessage.set('');
 
         const formData = this.formData();
+
+        // Validaciones Manuales
+        if (formData.telefono && (formData.telefono.length < 10 || formData.telefono.length > 12)) {
+            this.errorMessage.set('El teléfono debe tener entre 10 y 12 dígitos');
+            this.saving.set(false);
+            return;
+        }
         const data = {
             nombre_negocio: formData.nombre_negocio,
             descripcion: formData.descripcion,
@@ -168,7 +196,13 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
             longitud: formData.longitud,
             radio_cobertura_km: formData.radio_cobertura_km,
             avatar_url: formData.avatar_url,
-            usuario_id: userId
+            // Guardamos el correo de contacto y datos bancarios en el JSON para evitar conflictos de schema
+            datos_bancarios_json: {
+                banco: formData.banco,
+                titular: formData.titular,
+                clabe: formData.clabe,
+                email_contacto_publico: formData.correo_contacto // Usamos un nombre más explícito para el JSON
+            }
         };
         this.api.updateProviderProfile(this.profile()!.id, data).subscribe({
             next: async (updatedProfile) => {
@@ -253,13 +287,31 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     }
 
     async logout() {
-        try {
-            await this.auth.logout();
-            this.router.navigate(['/login']);
-        } catch (error) {
-            console.error('Error during logout:', error);
-            this.errorMessage.set('Error al cerrar sesión');
-        }
+        this.confirmationService.confirm({
+            message: '¿Estás seguro de que quieres cerrar tu sesión?',
+            header: 'Cerrar Sesión',
+            icon: 'pi pi-exclamation-triangle',
+            rejectLabel: 'Cancelar',
+            rejectButtonProps: {
+                label: 'Cancelar',
+                severity: 'secondary',
+                outlined: true
+            },
+            acceptLabel: 'Sí, Salir',
+            acceptButtonProps: {
+                label: 'Sí, Salir',
+                severity: 'danger'
+            },
+            accept: async () => {
+                try {
+                    await this.auth.logout();
+                    this.router.navigate(['/login']);
+                } catch (error) {
+                    console.error('Error during logout:', error);
+                    this.errorMessage.set('Error al cerrar sesión');
+                }
+            }
+        });
     }
 
     async updateField(field: string, value: any) {
@@ -314,7 +366,7 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
 
             const script = document.createElement('script');
             script.id = 'paypal-sdk';
-            script.src = `https://www.paypal.com/sdk/js?client-id=${environment.paypalClientId}&currency=MXN`;
+            script.src = `https://www.paypal.com/sdk/js?client-id=${environment.paypalClientId}&currency=MXN&locale=es_MX&buyer-country=MX`;
             script.onload = () => resolve();
             script.onerror = (err) => {
                 console.error('PayPal SDK Load Error:', err);
