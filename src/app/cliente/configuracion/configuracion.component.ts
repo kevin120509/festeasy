@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ConfirmationService } from 'primeng/api';
 import { HeaderComponent } from '../../shared/header/header';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
@@ -19,6 +20,7 @@ export class ClienteConfiguracionComponent implements OnInit {
     private api = inject(ApiService);
     private supabase = inject(SupabaseService);
     private router = inject(Router);
+    private confirmationService = inject(ConfirmationService);
 
     profile = signal<ClientProfile | null>(null);
     loading = signal(false);
@@ -101,7 +103,16 @@ export class ClienteConfiguracionComponent implements OnInit {
         this.successMessage.set('');
         this.errorMessage.set('');
 
-        this.api.updateClientProfile(this.profile()!.id, this.formData()).subscribe({
+        const formData = this.formData();
+
+        // Validaciones Manuales
+        if (formData.telefono && (formData.telefono.length < 10 || formData.telefono.length > 12)) {
+            this.errorMessage.set('El teléfono debe tener entre 10 y 12 dígitos');
+            this.saving.set(false);
+            return;
+        }
+
+        this.api.updateClientProfile(this.profile()!.id, formData).subscribe({
             next: async (updated) => {
                 this.profile.set(updated);
                 await this.auth.refreshUserProfile();
@@ -118,12 +129,30 @@ export class ClienteConfiguracionComponent implements OnInit {
     }
 
     async cerrarSesion() {
-        try {
-            await this.auth.logout();
-            this.router.navigate(['/login']);
-        } catch (err) {
-            console.error('Error cerrando sesión:', err);
-        }
+        this.confirmationService.confirm({
+            message: '¿Estás seguro de que quieres cerrar tu sesión?',
+            header: 'Cerrar Sesión',
+            icon: 'pi pi-exclamation-triangle',
+            rejectLabel: 'Cancelar',
+            rejectButtonProps: {
+                label: 'Cancelar',
+                severity: 'secondary',
+                outlined: true
+            },
+            acceptLabel: 'Sí, Salir',
+            acceptButtonProps: {
+                label: 'Sí, Salir',
+                severity: 'danger'
+            },
+            accept: async () => {
+                try {
+                    await this.auth.logout();
+                    this.router.navigate(['/login']);
+                } catch (err) {
+                    console.error('Error cerrando sesión:', err);
+                }
+            }
+        });
     }
 
     updateField(field: string, value: any) {

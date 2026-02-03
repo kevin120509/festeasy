@@ -49,10 +49,20 @@ import { MenuItem } from 'primeng/api';
     }
     :host ::ng-deep .menu-container.mini .p-menuitem-text {
       display: none !important;
+      width: 0 !important;
+      opacity: 0 !important;
+      overflow: hidden !important;
+    }
+    :host ::ng-deep .menu-container.mini .p-menuitem-link {
+      justify-content: center !important;
+      padding: 12px 0 !important;
     }
     :host ::ng-deep .menu-container.mini .p-menuitem-icon {
       margin-right: 0 !important;
       font-size: 1.4rem !important;
+    }
+    :host ::ng-deep .menu-container.mini .p-menu {
+      padding: 0 !important;
     }
   `]
 })

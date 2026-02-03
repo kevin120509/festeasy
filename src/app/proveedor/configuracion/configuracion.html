@@ -1,3 +1,5 @@
+<p-toast></p-toast>
+
 <div class="flex-1 min-h-screen">
     <main class="p-8 max-w-5xl mx-auto">
         <!-- Mensajes de éxito/error -->
@@ -101,9 +103,82 @@
                             Teléfono de Contacto
                         </label>
                         <input type="tel" id="telefono" [value]="formData().telefono"
-                            (input)="updateField('telefono', $any($event.target).value)"
+                            (input)="updateField('telefono', $any($event.target).value.replace(/[^0-9]/g, ''))"
+                            maxlength="12"
                             class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
-                            placeholder="Ej: +52 123 456 7890" />
+                            [class.border-red-500]="formData().telefono.length > 0 && (formData().telefono.length < 10 || formData().telefono.length > 12)"
+                            placeholder="Ej: 521234567890" />
+
+                        <!-- Mensaje de validación -->
+                        <div *ngIf="formData().telefono.length > 0 && (formData().telefono.length < 10 || formData().telefono.length > 12)"
+                            class="text-xs text-red-500 flex items-center gap-1 mt-1">
+                            <span class="material-icons-outlined text-sm">error_outline</span>
+                            El teléfono debe tener entre 10 y 12 dígitos. Actual: {{ formData().telefono.length }}
+                        </div>
+                        <p class="text-[10px] text-slate-400">Solo números permitidos. Mínimo 10, máximo 12 dígitos.</p>
+                    </div>
+
+                    <!-- Correo de Contacto -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="correo_contacto">
+                            Correo de Contacto Público
+                        </label>
+                        <input type="email" id="correo_contacto" [value]="formData().correo_contacto"
+                            (input)="updateField('correo_contacto', $any($event.target).value)"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
+                            placeholder="Ej: contacto@negocio.com" />
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Este correo será visible para los clientes
+                            en tu perfil.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Banking Data -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-gray-700">
+                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-outlined text-primary">account_balance</span>
+                        Datos para Recibir Pagos
+                    </h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Información bancaria para tus
+                        transferencias de liquidación</p>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Banco -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="banco">
+                                Institución Bancaria
+                            </label>
+                            <input type="text" id="banco" [value]="formData().banco"
+                                (input)="updateField('banco', $any($event.target).value)"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
+                                placeholder="Ej: BBVA, Santander..." />
+                        </div>
+                        <!-- Titular -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="titular">
+                                Nombre del Titular
+                            </label>
+                            <input type="text" id="titular" [value]="formData().titular"
+                                (input)="updateField('titular', $any($event.target).value)"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
+                                placeholder="Nombre completo" />
+                        </div>
+                    </div>
+                    <!-- CLABE -->
+                    <div class="space-y-2">
+                        <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="clabe">
+                            Cuenta CLABE (18 dígitos)
+                        </label>
+                        <input type="text" id="clabe" [value]="formData().clabe"
+                            (input)="updateField('clabe', $any($event.target).value.replace(/[^0-9]/g, ''))"
+                            maxlength="18"
+                            class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white font-mono"
+                            placeholder="0000 0000 0000 0000 00" />
+                        <p class="text-xs text-slate-500 dark:text-slate-400 italic">Esta información se usará
+                            únicamente para procesar tus pagos de eventos finalizados.</p>
                     </div>
                 </div>
             </div>
@@ -123,21 +198,22 @@
                         <label class="text-sm font-semibold text-slate-700 dark:text-slate-300" for="ubicacion">
                             Ubicación
                         </label>
-                        <div class="location-fields">
+                        <div class="flex items-center gap-2">
                             <input type="text" id="ubicacion" [value]="formData().ubicacion"
                                 (input)="updateField('ubicacion', $any($event.target).value)"
                                 class="flex-1 px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none text-slate-800 dark:text-white"
                                 placeholder="Ciudad de México o coordenadas GPS" />
-                            <button type="button" class="btn-location" (click)="detectLocation()"
-                                [disabled]="detectingLocation()" title="Detectar ubicación actual">
-                                @if (!detectingLocation()) {
-                                <span class="material-icons-outlined">location_on</span>
-                                } @else {
-                                <span class="material-icons-outlined animate-spin">sync</span>
-                                }
+                            <button type="button"
+                                class="p-3 bg-primary text-white rounded-xl hover:bg-red-600 transition-colors disabled:opacity-50"
+                                (click)="detectLocation()" [disabled]="detectingLocation()"
+                                title="Detectar ubicación actual">
+                                <span class="material-icons-outlined" [class.animate-spin]="detectingLocation()">
+                                    {{ detectingLocation() ? 'sync' : 'location_on' }}
+                                </span>
                             </button>
                         </div>
-                        <p class="location-help">Haz click en el ícono para detectar tu ubicación automáticamente</p>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Haz click en el ícono para detectar tu
+                            ubicación automáticamente</p>
                     </div>
 
                     <!-- Radio de Cobertura -->
@@ -176,13 +252,12 @@
                             de pago</p>
                     </div>
                     <!-- Badge del Plan Actual -->
-                    <div class="flex items-center gap-2 px-4 py-2 rounded-full border" [class]="subscriptionService.currentPlan() === 'plus' 
-                            ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 text-amber-800' 
-                            : 'bg-slate-50 border-slate-200 text-slate-600'">
+                    <div class="flex items-center gap-2 px-4 py-2 rounded-full border"
+                        [class]="subscriptionService.currentPlan() === 'basico' ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 text-amber-800'">
                         <span class="text-xs font-bold uppercase tracking-wide">Plan Actual:</span>
                         <span class="text-sm font-black capitalize flex items-center gap-1">
                             {{ subscriptionService.currentPlan() }}
-                            <i *ngIf="subscriptionService.currentPlan() === 'plus'"
+                            <i *ngIf="subscriptionService.currentPlan() !== 'basico'"
                                 class="pi pi-prime text-amber-600"></i>
                         </span>
                     </div>
@@ -203,13 +278,13 @@
                                         <i class="pi pi-check-circle text-emerald-500 text-xl mt-0.5"></i>
                                         <div>
                                             <span class="block font-semibold text-slate-700 dark:text-slate-200">
-                                                {{ subscriptionService.limits().maxPackets === 100 ? 'Paquetes
+                                                {{ subscriptionService.limits().maxPackets >= 999 ? 'Paquetes
                                                 Ilimitados' : subscriptionService.limits().maxPackets + ' Paquetes
                                                 Activos' }}
                                             </span>
                                             <span class="text-sm text-slate-500">
-                                                {{ subscriptionService.currentPlan() === 'plus' ? 'Crea tantos servicios
-                                                como necesites.' : 'Ideal para empezar a vender.' }}
+                                                {{ subscriptionService.currentPlan() === 'premium' ? 'Crea tantos
+                                                servicios como necesites.' : 'Ideal para tu etapa actual.' }}
                                             </span>
                                         </div>
                                     </li>
@@ -221,7 +296,8 @@
                                         <div>
                                             <span class="block font-semibold"
                                                 [class]="subscriptionService.limits().badge ? 'text-slate-700 dark:text-slate-200' : 'text-slate-400'">
-                                                Distintivo "Proveedor Plus"
+                                                Distintivo "Proveedor {{ subscriptionService.currentPlan() | titlecase
+                                                }}"
                                             </span>
                                         </div>
                                     </li>
@@ -244,8 +320,8 @@
                         <!-- Columna 2: Acción / Upgrade -->
                         <div class="p-8 bg-slate-50/50 dark:bg-gray-800/50 flex flex-col justify-center">
 
-                            <!-- CASO 1: Usuario BASIC (Mostrar Upgrade) -->
-                            @if (subscriptionService.currentPlan() === 'basico') {
+                            <!-- CASO 1: Usuario NO Premium (Mostrar Upgrade) -->
+                            @if (subscriptionService.currentPlan() !== 'premium') {
                             <div
                                 class="bg-white dark:bg-gray-800 rounded-xl border border-amber-200 dark:border-amber-700/50 shadow-lg shadow-amber-100/50 dark:shadow-none overflow-hidden relative">
                                 <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500">
@@ -254,13 +330,19 @@
                                 <div class="p-6">
                                     <div class="flex justify-between items-start mb-4">
                                         <div>
-                                            <h4 class="text-lg font-bold text-slate-800 dark:text-white">Pásate a Plus
+                                            <h4 class="text-lg font-bold text-slate-800 dark:text-white">
+                                                {{ subscriptionService.currentPlan() === 'basico' ? 'Mejora a Pro' :
+                                                'Sube a Premium' }}
                                             </h4>
-                                            <p class="text-sm text-slate-500">Desbloquea todo el potencial</p>
+                                            <p class="text-sm text-slate-500">
+                                                {{ subscriptionService.currentPlan() === 'basico' ? 'Dobla tu capacidad'
+                                                : 'Sin límites para tu agencia' }}
+                                            </p>
                                         </div>
                                         <div class="text-right">
-                                            <span
-                                                class="block text-2xl font-black text-slate-800 dark:text-white">$199</span>
+                                            <span class="block text-2xl font-black text-slate-800 dark:text-white">
+                                                ${{ subscriptionService.currentPlan() === 'basico' ? '900' : '1500' }}
+                                            </span>
                                             <span class="text-xs text-slate-400">/ mes</span>
                                         </div>
                                     </div>
@@ -280,29 +362,21 @@
                                             <p class="text-[10px] text-red-600">Por favor desactiva el bloqueo de
                                                 anuncios para ver las opciones de pago.</p>
                                         </div>
-
-                                        <p *ngIf="!paypalBlocked()"
-                                            class="text-center text-[10px] text-slate-400 mt-3 flex items-center justify-center gap-1">
-                                            <span class="material-icons-outlined text-[12px]">lock</span>
-                                            Pago procesado de forma segura por PayPal
-                                        </p>
                                     </div>
                                 </div>
                             </div>
                             }
 
-                            <!-- CASO 2: Usuario PLUS (Mostrar Estado Activo) -->
-                            @if (subscriptionService.currentPlan() === 'plus') {
+                            <!-- CASO 2: Usuario PREMIUM (Mostrar Estado Activo) -->
+                            @if (subscriptionService.currentPlan() === 'premium') {
                             <div class="text-center space-y-4 py-4">
                                 <div
                                     class="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-2">
                                     <span class="material-icons-outlined text-3xl">verified</span>
                                 </div>
-                                <h4 class="text-xl font-bold text-slate-800 dark:text-white">¡Gracias por tu confianza!
-                                </h4>
+                                <h4 class="text-xl font-bold text-slate-800 dark:text-white">¡Plan Premium Activo!</h4>
                                 <p class="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto">
-                                    Tu suscripción Plus está activa. Disfruta de paquetes ilimitados y mayor
-                                    visibilidad.
+                                    Disfrutas de todos los beneficios desbloqueados y máxima visibilidad.
                                 </p>
                             </div>
                             }

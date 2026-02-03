@@ -8,7 +8,7 @@ import Aura from '@primeuix/themes/aura';
 import { registerLocaleData } from '@angular/common';
 import localeEs from '@angular/common/locales/es';
 
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 
 import { routes } from './app.routes';
 
@@ -40,6 +40,7 @@ export const appConfig: ApplicationConfig = {
         provideHttpClient(),
         provideAnimationsAsync(),
         ConfirmationService,
+        MessageService,
         providePrimeNG({
             theme: {
                 preset: MyPreset,

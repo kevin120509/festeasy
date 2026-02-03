@@ -95,8 +95,8 @@ export class ProveedorDashboardComponent implements OnInit {
             // 5. Calcular próxima cita
             this.calcularProximaCita(solicitudes);
 
-            // 6. Opcional: Obtener ganancias desde tabla pagos
-            await this.calcularGanancias(user.id);
+            // 6. Calcular ganancias desde solicitudes
+            this.calcularGanancias(solicitudes);
 
             // 7. Obtener estadísticas de reseñas
             this.cargarEstadisticasResenas(user.id);
@@ -152,7 +152,7 @@ export class ProveedorDashboardComponent implements OnInit {
         // Eventos confirmados: estado 'reservado', 'pagado', etc.
         const confirmados = solicitudes.filter(s => {
             const estado = s.estado?.toLowerCase();
-            return ['reservado', 'pagado', 'en_progreso', 'aceptado', 'confirmado'].includes(estado);
+            return ['reservado', 'pagado', 'en_progreso', 'aceptado', 'confirmado', 'finalizado', 'entregado_pendiente_liq'].includes(estado);
         }).length;
 
         this.stats.update(stats => ({
@@ -268,21 +268,26 @@ export class ProveedorDashboardComponent implements OnInit {
      * Calcular ganancias totales desde la tabla pagos
      * (Si la tabla pagos existe en tu BD)
      */
-    private async calcularGanancias(providerId: string) {
+    private calcularGanancias(solicitudes: any[]) {
         try {
-            // Esta consulta asume que tienes una tabla 'pagos' con una columna 'proveedor_id' y 'monto'
-            // Si no tienes esta tabla, puedes comentar este método o calcular desde solicitudes
-
-            // Por ahora, simulamos las ganancias sumando los montos de solicitudes confirmadas
-            const solicitudes = this.solicitudesRecientes();
+            // Calculamos las ganancias sumando los montos de solicitudes confirmadas o finalizadas
             const gananciasTotales = solicitudes
-                .filter(s => s.estado === 'reservado')
-                .reduce((sum, s) => sum + (s.monto || 0), 0);
+                .filter(s => {
+                    const estado = s.estado?.toLowerCase();
+                    // Incluimos todos los estados que representen una venta efectiva
+                    return ['reservado', 'pagado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado'].includes(estado);
+                })
+                .reduce((sum, s) => {
+                    const monto = Number(s.monto_total) || Number(s.monto) || 0;
+                    return sum + monto;
+                }, 0);
 
             this.stats.update(stats => ({
                 ...stats,
                 gananciasTotales: gananciasTotales
             }));
+
+            console.log('💰 Ganancias calculadas:', gananciasTotales);
 
             // TODO: Implementar consulta real a tabla 'pagos' cuando esté disponible
             // const { data, error } = await this.supabase
