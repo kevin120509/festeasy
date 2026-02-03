@@ -446,6 +446,72 @@ export class ApiService {
         );
     }
 
+    /**
+     * Cancelar una solicitud
+     * @param solicitudId - ID de la solicitud a cancelar
+     * @param motivo - Motivo de la cancelación
+     * @param userId - ID del usuario que cancela (cliente o proveedor)
+     * @returns Observable con la solicitud actualizada
+     */
+    cancelarSolicitud(solicitudId: string, motivo: string, userId: string): Observable<any> {
+        console.log('🚫 Cancelando solicitud:', { solicitudId, motivo, userId });
+
+        // Primero verificar el estado actual de la solicitud
+        return from(
+            this.supabase
+                .from('solicitudes')
+                .select('estado')
+                .eq('id', solicitudId)
+                .single()
+        ).pipe(
+            switchMap((res: any) => {
+                if (res.error) {
+                    console.error('❌ Error al verificar solicitud:', res.error);
+                    throw res.error;
+                }
+
+                const estadoActual = res.data?.estado;
+                console.log('🔍 Estado actual de la solicitud:', estadoActual);
+
+                // Validar que no esté en estado finalizado o en progreso
+                if (estadoActual === 'finalizado' || estadoActual === 'en_progreso') {
+                    const error = new Error(
+                        `No se puede cancelar una solicitud en estado '${estadoActual}'. Solo se pueden cancelar solicitudes pendientes o reservadas.`
+                    );
+                    console.error('❌ Validación fallida:', error.message);
+                    return throwError(() => error);
+                }
+
+                // Proceder con la cancelación
+                const updateData = {
+                    estado: 'cancelada',
+                    motivo_cancelacion: motivo,
+                    cancelado_por_id: userId,
+                    fecha_cancelacion: new Date().toISOString(),
+                    actualizado_en: new Date().toISOString()
+                };
+
+                console.log('📝 Actualizando solicitud con datos:', updateData);
+
+                return this.fromSupabase(
+                    this.supabase
+                        .from('solicitudes')
+                        .update(updateData)
+                        .eq('id', solicitudId)
+                        .select()
+                        .single()
+                );
+            }),
+            tap((result: any) => {
+                console.log('✅ Solicitud cancelada exitosamente:', result);
+            }),
+            catchError(error => {
+                console.error('❌ Error en cancelarSolicitud:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
     // ... (Agregando los demás métodos necesarios para que compile el resto de la app)
     updateProviderProfile(id: string, data: any): Observable<any> { return this.fromSupabase(this.supabase.from('perfil_proveedor').update(data).eq('id', id).select().single()); }
 

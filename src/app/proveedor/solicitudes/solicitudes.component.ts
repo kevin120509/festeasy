@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
@@ -32,7 +33,7 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin, AvatarModule],
+    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin, AvatarModule, ConfirmDialogModule],
     providers: [ConfirmationService],
     templateUrl: './solicitudes.html'
 })
@@ -260,5 +261,97 @@ export class SolicitudesComponent implements OnInit {
      */
     formatearFechaCompleta(fechaServicio: string): string {
         return formatearFechaEvento(fechaServicio);
+    }
+
+    /**
+     * 🚫 Confirmar y ejecutar la cancelación de una solicitud
+     * Muestra un diálogo para que el proveedor ingrese el motivo de cancelación
+     */
+    confirmarCancelacion(solicitud: SolicitudProveedor) {
+        // Validar que la solicitud no esté en estado finalizado, cancelada o rechazada
+        if (['finalizado', 'cancelada', 'rechazada'].includes(solicitud.estado)) {
+            this.mensajeError.set('No se puede cancelar una solicitud en este estado');
+            setTimeout(() => this.mensajeError.set(''), 3000);
+            return;
+        }
+
+        let motivoCancelacion = '';
+
+        this.confirmationService.confirm({
+            message: `
+                <div class="space-y-3">
+                    <p class="text-slate-700 font-medium">¿Estás seguro de cancelar el servicio para <strong>${solicitud.cliente_nombre}</strong>?</p>
+                    <p class="text-sm text-slate-500">Esta acción notificará al cliente y no se podrá revertir.</p>
+                    <div class="mt-4">
+                        <label for="motivo-cancelacion" class="block text-sm font-semibold text-slate-700 mb-2">
+                            Motivo de cancelación <span class="text-red-500">*</span>
+                        </label>
+                        <textarea 
+                            id="motivo-cancelacion" 
+                            rows="3"
+                            placeholder="Explica brevemente por qué cancelas este servicio..."
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                        ></textarea>
+                    </div>
+                </div>
+            `,
+            header: '⚠️ Cancelar Servicio',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí, cancelar servicio',
+            rejectLabel: 'No, mantener',
+            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+            accept: () => {
+                // Obtener el motivo del textarea
+                const textarea = document.getElementById('motivo-cancelacion') as HTMLTextAreaElement;
+                motivoCancelacion = textarea?.value?.trim() || '';
+
+                // Validar que se haya ingresado un motivo
+                if (!motivoCancelacion) {
+                    this.mensajeError.set('Debes proporcionar un motivo para la cancelación');
+                    setTimeout(() => this.mensajeError.set(''), 3000);
+                    return;
+                }
+
+                // Obtener el ID del usuario actual
+                const currentUser = this.auth.currentUser();
+                if (!currentUser?.id) {
+                    this.mensajeError.set('Error: No se pudo identificar al usuario');
+                    setTimeout(() => this.mensajeError.set(''), 3000);
+                    return;
+                }
+
+                // Ejecutar la cancelación
+                this.procesando.set(solicitud.id);
+
+                this.api.cancelarSolicitud(solicitud.id, motivoCancelacion, currentUser.id).subscribe({
+                    next: (resultado) => {
+                        console.log('✅ Solicitud cancelada:', resultado);
+
+                        // Actualizar la lista local
+                        this.solicitudes.update(list =>
+                            list.map(s => s.id === solicitud.id ? { ...s, estado: 'cancelada' as const } : s)
+                        );
+
+                        this.procesando.set(null);
+                        this.mensajeExito.set('Servicio cancelado correctamente');
+                        setTimeout(() => this.mensajeExito.set(''), 3000);
+
+                        // Recargar la lista completa para asegurar sincronización
+                        this.cargarSolicitudes();
+                    },
+                    error: (err) => {
+                        console.error('❌ Error cancelando solicitud:', err);
+
+                        // Mostrar mensaje de error específico si está disponible
+                        const errorMsg = err?.message || 'Error al cancelar el servicio';
+                        this.mensajeError.set(errorMsg);
+                        setTimeout(() => this.mensajeError.set(''), 5000);
+
+                        this.procesando.set(null);
+                    }
+                });
+            }
+        });
     }
 }
