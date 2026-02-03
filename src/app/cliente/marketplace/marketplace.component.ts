@@ -155,23 +155,34 @@ export class MarketplaceComponent implements OnInit {
                 ubicacion: p.direccion_formato || 'Ciudad de México',
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
                 distancia: distancia,
-                disponible: true
+                disponible: true,
+                tipoSuscripcion: (p.tipo_suscripcion_actual || 'basico').toLowerCase()
             };
         });
 
-        // Ordenar por distancia y disponibilidad
-        if (evento?.coords) {
-            procesados.sort((a, b) => {
-                // Primero disponibles
-                if (a.disponible !== b.disponible) {
-                    return a.disponible ? -1 : 1;
-                }
+        // Ordenar: Disponibilidad > Prioridad Suscripción > Distancia
+        procesados.sort((a, b) => {
+            // 1. Disponibilidad primero
+            if (a.disponible !== b.disponible) {
+                return a.disponible ? -1 : 1;
+            }
+
+            // 2. Prioridad de Suscripción (Premium > Pro > Básico)
+            const weights: any = { 'premium': 3, 'pro': 2, 'basico': 1 };
+            const weightA = weights[a.tipoSuscripcion] || 1;
+            const weightB = weights[b.tipoSuscripcion] || 1;
+
+            if (weightA !== weightB) {
+                return weightB - weightA;
+            }
+
+            // 3. Por distancia si hay coordenadas
+            if (evento?.coords) {
                 return a.distancia - b.distancia;
-            });
-        } else {
-            // Solo por disponibilidad
-            procesados.sort((a, b) => (a.disponible === b.disponible ? 0 : a.disponible ? -1 : 1));
-        }
+            }
+
+            return 0;
+        });
 
         this.providers.set(procesados);
     }

@@ -8,7 +8,12 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <header class="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 flex items-center justify-end sticky top-0 z-40">
+    <header class="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 flex items-center justify-between lg:justify-end sticky top-0 z-40">
+      <!-- Logo solo en móvil (se oculta en desktop ya que está el sidebar) -->
+      <a routerLink="/" class="flex items-center gap-2 lg:hidden">
+        <img src="assets/festeasy.png" alt="FESTEASY" class="h-8 w-auto object-contain">
+      </a>
+
       <!-- Perfil Usuario (alineado a la derecha) -->
       <div class="flex items-center gap-3">
         <div class="hidden sm:block text-right">

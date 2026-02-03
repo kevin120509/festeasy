@@ -6,17 +6,24 @@ import { MenuComponent } from '../../shared/menu/menu.component';
 import { HeaderDashboardComponent } from '../../shared/header-dashboard/header-dashboard.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
+import { signal, OnDestroy } from '@angular/core';
+import { filter, Subscription } from 'rxjs';
+import { NavigationEnd } from '@angular/router';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-proveedor-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, RouterLink, RouterLinkActive],
   templateUrl: './proveedor-layout.component.html',
 })
-export class ProveedorLayoutComponent implements OnInit {
+export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
   private router = inject(Router);
+  private confirmationService = inject(ConfirmationService);
   items: MenuItem[] = [];
+  isSidebarExpanded = signal(true);
+  private routerSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.items = [
@@ -47,17 +54,57 @@ export class ProveedorLayoutComponent implements OnInit {
         label: 'Cerrar Sesión',
         icon: 'pi pi-power-off',
         command: () => {
-          this.auth.logout();
+          this.confirmationService.confirm({
+            message: '¿Estás seguro de que quieres cerrar tu sesión?',
+            header: 'Cerrar Sesión',
+            icon: 'pi pi-exclamation-triangle',
+            rejectLabel: 'Cancelar',
+            rejectButtonProps: {
+              label: 'Cancelar',
+              severity: 'secondary',
+              outlined: true
+            },
+            acceptLabel: 'Sí, Salir',
+            acceptButtonProps: {
+              label: 'Sí, Salir',
+              severity: 'danger'
+            },
+            accept: () => {
+              this.auth.logout();
+            }
+          });
         }
       }
     ];
+
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      // Logic for mobile closing if needed
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(_event: any) { }
 
-  get isTablet(): boolean {
-    return window.innerWidth > 768 && window.innerWidth <= 1024;
+  get isMobile(): boolean {
+    return window.innerWidth <= 1024;
+  }
+
+  get isCompact(): boolean {
+    // Si el usuario lo colapsó manualmente
+    if (!this.isSidebarExpanded()) return true;
+
+    // Alinear con el nuevo media query de CSS (1440px) para auto-colapso
+    return window.innerWidth > 1024 && window.innerWidth <= 1440;
+  }
+
+  toggleSidebar() {
+    this.isSidebarExpanded.set(!this.isSidebarExpanded());
   }
 
   navigateToItem(item: any) {

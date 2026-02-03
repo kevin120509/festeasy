@@ -173,13 +173,16 @@
         color: var(--color-success);
         margin-right: 8px;
     }
+
     @media (max-width: 600px) {
         .registro-container {
             padding: 20px;
         }
+
         .registro-card {
             padding: 24px;
         }
+
         .registro-header h1 {
             font-size: 24px;
         }
@@ -202,64 +205,148 @@
             <div class="error-message">{{ error }}</div>
             }
 
-            <form (ngSubmit)="register()">
-                <div class="form-group">
-                    <label for="nombreNegocio">Nombre del Negocio *</label>
-                    <input type="text" id="nombreNegocio" [(ngModel)]="nombreNegocio" name="nombreNegocio"
-                        placeholder="Ej: Sonic Audio Visuals" required />
-                </div>
+            <!-- STEP 1: INFORMACIÓN BÁSICA -->
+            <div *ngIf="step() === 1">
+                <form (ngSubmit)="nextStep()">
+                    <div class="form-group">
+                        <label for="nombreNegocio">Nombre del Negocio *</label>
+                        <input type="text" id="nombreNegocio" [(ngModel)]="nombreNegocio" name="nombreNegocio"
+                            placeholder="Ej: Sonic Audio Visuals" required />
+                    </div>
 
-                <div class="form-group">
-                    <label for="categoria">Categoría de Servicio *</label>
-                    <select id="categoria" [(ngModel)]="categoriaId" name="categoria" required>
-                        <option value="">Selecciona una categoría</option>
-                        @for (cat of categorias(); track cat.id) {
-                        <option [value]="cat.id">{{ cat.nombre }}</option>
-                        }
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="ubicacion">Ubicación</label>
-                    <div class="location-fields">
-                        <input type="text" id="ubicacion" [(ngModel)]="ubicacion" name="ubicacion"
-                            placeholder="Ciudad de México o coordenadas GPS" />
-                        <button type="button" 
-                            class="btn-location" 
-                            (click)="detectLocation()" 
-                            [disabled]="detectingLocation"
-                            title="Detectar ubicación actual">
-                            @if (!detectingLocation) {
-                            <span class="material-icons-outlined">location_on</span>
-                            } @else {
-                            <span class="material-icons-outlined animate-spin">sync</span>
+                    <div class="form-group">
+                        <label for="categoria">Categoría de Servicio *</label>
+                        <select id="categoria" [(ngModel)]="categoriaId" name="categoria" required>
+                            <option value="">Selecciona una categoría</option>
+                            @for (cat of categorias(); track cat.id) {
+                            <option [value]="cat.id">{{ cat.nombre }}</option>
                             }
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="ubicacion">Ubicación</label>
+                        <div class="location-fields">
+                            <input type="text" id="ubicacion" [(ngModel)]="ubicacion" name="ubicacion"
+                                placeholder="Ciudad de México o coordenadas GPS" />
+                            <button type="button" class="btn-location" (click)="detectLocation()"
+                                [disabled]="detectingLocation" title="Detectar ubicación actual">
+                                @if (!detectingLocation) {
+                                <span class="material-icons-outlined">location_on</span>
+                                } @else {
+                                <span class="material-icons-outlined animate-spin">sync</span>
+                                }
+                            </button>
+                        </div>
+                        <p class="location-help">Haz click en el ícono para detectar tu ubicación automáticamente</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Correo electrónico *</label>
+                        <input type="email" id="email" [(ngModel)]="email" name="email"
+                            placeholder="contacto@tunegocio.com" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Contraseña *</label>
+                        <input type="password" id="password" [(ngModel)]="password" name="password"
+                            placeholder="Mínimo 6 caracteres" required />
+                    </div>
+
+                    <button type="submit" class="btn-submit" [disabled]="loading">
+                        @if (loading) {
+                        <span class="material-icons-outlined animate-spin text-sm mr-2">sync</span>
+                        Verificando datos...
+                        } @else {
+                        Siguiente: Elegir Plan
+                        }
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 2: SELECCIÓN DE PLAN -->
+            <div *ngIf="step() === 2" class="plan-selection">
+                <div class="flex items-center gap-2 mb-6 cursor-pointer text-primary font-bold" (click)="prevStep()">
+                    <span class="material-icons-outlined">arrow_back</span>
+                    <span>Volver a mis datos</span>
+                </div>
+
+                <div class="space-y-4">
+                    @for (plan of planes(); track plan.id) {
+                    <div class="bg-white border-2 rounded-2xl p-6 transition-all cursor-pointer hover:border-primary group"
+                        [class.border-primary]="selectedPlan() === plan.id"
+                        [class.border-gray-100]="selectedPlan() !== plan.id" (click)="selectPlan(plan.id)">
+
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
+                                    [class]="plan.id === 'premium' ? 'bg-primary/10 text-primary' : (plan.id === 'pro' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600')">
+                                    <span class="material-icons-outlined text-3xl">{{ plan.icon }}</span>
+                                </div>
+                                <div>
+                                    <h3 class="font-black text-xl text-slate-800">{{ plan.nombre }}</h3>
+                                    <p class="text-sm text-slate-500">{{ plan.limite }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-2xl font-black text-slate-800">${{ plan.precio }}</span>
+                                <span class="text-xs text-slate-400 block">MXN/mes</span>
+                            </div>
+                        </div>
+
+                        <ul class="space-y-2 mb-6">
+                            @for (feature of plan.features; track feature) {
+                            <li class="flex items-center gap-2 text-sm text-slate-600">
+                                <span class="material-icons-outlined text-green-500 text-sm">check_circle</span>
+                                {{ feature }}
+                            </li>
+                            }
+                        </ul>
+
+                        <button class="w-full py-3 rounded-xl font-bold transition-all"
+                            [class]="selectedPlan() === plan.id ? 'bg-primary text-white' : 'bg-slate-50 text-slate-700 group-hover:bg-primary/5'">
+                            {{ selectedPlan() === plan.id ? 'Seleccionado' : (plan.precio > 0 ? 'Elegir Plan' : 'Empezar
+                            Gratis') }}
                         </button>
                     </div>
-                    <p class="location-help">Haz click en el ícono para detectar tu ubicación automáticamente</p>
+                    }
                 </div>
 
-                <div class="form-group">
-                    <label for="email">Correo electrónico *</label>
-                    <input type="email" id="email" [(ngModel)]="email" name="email" placeholder="contacto@tunegocio.com"
-                        required />
+                <!-- PayPal Payment Section -->
+                <div *ngIf="selectedPlan() && selectedPlan() !== 'basico'"
+                    class="mt-8 p-6 bg-slate-50 rounded-2xl border-2 border-amber-200 animate-in fade-in slide-in-from-bottom-4">
+                    <div class="text-center mb-6">
+                        <h4 class="font-bold text-slate-800">Finalizar Pago</h4>
+                        <p class="text-xs text-slate-500">Para activar el plan {{ selectedPlan() }} procesa tu pago
+                            seguro</p>
+                    </div>
+
+                    <div id="paypal-button-container" class="min-h-[150px]"></div>
+
+                    <div *ngIf="paypalBlocked()" class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
+                        <p class="text-xs font-bold text-red-700">Bloqueador detectado</p>
+                        <p class="text-[10px] text-red-600">Desactiva el Ad-block para ver PayPal.</p>
+                    </div>
+
+                    <p class="text-center text-[10px] text-slate-400 mt-4 flex items-center justify-center gap-1">
+                        <span class="material-icons-outlined text-[12px]">lock</span>
+                        Pago seguro vía PayPal
+                    </p>
                 </div>
 
-                <div class="form-group">
-                    <label for="password">Contraseña *</label>
-                    <input type="password" id="password" [(ngModel)]="password" name="password"
-                        placeholder="Mínimo 6 caracteres" required />
+                <!-- Loading Overlay for Payment -->
+                <div *ngIf="isPaying()"
+                    class="fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-50">
+                    <span class="material-icons-outlined animate-spin text-primary text-5xl mb-4">sync</span>
+                    <p class="font-bold text-slate-800">Procesando tu pago...</p>
+                    <p class="text-sm text-slate-500">No cierres esta ventana</p>
                 </div>
+            </div>
 
-                <button type="submit" class="btn-submit" [disabled]="loading">
-                    {{ loading ? 'Registrando...' : 'Empezar como Proveedor' }}
-                </button>
-            </form>
-
-            <div class="login-link">
+            <div class="login-link" *ngIf="step() === 1">
                 ¿Ya tienes cuenta? <a routerLink="/login">Iniciar sesión</a>
             </div>
-            
+
         </div>
     </div>
 </div>

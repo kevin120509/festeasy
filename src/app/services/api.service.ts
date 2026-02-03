@@ -216,7 +216,7 @@ export class ApiService {
         return this.fromSupabase(
             this.supabase
                 .from('perfil_proveedor')
-                .select('id, nombre_negocio, latitud, longitud, categoria_principal_id, avatar_url, descripcion, direccion_formato, usuario_id')
+                .select('id, nombre_negocio, latitud, longitud, categoria_principal_id, avatar_url, descripcion, direccion_formato, usuario_id, tipo_suscripcion_actual')
         );
     }
 
