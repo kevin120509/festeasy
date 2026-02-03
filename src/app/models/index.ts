@@ -126,6 +126,10 @@ export interface ServiceRequest {
     pin_validado_en?: string;
     pin_validacion?: string;
     fecha_validacion_pin?: string | Date;
+    // Campos para cancelaciones
+    cancelado_por_id?: string;
+    motivo_cancelacion?: string;
+    fecha_cancelacion?: string | Date;
     provider?: ProviderProfile; // Joined data
     cliente?: ClientProfile; // Joined data
     items?: RequestItem[]; // Joined data

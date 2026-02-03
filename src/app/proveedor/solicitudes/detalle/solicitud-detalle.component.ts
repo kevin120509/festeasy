@@ -2,20 +2,30 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
+import { AuthService } from '../../../services/auth.service';
 import { ServiceRequest, RequestItem } from '../../../models';
 import { ValidarPin } from '../../validar-pin/validar-pin';
 import { esDiaDelEvento, formatearFechaEvento } from '../../../utils/date.utils';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-solicitud-detalle',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule],
+    providers: [ConfirmationService],
     templateUrl: './solicitud-detalle.component.html'
 })
 export class SolicitudDetalleComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private api = inject(ApiService);
+    private confirmationService = inject(ConfirmationService);
+    private auth = inject(AuthService);
 
     solicitud = signal<ServiceRequest | null>(null);
     items = signal<RequestItem[]>([]);
@@ -26,6 +36,11 @@ export class SolicitudDetalleComponent implements OnInit {
     // Control del modal de validación de PIN
     mostrarModalPin = signal(false);
     solicitudSeleccionadaId = signal<string>('');
+
+    // 🚫 Control del diálogo de cancelación
+    displayCancelDialog: boolean = false;
+    motivoTemporal: string = '';
+    solicitudACancelar: ServiceRequest | null = null;
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');
@@ -150,5 +165,78 @@ export class SolicitudDetalleComponent implements OnInit {
             this.mensajeExito.set('Datos actualizados');
             setTimeout(() => this.mensajeExito.set(''), 2000);
         }
+    }
+
+    /**
+     * 🚫 Abrir diálogo de cancelación
+     */
+    confirmarCancelacion(): void {
+        const solicitud = this.solicitud();
+        if (!solicitud) return;
+
+        // Guardar la solicitud a cancelar y abrir el diálogo
+        this.solicitudACancelar = solicitud;
+        this.motivoTemporal = '';
+        this.displayCancelDialog = true;
+    }
+
+    /**
+     * 🚫 Ejecutar cancelación final con el motivo ingresado
+     */
+    ejecutarCancelacionFinal(): void {
+        const solicitud = this.solicitudACancelar;
+
+        if (!solicitud) {
+            this.displayCancelDialog = false;
+            return;
+        }
+
+        // Validar que el motivo no esté vacío
+        if (!this.motivoTemporal || this.motivoTemporal.trim() === '') {
+            this.mensajeError.set('Debes proporcionar un motivo para cancelar el servicio.');
+            setTimeout(() => this.mensajeError.set(''), 3000);
+            return;
+        }
+
+        // Obtener userId del AuthService
+        const userId = this.auth.currentUser()?.id;
+        if (!userId) {
+            this.mensajeError.set('No se pudo obtener la información del usuario.');
+            setTimeout(() => this.mensajeError.set(''), 3000);
+            this.displayCancelDialog = false;
+            return;
+        }
+
+        // Llamar al servicio de cancelación
+        this.api.cancelarSolicitud(solicitud.id, this.motivoTemporal.trim(), userId).subscribe({
+            next: (resultado) => {
+                console.log('✅ Servicio cancelado:', resultado);
+                this.mensajeExito.set('Servicio cancelado exitosamente');
+                setTimeout(() => this.mensajeExito.set(''), 3000);
+
+                // Cerrar diálogo y limpiar
+                this.displayCancelDialog = false;
+                this.motivoTemporal = '';
+                this.solicitudACancelar = null;
+
+                // Recargar datos para reflejar el cambio
+                this.refrescarDatos();
+            },
+            error: (err) => {
+                console.error('❌ Error al cancelar:', err);
+                this.mensajeError.set(err.error?.message || 'Error al cancelar el servicio');
+                setTimeout(() => this.mensajeError.set(''), 4000);
+                this.displayCancelDialog = false;
+            }
+        });
+    }
+
+    /**
+     * 🚫 Cerrar diálogo de cancelación
+     */
+    cerrarDialogoCancelacion(): void {
+        this.displayCancelDialog = false;
+        this.motivoTemporal = '';
+        this.solicitudACancelar = null;
     }
 }
