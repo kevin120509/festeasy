@@ -392,11 +392,14 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                 label: 'pay'
             },
             createOrder: (data: any, actions: any) => {
+                const planId = 'pro'; // O el que desees ofrecer como upgrade rápido
+                const amount = '900.00';
+
                 return actions.order.create({
                     purchase_units: [{
-                        description: 'Suscripción FestEasy Plan Plus',
+                        description: `Suscripción FestEasy Plan ${planId.toUpperCase()}`,
                         amount: {
-                            value: '199.00' // Precio fijo por ahora
+                            value: amount
                         }
                     }]
                 });
@@ -410,14 +413,18 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                     if (userId) {
                         this.upgradingPlan.set(true);
 
+                        // Por defecto subimos a Pro en este botón rápido, pero podríamos hacerlo dinámico
+                        const targetPlan = 'pro';
+                        const amount = 900.00;
+
                         // Llamar al servicio que actualiza DB y crea historial
-                        await this.supabaseData.upgradeProviderSubscription(userId, 'plus', 199.00);
+                        await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount);
 
                         // Refrescar estado en la app
                         await this.auth.refreshUserProfile();
                         await this.loadProfile();
 
-                        this.successMessage.set('¡Bienvenido al Plan Plus! 🌟 Disfruta de todos los beneficios.');
+                        this.successMessage.set(`¡Bienvenido al Plan ${targetPlan.toUpperCase()}! 🌟 Disfruta de todos los beneficios.`);
 
                         // Limpiar mensaje después de un tiempo
                         setTimeout(() => this.successMessage.set(''), 5000);

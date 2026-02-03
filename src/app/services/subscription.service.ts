@@ -76,10 +76,12 @@ export class SubscriptionService {
     // Signal derivado para el plan actual (normalizado y validado)
     public currentPlan = computed(() => {
         const rawPlan = this.providerProfile()?.tipo_suscripcion_actual;
-        const plan = (rawPlan || 'basico').toLowerCase();
+        const plan = (rawPlan || 'basico').toString().toLowerCase().trim();
 
         // Validamos que sea una llave válida de SUBSCRIPTION_LIMITS
-        // Si es 'plus' (legacy) o desconocido, cae en 'basico'
+        // Si es 'plus' (legacy) se mapea a 'pro' (o lo que desees)
+        if (plan === 'plus') return 'pro';
+
         return (plan in SUBSCRIPTION_LIMITS) ? (plan as keyof typeof SUBSCRIPTION_LIMITS) : 'basico';
     });
 

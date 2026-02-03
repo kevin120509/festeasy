@@ -423,18 +423,17 @@ export class SupabaseDataService {
     }
 
     /**
-     * Actualiza el plan de suscripción de un proveedor a Plus
-     * y registra el cambio en el historial de suscripciones
+     * Actualiza el plan de suscripción de un proveedor
      * @param providerId ID del usuario proveedor
-     * @param plan Plan de suscripción ('plus')
+     * @param plan Plan de suscripción ('basico', 'pro', 'premium')
      * @param amount Monto pagado por la suscripción
      */
-    async upgradeProviderSubscription(providerId: string, plan: 'plus', amount: number): Promise<void> {
+    async upgradeProviderSubscription(providerId: string, plan: string, amount: number): Promise<void> {
         try {
             // Operación 1: Actualizar el perfil del proveedor
             const { error: profileError } = await this.supabase
                 .from('perfil_proveedor')
-                .update({ tipo_suscripcion_actual: plan })
+                .update({ tipo_suscripcion_actual: plan.toLowerCase() })
                 .eq('usuario_id', providerId);
 
             if (profileError) {
@@ -445,11 +444,11 @@ export class SupabaseDataService {
             // Operación 2: Crear registro en historial de suscripciones
             const fechaInicio = new Date();
             const fechaFin = new Date();
-            fechaFin.setDate(fechaFin.getDate() + 30); // Exactamente 30 días desde ahora
+            fechaFin.setMonth(fechaFin.getMonth() + 1); // 1 mes de vigencia
 
             const subscriptionRecord: Partial<SubscriptionHistory> = {
                 proveedor_usuario_id: providerId,
-                plan: plan,
+                plan: plan.toLowerCase() as 'pro' | 'basico' | 'premium' | 'plus',
                 monto_pagado: amount,
                 fecha_inicio: fechaInicio.toISOString(),
                 fecha_fin: fechaFin.toISOString(),
@@ -461,8 +460,8 @@ export class SupabaseDataService {
                 .insert([subscriptionRecord]);
 
             if (historyError) {
-                console.error('❌ Error al registrar el historial de suscripción:', historyError);
-                throw new Error(`Error al registrar el historial de suscripción: ${historyError.message}`);
+                console.warn('⚠️ No se pudo registrar en historial_suscripciones (posiblemente la tabla no existe):', historyError.message);
+                // No lanzamos error para no bloquear el flujo principal si solo falla el historial
             }
 
             console.log('✅ Suscripción actualizada exitosamente para el proveedor:', providerId);

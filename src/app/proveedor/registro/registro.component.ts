@@ -192,13 +192,32 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
         }
     }
 
+    // Getter para obtener el nombre del plan seleccionado de forma legible
+    getSelectedPlanName() {
+        const planId = this.selectedPlan();
+        if (!planId) return '';
+        return PLAN_INFO.find(p => p.id === planId)?.nombre || planId;
+    }
+
+    // Getter para color del plan
+    getPlanColor() {
+        const planId = this.selectedPlan();
+        if (planId === 'premium') return 'primary';
+        if (planId === 'pro') return 'amber';
+        return 'slate';
+    }
+
     async initPaypal() {
         try {
             this.error = '';
+            // Limpiar contenedor previo por si acaso
+            const container = document.getElementById('paypal-button-container');
+            if (container) container.innerHTML = '';
+            
             await this.loadPaypalScript();
             setTimeout(() => {
                 this.renderPaypalButton();
-            }, 500);
+            }, 100);
         } catch (error) {
             console.error('Error initializing PayPal:', error);
             this.paypalBlocked.set(true);

@@ -29,7 +29,7 @@ export interface ProviderProfile {
     latitud?: number;
     longitud?: number;
     radio_cobertura_km?: number;
-    tipo_suscripcion_actual: 'basico' | 'plus';
+    tipo_suscripcion_actual: 'basico' | 'pro' | 'premium' | 'plus';
     categoria_principal_id?: string;
     creado_en: string;
     actualizado_en: string;
@@ -176,7 +176,7 @@ export interface Payment {
 export interface SubscriptionHistory {
     id: string;
     proveedor_usuario_id: string;
-    plan: 'basico' | 'plus';
+    plan: 'basico' | 'pro' | 'premium' | 'plus';
     monto_pagado: number;
     fecha_inicio: string;
     fecha_fin: string;

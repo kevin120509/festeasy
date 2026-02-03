@@ -314,10 +314,12 @@
 
                 <!-- PayPal Payment Section -->
                 <div *ngIf="selectedPlan() && selectedPlan() !== 'basico'"
-                    class="mt-8 p-6 bg-slate-50 rounded-2xl border-2 border-amber-200 animate-in fade-in slide-in-from-bottom-4">
+                    class="mt-8 p-6 bg-slate-50 rounded-2xl border-2 animate-in fade-in slide-in-from-bottom-4"
+                    [class.border-amber-200]="selectedPlan() === 'pro'"
+                    [class.border-blue-200]="selectedPlan() === 'premium'">
                     <div class="text-center mb-6">
                         <h4 class="font-bold text-slate-800">Finalizar Pago</h4>
-                        <p class="text-xs text-slate-500">Para activar el plan {{ selectedPlan() }} procesa tu pago
+                        <p class="text-xs text-slate-500">Para activar el plan {{ getSelectedPlanName() }} procesa tu pago
                             seguro</p>
                     </div>
 
