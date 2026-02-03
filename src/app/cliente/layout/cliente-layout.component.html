@@ -21,7 +21,7 @@
     }
 
     .sidebar.mini-sidebar {
-        width: 60px;
+        width: 80px;
     }
 
     .sidebar.mini-sidebar .sidebar-logo {
@@ -127,8 +127,7 @@
     }
 
     .main-content.mini-sidebar {
-        margin-left: 60px;
-        /* Match new mini-sidebar width */
+        margin-left: 80px;
     }
 
     .sidebar-toggle {
@@ -163,36 +162,32 @@
         transform: scale(1.1);
     }
 
-    /* Tablet Mode (mini sidebar) */
-    @media (min-width: 769px) and (max-width: 1024px) {
+    /* Responsive Logic */
+    @media (max-width: 1100px) {
         .sidebar {
-            width: 80px;
+            display: none !important;
         }
 
         .main-content {
-            margin-left: 80px;
+            margin-left: 0 !important;
+            padding-top: 60px;
+            padding-bottom: 70px;
         }
 
-        .sidebar-logo {
-            padding: 8px;
+        .mobile-header {
+            display: flex;
         }
 
-        .sidebar-logo img {
-            height: 40px;
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
         }
+    }
 
-        .sidebar-profile {
-            justify-content: center;
-            padding: 16px 8px;
-        }
-
-        .profile-info {
-            display: none;
-        }
-
+    @media (min-width: 1101px) and (max-width: 1400px) {
         .sidebar-toggle {
             display: none;
-            /* Hide toggle on tablet, as it's always mini */
         }
     }
 
@@ -235,10 +230,35 @@
         font-size: 20px;
     }
 
-    /* Mobile Mode (< 768px) */
-    @media (max-width: 768px) {
+    /* Mobile Header */
+    .mobile-header {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 60px;
+        background: white;
+        border-bottom: 1px solid var(--color-gray-border);
+        z-index: 1001;
+        align-items: center;
+        padding: 0 16px;
+        justify-content: space-between;
+    }
+
+    .mobile-logo img {
+        height: 35px;
+        object-fit: contain;
+    }
+
+    /* Mobile/Small Screen Mode (< 1100px) */
+    @media (max-width: 1100px) {
         .sidebar {
             display: none;
+        }
+
+        .mobile-header {
+            display: flex;
         }
 
         .bottom-nav {
@@ -249,19 +269,39 @@
 
         .main-content {
             margin-left: 0;
+            padding-top: 60px;
             padding-bottom: 70px;
         }
 
         .sidebar-toggle {
             display: none;
-            /* Hide toggle on mobile */
         }
+    }
+
+    .drawer-logo {
+        padding: 16px;
+        display: flex;
+        justify-content: center;
+        border-bottom: 1px solid var(--color-gray-border);
+        margin-bottom: 8px;
+    }
+
+    .drawer-logo img {
+        height: 80px;
+        object-fit: contain;
     }
 </style>
 
 <div class="dashboard-layout">
+    <!-- Mobile Header (Logo only, no hamburger) -->
+    <header class="mobile-header">
+        <div class="mobile-logo">
+            <img src="assets/festeasy.png" alt="FESTEASY">
+        </div>
+    </header>
+
     <!-- Sidebar Desktop/Tablet -->
-    <aside *ngIf="showSidebar" class="sidebar" [class.mini-sidebar]="!isSidebarExpanded()">
+    <aside *ngIf="showSidebar" class="sidebar" [class.mini-sidebar]="!isSidebarExpanded() || isCompact">
         <button (click)="toggleSidebar()" class="sidebar-toggle">
             <span class="material-symbols-outlined">{{ isSidebarExpanded() ? 'chevron_left' : 'chevron_right' }}</span>
         </button>
@@ -271,7 +311,7 @@
         </div>
 
         <div class="menu-wrapper">
-            <app-menu [items]="items" [miniMode]="!isSidebarExpanded() || isTablet"></app-menu>
+            <app-menu [items]="items" [miniMode]="(!isSidebarExpanded() || isCompact)"></app-menu>
         </div>
 
         <!-- Perfil al fondo -->
@@ -292,7 +332,7 @@
 
     <!-- Main Content -->
     <main class="main-content" [class.full-width]="!showSidebar"
-        [class.mini-sidebar]="showSidebar && !isSidebarExpanded()">
+        [class.mini-sidebar]="showSidebar && (!isSidebarExpanded() || isCompact)">
         <router-outlet></router-outlet>
     </main>
 

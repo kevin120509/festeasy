@@ -81,7 +81,11 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
   onResize(_event: any) { }
 
   get isTablet(): boolean {
-    return window.innerWidth > 768 && window.innerWidth <= 1024;
+    return window.innerWidth <= 1100;
+  }
+
+  get isCompact(): boolean {
+    return window.innerWidth > 1100 && window.innerWidth <= 1300;
   }
 
   navigateToItem(item: any) {

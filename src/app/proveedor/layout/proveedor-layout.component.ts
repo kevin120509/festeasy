@@ -6,6 +6,9 @@ import { MenuComponent } from '../../shared/menu/menu.component';
 import { HeaderDashboardComponent } from '../../shared/header-dashboard/header-dashboard.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
+import { signal, OnDestroy } from '@angular/core';
+import { filter, Subscription } from 'rxjs';
+import { NavigationEnd } from '@angular/router';
 
 @Component({
   selector: 'app-proveedor-layout',
@@ -13,10 +16,11 @@ import { AuthService } from '../../services/auth.service';
   imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, ConfirmDialogModule, RouterLink, RouterLinkActive],
   templateUrl: './proveedor-layout.component.html',
 })
-export class ProveedorLayoutComponent implements OnInit {
+export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
   private router = inject(Router);
   items: MenuItem[] = [];
+  private routerSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.items = [
@@ -51,13 +55,27 @@ export class ProveedorLayoutComponent implements OnInit {
         }
       }
     ];
+
+    this.routerSubscription = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      // Logic for mobile closing if needed
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSubscription?.unsubscribe();
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(_event: any) { }
 
   get isTablet(): boolean {
-    return window.innerWidth > 768 && window.innerWidth <= 1024;
+    return window.innerWidth <= 1100;
+  }
+
+  get isCompact(): boolean {
+    return window.innerWidth > 1100 && window.innerWidth <= 1300;
   }
 
   navigateToItem(item: any) {
