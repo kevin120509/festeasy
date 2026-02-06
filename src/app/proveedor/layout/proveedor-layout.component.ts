@@ -10,11 +10,12 @@ import { signal, OnDestroy } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { NavigationEnd } from '@angular/router';
 import { ConfirmationService } from 'primeng/api';
+import { DrawerModule } from 'primeng/drawer';
 
 @Component({
   selector: 'app-proveedor-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, RouterLink, RouterLinkActive, DrawerModule, ConfirmDialogModule],
   templateUrl: './proveedor-layout.component.html',
 })
 export class ProveedorLayoutComponent implements OnInit, OnDestroy {
@@ -23,6 +24,7 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   private confirmationService = inject(ConfirmationService);
   items: MenuItem[] = [];
   isSidebarExpanded = signal(true);
+  isMobileSidebarVisible = signal(false);
   private routerSubscription: Subscription | null = null;
 
   ngOnInit(): void {

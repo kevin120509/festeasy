@@ -293,12 +293,22 @@
 </style>
 
 <div class="dashboard-layout">
-    <!-- Mobile Header (Logo only, no hamburger) -->
+    <!-- Mobile Header -->
     <header class="mobile-header">
-        <div class="mobile-logo">
-            <img src="assets/festeasy.png" alt="FESTEASY">
-        </div>
+        <app-header-dashboard (onMenuToggle)="isMobileSidebarVisible.set(true)"></app-header-dashboard>
     </header>
+
+    <!-- Drawer para Móvil -->
+    <p-drawer [(visible)]="isMobileSidebarVisible" [baseZIndex]="10000" styleClass="w-[280px]">
+        <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+                <img src="assets/festeasy.png" alt="Logo" class="h-8">
+            </div>
+        </ng-template>
+        <div class="py-4">
+            <app-menu [items]="items" [miniMode]="false" (click)="isMobileSidebarVisible.set(false)"></app-menu>
+        </div>
+    </p-drawer>
 
     <!-- Sidebar Desktop/Tablet -->
     <aside *ngIf="showSidebar" class="sidebar" [class.mini-sidebar]="!isSidebarExpanded() || isCompact">

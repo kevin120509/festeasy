@@ -9,10 +9,13 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription, map } from 'rxjs';
 import { ConfirmationService } from 'primeng/api';
 
+import { HeaderDashboardComponent } from '../../shared/header-dashboard/header-dashboard.component';
+import { DrawerModule } from 'primeng/drawer';
+
 @Component({
   selector: 'app-cliente-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, RouterLink, RouterLinkActive, DrawerModule, ConfirmDialogModule, HeaderDashboardComponent],
   templateUrl: './cliente-layout.component.html',
 })
 export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDestroy
@@ -23,6 +26,7 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
   items: MenuItem[] = [];
   showSidebar = true;
   isSidebarExpanded = signal(true);
+  isMobileSidebarVisible = signal(false);
   private sub: Subscription | null = null;
   private routerSubscription: Subscription | null = null; // New subscription for router events
 

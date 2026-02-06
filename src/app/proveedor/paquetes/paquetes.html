@@ -157,21 +157,13 @@
                                 Archivado
                             </span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <div
-                                class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
-                                @if (authService.currentUser()?.avatar_url) {
-                                <img [src]="authService.currentUser()?.avatar_url" class="w-full h-full object-cover">
-                                } @else {
-                                <span class="text-[10px] font-black text-slate-400 font-bold">{{
-                                    (authService.currentUser()?.nombre_negocio || 'P').charAt(0) }}</span>
-                                }
+                        <div class="flex items-center gap-3">
+                            <p class="text-primary font-black text-lg">${{ paquete.precio_base | number:'1.2-2' }} <span
+                                    class="text-xs text-gray-400 font-medium">/ servicio</span></p>
+                            <div class="ml-auto">
+                                <p-rating [ngModel]="4.5" [readonly]="true" styleClass="text-amber-400"></p-rating>
                             </div>
-                            <h3 class="text-jet-black dark:text-white text-xl font-bold truncate">{{ paquete.nombre }}
-                            </h3>
                         </div>
-                        <p class="text-primary font-black text-lg">${{ paquete.precio_base | number:'1.2-2' }} <span
-                                class="text-xs text-gray-400 font-medium">/ servicio</span></p>
                         <div class="flex items-center gap-6 mt-2 text-gray-500 dark:text-gray-400">
                             <div class="flex items-center gap-1.5">
                                 <span class="material-icons-outlined text-lg">visibility</span>
@@ -423,12 +415,11 @@
                         class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
                         <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Precio Base</h3>
                         <div class="relative">
-                            <span
-                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">$</span>
-                            <input type="number" [value]="packageData().precio_base"
-                                (input)="updateField('precio_base', +$any($event.target).value)"
-                                class="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl text-2xl font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
-                                placeholder="0.00" min="0" step="0.01" />
+                            <p-inputnumber [ngModel]="packageData().precio_base"
+                                (ngModelChange)="updateField('precio_base', $event)" mode="currency" currency="USD"
+                                locale="en-US" [min]="0" [fluid]="true"
+                                inputStyleClass="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl text-2xl font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                placeholder="0.00"></p-inputnumber>
                         </div>
                     </div>
 
@@ -444,11 +435,10 @@
                                     class="flex-1 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
                                     placeholder="Concepto" />
                                 <div class="relative w-32">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                                    <input type="number" [value]="newChargePrice()"
-                                        (input)="newChargePrice.set(+$any($event.target).value)"
-                                        class="w-full pl-7 pr-3 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                        min="0" step="0.01" />
+                                    <p-inputnumber [ngModel]="newChargePrice()"
+                                        (ngModelChange)="newChargePrice.set($event)" mode="currency" currency="USD"
+                                        locale="en-US" [min]="0" [fluid]="true"
+                                        inputStyleClass="w-full pl-7 pr-3 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"></p-inputnumber>
                                 </div>
                                 <button (click)="addExtraCharge()"
                                     class="px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">

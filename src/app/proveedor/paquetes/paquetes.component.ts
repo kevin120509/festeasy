@@ -9,6 +9,8 @@ import { ConfirmationService } from 'primeng/api';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { RatingModule } from 'primeng/rating';
 
 interface Paquete {
   id: string;
@@ -43,7 +45,7 @@ interface PackageImage {
 @Component({
   selector: 'app-paquetes',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, InputNumberModule, RatingModule],
   templateUrl: './paquetes.html',
   styleUrl: './paquetes.css'
 })

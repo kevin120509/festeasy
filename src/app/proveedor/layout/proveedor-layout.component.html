@@ -298,11 +298,23 @@
         </div>
     </aside>
 
+    <!-- Drawer para Móvil -->
+    <p-drawer [(visible)]="isMobileSidebarVisible" [baseZIndex]="10000" styleClass="w-[280px]">
+        <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+                <img src="assets/festeasy.png" alt="Logo" class="h-8">
+            </div>
+        </ng-template>
+        <div class="py-4">
+            <app-menu [items]="items" [miniMode]="false" (click)="isMobileSidebarVisible.set(false)"></app-menu>
+        </div>
+    </p-drawer>
+
     <!-- Main Content -->
     <main class="main-content" [class.mini-sidebar]="isCompact">
         <!-- Header: Solo visible en móvil (lg:hidden) -->
         <div class="lg:hidden">
-            <app-header-dashboard></app-header-dashboard>
+            <app-header-dashboard (onMenuToggle)="isMobileSidebarVisible.set(true)"></app-header-dashboard>
         </div>
 
         <div class="router-container">

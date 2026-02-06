@@ -5,11 +5,12 @@ import { SupabaseAuthService } from '../../services/supabase-auth.service';
 import { AuthService } from '../../services/auth.service';
 import { HeaderComponent } from '../header/header';
 import { CommonModule } from '@angular/common';
+import { PasswordModule } from 'primeng/password';
 
 @Component({
     selector: 'app-login',
     standalone: true,
-    imports: [RouterLink, FormsModule, CommonModule],
+    imports: [RouterLink, FormsModule, CommonModule, PasswordModule],
     templateUrl: './login.html'
 })
 export class LoginComponent {
@@ -21,11 +22,6 @@ export class LoginComponent {
     password = '';
     error = '';
     loading = false;
-    passwordVisible = signal(false);
-
-    togglePasswordVisibility() {
-        this.passwordVisible.update(v => !v);
-    }
 
     async login() {
         this.loading = true;
