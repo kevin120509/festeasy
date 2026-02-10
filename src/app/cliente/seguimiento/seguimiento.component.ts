@@ -32,7 +32,7 @@ import {
 export class SeguimientoEventoComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     public api = inject(ApiService);
-    private auth = inject(AuthService);
+    public auth = inject(AuthService);
     private confirmationService = inject(ConfirmationService);
     private messageService = inject(MessageService);
 

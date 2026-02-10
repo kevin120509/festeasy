@@ -96,6 +96,55 @@
             </div>
         </div>
 
+        <!-- 🚫 TARJETA DE CANCELACIÓN - Visible cuando el servicio está cancelado -->
+        @if (evento().estado === 'cancelada') {
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-3xl shadow-lg my-4 text-white">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="bg-white/20 p-3 rounded-full flex-shrink-0">
+                    <span class="material-symbols-outlined text-3xl">cancel</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                        <span>Servicio Cancelado</span>
+                    </h3>
+                    <p class="text-red-100 text-base mb-3">
+                        Este servicio fue cancelado por
+                        <strong class="text-white">
+                            {{ evento().cancelado_por_id === auth.currentUser()?.id ? 'ti (Cliente)' : 'el Proveedor' }}
+                        </strong>.
+                    </p>
+
+                    @if (evento().motivo_cancelacion) {
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                        <p class="text-sm font-semibold text-red-100 mb-1 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">info</span>
+                            Motivo de cancelación:
+                        </p>
+                        <p class="text-white font-medium">{{ evento().motivo_cancelacion }}</p>
+                    </div>
+                    }
+
+                    @if (evento().fecha_cancelacion) {
+                    <p class="text-xs text-red-200 mt-3 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        Cancelado el {{ evento().fecha_cancelacion | date:'dd/MM/yyyy HH:mm' }}
+                    </p>
+                    }
+                </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-sm text-red-100 flex items-start gap-2">
+                    <span class="material-symbols-outlined text-lg flex-shrink-0">lightbulb</span>
+                    <span>Si tienes dudas sobre esta cancelación, puedes contactar al
+                        {{ evento().cancelado_por_id === auth.currentUser()?.id ? 'proveedor' : 'soporte de FestEasy'
+                        }}.
+                    </span>
+                </p>
+            </div>
+        </div>
+        }
+
         <!-- 🔒 TARJETA DE PIN - Siempre visible para servicios confirmados/reservados -->
         @if (evento().estado === 'confirmado' || evento().estado === 'reservado') {
         <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-red-100 my-4">

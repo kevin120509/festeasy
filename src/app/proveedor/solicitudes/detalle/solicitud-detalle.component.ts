@@ -25,7 +25,7 @@ export class SolicitudDetalleComponent implements OnInit {
     private router = inject(Router);
     private api = inject(ApiService);
     private confirmationService = inject(ConfirmationService);
-    private auth = inject(AuthService);
+    public auth = inject(AuthService);
 
     solicitud = signal<ServiceRequest | null>(null);
     items = signal<RequestItem[]>([]);
