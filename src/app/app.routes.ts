@@ -1,50 +1,51 @@
 import { Routes } from '@angular/router';
-import { roleGuard } from './guards/role.guard';
-import { adminGuard } from './guards/admin.guard';
+import { roleGuard } from './core/guards/role.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
-// Shared
-import { LandingComponent } from './shared/landing/landing';
-import { LoginComponent } from './shared/login/login';
+// Shared -> Pages
+import { LandingComponent } from './pages/landing/landing';
+import { LoginComponent } from './pages/login/login';
 
-// Error Pages
-import { NotFoundComponent } from './shared/errors/not-found/not-found.component';
-import { ServerErrorComponent } from './shared/errors/server-error/server-error.component';
-import { AccessDeniedComponent } from './shared/errors/access-denied/access-denied.component';
+// Error Pages -> Pages/Errors
+import { NotFoundComponent } from './pages/errors/not-found/not-found.component';
+import { ServerErrorComponent } from './pages/errors/server-error/server-error.component';
+import { AccessDeniedComponent } from './pages/errors/access-denied/access-denied.component';
 
-import { ClienteLayoutComponent } from './cliente/layout/cliente-layout.component';
-import { ClienteRegistroComponent } from './cliente/registro/registro.component';
-import { MarketplaceComponent } from './cliente/marketplace/marketplace.component';
-import { ProveedorDetalleComponent } from './cliente/proveedor-detalle/proveedor-detalle.component';
-import { CarritoComponent } from './cliente/carrito/carrito.component';
-import { ClienteDashboardComponent } from './cliente/dashboard/dashboard.component';
-import { CrearEventoComponent } from './cliente/crear-evento/crear-evento.component';
-import { RevisarSolicitudComponent } from './cliente/solicitudes/revisar/revisar.component';
-import { MisSolicitudesComponent } from './cliente/solicitudes/solicitudes.component';
-import { ClienteConfiguracionComponent } from './cliente/configuracion/configuracion.component';
-import { SeguimientoEventoComponent } from './cliente/seguimiento/seguimiento.component';
-import { SolicitudEnviadaComponent } from './cliente/solicitud-enviada/solicitud-enviada.component';
-import { PagoComponent } from './cliente/pago/pago.component';
-import { ResenasSummaryComponent } from './cliente/resenas/resenas-summary/resenas-summary.component';
-import { ResenaFormComponent } from './cliente/resenas/resena-form/resena-form.component';
-import { ResenaExitoComponent } from './cliente/resenas/resena-exito/resena-exito.component';
+// Cliente -> Pages/Cliente
+import { ClienteLayoutComponent } from './pages/cliente/layout/cliente-layout.component';
+import { ClienteRegistroComponent } from './pages/cliente/registro/registro.component';
+import { MarketplaceComponent } from './pages/cliente/marketplace/marketplace.component';
+import { ProveedorDetalleComponent } from './pages/cliente/proveedor-detalle/proveedor-detalle.component';
+import { CarritoComponent } from './pages/cliente/carrito/carrito.component';
+import { ClienteDashboardComponent } from './pages/cliente/dashboard/dashboard.component';
+import { CrearEventoComponent } from './pages/cliente/crear-evento/crear-evento.component';
+import { RevisarSolicitudComponent } from './pages/cliente/solicitudes/revisar/revisar.component';
+import { MisSolicitudesComponent } from './pages/cliente/solicitudes/solicitudes.component';
+import { ClienteConfiguracionComponent } from './pages/cliente/configuracion/configuracion.component';
+import { SeguimientoEventoComponent } from './pages/cliente/seguimiento/seguimiento.component';
+import { SolicitudEnviadaComponent } from './pages/cliente/solicitud-enviada/solicitud-enviada.component';
+import { PagoComponent } from './pages/cliente/pago/pago.component';
+import { ResenasSummaryComponent } from './pages/cliente/resenas/resenas-summary/resenas-summary.component';
+import { ResenaFormComponent } from './pages/cliente/resenas/resena-form/resena-form.component';
+import { ResenaExitoComponent } from './pages/cliente/resenas/resena-exito/resena-exito.component';
+import { PaqueteDetalleComponent } from './pages/cliente/paquete-detalle/paquete-detalle.component';
 
-// Proveedor
-import { ProveedorRegistroComponent } from './proveedor/registro/registro.component';
-import { ProveedorDashboardComponent } from './proveedor/dashboard/dashboard.component';
-import { SolicitudesComponent } from './proveedor/solicitudes/solicitudes.component';
-import { BandejaSolicitudesComponent } from './proveedor/bandeja-solicitudes/bandeja-solicitudes.component';
-import { NotificacionesComponent } from './proveedor/notificaciones/notificaciones.component';
-import { PaquetesComponent } from './proveedor/paquetes/paquetes.component';
-import { ProveedorConfiguracionComponent } from './proveedor/configuracion/configuracion';
-import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.component';
-import { ResenasRecibidasComponent } from './proveedor/resenas/resenas-recibidas.component';
+// Proveedor -> Pages/Proveedor
+import { ProveedorRegistroComponent } from './pages/proveedor/registro/registro.component';
+import { ProveedorDashboardComponent } from './pages/proveedor/dashboard/dashboard.component';
+import { SolicitudesComponent } from './pages/proveedor/solicitudes/solicitudes.component';
+import { SolicitudDetalleComponent } from './pages/proveedor/solicitudes/detalle/solicitud-detalle.component';
+import { BandejaSolicitudesComponent } from './pages/proveedor/bandeja-solicitudes/bandeja-solicitudes.component';
+import { NotificacionesComponent } from './pages/proveedor/notificaciones/notificaciones.component';
+import { PaquetesComponent } from './pages/proveedor/paquetes/paquetes.component';
+import { ProveedorConfiguracionComponent } from './pages/proveedor/configuracion/configuracion';
+import { ProveedorLayoutComponent } from './pages/proveedor/layout/proveedor-layout.component';
+import { ResenasRecibidasComponent } from './pages/proveedor/resenas/resenas-recibidas.component';
 
-// Admin
-import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
-import { UserManagementComponent } from './admin/users/user-management.component';
-import { ProviderApprovalComponent } from './admin/provider-approval/provider-approval.component';
-import { PaqueteDetalleComponent } from './cliente/paquete-detalle/paquete-detalle.component';
-import { SolicitudDetalleComponent } from './proveedor/solicitudes/detalle/solicitud-detalle.component';
+// Admin -> Pages/Admin
+import { AdminDashboardComponent } from './pages/admin/dashboard/admin-dashboard.component';
+import { UserManagementComponent } from './pages/admin/users/user-management.component';
+import { ProviderApprovalComponent } from './pages/admin/provider-approval/provider-approval.component';
 
 export const routes: Routes = [
     // General

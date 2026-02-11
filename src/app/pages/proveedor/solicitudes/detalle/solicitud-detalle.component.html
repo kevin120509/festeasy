@@ -1,0 +1,437 @@
+<!-- Diálogo de Confirmación de PrimeNG -->
+<p-confirmDialog [style]="{width: '500px'}" [baseZIndex]="10000"></p-confirmDialog>
+
+<!-- 🚫 Diálogo Personalizado de Motivo de Cancelación -->
+<p-dialog [(visible)]="displayCancelDialog" [modal]="true" [style]="{width: '500px'}" [draggable]="false"
+    [resizable]="false" [baseZIndex]="10000">
+    <ng-template pTemplate="header">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-600">cancel</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Motivo de Cancelación</h3>
+        </div>
+    </ng-template>
+
+    <div class="space-y-4">
+        <p class="text-sm text-gray-600 flex items-start gap-2">
+            <span class="material-symbols-outlined text-amber-500 text-lg">info</span>
+            <span>Por favor, explica brevemente por qué necesitas cancelar el servicio.</span>
+        </p>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+            <p class="text-sm text-blue-800 flex items-start gap-2">
+                <span class="material-symbols-outlined text-blue-600 text-lg">lightbulb</span>
+                <span><strong>Nota:</strong> El cliente será notificado sobre la cancelación y el motivo que
+                    proporciones.</span>
+            </p>
+        </div>
+
+        <div class="space-y-2">
+            <label for="motivoCancelacion" class="block text-sm font-semibold text-gray-700">
+                Motivo de cancelación *
+            </label>
+            <textarea id="motivoCancelacion" [(ngModel)]="motivoTemporal" rows="4"
+                class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                placeholder="Ejemplo: Conflicto de agenda, problema técnico, etc." maxlength="500"></textarea>
+            <p class="text-xs text-gray-500">{{ motivoTemporal.length }}/500 caracteres (mínimo 10)</p>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-3 justify-end">
+            <button pButton pRipple label="Volver" icon="pi pi-times" (click)="cerrarDialogoCancelacion()"
+                class="p-button-text p-button-secondary"></button>
+            <button pButton pRipple label="Confirmar Cancelación" icon="pi pi-check"
+                (click)="ejecutarCancelacionFinal()" class="p-button-danger"
+                [disabled]="motivoTemporal.trim().length < 10"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
+<!-- Mensajes de notificación -->
+@if (mensajeExito()) {
+<div
+    class="fixed top-20 right-6 z-50 bg-green-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+    <span class="material-symbols-outlined text-[24px]">check_circle</span>
+    <span class="font-semibold">{{ mensajeExito() }}</span>
+</div>
+}
+
+@if (mensajeError()) {
+<div
+    class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+    <span class="material-symbols-outlined text-[24px]">error</span>
+    <span class="font-semibold">{{ mensajeError() }}</span>
+</div>
+}
+
+<style>
+    @keyframes slide-in {
+        from {
+            transform: translateX(400px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    .animate-slide-in {
+        animation: slide-in 0.3s ease;
+    }
+</style>
+
+<div class="min-h-screen bg-slate-50 pb-12">
+    <!-- Header de Navegación -->
+    <div class="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+            <button (click)="volver()"
+                class="flex items-center gap-2 text-slate-600 hover:text-primary transition-colors font-semibold py-2">
+                <span class="material-symbols-outlined">arrow_back</span>
+                <span>Volver a Solicitudes</span>
+            </button>
+            <div class="flex items-center gap-3">
+                <!-- Botón Refrescar -->
+                <button (click)="refrescarDatos()"
+                    class="flex items-center gap-1 px-3 py-1.5 text-sm text-slate-600 hover:text-primary hover:bg-slate-100 rounded-lg transition-colors"
+                    title="Actualizar datos">
+                    <span class="material-symbols-outlined text-lg">refresh</span>
+                    <span class="hidden sm:inline">Actualizar</span>
+                </button>
+                @if (solicitud()) {
+                <span class="px-3 py-1 text-xs font-bold rounded-full uppercase" [ngClass]="{
+                    'bg-amber-100 text-amber-700': solicitud()?.estado === 'pendiente_aprobacion',
+                    'bg-orange-100 text-orange-700': solicitud()?.estado === 'esperando_anticipo',
+                    'bg-green-100 text-green-700': solicitud()?.estado === 'reservado',
+                    'bg-blue-100 text-blue-700': solicitud()?.estado === 'en_progreso',
+                    'bg-purple-100 text-purple-700': solicitud()?.estado === 'entregado_pendiente_liq',
+                    'bg-emerald-100 text-emerald-700': solicitud()?.estado === 'finalizado',
+                    'bg-red-100 text-red-700': solicitud()?.estado === 'rechazada' || solicitud()?.estado === 'cancelada',
+                    'bg-slate-100 text-slate-700': !['pendiente_aprobacion', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado', 'rechazada', 'cancelada'].includes(solicitud()?.estado || '')
+                }">
+                    @switch (solicitud()?.estado) {
+                    @case ('pendiente_aprobacion') { Pendiente }
+                    @case ('esperando_anticipo') { Esperando Pago }
+                    @case ('reservado') { Reservado }
+                    @case ('en_progreso') { En Progreso }
+                    @case ('entregado_pendiente_liq') { Por Liquidar }
+                    @case ('finalizado') { ✓ Finalizado }
+                    @case ('rechazada') { Rechazada }
+                    @case ('cancelada') { Cancelada }
+                    @default { {{ solicitud()?.estado }} }
+                    }
+                </span>
+                }
+            </div>
+        </div>
+    </div>
+
+    <main class="max-w-5xl mx-auto px-6 pt-8">
+        <!-- Banner de Servicio Finalizado -->
+        @if (solicitud()?.estado === 'finalizado') {
+        <div class="bg-gradient-to-r from-emerald-500 to-green-600 rounded-3xl p-6 text-white mb-8 shadow-lg">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+                    <span class="material-symbols-outlined text-4xl">task_alt</span>
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold">¡Servicio Completado!</h2>
+                    <p class="text-emerald-100">Este servicio ha sido finalizado exitosamente. El cliente ha completado
+                        el pago de liquidación.</p>
+                </div>
+            </div>
+        </div>
+        }
+
+        <!-- 🚫 TARJETA DE CANCELACIÓN - Visible cuando el servicio está cancelado -->
+        @if (solicitud()?.estado === 'cancelada') {
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-3xl shadow-lg mb-8 text-white">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="bg-white/20 p-3 rounded-full flex-shrink-0">
+                    <span class="material-symbols-outlined text-3xl">cancel</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                        <span>Servicio Cancelado</span>
+                    </h3>
+                    <p class="text-red-100 text-base mb-3">
+                        Este servicio fue cancelado por
+                        <strong class="text-white">
+                            {{ solicitud()?.cancelado_por_id === auth.currentUser()?.id ? 'ti (Proveedor)' : 'el
+                            Cliente' }}
+                        </strong>.
+                    </p>
+
+                    @if (solicitud()?.motivo_cancelacion) {
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                        <p class="text-sm font-semibold text-red-100 mb-1 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">info</span>
+                            Motivo de cancelación:
+                        </p>
+                        <p class="text-white font-medium">{{ solicitud()?.motivo_cancelacion }}</p>
+                    </div>
+                    }
+
+                    @if (solicitud()?.fecha_cancelacion) {
+                    <p class="text-xs text-red-200 mt-3 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        Cancelado el {{ solicitud()?.fecha_cancelacion | date:'dd/MM/yyyy HH:mm' }}
+                    </p>
+                    }
+                </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-sm text-red-100 flex items-start gap-2">
+                    <span class="material-symbols-outlined text-lg flex-shrink-0">lightbulb</span>
+                    <span>Si tienes dudas sobre esta cancelación, puedes contactar al
+                        {{ solicitud()?.cancelado_por_id === auth.currentUser()?.id ? 'cliente' : 'soporte de FestEasy'
+                        }}.
+                    </span>
+                </p>
+            </div>
+        </div>
+        }
+
+        @if (isLoading()) {
+        <div class="flex flex-col items-center justify-center py-20 gap-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-primary/20 border-t-primary"></div>
+            <p class="text-slate-500 font-medium">Cargando detalles del evento...</p>
+        </div>
+        } @else if (mensajeError()) {
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+            <span class="material-symbols-outlined text-red-400 text-5xl mb-4">error</span>
+            <h2 class="text-red-800 text-xl font-bold mb-2">¡Ups! Algo salió mal</h2>
+            <p class="text-red-600 mb-6">{{ mensajeError() }}</p>
+            <button (click)="volver()"
+                class="bg-red-600 text-white px-6 py-2 rounded-xl font-bold hover:bg-red-700 transition-colors">
+                Regresar
+            </button>
+        </div>
+        } @else if (solicitud()) {
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Columna Izquierda: Detalles del Evento e Items -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Tarjeta Principal: Info del Evento -->
+                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                    <div class="flex flex-col gap-6">
+                        <div>
+                            <h1 class="text-3xl font-black text-slate-900 mb-2">{{ getTituloReal() }}</h1>
+                            <p class="text-slate-500 font-medium flex items-center gap-2">
+                                <span class="material-symbols-outlined text-base">event</span>
+                                {{ formatearFecha(solicitud()!.fecha_servicio) }}
+                            </p>
+                            <p class="text-slate-500 font-medium flex items-center gap-2 mt-1">
+                                <span class="material-symbols-outlined text-base">schedule</span>
+                                {{ getHora() }}
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-slate-100">
+                            <div class="space-y-1">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Ubicación del
+                                    Servicio</p>
+                                <p class="text-slate-700 font-semibold flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">location_on</span>
+                                    {{ solicitud()?.direccion_servicio }}
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Invitados
+                                    Confirmados</p>
+                                <p class="text-slate-700 font-semibold flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-primary text-lg">groups</span>
+                                    {{ getInvitados() }} personas
+                                </p>
+                            </div>
+                            <div class="space-y-1">
+                                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Número de
+                                    Solicitud</p>
+                                <p class="text-slate-700 font-semibold">#{{ solicitud()?.numero_solicitud }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Desglose de Servicios -->
+                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-8 border-b border-slate-100">
+                        <h2 class="text-xl font-bold text-slate-800">Servicios Contratados</h2>
+                    </div>
+                    <div class="p-0">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead
+                                    class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest text-left">
+                                    <tr>
+                                        <th class="px-8 py-4">Paquete / Servicio</th>
+                                        <th class="px-8 py-4 text-center">Cant.</th>
+                                        <th class="px-8 py-4 text-right">Precio Unit.</th>
+                                        <th class="px-8 py-4 text-right">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @for (item of items(); track item.id) {
+                                    <tr class="hover:bg-slate-50 transition-colors">
+                                        <td class="px-8 py-5">
+                                            <p class="text-slate-800 font-bold">{{ item.nombre_paquete_snapshot }}</p>
+                                        </td>
+                                        <td class="px-8 py-5 text-center text-slate-600 font-semibold">
+                                            {{ item.cantidad }}
+                                        </td>
+                                        <td class="px-8 py-5 text-right text-slate-600">
+                                            {{ item.precio_unitario | currency:'MXN' }}
+                                        </td>
+                                        <td class="px-8 py-5 text-right text-slate-900 font-bold">
+                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN' }}
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
+                        <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total del Evento</span>
+                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN'
+                            }}</span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Columna Derecha: Cliente y Pagos -->
+            <div class="space-y-8">
+                <!-- Tarjeta del Cliente -->
+                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">Información del Cliente
+                    </h2>
+                    <div class="flex items-center gap-4 mb-6">
+                        <div
+                            class="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center text-primary text-2xl font-black overflow-hidden">
+                            @if (solicitud()?.cliente?.avatar_url) {
+                            <img [src]="solicitud()?.cliente?.avatar_url" class="w-full h-full object-cover"
+                                alt="Cliente">
+                            } @else {
+                            {{ solicitud()?.cliente?.nombre_completo?.charAt(0) || 'C' }}
+                            }
+                        </div>
+                        <div>
+                            <h3 class="text-slate-800 font-bold text-lg leading-tight">{{
+                                solicitud()?.cliente?.nombre_completo || 'Cliente' }}</h3>
+                            <p class="text-slate-500 text-sm font-medium">Cliente Registrado</p>
+                        </div>
+                    </div>
+
+
+                </section>
+
+                <!-- Estado de Pagos -->
+                <section class="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
+                    <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6">Resumen Financiero
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center">
+                            <span class="text-slate-500 text-sm font-medium">Anticipo (30%)</span>
+                            <div class="text-right">
+                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_anticipo ||
+                                    (solicitud()?.monto_total || 0) * 0.3) |
+                                    currency:'MXN' }}</p>
+                                @if (['reservado', 'en_progreso', 'entregado_pendiente_liq',
+                                'finalizado'].includes(solicitud()?.estado || '')) {
+                                <span
+                                    class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
+                                } @else {
+                                <span
+                                    class="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-black uppercase">Pendiente</span>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between items-center pt-6 border-t border-slate-100">
+                            <span class="text-slate-500 text-sm font-medium">Liquidación (70%)</span>
+                            <div class="text-right">
+                                <p class="font-bold text-slate-900">{{ (solicitud()?.monto_liquidacion ||
+                                    (solicitud()?.monto_total || 0) * 0.7) |
+                                    currency:'MXN' }}</p>
+                                @if (solicitud()?.estado === 'finalizado') {
+                                <span
+                                    class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
+                                } @else if (solicitud()?.estado === 'entregado_pendiente_liq') {
+                                <span
+                                    class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-black uppercase">Por
+                                    Liquidar</span>
+                                } @else {
+                                <span
+                                    class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-black uppercase">Pendiente</span>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Total Ganado (solo si está finalizado) -->
+                        @if (solicitud()?.estado === 'finalizado') {
+                        <div
+                            class="flex justify-between items-center pt-6 border-t-2 border-emerald-200 bg-emerald-50 -mx-8 px-8 py-4 -mb-8 rounded-b-3xl">
+                            <span class="text-emerald-700 text-sm font-bold">Total Ganado</span>
+                            <div class="text-right">
+                                <p class="font-black text-emerald-700 text-xl">{{ solicitud()?.monto_total |
+                                    currency:'MXN' }}</p>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </section>
+
+                <!-- Acciones Especiales (PIN siempre activo) -->
+                @if (solicitud()?.estado === 'reservado') {
+                <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200">
+                    <p class="text-amber-800 text-sm font-bold mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">key</span>
+                        Validación de Seguridad
+                    </p>
+
+                    <button (click)="abrirModalPin()"
+                        class="w-full py-4 bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all mb-4">
+                        <span class="material-symbols-outlined">verified_user</span>
+                        <span>Validar PIN del Cliente</span>
+                    </button>
+
+                    <p class="text-amber-700 text-[10px] leading-relaxed text-center font-bold">
+                        Solicita el PIN al cliente para confirmar la entrega del servicio.
+                    </p>
+                </div>
+                }
+
+                <!-- Botón de Cancelación - Simplificado para pruebas -->
+                @if (['pendiente_aprobacion', 'esperando_anticipo', 'reservado'].includes(solicitud()?.estado || '')) {
+                <div class="bg-red-50 rounded-3xl p-6 border border-red-200">
+                    <p class="text-red-800 text-sm font-bold mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">cancel</span>
+                        Cancelar Servicio
+                    </p>
+
+                    <button (click)="confirmarCancelacion()"
+                        class="w-full py-4 bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all">
+                        <span class="material-symbols-outlined">close</span>
+                        <span>Cancelar Servicio</span>
+                    </button>
+
+                    <p class="text-red-700 text-[10px] leading-relaxed text-center font-bold mt-4">
+                        Esta acción notificará al cliente sobre la cancelación del servicio.
+                    </p>
+                </div>
+                }
+            </div>
+        </div>
+        }
+    </main>
+
+    <!-- Modal de Validación de PIN -->
+    @if (mostrarModalPin()) {
+    <app-validar-pin [solicitudId]="solicitudSeleccionadaId()" [isOpen]="mostrarModalPin()"
+        (closeModal)="cerrarModalPin()" (pinValidado)="onPinValidado($event)"></app-validar-pin>
+    }
+</div>

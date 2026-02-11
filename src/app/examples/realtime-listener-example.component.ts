@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { ApiService } from '../services/api.service';
+import { ApiService } from '../core/services/api.service';
 import { Subscription } from 'rxjs';
 // 1. Importaciones necesarias para el modal
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';

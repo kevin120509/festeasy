@@ -1,0 +1,50 @@
+<div class="min-h-screen bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
+    <div class="text-center max-w-lg">
+        <!-- Ilustración 403 -->
+        <div class="relative mb-8">
+            <div class="text-[180px] md:text-[220px] font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-600 to-yellow-600 leading-none select-none">
+                403
+            </div>
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span class="material-symbols-outlined text-8xl text-amber-200 dark:text-amber-900">
+                    lock
+                </span>
+            </div>
+        </div>
+
+        <!-- Mensaje -->
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4">
+            Acceso Denegado
+        </h1>
+        <p class="text-gray-600 dark:text-gray-300 text-lg mb-8">
+            No tienes permiso para acceder a esta página. Si crees que es un error, por favor contacta al administrador.
+        </p>
+
+        <!-- Acciones -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a routerLink="/login" 
+               class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-semibold rounded-xl hover:from-amber-700 hover:to-yellow-700 transition-all shadow-lg hover:shadow-xl">
+                <span class="material-symbols-outlined">login</span>
+                Iniciar sesión
+            </a>
+            <a routerLink="/" 
+               class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white dark:bg-gray-800 text-amber-600 dark:text-amber-400 font-semibold rounded-xl border-2 border-amber-200 dark:border-amber-800 hover:border-amber-400 transition-all">
+                <span class="material-symbols-outlined">home</span>
+                Volver al inicio
+            </a>
+        </div>
+
+        <!-- Info de permisos -->
+        <div class="mt-12 p-6 bg-white/50 dark:bg-gray-800/50 rounded-2xl backdrop-blur-sm">
+            <div class="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400 mb-3">
+                <span class="material-symbols-outlined text-xl">info</span>
+                <p class="text-sm font-medium">¿Por qué veo esto?</p>
+            </div>
+            <ul class="text-xs text-gray-500 dark:text-gray-400 space-y-1 text-left max-w-xs mx-auto">
+                <li>• Tu sesión pudo haber expirado</li>
+                <li>• No tienes el rol necesario para esta sección</li>
+                <li>• El recurso requiere permisos especiales</li>
+            </ul>
+        </div>
+    </div>
+</div>

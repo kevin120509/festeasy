@@ -1,16 +1,16 @@
 import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RatingModalService } from '../services/rating-modal.service';
+import { RatingModalService } from '../core/services/rating-modal.service';
 
 /**
  * Componente de ejemplo para demostrar el uso del RatingModalComponent
  */
 @Component({
-    selector: 'app-rating-modal-example',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-rating-modal-example',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 p-8">
       <div class="max-w-2xl mx-auto">
         
@@ -107,16 +107,16 @@ import { RatingModalService } from '../services/rating-modal.service';
   `
 })
 export class RatingModalExampleComponent {
-    private ratingModalService = inject(RatingModalService);
+  private ratingModalService = inject(RatingModalService);
 
-    // Form data
-    solicitudId = '';
-    proveedorId = '';
-    ultimaAccion = signal('');
+  // Form data
+  solicitudId = '';
+  proveedorId = '';
+  ultimaAccion = signal('');
 
-    // Code example for display
-    codeExample = `// En tu componente
-import { RatingModalService } from './services/rating-modal.service';
+  // Code example for display
+  codeExample = `// En tu componente
+import { RatingModalService } from '../core/services/rating-modal.service';
 
 export class MiComponente {
   private ratingModal = inject(RatingModalService);
@@ -135,31 +135,31 @@ this.apiService.listenToSolicitudFinalizada().subscribe({
   }
 });`;
 
-    /**
-     * Abre el modal de calificación
-     */
-    async abrirModalCalificacion(): Promise<void> {
-        if (!this.solicitudId || !this.proveedorId) {
-            alert('Por favor completa ambos campos');
-            return;
-        }
-
-        console.log('🎯 Abriendo modal con:', {
-            solicitudId: this.solicitudId,
-            proveedorId: this.proveedorId
-        });
-
-        try {
-            await this.ratingModalService.open(this.solicitudId, this.proveedorId);
-            this.ultimaAccion.set(`✅ Modal cerrado - Solicitud: ${this.solicitudId.substring(0, 8)}...`);
-
-            // Limpiar mensaje después de 5 segundos
-            setTimeout(() => {
-                this.ultimaAccion.set('');
-            }, 5000);
-        } catch (error) {
-            console.error('Error abriendo modal:', error);
-            this.ultimaAccion.set('❌ Error al abrir el modal');
-        }
+  /**
+   * Abre el modal de calificación
+   */
+  async abrirModalCalificacion(): Promise<void> {
+    if (!this.solicitudId || !this.proveedorId) {
+      alert('Por favor completa ambos campos');
+      return;
     }
+
+    console.log('🎯 Abriendo modal con:', {
+      solicitudId: this.solicitudId,
+      proveedorId: this.proveedorId
+    });
+
+    try {
+      await this.ratingModalService.open(this.solicitudId, this.proveedorId);
+      this.ultimaAccion.set(`✅ Modal cerrado - Solicitud: ${this.solicitudId.substring(0, 8)}...`);
+
+      // Limpiar mensaje después de 5 segundos
+      setTimeout(() => {
+        this.ultimaAccion.set('');
+      }, 5000);
+    } catch (error) {
+      console.error('Error abriendo modal:', error);
+      this.ultimaAccion.set('❌ Error al abrir el modal');
+    }
+  }
 }

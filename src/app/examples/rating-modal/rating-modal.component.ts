@@ -2,8 +2,8 @@ import { Component, OnInit, signal, inject, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { ApiService } from '../../services/api.service';
-import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../core/services/api.service';
+import { AuthService } from '../../core/services/auth.service';
 
 /**
  * RatingModalComponent
@@ -233,7 +233,7 @@ export class RatingModalComponent implements OnInit {
 
       // Enviar reseña
       this.apiService.createReview(reviewData).subscribe({
-        next: (response) => {
+        next: (response: any) => {
           console.log('✅ Reseña creada exitosamente:', response);
           this.mostrarExito.set(true);
 
@@ -242,7 +242,7 @@ export class RatingModalComponent implements OnInit {
             this.dialogRef.close(response);
           }, 2000);
         },
-        error: (error) => {
+        error: (error: any) => {
           console.error('❌ Error al crear reseña:', error);
           this.errorMensaje.set(
             error.message || 'Error al enviar la reseña. Por favor intenta de nuevo.'

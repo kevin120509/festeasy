@@ -1,0 +1,604 @@
+<div class="min-h-screen bg-slate-50">
+    <!-- ============================================ -->
+    <!-- VISTA: LISTA DE PAQUETES -->
+    <!-- ============================================ -->
+    <ng-container *ngIf="vistaActual() === 'lista'">
+        <main class="p-8 max-w-7xl mx-auto">
+            <!-- Page Heading Section -->
+            <div class="mb-8">
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                    <div>
+                        <h1 class="text-3xl font-bold text-slate-800">Gestión de Mis Paquetes</h1>
+                        <p class="text-slate-500 mt-2">Administra, edita y analiza el rendimiento de tus servicios
+                            publicados.</p>
+                    </div>
+                    <div class="flex flex-col items-end gap-3">
+                        <button (click)="crearNuevo()" [disabled]="!canCreate()"
+                            class="bg-red-500 hover:bg-red-600 text-white flex items-center gap-2 px-6 py-3 rounded-xl font-bold shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-500">
+                            <span class="material-icons-outlined">add</span>
+                            <span>Crear Nuevo</span>
+                        </button>
+
+                        <!-- ⭐ Mensaje de límite alcanzado -->
+                        @if (!canCreate()) {
+                        <div
+                            class="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-xl flex items-start gap-3 max-w-md">
+                            <span class="material-icons-outlined text-amber-600 flex-shrink-0">info</span>
+                            <div class="text-sm">
+                                <p class="font-semibold">Límite de paquetes alcanzado</p>
+                                <p class="text-amber-700 mt-1">
+                                    Tu plan Básico permite hasta {{ subscriptionService.limits().maxPackets }} paquetes.
+                                    <a routerLink="/proveedor/configuracion"
+                                        class="font-bold underline hover:text-amber-900">Actualiza a Plus</a>
+                                    para crear paquetes ilimitados.
+                                </p>
+                            </div>
+                        </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mensajes -->
+            <div *ngIf="successMessage()"
+                class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 text-green-800 dark:text-green-200 px-4 py-3 rounded-xl flex items-center gap-3">
+                <span class="material-icons-outlined text-green-600">check_circle</span>
+                <span>{{ successMessage() }}</span>
+            </div>
+
+            <div *ngIf="errorMessage()"
+                class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl flex items-center gap-3">
+                <span class="material-icons-outlined text-red-600">error</span>
+                <span>{{ errorMessage() }}</span>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="mb-8 border-b border-gray-200 dark:border-gray-800">
+                <div class="flex gap-10">
+                    <button (click)="cambiarTab('publicado')"
+                        [class]="tabActivo() === 'publicado' ? 'relative pb-4 text-sm font-bold text-primary' : 'pb-4 text-sm font-bold text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors'">
+                        Activos
+                        <span *ngIf="tabActivo() === 'publicado'"
+                            class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
+                            [class]="tabActivo() === 'publicado' ? 'bg-primary/10' : 'bg-gray-100 dark:bg-gray-800'">
+                            {{ paquetesActivos().length }}
+                        </span>
+                    </button>
+                    <button (click)="cambiarTab('borrador')"
+                        [class]="tabActivo() === 'borrador' ? 'relative pb-4 text-sm font-bold text-primary' : 'pb-4 text-sm font-bold text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors'">
+                        Borradores
+                        <span *ngIf="tabActivo() === 'borrador'"
+                            class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
+                            [class]="tabActivo() === 'borrador' ? 'bg-primary/10' : 'bg-gray-100 dark:bg-gray-800'">
+                            {{ paquetesBorradores().length }}
+                        </span>
+                    </button>
+                    <button (click)="cambiarTab('archivado')"
+                        [class]="tabActivo() === 'archivado' ? 'relative pb-4 text-sm font-bold text-primary' : 'pb-4 text-sm font-bold text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors'">
+                        Archivados
+                        <span *ngIf="tabActivo() === 'archivado'"
+                            class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
+                            [class]="tabActivo() === 'archivado' ? 'bg-primary/10' : 'bg-gray-100 dark:bg-gray-800'">
+                            {{ paquetesArchivados().length }}
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div *ngIf="loading()" class="flex justify-center py-20">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+
+            <!-- ⭐ Mensaje de límite alcanzado (estado vacío) -->
+            @if (!loading() && paquetesFiltrados().length === 0 && !canCreate()) {
+            <div
+                class="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-2xl p-8 text-center max-w-2xl mx-auto">
+                <span class="material-icons-outlined text-6xl text-amber-400 mb-4 block">workspace_premium</span>
+                <h3 class="text-2xl font-bold text-amber-900 mb-2">¡Alcanzaste el límite de tu plan!</h3>
+                <p class="text-amber-700 mb-6">
+                    Has creado {{ paquetes().length }} de {{ subscriptionService.limits().maxPackets }} paquetes
+                    permitidos en el plan Básico.
+                </p>
+                <a routerLink="/proveedor/configuracion"
+                    class="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white px-8 py-4 rounded-full font-bold text-lg shadow-lg transition-all">
+                    <span class="material-icons-outlined">upgrade</span>
+                    Actualizar a Plan Plus
+                </a>
+                <p class="text-sm text-amber-600 mt-4">
+                    <strong>Plan Plus:</strong> Paquetes ilimitados, prioridad en búsquedas y badge exclusivo
+                </p>
+            </div>
+            }
+
+            <!-- Empty State -->
+            <div *ngIf="!loading() && paquetesFiltrados().length === 0 && canCreate()" class="text-center py-20">
+                <span class="material-icons-outlined text-6xl text-gray-300 mb-4">inventory_2</span>
+                <h3 class="text-xl font-bold text-gray-600 dark:text-gray-400">No tienes paquetes {{ tabActivo() ===
+                    'publicado' ? 'activos' : tabActivo() === 'borrador' ? 'en borrador' : 'archivados' }}</h3>
+                <p class="text-gray-400 mt-2">Crea tu primer paquete para comenzar a recibir solicitudes</p>
+                <button (click)="crearNuevo()"
+                    class="mt-6 bg-primary hover:bg-red-700 text-white px-6 py-3 rounded-full font-bold transition-all">
+                    <span class="material-icons-outlined align-middle mr-2">add</span>
+                    Crear Paquete
+                </button>
+            </div>
+
+            <!-- Package List -->
+            <div *ngIf="!loading() && paquetesFiltrados().length > 0" class="flex flex-col gap-6">
+                <div *ngFor="let paquete of paquetesFiltrados()"
+                    class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6 border border-transparent hover:border-primary/20 transition-all duration-300">
+
+                    <!-- Imagen -->
+                    <div class="w-[100px] h-[100px] rounded-lg overflow-hidden shrink-0 shadow-sm bg-gray-100">
+                        <img [src]="getPackageImage(paquete)" [alt]="paquete.nombre" class="w-full h-full object-cover"
+                            onerror="this.src='assets/placeholder-package.png'" />
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 flex flex-col gap-1 min-w-0">
+                        <div class="flex items-center gap-3">
+                            <span *ngIf="paquete.estado === 'publicado'"
+                                class="flex items-center text-green-500 text-[10px] font-bold uppercase tracking-wider">
+                                <span class="size-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
+                                Online
+                            </span>
+                            <span *ngIf="paquete.estado === 'borrador'"
+                                class="flex items-center text-yellow-500 text-[10px] font-bold uppercase tracking-wider">
+                                <span class="size-1.5 bg-yellow-500 rounded-full mr-1.5"></span>
+                                Borrador
+                            </span>
+                            <span *ngIf="paquete.estado === 'archivado'"
+                                class="flex items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                                <span class="size-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                                Archivado
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                                @if (authService.currentUser()?.avatar_url) {
+                                <img [src]="authService.currentUser()?.avatar_url" class="w-full h-full object-cover">
+                                } @else {
+                                <span class="text-[10px] font-black text-slate-400 font-bold">{{
+                                    (authService.currentUser()?.nombre_negocio || 'P').charAt(0) }}</span>
+                                }
+                            </div>
+                            <h3 class="text-jet-black dark:text-white text-xl font-bold truncate">{{ paquete.nombre }}
+                            </h3>
+                        </div>
+                        <p class="text-primary font-black text-lg">${{ paquete.precio_base | number:'1.2-2' }} <span
+                                class="text-xs text-gray-400 font-medium">/ servicio</span></p>
+                        <div class="flex items-center gap-6 mt-2 text-gray-500 dark:text-gray-400">
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-icons-outlined text-lg">visibility</span>
+                                <span class="text-xs font-semibold">{{ paquete.vistas || 0 }} Vistas</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <span class="material-icons-outlined text-lg">calendar_today</span>
+                                <span class="text-xs font-semibold">{{ paquete.reservas || 0 }} Reservas</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex items-center gap-6 px-4 border-l border-gray-100 dark:border-gray-800 sm:h-20">
+                        <!-- Toggle Estado -->
+                        <div class="flex flex-col items-center gap-1" *ngIf="paquete.estado !== 'borrador'">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" [checked]="paquete.estado === 'publicado'"
+                                    (change)="toggleEstado(paquete)" class="sr-only peer" />
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                                </div>
+                            </label>
+                            <span class="text-[10px] font-bold text-gray-400 uppercase">Estado</span>
+                        </div>
+
+                        <!-- Menu -->
+                        <div class="relative">
+                            <button (click)="toggleMenu(paquete.id)"
+                                class="text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors p-2 rounded-full hover:bg-gray-50 dark:hover:bg-gray-800">
+                                <span class="material-icons-outlined text-2xl">more_vert</span>
+                            </button>
+
+                            <!-- Dropdown Menu -->
+                            <div *ngIf="menuAbierto() === paquete.id"
+                                class="absolute right-0 top-full mt-2 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg p-2 shadow-2xl min-w-[150px] z-50">
+                                <button (click)="editarPaquete(paquete)"
+                                    class="flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors w-full">
+                                    <span class="material-icons-outlined text-lg">edit</span> Editar
+                                </button>
+                                <div class="my-1 border-t border-gray-100 dark:border-gray-800"></div>
+                                <button (click)="eliminarPaquete(paquete)"
+                                    class="flex items-center gap-3 px-3 py-2 text-sm text-primary hover:bg-red-50 dark:hover:bg-red-900/10 rounded-md transition-colors w-full">
+                                    <span class="material-icons-outlined text-lg">delete</span> Eliminar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div *ngIf="!loading() && paquetes().length > 0"
+                class="mt-12 flex items-center justify-between text-gray-400 text-sm">
+                <p>Mostrando {{ paquetesFiltrados().length }} de {{ paquetes().length }} paquetes</p>
+            </div>
+        </main>
+    </ng-container>
+
+    <!-- ============================================ -->
+    <!-- VISTA: CREAR / EDITAR PAQUETE -->
+    <!-- ============================================ -->
+    <ng-container *ngIf="vistaActual() === 'crear' || vistaActual() === 'editar'">
+        <!-- Header -->
+        <header
+            class="h-20 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-gray-700 flex items-center justify-between px-8">
+            <div class="flex items-center gap-4">
+                <button (click)="volverALista()"
+                    class="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                    <span class="material-icons-outlined">arrow_back</span>
+                </button>
+                <h1 class="text-xl font-bold text-slate-800 dark:text-white">
+                    {{ vistaActual() === 'editar' ? 'Editar Paquete' : 'Crear Nuevo Paquete' }}
+                </h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button (click)="guardarBorrador()" [disabled]="saving()"
+                    class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50">
+                    Guardar Borrador
+                </button>
+                <button (click)="publicar()" [disabled]="saving()"
+                    class="px-6 py-2 bg-primary hover:bg-red-600 text-white rounded-lg font-bold text-sm shadow-lg shadow-red-200 dark:shadow-none transition-all disabled:opacity-50 flex items-center gap-2">
+                    <span class="material-icons-outlined text-sm" *ngIf="!saving()">publish</span>
+                    <span class="material-icons-outlined text-sm animate-spin" *ngIf="saving()">sync</span>
+                    {{ saving() ? 'Guardando...' : (vistaActual() === 'editar' ? 'Actualizar' : 'Publicar') }}
+                </button>
+            </div>
+        </header>
+
+        <main class="p-8 max-w-7xl mx-auto">
+            <!-- Mensajes -->
+            <div *ngIf="successMessage()"
+                class="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/50 text-green-800 dark:text-green-200 px-4 py-3 rounded-xl flex items-center gap-3">
+                <span class="material-icons-outlined text-green-600">check_circle</span>
+                <span>{{ successMessage() }}</span>
+            </div>
+
+            <div *ngIf="errorMessage()"
+                class="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900/50 text-red-800 dark:text-red-200 px-4 py-3 rounded-xl flex items-center gap-3">
+                <span class="material-icons-outlined text-red-600">error</span>
+                <span>{{ errorMessage() }}</span>
+            </div>
+
+            <!-- Stepper -->
+            <div class="mb-10 max-w-4xl mx-auto">
+                <div class="flex items-center justify-between relative">
+                    <div
+                        class="absolute top-1/2 left-0 w-full h-0.5 bg-slate-200 dark:bg-gray-700 -translate-y-1/2 z-0">
+                    </div>
+
+                    <!-- Step 1 -->
+                    <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(1)">
+                        <div
+                            [class]="currentStep() >= 1 
+                            ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                            : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                            <span *ngIf="currentStep() > 1" class="material-icons-outlined text-sm">check</span>
+                            <span *ngIf="currentStep() <= 1">1</span>
+                        </div>
+                        <span
+                            [class]="currentStep() === 1 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                            Información
+                        </span>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(2)">
+                        <div
+                            [class]="currentStep() >= 2 
+                            ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                            : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                            <span *ngIf="currentStep() > 2" class="material-icons-outlined text-sm">check</span>
+                            <span *ngIf="currentStep() <= 2">2</span>
+                        </div>
+                        <span
+                            [class]="currentStep() === 2 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                            Detalles y Precios
+                        </span>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(3)">
+                        <div
+                            [class]="currentStep() >= 3 
+                            ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                            : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                            <span *ngIf="currentStep() > 3" class="material-icons-outlined text-sm">check</span>
+                            <span *ngIf="currentStep() <= 3">3</span>
+                        </div>
+                        <span
+                            [class]="currentStep() === 3 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                            Multimedia
+                        </span>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="relative z-10 flex flex-col items-center gap-2 cursor-pointer" (click)="goToStep(4)">
+                        <div
+                            [class]="currentStep() >= 4 
+                            ? 'w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold' 
+                            : 'w-10 h-10 rounded-full bg-slate-200 dark:bg-gray-700 text-slate-400 flex items-center justify-center font-bold'">
+                            4
+                        </div>
+                        <span
+                            [class]="currentStep() === 4 ? 'text-xs font-bold text-primary' : 'text-xs font-medium text-slate-400'">
+                            Revisión
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 1: Información General -->
+            <div *ngIf="currentStep() === 1" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div class="lg:col-span-7 space-y-6">
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6 space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Nombre del paquete <span class="text-primary">*</span>
+                            </label>
+                            <input type="text" [value]="packageData().nombre"
+                                (input)="updateField('nombre', $any($event.target).value)"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                placeholder="Ej: Paquete de Sonido e Iluminación" />
+                        </div>
+
+                        <!-- ⭐ Categoría de Servicio (REQUERIDO) -->
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Categoría de Servicio <span class="text-primary">*</span>
+                            </label>
+                            <select [value]="packageData().categoria_servicio_id"
+                                (change)="updateField('categoria_servicio_id', $any($event.target).value)"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none">
+                                <option value="" disabled>Selecciona una categoría</option>
+                                @for (categoria of categorias(); track categoria.id) {
+                                <option [value]="categoria.id">{{ categoria.nombre }}</option>
+                                }
+                            </select>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">
+                                Esta categoría ayudará a los clientes a encontrar tu servicio
+                            </p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                Descripción detallada
+                            </label>
+                            <textarea [value]="packageData().descripcion"
+                                (input)="updateField('descripcion', $any($event.target).value)" rows="6"
+                                class="w-full px-4 py-3 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none resize-none"
+                                placeholder="Describe qué incluye tu servicio, duración, equipos utilizados..."></textarea>
+                            <p class="text-xs text-slate-500 dark:text-slate-400">Mínimo 50 caracteres para una mejor
+                                visibilidad.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview Card -->
+                <div class="lg:col-span-5">
+                    <div class="sticky top-28">
+                        <h3 class="text-sm font-bold text-slate-500 dark:text-slate-400 mb-4 uppercase tracking-wider">
+                            Vista previa</h3>
+                        <div
+                            class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                            <div
+                                class="h-48 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center">
+                                <span
+                                    class="material-icons-outlined text-5xl text-slate-300 dark:text-gray-500">image</span>
+                            </div>
+                            <div class="p-5">
+                                <h4 class="text-lg font-bold text-slate-800 dark:text-white mt-1 truncate">
+                                    {{ packageData().nombre || 'Nombre del paquete' }}
+                                </h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">
+                                    {{ packageData().descripcion || 'La descripción aparecerá aquí...' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 2: Detalles y Precios -->
+            <div *ngIf="currentStep() === 2" class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div class="lg:col-span-7 space-y-6">
+                    <!-- Precio Base -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Precio Base</h3>
+                        <div class="relative">
+                            <span
+                                class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">$</span>
+                            <input type="number" [value]="packageData().precio_base"
+                                (input)="updateField('precio_base', +$any($event.target).value)"
+                                class="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl text-2xl font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
+                                placeholder="0.00" min="0" step="0.01" />
+                        </div>
+                    </div>
+
+                    <!-- Incluidos (antes Cargos Adicionales) -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Incluidos (Opcionales)</h3>
+
+                        <div class="flex flex-col gap-3 mb-4">
+                            <div class="flex gap-3">
+                                <input type="text" [value]="newChargeName()"
+                                    (input)="newChargeName.set($any($event.target).value)"
+                                    class="flex-1 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
+                                    placeholder="Concepto" />
+                                <div class="relative w-32">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                                    <input type="number" [value]="newChargePrice()"
+                                        (input)="newChargePrice.set(+$any($event.target).value)"
+                                        class="w-full pl-7 pr-3 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
+                                        min="0" step="0.01" />
+                                </div>
+                                <button (click)="addExtraCharge()"
+                                    class="px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
+                                    <span class="material-icons-outlined">add</span>
+                                </button>
+                            </div>
+                            <textarea [value]="newChargeDescription()"
+                                (input)="newChargeDescription.set($any($event.target).value)"
+                                class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
+                                placeholder="Descripción (opcional)" rows="2"></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div *ngFor="let charge of extraCharges(); let i = index"
+                                class="flex flex-col items-start justify-between px-4 py-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
+                                <div class="flex justify-between w-full">
+                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{
+                                        charge.nombre }}</span>
+                                    <div class="flex items-center gap-3">
+                                        <span class="text-sm font-bold text-primary">+${{ charge.precio | number:'1.2-2'
+                                            }}</span>
+                                        <button (click)="removeExtraCharge(i)" class="text-red-400 hover:text-red-600">
+                                            <span class="material-icons-outlined text-sm">close</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ charge.descripcion }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Precios -->
+                <div class="lg:col-span-5">
+                    <div
+                        class="sticky top-28 bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Resumen</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between text-sm">
+                                <span class="text-slate-500">Precio base</span>
+                                <span class="font-semibold">${{ packageData().precio_base | number:'1.2-2' }}</span>
+                            </div>
+                            <div *ngFor="let charge of extraCharges()" class="flex justify-between text-sm">
+                                <span class="text-slate-500">{{ charge.nombre }}</span>
+                                <span class="font-semibold">+${{ charge.precio | number:'1.2-2' }}</span>
+                            </div>
+                            <div class="border-t border-slate-200 dark:border-gray-700 pt-3 mt-3">
+                                <div class="flex justify-between">
+                                    <span class="font-bold text-slate-800 dark:text-white">Total Estimado</span>
+                                    <span class="font-black text-primary text-xl">${{ totalEstimado | number:'1.2-2'
+                                        }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 3: Multimedia -->
+            <div *ngIf="currentStep() === 3" class="max-w-4xl mx-auto space-y-6">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
+                    <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Imágenes del Paquete</h3>
+                    <p class="text-sm text-slate-500 mb-6">Sube hasta 10 imágenes. La primera será la imagen de portada.
+                    </p>
+
+                    <!-- Upload Area -->
+                    <label
+                        class="block border-2 border-dashed border-slate-300 dark:border-gray-600 rounded-2xl p-10 text-center cursor-pointer hover:border-primary transition-colors">
+                        <input type="file" accept="image/*" multiple (change)="onImageSelect($event)" class="hidden"
+                            [disabled]="uploadingImages()" />
+                        <span
+                            class="material-icons-outlined text-5xl text-slate-300 dark:text-gray-500 mb-4 block">cloud_upload</span>
+                        <p class="text-slate-600 dark:text-slate-400 font-medium">
+                            {{ uploadingImages() ? 'Subiendo imágenes...' : 'Arrastra imágenes o haz clic para
+                            seleccionar' }}
+                        </p>
+                        <p class="text-xs text-slate-400 mt-2">PNG, JPG, GIF hasta 5MB</p>
+                    </label>
+
+                    <!-- Images Grid -->
+                    <div *ngIf="images().length > 0" class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                        <div *ngFor="let img of images(); let i = index" class="relative group">
+                            <img [src]="img.url" class="w-full h-32 object-cover rounded-xl"
+                                [class.ring-4]="img.isPortada" [class.ring-primary]="img.isPortada" />
+                            <div
+                                class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
+                                <button (click)="setPortada(i)" *ngIf="!img.isPortada"
+                                    class="p-2 bg-white rounded-full text-slate-700 hover:bg-primary hover:text-white transition-colors"
+                                    title="Hacer portada">
+                                    <span class="material-icons-outlined text-sm">star</span>
+                                </button>
+                                <button (click)="removeImage(i)"
+                                    class="p-2 bg-white rounded-full text-red-500 hover:bg-red-500 hover:text-white transition-colors"
+                                    title="Eliminar">
+                                    <span class="material-icons-outlined text-sm">delete</span>
+                                </button>
+                            </div>
+                            <span *ngIf="img.isPortada"
+                                class="absolute top-2 left-2 bg-primary text-white text-[10px] font-bold px-2 py-1 rounded-full">PORTADA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 4: Revisión -->
+            <div *ngIf="currentStep() === 4" class="max-w-4xl mx-auto">
+                <div
+                    class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                    <!-- Preview Header -->
+                    <div
+                        class="h-64 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-gray-700 dark:to-gray-600 relative">
+                        <img *ngIf="portadaUrl" [src]="portadaUrl" class="w-full h-full object-cover" />
+                    </div>
+
+                    <div class="p-8">
+                        <h2 class="text-3xl font-black text-slate-800 dark:text-white mt-2">{{ packageData().nombre }}
+                        </h2>
+                        <p class="text-slate-500 dark:text-slate-400 mt-4">{{ packageData().descripcion }}</p>
+
+                        <div class="mt-8 pt-6 border-t border-slate-200 dark:border-gray-700">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Precio total</span>
+                                <span class="text-4xl font-black text-primary">${{ totalEstimado | number:'1.2-2'
+                                    }}</span>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between mt-10 max-w-4xl mx-auto" *ngIf="vistaActual() !== 'lista'">
+                <button *ngIf="currentStep() > 1" (click)="prevStep()"
+                    class="px-6 py-3 border border-slate-200 dark:border-gray-700 rounded-xl font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2">
+                    <span class="material-icons-outlined">arrow_back</span>
+                    Anterior
+                </button>
+                <div *ngIf="currentStep() === 1"></div>
+                <button *ngIf="currentStep() < 4" (click)="nextStep()"
+                    class="px-6 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold transition-colors flex items-center gap-2 ml-auto">
+                    Siguiente
+                    <span class="material-icons-outlined">arrow_forward</span>
+                </button>
+            </div>
+        </main>
+    </ng-container>
+</div>
+
+<!-- Overlay para cerrar menú -->
+<div *ngIf="menuAbierto()" (click)="cerrarMenu()" class="fixed inset-0 z-40"></div>
