@@ -1,3 +1,16 @@
+// Enumeraciones
+export enum SolicitudEstado {
+    PENDIENTE_APROBACION = 'pendiente_aprobacion',
+    RECHAZADA = 'rechazada',
+    ESPERANDO_ANTICIPO = 'esperando_anticipo',
+    RESERVADO = 'reservado',
+    EN_PROGRESO = 'en_progreso',
+    ENTREGADO_PENDIENTE_LIQ = 'entregado_pendiente_liq',
+    FINALIZADO = 'finalizado',
+    CANCELADA = 'cancelada',
+    ABANDONADA = 'abandonada'
+}
+
 // User and Profiles
 export interface User {
     id: string;

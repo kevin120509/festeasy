@@ -3,7 +3,7 @@ import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
-import { ServiceRequest, RequestItem } from '../../../models';
+import { ServiceRequest, RequestItem, SolicitudEstado } from '../../../models';
 import { ValidarPin } from '../../validar-pin/validar-pin';
 import { esDiaDelEvento, formatearFechaEvento } from '../../../utils/date.utils';
 import { ConfirmationService } from 'primeng/api';
@@ -26,6 +26,9 @@ export class SolicitudDetalleComponent implements OnInit {
     private api = inject(ApiService);
     private confirmationService = inject(ConfirmationService);
     public auth = inject(AuthService);
+
+    // Exponer el enum para uso en el template
+    public readonly SolicitudEstado = SolicitudEstado;
 
     solicitud = signal<ServiceRequest | null>(null);
     items = signal<RequestItem[]>([]);
