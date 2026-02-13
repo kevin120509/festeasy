@@ -23,6 +23,7 @@ export class MarketplaceComponent implements OnInit {
     // Usar estado persistente
     searchQuery = this.marketplaceState.searchQuery;
     categoriaSeleccionada = this.marketplaceState.categoriaSeleccionada;
+    searchLocation = this.marketplaceState.searchLocation;
 
     eventoActual = signal<any>(null);
 
@@ -189,10 +190,14 @@ export class MarketplaceComponent implements OnInit {
 
     filteredProviders = computed(() => {
         const query = this.searchQuery().toLowerCase();
+        const locationQuery = this.searchLocation().toLowerCase();
         const catId = this.categoriaSeleccionada();
 
         return this.providers().filter(p => {
             const matchesQuery = !query || p.nombre.toLowerCase().includes(query);
+
+            // Filtro de ubicación: Búsqueda flexible en el string de ubicación
+            const matchesLocation = !locationQuery || p.ubicacion.toLowerCase().includes(locationQuery);
 
             // Nuevo filtro: Coincide si el proveedor ofrece CUALQUIER paquete de esa categoría
             // O si su categoría principal es esa.
@@ -204,7 +209,7 @@ export class MarketplaceComponent implements OnInit {
                 matchesCategory = providerCats ? providerCats.has(catId) : false;
             }
 
-            return matchesQuery && matchesCategory;
+            return matchesQuery && matchesLocation && matchesCategory;
         });
     });
 

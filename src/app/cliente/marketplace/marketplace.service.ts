@@ -5,10 +5,12 @@ import { Injectable, signal } from '@angular/core';
 })
 export class MarketplaceService {
     searchQuery = signal('');
+    searchLocation = signal('');
     categoriaSeleccionada = signal('');
 
     reset() {
         this.searchQuery.set('');
+        this.searchLocation.set('');
         this.categoriaSeleccionada.set('');
     }
 }

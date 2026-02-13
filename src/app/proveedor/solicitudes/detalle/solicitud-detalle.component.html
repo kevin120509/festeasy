@@ -103,24 +103,24 @@
                 </button>
                 @if (solicitud()) {
                 <span class="px-3 py-1 text-xs font-bold rounded-full uppercase" [ngClass]="{
-                    'bg-amber-100 text-amber-700': solicitud()?.estado === 'pendiente_aprobacion',
-                    'bg-orange-100 text-orange-700': solicitud()?.estado === 'esperando_anticipo',
-                    'bg-green-100 text-green-700': solicitud()?.estado === 'reservado',
-                    'bg-blue-100 text-blue-700': solicitud()?.estado === 'en_progreso',
-                    'bg-purple-100 text-purple-700': solicitud()?.estado === 'entregado_pendiente_liq',
-                    'bg-emerald-100 text-emerald-700': solicitud()?.estado === 'finalizado',
-                    'bg-red-100 text-red-700': solicitud()?.estado === 'rechazada' || solicitud()?.estado === 'cancelada',
-                    'bg-slate-100 text-slate-700': !['pendiente_aprobacion', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq', 'finalizado', 'rechazada', 'cancelada'].includes(solicitud()?.estado || '')
+                    'bg-amber-100 text-amber-700': solicitud()?.estado === SolicitudEstado.PENDIENTE_APROBACION,
+                    'bg-orange-100 text-orange-700': solicitud()?.estado === SolicitudEstado.ESPERANDO_ANTICIPO,
+                    'bg-green-100 text-green-700': solicitud()?.estado === SolicitudEstado.RESERVADO,
+                    'bg-blue-100 text-blue-700': solicitud()?.estado === SolicitudEstado.EN_PROGRESO,
+                    'bg-purple-100 text-purple-700': solicitud()?.estado === SolicitudEstado.ENTREGADO_PENDIENTE_LIQ,
+                    'bg-emerald-100 text-emerald-700': solicitud()?.estado === SolicitudEstado.FINALIZADO,
+                    'bg-red-100 text-red-700': solicitud()?.estado === SolicitudEstado.RECHAZADA || solicitud()?.estado === SolicitudEstado.CANCELADA,
+                    'bg-slate-100 text-slate-700': solicitud()?.estado !== SolicitudEstado.PENDIENTE_APROBACION && solicitud()?.estado !== SolicitudEstado.ESPERANDO_ANTICIPO && solicitud()?.estado !== SolicitudEstado.RESERVADO && solicitud()?.estado !== SolicitudEstado.EN_PROGRESO && solicitud()?.estado !== SolicitudEstado.ENTREGADO_PENDIENTE_LIQ && solicitud()?.estado !== SolicitudEstado.FINALIZADO && solicitud()?.estado !== SolicitudEstado.RECHAZADA && solicitud()?.estado !== SolicitudEstado.CANCELADA
                 }">
                     @switch (solicitud()?.estado) {
-                    @case ('pendiente_aprobacion') { Pendiente }
-                    @case ('esperando_anticipo') { Esperando Pago }
-                    @case ('reservado') { Reservado }
-                    @case ('en_progreso') { En Progreso }
-                    @case ('entregado_pendiente_liq') { Por Liquidar }
-                    @case ('finalizado') { ✓ Finalizado }
-                    @case ('rechazada') { Rechazada }
-                    @case ('cancelada') { Cancelada }
+                    @case (SolicitudEstado.PENDIENTE_APROBACION) { Pendiente }
+                    @case (SolicitudEstado.ESPERANDO_ANTICIPO) { Esperando Pago }
+                    @case (SolicitudEstado.RESERVADO) { Reservado }
+                    @case (SolicitudEstado.EN_PROGRESO) { En Progreso }
+                    @case (SolicitudEstado.ENTREGADO_PENDIENTE_LIQ) { Por Liquidar }
+                    @case (SolicitudEstado.FINALIZADO) { ✓ Finalizado }
+                    @case (SolicitudEstado.RECHAZADA) { Rechazada }
+                    @case (SolicitudEstado.CANCELADA) { Cancelada }
                     @default { {{ solicitud()?.estado }} }
                     }
                 </span>
@@ -131,7 +131,7 @@
 
     <main class="w-full  px-6 pt-8">
         <!-- Banner de Servicio Finalizado -->
-        @if (solicitud()?.estado === 'finalizado') {
+        @if (solicitud()?.estado === SolicitudEstado.FINALIZADO) {
         <div class="bg-gradient-to-r from-emerald-500 to-green-600 rounded-3xl p-6 text-white mb-8 shadow-lg">
             <div class="flex items-center gap-4">
                 <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
@@ -147,7 +147,7 @@
         }
 
         <!-- 🚫 TARJETA DE CANCELACIÓN - Visible cuando el servicio está cancelado -->
-        @if (solicitud()?.estado === 'cancelada') {
+        @if (solicitud()?.estado === SolicitudEstado.CANCELADA) {
         <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-3xl shadow-lg mb-8 text-white">
             <div class="flex items-start gap-4 mb-4">
                 <div class="bg-white/20 p-3 rounded-full flex-shrink-0">
@@ -340,8 +340,10 @@
                                 <p class="font-bold text-slate-900">{{ (solicitud()?.monto_anticipo ||
                                     (solicitud()?.monto_total || 0) * 0.3) |
                                     currency:'MXN' }}</p>
-                                @if (['reservado', 'en_progreso', 'entregado_pendiente_liq',
-                                'finalizado'].includes(solicitud()?.estado || '')) {
+                                @if (solicitud()?.estado === SolicitudEstado.RESERVADO ||
+                                solicitud()?.estado === SolicitudEstado.EN_PROGRESO ||
+                                solicitud()?.estado === SolicitudEstado.ENTREGADO_PENDIENTE_LIQ ||
+                                solicitud()?.estado === SolicitudEstado.FINALIZADO) {
                                 <span
                                     class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
                                 } @else {
@@ -357,10 +359,10 @@
                                 <p class="font-bold text-slate-900">{{ (solicitud()?.monto_liquidacion ||
                                     (solicitud()?.monto_total || 0) * 0.7) |
                                     currency:'MXN' }}</p>
-                                @if (solicitud()?.estado === 'finalizado') {
+                                @if (solicitud()?.estado === SolicitudEstado.FINALIZADO) {
                                 <span
                                     class="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black uppercase">Pagado</span>
-                                } @else if (solicitud()?.estado === 'entregado_pendiente_liq') {
+                                } @else if (solicitud()?.estado === SolicitudEstado.ENTREGADO_PENDIENTE_LIQ) {
                                 <span
                                     class="text-[10px] bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-black uppercase">Por
                                     Liquidar</span>
@@ -372,7 +374,7 @@
                         </div>
 
                         <!-- Total Ganado (solo si está finalizado) -->
-                        @if (solicitud()?.estado === 'finalizado') {
+                        @if (solicitud()?.estado === SolicitudEstado.FINALIZADO) {
                         <div
                             class="flex justify-between items-center pt-6 border-t-2 border-emerald-200 bg-emerald-50 -mx-8 px-8 py-4 -mb-8 rounded-b-3xl">
                             <span class="text-emerald-700 text-sm font-bold">Total Ganado</span>
@@ -386,7 +388,7 @@
                 </section>
 
                 <!-- Acciones Especiales (PIN siempre activo) -->
-                @if (solicitud()?.estado === 'reservado') {
+                @if (solicitud()?.estado === SolicitudEstado.RESERVADO) {
                 <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200">
                     <p class="text-amber-800 text-sm font-bold mb-4 flex items-center gap-2">
                         <span class="material-symbols-outlined text-lg">key</span>
@@ -405,8 +407,8 @@
                 </div>
                 }
 
-                <!-- Botón de Cancelación - Simplificado para pruebas -->
-                @if (['pendiente_aprobacion', 'esperando_anticipo', 'reservado'].includes(solicitud()?.estado || '')) {
+                <!-- 🚫 Botón de Cancelación - SOLO visible cuando el servicio está ACEPTADO (reservado) -->
+                @if (solicitud()?.estado === SolicitudEstado.RESERVADO) {
                 <div class="bg-red-50 rounded-3xl p-6 border border-red-200">
                     <p class="text-red-800 text-sm font-bold mb-4 flex items-center gap-2">
                         <span class="material-symbols-outlined text-lg">cancel</span>

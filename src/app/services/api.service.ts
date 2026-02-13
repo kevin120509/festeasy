@@ -620,6 +620,17 @@ export class ApiService {
                             nombre_completo,
                             telefono,
                             avatar_url
+                        ),
+                        perfil_proveedor: perfil_proveedor!solicitudes_proveedor_perfil_fkey(
+                            id,
+                            usuario_id,
+                            nombre_negocio,
+                            descripcion,
+                            telefono,
+                            avatar_url,
+                            direccion_formato,
+                            rating,
+                            tipo_suscripcion_actual
                         )
                         `)
             .eq('id', id)
@@ -641,6 +652,39 @@ export class ApiService {
                 const rawCliente = request.cliente;
                 const clienteExistente = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
 
+                const rawProveedor = request.perfil_proveedor;
+                const proveedorExistente = Array.isArray(rawProveedor) ? rawProveedor[0] : rawProveedor;
+
+                // Si ya tenemos los datos del proveedor del JOIN, no necesitamos hacer otra consulta
+                if (proveedorExistente?.nombre_negocio) {
+                    console.log('✅ Perfil de proveedor obtenido vía JOIN:', proveedorExistente.nombre_negocio);
+                    return forkJoin({
+                        clientManual: clienteExistente?.nombre_completo ? of({ data: clienteExistente }) : from(this.supabase.from('perfil_cliente').select('*').eq('usuario_id', request.cliente_usuario_id).maybeSingle()),
+                        clientAsProvider: (clienteExistente?.nombre_completo || false) ? of({ data: null }) : from(this.supabase.from('perfil_proveedor').select('nombre_negocio, telefono, avatar_url').eq('usuario_id', request.cliente_usuario_id).maybeSingle())
+                    }).pipe(
+                        map(({ clientManual, clientAsProvider }: any) => {
+                            let clienteData = clientManual.data || clienteExistente;
+
+                            // Si después de todo sigue sin haber nombre, usar los datos de proveedor si existen
+                            if (!clienteData?.nombre_completo && clientAsProvider.data) {
+                                clienteData = {
+                                    nombre_completo: clientAsProvider.data.nombre_negocio || clientAsProvider.data.nombre_completo,
+                                    telefono: clientAsProvider.data.telefono,
+                                    avatar_url: clientAsProvider.data.avatar_url
+                                };
+                            }
+
+                            return {
+                                ...request,
+                                perfil_proveedor: proveedorExistente,
+                                cliente: clienteData
+                            };
+                        })
+                    );
+                }
+
+                // FALLBACK: Si el JOIN no trajo el proveedor, buscarlo manualmente
+                console.log('⚠️ Perfil de proveedor no obtenido vía JOIN. Buscando manualmente...');
                 return forkJoin({
                     provider: from(this.supabase.from('perfil_proveedor').select('*').eq('usuario_id', request.proveedor_usuario_id).maybeSingle()),
                     clientManual: clienteExistente?.nombre_completo ? of({ data: clienteExistente }) : from(this.supabase.from('perfil_cliente').select('*').eq('usuario_id', request.cliente_usuario_id).maybeSingle()),
