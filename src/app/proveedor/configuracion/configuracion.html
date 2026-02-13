@@ -347,8 +347,22 @@
                                         </div>
                                     </div>
 
+                                    <!-- Selección de Método de Pago -->
+                                    <div class="grid grid-cols-2 gap-2 mb-4">
+                                        <button (click)="seleccionarMetodoSuscripcion('paypal')"
+                                            [class]="metodoSuscripcion() === 'paypal' ? 'border-2 border-primary bg-primary/5' : 'border border-slate-100 bg-slate-50'"
+                                            class="p-3 rounded-xl transition-all text-center transform active:scale-95">
+                                            <p class="text-[10px] font-black uppercase text-slate-500">PayPal</p>
+                                        </button>
+                                        <button (click)="seleccionarMetodoSuscripcion('stripe')"
+                                            [class]="metodoSuscripcion() === 'stripe' ? 'border-2 border-primary bg-primary/5' : 'border border-slate-100 bg-slate-50'"
+                                            class="p-3 rounded-xl transition-all text-center transform active:scale-95">
+                                            <p class="text-[10px] font-black uppercase text-slate-500">Tarjeta</p>
+                                        </button>
+                                    </div>
+
                                     <!-- PayPal Container -->
-                                    <div class="mt-6">
+                                    <div [class.hidden]="metodoSuscripcion() !== 'paypal'" class="mt-4">
                                         <div [style.display]="paypalBlocked() ? 'none' : 'block'"
                                             id="paypal-button-container"
                                             class="w-full min-h-[150px] bg-gray-50 dark:bg-gray-700 rounded-xl flex items-center justify-center">
@@ -362,6 +376,23 @@
                                             <p class="text-[10px] text-red-600">Por favor desactiva el bloqueo de
                                                 anuncios para ver las opciones de pago.</p>
                                         </div>
+                                    </div>
+
+                                    <!-- Stripe Container -->
+                                    <div [class.hidden]="metodoSuscripcion() !== 'stripe'"
+                                        class="mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                        <div id="stripe-card-element"
+                                            class="p-4 border border-slate-100 rounded-xl bg-slate-50 mb-4">
+                                            <!-- Stripe Element sits here -->
+                                        </div>
+
+                                        <button (click)="pagarSuscripcionStripe()" [disabled]="upgradingPlan()"
+                                            class="w-full bg-primary hover:bg-red-600 disabled:opacity-50 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-red-200 flex items-center justify-center gap-2">
+                                            <span *ngIf="!upgradingPlan()"
+                                                class="material-icons-outlined text-sm">lock</span>
+                                            <span *ngIf="upgradingPlan()" class="pi pi-spin pi-spinner text-sm"></span>
+                                            {{ upgradingPlan() ? 'Procesando...' : 'Pagar Suscripción' }}
+                                        </button>
                                     </div>
                                 </div>
                             </div>

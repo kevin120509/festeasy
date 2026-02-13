@@ -13,6 +13,9 @@ import { SubscriptionService } from '../../services/subscription.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ProviderProfile } from '../../models';
 
+declare var paypal: any;
+declare var Stripe: any;
+
 @Component({
     selector: 'app-proveedor-configuracion',
     standalone: true,
@@ -39,6 +42,9 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     successMessage = signal('');
     errorMessage = signal('');
     paypalBlocked = signal(false);
+    stripe: any;
+    cardElement: any;
+    metodoSuscripcion = signal<'paypal' | 'stripe'>('paypal');
 
     // Form data
     formData = signal({
@@ -326,9 +332,74 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     // ==========================================
 
     ngAfterViewInit() {
+        this.initStripe();
         // Intentar renderizar botón si el plan es básico
         if (this.subscriptionService.currentPlan() === 'basico') {
+            this.seleccionarMetodoSuscripcion('paypal');
+        }
+    }
+
+    initStripe() {
+        this.stripe = Stripe(environment.stripePublishableKey);
+    }
+
+    seleccionarMetodoSuscripcion(metodo: 'paypal' | 'stripe') {
+        this.metodoSuscripcion.set(metodo);
+        if (metodo === 'paypal') {
             this.initPaypal();
+        } else {
+            setTimeout(() => this.renderStripeElements(), 100);
+        }
+    }
+
+    renderStripeElements() {
+        const container = document.getElementById('stripe-card-element');
+        if (!container) return;
+
+        const elements = this.stripe.elements();
+        this.cardElement = elements.create('card', {
+            style: {
+                base: {
+                    fontSize: '16px',
+                    color: '#32325d',
+                    '::placeholder': {
+                        color: '#aab7c4',
+                    },
+                },
+                invalid: {
+                    color: '#fa755a',
+                    iconColor: '#fa755a',
+                },
+            },
+        });
+        this.cardElement.mount('#stripe-card-element');
+    }
+
+    async pagarSuscripcionStripe() {
+        if (this.upgradingPlan()) return;
+        this.upgradingPlan.set(true);
+
+        try {
+            console.log('💳 Procesando suscripción con Stripe (Simulado)...');
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const userId = this.auth.currentUser()?.id;
+            if (userId) {
+                const targetPlan = 'pro';
+                const amount = 900.00;
+
+                await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount);
+                await this.auth.refreshUserProfile();
+                await this.loadProfile();
+
+                this.successMessage.set(`¡Bienvenido al Plan ${targetPlan.toUpperCase()}! 🌟 Disfruta de todos los beneficios.`);
+                setTimeout(() => this.successMessage.set(''), 5000);
+            }
+        } catch (error) {
+            console.error('Error con Stripe Sub:', error);
+            this.errorMessage.set('Error al procesar el pago con tarjeta.');
+        } finally {
+            this.upgradingPlan.set(false);
         }
     }
 

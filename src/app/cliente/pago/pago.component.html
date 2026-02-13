@@ -126,57 +126,74 @@
             </div>
         </div>
 
-        <!-- Método de Pago Simulado -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-6 mb-8">
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Método de Pago</h2>
+        <!-- Selección de Método de Pago -->
+        <div
+            class="bg-white dark:bg-gray-800 rounded-[32px] shadow-xl shadow-gray-200/50 dark:shadow-none p-8 mb-8 border border-gray-100 dark:border-gray-700">
+            <h2 class="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
+                <span class="material-symbols-outlined text-red-600">payments</span>
+                Selecciona tu método de pago
+            </h2>
 
-            <div class="space-y-3">
-                <label class="flex items-center gap-3 p-4 border border-primary bg-primary/5 rounded-xl cursor-pointer">
-                    <input type="radio" name="payment" checked class="text-primary focus:ring-primary">
-                    <span class="material-symbols-outlined text-gray-600">credit_card</span>
-                    <div class="flex-1">
-                        <p class="font-bold text-gray-900 dark:text-white">Tarjeta de Crédito / Débito</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- PayPal Option -->
+                <button (click)="seleccionarMetodo('paypal')"
+                    [class]="metodoSeleccionado() === 'paypal' ? 'border-2 border-red-600 bg-red-50/50' : 'border border-gray-100 bg-gray-50/50 hover:border-gray-200'"
+                    class="p-6 rounded-3xl transition-all text-left flex items-start gap-4 transform active:scale-95">
+                    <div [class]="metodoSeleccionado() === 'paypal' ? 'bg-red-600 text-white' : 'bg-white text-gray-400'"
+                        class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined">account_balance_wallet</span>
+                    </div>
+                    <div>
+                        <p class="font-black text-gray-900 dark:text-white">PayPal</p>
+                        <p class="text-xs text-gray-500">Saldo, Débito o Crédito</p>
+                    </div>
+                </button>
+
+                <!-- Stripe/Card Option -->
+                <button (click)="seleccionarMetodo('stripe')"
+                    [class]="metodoSeleccionado() === 'stripe' ? 'border-2 border-red-600 bg-red-50/50' : 'border border-gray-100 bg-gray-50/50 hover:border-gray-200'"
+                    class="p-6 rounded-3xl transition-all text-left flex items-start gap-4 transform active:scale-95">
+                    <div [class]="metodoSeleccionado() === 'stripe' ? 'bg-red-600 text-white' : 'bg-white text-gray-400'"
+                        class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm">
+                        <span class="material-symbols-outlined">credit_card</span>
+                    </div>
+                    <div>
+                        <p class="font-black text-gray-900 dark:text-white">Tarjeta Bancaria</p>
                         <p class="text-xs text-gray-500">Visa, Mastercard, Amex</p>
                     </div>
-                </label>
-
-                <label
-                    class="flex items-center gap-3 p-4 border border-gray-200 dark:border-gray-700 rounded-xl cursor-pointer opacity-60">
-                    <input type="radio" name="payment" disabled>
-                    <span class="material-symbols-outlined text-gray-600">account_balance</span>
-                    <div class="flex-1">
-                        <p class="font-bold text-gray-900 dark:text-white">Transferencia SPEI</p>
-                        <p class="text-xs text-gray-500">No disponible en demo</p>
-                    </div>
-                </label>
+                </button>
             </div>
         </div>
 
-        <!-- Información de PayPal Sandbox -->
-        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
-            <div class="flex items-center gap-2 mb-2">
-                <span class="material-symbols-outlined text-blue-600">info</span>
-                <span class="font-bold text-blue-800 dark:text-blue-200">Modo Sandbox (Pruebas)</span>
-            </div>
-            <p class="text-sm text-blue-700 dark:text-blue-300">
-                Usa las credenciales de prueba de PayPal para completar el pago.
-            </p>
+        <!-- PayPal Container -->
+        <div [class.hidden]="metodoSeleccionado() !== 'paypal'"
+            class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            @if (montoPagar() > 0) {
+            <div id="paypal-button-container" class="mt-6"></div>
+            }
         </div>
 
-        <!-- Botón Pagar con PayPal -->
-        @if (montoPagar() > 0) {
-        <div id="paypal-button-container" class="mt-6"></div>
-        } @else {
-        <div class="bg-amber-50 border border-amber-200 rounded-xl p-6 mt-6 text-center">
-            <span class="material-symbols-outlined text-amber-500 text-4xl mb-2">warning</span>
-            <p class="font-bold text-amber-800">Monto no disponible</p>
-            <p class="text-sm text-amber-700">No hemos podido determinar el monto a pagar para este servicio. Por favor,
-                contacta al proveedor o revisa los detalles de tu solicitud.</p>
-            <button (click)="volverASolicitudes()" class="mt-4 text-primary font-bold hover:underline">
-                Volver a Mis Solicitudes
-            </button>
+        <!-- Stripe Container -->
+        <div [class.hidden]="metodoSeleccionado() !== 'stripe'"
+            class="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-[32px] shadow-xl shadow-gray-200/50 dark:shadow-none p-8 mb-8 border border-gray-100 dark:border-gray-700">
+                <div id="card-element" class="p-4 border border-gray-100 rounded-2xl bg-gray-50 mb-6">
+                    <!-- Stripe Element sits here -->
+                </div>
+
+                <button (click)="pagarConStripe()" [disabled]="procesando()"
+                    class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-red-500/30 flex items-center justify-center gap-3">
+                    @if (procesando()) {
+                    <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Procesando...
+                    } @else {
+                    <span class="material-symbols-outlined">lock</span>
+                    Pagar ${{ montoPagar().toLocaleString('es-MX', { minimumFractionDigits: 2 }) }} MXN
+                    }
+                </button>
+            </div>
         </div>
-        }
 
         @if (procesando()) {
         <div class="text-center py-4">
