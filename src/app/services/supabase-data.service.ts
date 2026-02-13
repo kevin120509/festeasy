@@ -120,7 +120,7 @@ export class SupabaseDataService {
                 ).pipe(
                     map(({ data: provider }) => ({
                         ...pkg,
-                        perfil_proveedor: provider
+                        perfil_proveedor: provider as any // Cast to any to avoid array type mismatch
                     }))
                 );
             })
@@ -470,4 +470,128 @@ export class SupabaseDataService {
             throw error;
         }
     }
+
+    // ==========================================
+    // Admin & Metrics
+    // ==========================================
+
+    /**
+     * Obtiene estadísticas globales para el Dashboard Admin
+     */
+    async getAdminDashboardStats() {
+        try {
+            // 1. Total Usuarios (Clientes + Proveedores)
+            const { count: clientCount } = await this.supabase.from('perfil_cliente').select('*', { count: 'exact', head: true });
+            const { count: providerCount } = await this.supabase.from('perfil_proveedor').select('*', { count: 'exact', head: true });
+
+            // 2. Proveedores Pendientes
+            const { count: pendingCount } = await this.supabase
+                .from('perfil_proveedor')
+                .select('*', { count: 'exact', head: true })
+                .eq('estado', 'pendiente');
+
+            // 3. Solicitudes de hoy
+            const today = new Date().toISOString().split('T')[0];
+            const { count: todayRequests } = await this.supabase
+                .from('solicitudes')
+                .select('*', { count: 'exact', head: true })
+                .gte('creado_en', today);
+
+            // 4. Ingresos del mes (suscripciones)
+            const firstDayMonth = new Date();
+            firstDayMonth.setDate(1);
+            const { data: payments } = await this.supabase
+                .from('historial_suscripciones')
+                .select('monto_pagado')
+                .gte('creado_en', firstDayMonth.toISOString())
+                .eq('estado_pago', 'pagado');
+
+            const totalIncome = (payments || []).reduce((sum, p) => sum + (p.monto_pagado || 0), 0);
+
+            return {
+                totalUsuarios: (clientCount || 0) + (providerCount || 0),
+                totalProveedores: providerCount || 0,
+                totalClientes: clientCount || 0,
+                proveedoresPendientes: pendingCount || 0,
+                solicitudesHoy: todayRequests || 0,
+                ingresosMes: totalIncome
+            };
+        } catch (error) {
+            console.error('Error fetching admin stats:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtiene actividad reciente (Suscripciones y Cancelaciones)
+     */
+    async getRecentAdminActivity() {
+        try {
+            // Traer últimas 5 suscripciones
+            const { data: subs } = await this.supabase
+                .from('historial_suscripciones')
+                .select(`
+                    id, 
+                    created_at:creado_en, 
+                    plan, 
+                    monto_pagado,
+                    proveedor:perfil_proveedor(nombre_negocio)
+                `)
+                .order('creado_en', { ascending: false })
+                .limit(5);
+
+            // Traer últimas 5 cancelaciones
+            const { data: cancels } = await this.supabase
+                .from('solicitudes')
+                .select(`
+                    id, 
+                    created_at:creado_en, 
+                    estado, 
+                    proveedor:perfil_proveedor(nombre_negocio)
+                `)
+                .eq('estado', 'cancelada')
+                .order('creado_en', { ascending: false })
+                .limit(5);
+
+            const activity = [
+                ...(subs as any[] || []).map(s => {
+                    const prov = Array.isArray(s.proveedor) ? s.proveedor[0] : s.proveedor;
+                    return {
+                        tipo: 'pago',
+                        mensaje: `Suscripción ${s.plan.toUpperCase()} - ${prov?.nombre_negocio || 'Proveedor'} ($${s.monto_pagado})`,
+                        tiempo: s.created_at,
+                        icono: 'payments'
+                    };
+                }),
+                ...(cancels as any[] || []).map(c => {
+                    const prov = Array.isArray(c.proveedor) ? c.proveedor[0] : c.proveedor;
+                    return {
+                        tipo: 'cancelacion',
+                        mensaje: `Cancelada: Solicitud para ${prov?.nombre_negocio || 'Proveedor'}`,
+                        tiempo: c.created_at,
+                        icono: 'cancel'
+                    };
+                })
+            ].sort((a, b) => new Date(b.tiempo).getTime() - new Date(a.tiempo).getTime());
+
+            return activity.slice(0, 10);
+        } catch (error) {
+            console.error('Error fetching admin activity:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene lista completa de proveedores para la tabla central
+     */
+    async getAllProvidersDetailed() {
+        const { data, error } = await this.supabase
+            .from('perfil_proveedor')
+            .select('*')
+            .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
 }
+

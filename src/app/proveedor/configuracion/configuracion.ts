@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, AfterViewInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
-import { SubscriptionService } from '../../services/subscription.service';
+import { SubscriptionService, ADDONS_INFO } from '../../services/subscription.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ProviderProfile } from '../../models';
 
@@ -19,7 +19,7 @@ declare var Stripe: any;
 @Component({
     selector: 'app-proveedor-configuracion',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogModule, ToastModule],
+    imports: [CommonModule, FormsModule, ConfirmDialogModule, ToastModule],
     templateUrl: './configuracion.html',
     styleUrl: './configuracion.css'
 })
@@ -45,6 +45,18 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     stripe: any;
     cardElement: any;
     metodoSuscripcion = signal<'paypal' | 'stripe'>('paypal');
+
+    // Add-on states
+    addonsList = ADDONS_INFO;
+    selectedAddons = signal<string[]>([]);
+
+    totalSuscripcion = computed(() => {
+        const basePrice = 499;
+        const addonsPrice = this.addonsList
+            .filter(a => this.selectedAddons().includes(a.id))
+            .reduce((sum, a) => sum + a.precio, 0);
+        return basePrice + addonsPrice;
+    });
 
     // Form data
     formData = signal({
@@ -333,8 +345,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
 
     ngAfterViewInit() {
         this.initStripe();
-        // Intentar renderizar botón si el plan es básico
-        if (this.subscriptionService.currentPlan() === 'basico') {
+        // Intentar renderizar botón si el plan es libre
+        if (this.subscriptionService.currentPlan() === 'libre') {
             this.seleccionarMetodoSuscripcion('paypal');
         }
     }
@@ -349,6 +361,18 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
             this.initPaypal();
         } else {
             setTimeout(() => this.renderStripeElements(), 100);
+        }
+    }
+
+    toggleAddon(addonId: string) {
+        this.selectedAddons.update(list =>
+            list.includes(addonId)
+                ? list.filter(id => id !== addonId)
+                : [...list, addonId]
+        );
+        // Reiniciar botones por si cambia el monto
+        if (this.metodoSuscripcion() === 'paypal') {
+            this.initPaypal();
         }
     }
 
@@ -385,14 +409,14 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
 
             const userId = this.auth.currentUser()?.id;
             if (userId) {
-                const targetPlan = 'pro';
-                const amount = 900.00;
+                const targetPlan = 'festeasy';
+                const amount = this.totalSuscripcion();
 
                 await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount);
                 await this.auth.refreshUserProfile();
                 await this.loadProfile();
 
-                this.successMessage.set(`¡Bienvenido al Plan ${targetPlan.toUpperCase()}! 🌟 Disfruta de todos los beneficios.`);
+                this.successMessage.set(`¡Bienvenido al Plan FestEasy! 🌟 Disfruta de todos tus complementos.`);
                 setTimeout(() => this.successMessage.set(''), 5000);
             }
         } catch (error) {
@@ -463,12 +487,15 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                 label: 'pay'
             },
             createOrder: (data: any, actions: any) => {
-                const planId = 'pro'; // O el que desees ofrecer como upgrade rápido
-                const amount = '900.00';
+                const planId = 'festeasy-plus';
+                const amount = this.totalSuscripcion().toString();
+                const addonsNames = this.addonsList
+                    .filter(a => this.selectedAddons().includes(a.id))
+                    .map(a => a.nombre).join(', ');
 
                 return actions.order.create({
                     purchase_units: [{
-                        description: `Suscripción FestEasy Plan ${planId.toUpperCase()}`,
+                        description: `Suscripción FestEasy Plus ${addonsNames ? '+ ' + addonsNames : ''}`,
                         amount: {
                             value: amount
                         }
@@ -484,9 +511,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                     if (userId) {
                         this.upgradingPlan.set(true);
 
-                        // Por defecto subimos a Pro en este botón rápido, pero podríamos hacerlo dinámico
-                        const targetPlan = 'pro';
-                        const amount = 900.00;
+                        const targetPlan = 'festeasy';
+                        const amount = this.totalSuscripcion();
 
                         // Llamar al servicio que actualiza DB y crea historial
                         await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount);
@@ -495,7 +521,7 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                         await this.auth.refreshUserProfile();
                         await this.loadProfile();
 
-                        this.successMessage.set(`¡Bienvenido al Plan ${targetPlan.toUpperCase()}! 🌟 Disfruta de todos los beneficios.`);
+                        this.successMessage.set(`¡Bienvenido al Plan FestEasy Plus! 🌟 Disfruta de tus beneficios y complementos.`);
 
                         // Limpiar mensaje después de un tiempo
                         setTimeout(() => this.successMessage.set(''), 5000);

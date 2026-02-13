@@ -109,6 +109,9 @@ export const routes: Routes = [
     { path: 'admin/users', component: UserManagementComponent, canActivate: [adminGuard] },
     { path: 'admin/providers/approval', component: ProviderApprovalComponent, canActivate: [adminGuard] },
 
+    { path: 'p/:id', component: PaqueteDetalleComponent },
+    { path: 'v/:negocio', loadComponent: () => import('./pages/public/portafolio/portafolio.component').then(c => c.PortafolioComponent) },
+
     // Fallback - debe ser la última ruta
     { path: '**', component: NotFoundComponent }
 ];
