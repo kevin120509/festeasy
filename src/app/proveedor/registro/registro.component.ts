@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, NgZone } from '@angular/core';
+import { Component, inject, OnInit, signal, NgZone, AfterViewInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -8,14 +8,15 @@ import { ApiService } from '../../services/api.service';
 import { PLAN_INFO, SUBSCRIPTION_LIMITS } from '../../services/subscription.service';
 import { environment } from '../../../environments/environment';
 import { OnDestroy } from '@angular/core';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
     selector: 'app-proveedor-registro',
     standalone: true,
-    imports: [RouterLink, FormsModule, CommonModule],
+    imports: [RouterLink, FormsModule, CommonModule, CheckboxModule],
     templateUrl: './registro.html'
 })
-export class ProveedorRegistroComponent implements OnInit, OnDestroy {
+export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewInit {
     private supabaseAuth = inject(SupabaseAuthService);
     private auth = inject(AuthService);
     private api = inject(ApiService);
@@ -34,6 +35,39 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
     detectingLocation = false;
     isPaying = signal(false);
     paypalBlocked = signal(false);
+    captchaResolved = signal(false);
+    aceptarTerminos = signal(false);
+    aceptarPrivacidad = signal(false);
+
+    constructor() {
+        (window as any).onCaptchaResolved = (token: string) => {
+            this.ngZone.run(() => {
+                this.captchaResolved.set(!!token);
+            });
+        };
+    }
+
+    ngAfterViewInit() {
+        this.renderCaptcha();
+    }
+
+    renderCaptcha() {
+        const checkGrecaptcha = () => {
+            if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
+                try {
+                    (window as any).grecaptcha.render('recaptcha-proveedor', {
+                        'sitekey': '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+                        'callback': 'onCaptchaResolved'
+                    });
+                } catch (e) {
+                    console.warn('reCAPTCHA Proveedor already rendered or element missing', e);
+                }
+            } else {
+                setTimeout(checkGrecaptcha, 500);
+            }
+        };
+        checkGrecaptcha();
+    }
 
     // Multi-step registration
     step = signal(1); // 1: Datos, 2: Planes
@@ -213,7 +247,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
             // Limpiar contenedor previo por si acaso
             const container = document.getElementById('paypal-button-container');
             if (container) container.innerHTML = '';
-            
+
             await this.loadPaypalScript();
             setTimeout(() => {
                 this.renderPaypalButton();

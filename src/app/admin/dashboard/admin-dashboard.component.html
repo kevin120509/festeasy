@@ -159,7 +159,7 @@
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-gray-900 dark:text-white">{{ actividad.mensaje }}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">{{
-                                formatearFechaRelativa(actividad.tiempo) }}</p>
+                                actividad.tiempo ? formatearFechaRelativa(actividad.tiempo) : 'Fecha desconocida' }}</p>
                         </div>
                     </div>
                     } @empty {
@@ -202,7 +202,7 @@
                                 <div class="flex items-center gap-3">
                                     <div
                                         class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
-                                        {{ p.nombre_negocio.charAt(0) }}
+                                        {{ p.nombre_negocio?.charAt(0) || 'P' }}
                                     </div>
                                     <div>
                                         <p class="text-sm font-bold text-gray-900 dark:text-white">{{ p.nombre_negocio

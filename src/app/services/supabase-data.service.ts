@@ -558,7 +558,7 @@ export class SupabaseDataService {
                     const prov = Array.isArray(s.proveedor) ? s.proveedor[0] : s.proveedor;
                     return {
                         tipo: 'pago',
-                        mensaje: `Suscripción ${s.plan.toUpperCase()} - ${prov?.nombre_negocio || 'Proveedor'} ($${s.monto_pagado})`,
+                        mensaje: `Suscripción ${(s.plan || 'Base').toUpperCase()} - ${prov?.nombre_negocio || 'Proveedor'} ($${s.monto_pagado || 0})`,
                         tiempo: s.created_at,
                         icono: 'payments'
                     };

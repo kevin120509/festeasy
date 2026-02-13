@@ -6,10 +6,10 @@ import { ProviderProfile } from '../../../models';
 import { CurrencyPipe } from '@angular/common';
 
 @Component({
-    selector: 'app-portafolio',
-    standalone: true,
-    imports: [CommonModule, CurrencyPipe],
-    template: `
+  selector: 'app-portafolio',
+  standalone: true,
+  imports: [CommonModule, CurrencyPipe],
+  template: `
     <div class="min-h-screen bg-slate-50">
       <!-- Header / Banner -->
       <div class="h-64 bg-primary relative overflow-hidden">
@@ -96,40 +96,40 @@ import { CurrencyPipe } from '@angular/common';
       </main>
     </div>
   `,
-    styles: []
+  styles: []
 })
 export class PortafolioComponent implements OnInit {
-    route = inject(ActivatedRoute);
-    supabaseData = inject(SupabaseDataService);
+  route = inject(ActivatedRoute);
+  supabaseData = inject(SupabaseDataService);
 
-    profile = signal<ProviderProfile | null>(null);
-    packages = signal<any[]>([]);
-    loading = signal(true);
+  profile = signal<ProviderProfile | null>(null);
+  packages = signal<any[]>([]);
+  loading = signal(true);
 
-    ngOnInit() {
-        const slug = this.route.snapshot.paramMap.get('negocio');
-        if (slug) {
-            this.loadData(slug);
-        }
+  ngOnInit() {
+    const slug = this.route.snapshot.paramMap.get('negocio');
+    if (slug) {
+      this.loadData(slug);
     }
+  }
 
-    loadData(slug: string) {
-        this.loading.set(true);
-        // Buscamos al proveedor por su slug (nombre_negocio normalizado)
-        this.supabaseData.getProviders().subscribe((providers: any[]) => {
-            const provider = providers.find((p: any) =>
-                p.usuario_id === slug || p.id === slug || p.nombre_negocio?.toLowerCase().replace(/\s+/g, '-') === slug
-            );
+  loadData(slug: string) {
+    this.loading.set(true);
+    // Buscamos al proveedor por su slug (nombre_negocio normalizado)
+    this.supabaseData.getProviders().subscribe((providers: any[]) => {
+      const provider = providers.find((p: any) =>
+        p.usuario_id === slug || p.id === slug || p.nombre_negocio?.toLowerCase().replace(/\s+/g, '-') === slug
+      );
 
-            if (provider) {
-                this.profile.set(provider);
-                this.supabaseData.getProviderPackages(provider.usuario_id).subscribe(pkgs => {
-                    this.packages.set(pkgs.filter(p => p.estado === 'publicado'));
-                    this.loading.set(false);
-                });
-            } else {
-                this.loading.set(false);
-            }
+      if (provider) {
+        this.profile.set(provider);
+        this.supabaseData.getProviderPackages(provider.usuario_id).subscribe(pkgs => {
+          this.packages.set(pkgs.filter(p => p.estado === 'publicado'));
+          this.loading.set(false);
         });
-    }
+      } else {
+        this.loading.set(false);
+      }
+    });
+  }
 }

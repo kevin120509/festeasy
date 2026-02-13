@@ -26,21 +26,19 @@ export class RevisarSolicitudComponent implements OnInit {
     notification = signal<{ message: string, type: 'success' | 'error' } | null>(null);
 
     ngOnInit() {
-        // Cargar datos de sessionStorage
-        const eventoStr = sessionStorage.getItem('eventoActual');
-        const paquetesStr = sessionStorage.getItem('paquetesSeleccionados');
-        const proveedorStr = sessionStorage.getItem('proveedorActual');
+        // Cargar datos desde el servicio
+        const ev = this.solicitudDataService.getEventoActual();
+        const pkgs = this.solicitudDataService.getPaquetesSeleccionados();
+        const prov = this.solicitudDataService.getProveedorActual();
 
-        if (!eventoStr || !paquetesStr || !proveedorStr) {
+        if (!ev || !pkgs || pkgs.length === 0 || !prov) {
             // Si falta información, regresar al inicio del flujo
             this.router.navigate(['/cliente/solicitudes/crear']);
             return;
         }
 
-        this.evento.set(JSON.parse(eventoStr));
-        this.proveedor.set(JSON.parse(proveedorStr));
-
-        const pkgs = JSON.parse(paquetesStr);
+        this.evento.set(ev);
+        this.proveedor.set(prov);
         this.paquetes.set(pkgs);
 
         // Calcular total
@@ -206,6 +204,9 @@ export class RevisarSolicitudComponent implements OnInit {
 
             // Si estaba en el carrito, eliminarla (evita duplicados y limpia el estado)
             this.solicitudDataService.removerPorProveedor(proveedorData.usuario_id);
+
+            // Limpiar el borrador actual ya que se ha enviado exitosamente
+            this.solicitudDataService.limpiarBorrador();
 
             // 4. Navegar a confirmación
             this.router.navigate(['/cliente/solicitud-enviada']);

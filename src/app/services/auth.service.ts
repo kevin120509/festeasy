@@ -46,7 +46,7 @@ export class AuthService {
       rol = user.user_metadata?.rol || 'client';
     }
 
-    const table = rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
+    const table = rol === 'admin' ? 'perfil_admin' : (rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente');
 
     const { data: profile } = await this.supabase
       .from(table)

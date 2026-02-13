@@ -56,6 +56,14 @@ export const routes: Routes = [
     { path: '500', component: ServerErrorComponent },
     { path: '403', component: AccessDeniedComponent },
 
+    {
+        path: 'terminos',
+        loadComponent: () => import('./pages/public/legal/terminos.component').then(m => m.TerminosComponent)
+    },
+    {
+        path: 'privacidad',
+        loadComponent: () => import('./pages/public/legal/privacidad.component').then(m => m.PrivacidadComponent)
+    },
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
     {

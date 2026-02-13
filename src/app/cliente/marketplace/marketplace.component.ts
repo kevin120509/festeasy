@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { MarketplaceService } from './marketplace.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
+import { SolicitudDataService } from '../../services/solicitud-data.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -17,6 +18,7 @@ export class MarketplaceComponent implements OnInit {
     private router = inject(Router);
     private marketplaceState = inject(MarketplaceService);
     private supabaseData = inject(SupabaseDataService);
+    private solicitudData = inject(SolicitudDataService);
 
     providers = signal<any[]>([]);
 
@@ -64,14 +66,12 @@ export class MarketplaceComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const eventoStr = sessionStorage.getItem('eventoActual');
-        if (eventoStr) {
-            const evento = JSON.parse(eventoStr);
+        const evento = this.solicitudData.getEventoActual();
+        if (evento) {
             this.eventoActual.set(evento);
             if (evento.categoriaId) {
                 this.categoriaSeleccionada.set(evento.categoriaId);
             }
-
         }
 
         // Cargar categorías

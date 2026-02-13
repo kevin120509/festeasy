@@ -172,8 +172,9 @@
     .btn-toggle-password:hover {
         color: var(--color-primary);
     }
-     /* Responsive */
-     @media (max-width: 600px) {
+
+    /* Responsive */
+    @media (max-width: 600px) {
         .login-container {
             padding: 20px;
             min-height: 100vh;
@@ -225,7 +226,11 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn-submit" [disabled]="loading">
+                <div class="form-group flex justify-center py-2">
+                    <div id="recaptcha-login"></div>
+                </div>
+
+                <button type="submit" class="btn-submit" [disabled]="loading || !captchaResolved()">
                     {{ loading ? 'Cargando...' : 'Iniciar Sesión' }}
                 </button>
             </form>

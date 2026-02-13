@@ -1,26 +1,62 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, NgZone, AfterViewInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
     selector: 'app-cliente-registro',
     standalone: true,
-    imports: [RouterLink, FormsModule],
+    imports: [RouterLink, FormsModule, CheckboxModule],
     templateUrl: './registro.html'
 })
-export class ClienteRegistroComponent {
+export class ClienteRegistroComponent implements AfterViewInit {
     private supabaseAuth = inject(SupabaseAuthService);
     private auth = inject(AuthService);
     private router = inject(Router);
+    private ngZone = inject(NgZone);
 
     nombre = '';
     email = '';
     telefono = '';
     password = '';
-    error = '';
-    loading = false;
+    loading = signal(false);
+    error = signal('');
+    success = signal(false);
+    captchaResolved = signal(false);
+    aceptarTerminos = signal(false);
+    aceptarPrivacidad = signal(false);
+
+    constructor() {
+        (window as any).onCaptchaResolved = (token: string) => {
+            this.ngZone.run(() => {
+                this.captchaResolved.set(!!token);
+            });
+        };
+    }
+
+    ngAfterViewInit() {
+        this.renderCaptcha();
+    }
+
+    renderCaptcha() {
+        const checkGrecaptcha = () => {
+            if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
+                try {
+                    (window as any).grecaptcha.render('recaptcha-cliente', {
+                        'sitekey': '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+                        'callback': 'onCaptchaResolved'
+                    });
+                } catch (e) {
+                    console.warn('reCAPTCHA Cliente already rendered or element missing', e);
+                }
+            } else {
+                setTimeout(checkGrecaptcha, 500);
+            }
+        };
+        checkGrecaptcha();
+    }
 
     async register() {
         // 1. Sanitización estricta de datos
@@ -31,17 +67,17 @@ export class ClienteRegistroComponent {
 
         // 2. Validación local
         if (!nombreClean || !emailClean || !passwordClean) {
-            this.error = 'Por favor completa todos los campos obligatorios';
+            this.error.set('Por favor completa todos los campos obligatorios');
             return;
         }
 
         if (passwordClean.length < 6) {
-            this.error = 'La contraseña debe tener al menos 6 caracteres';
+            this.error.set('La contraseña debe tener al menos 6 caracteres');
             return;
         }
 
-        this.loading = true;
-        this.error = '';
+        this.loading.set(true);
+        this.error.set('');
 
         try {
             console.log('Intentando registrar:', { email: emailClean, nombre: nombreClean }); // Debug
@@ -75,14 +111,18 @@ export class ClienteRegistroComponent {
                 });
                 this.router.navigate(['/cliente/dashboard']);
             } else {
-                this.error = 'Registro exitoso. Por favor confirma tu correo.';
+                this.error.set('Registro exitoso. Por favor confirma tu correo.');
+            }
+            if (user) {
+                this.success.set(true);
+                this.error.set('');
             }
 
         } catch (err: any) {
             console.error('Registration error:', err);
-            this.error = err.message || 'Error al registrarse';
+            this.error.set(err.message || 'Error al registrar usuario');
         } finally {
-            this.loading = false;
+            this.loading.set(false);
         }
     }
 }
