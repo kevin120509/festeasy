@@ -179,6 +179,22 @@ textarea:focus {
   margin-bottom: 24px;
 }
 
+
 .mb-4 {
   margin-bottom: 32px;
+}
+
+/* Solución para ancho completo en el Dashboard y Proveedor */
+.dashboard-layout, .main-content, .router-container {
+    width: 100% !important;
+    max-width: none !important;
+}
+
+app-proveedor-dashboard main, 
+app-paquetes main, 
+app-solicitudes main,
+app-bandeja-solicitudes main {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
 }

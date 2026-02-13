@@ -47,19 +47,25 @@ import { MenuItem } from 'primeng/api';
       font-weight: 500 !important;
       transition: opacity 0.3s ease;
     }
-    :host ::ng-deep .menu-container.mini .p-menuitem-text {
+    :host ::ng-deep .menu-container.mini .p-menuitem-text,
+    :host ::ng-deep .menu-container.mini .p-submenu-header,
+    :host ::ng-deep .menu-container.mini .p-menuitem-link-help-text,
+    :host ::ng-deep .menu-container.mini span:not(.p-menuitem-icon):not(.pi) {
       display: none !important;
       width: 0 !important;
       opacity: 0 !important;
       overflow: hidden !important;
+      visibility: hidden !important;
     }
     :host ::ng-deep .menu-container.mini .p-menuitem-link {
       justify-content: center !important;
       padding: 12px 0 !important;
+      width: 100% !important;
     }
     :host ::ng-deep .menu-container.mini .p-menuitem-icon {
       margin-right: 0 !important;
-      font-size: 1.4rem !important;
+      font-size: 1.5rem !important;
+      float: none !important;
     }
     :host ::ng-deep .menu-container.mini .p-menu {
       padding: 0 !important;

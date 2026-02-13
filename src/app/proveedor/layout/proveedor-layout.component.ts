@@ -16,6 +16,12 @@ import { ConfirmationService } from 'primeng/api';
   standalone: true,
   imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, RouterLink, RouterLinkActive],
   templateUrl: './proveedor-layout.component.html',
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+    }
+  `]
 })
 export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
