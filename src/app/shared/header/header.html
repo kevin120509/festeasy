@@ -7,10 +7,10 @@
   }
 
   .logo-img {
-    height: 56px;
-    /* aumentado para mejor visibilidad */
-    width: auto;
-    object-fit: contain;
+    height: 100px;
+    width: 250px;
+    object-fit: cover;
+    border-radius: 8px;
   }
 
   .brand {
@@ -140,9 +140,17 @@
 
 <header class="header">
   <div class="header-inner">
-    <a routerLink="/" class="logo">
-      <img src="assets/festeasy.png" alt="FestEasy Logo" class="logo-img">
-    </a>
+    <div class="logo cursor-pointer">
+      <video 
+        src="assets/festeasy.mp4" 
+        class="logo-img" 
+        (click)="toggleVideo($event)"
+        loop
+        muted
+        playsinline
+        title="Click para reproducir con sonido"
+      ></video>
+    </div>
 
     <nav class="nav">
       <a routerLink="/">Inicio</a>
