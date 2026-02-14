@@ -283,7 +283,33 @@
                             placeholder="Mínimo 6 caracteres" required />
                     </div>
 
-                    <button type="submit" class="btn-submit" [disabled]="loading">
+                    <div class="form-group flex flex-col gap-3 py-2">
+                        <div class="flex items-center gap-3">
+                            <p-checkbox [binary]="true" [ngModel]="aceptarTerminos()"
+                                (ngModelChange)="aceptarTerminos.set($event)" name="aceptarTerminos"
+                                inputId="terminos-prov" required />
+                            <label for="terminos-prov" class="cursor-pointer font-normal text-sm m-0">
+                                Acepto los <a routerLink="/terminos" target="_blank"
+                                    class="text-primary font-bold hover:underline">Términos y Condiciones</a>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p-checkbox [binary]="true" [ngModel]="aceptarPrivacidad()"
+                                (ngModelChange)="aceptarPrivacidad.set($event)" name="aceptarPrivacidad"
+                                inputId="privacidad-prov" required />
+                            <label for="privacidad-prov" class="cursor-pointer font-normal text-sm m-0">
+                                Acepto el <a routerLink="/privacidad" target="_blank"
+                                    class="text-primary font-bold hover:underline">Aviso de Privacidad</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group flex justify-center py-2">
+                        <div id="recaptcha-proveedor"></div>
+                    </div>
+
+                    <button type="submit" class="btn-submit"
+                        [disabled]="loading || !captchaResolved() || !aceptarTerminos() || !aceptarPrivacidad()">
                         @if (loading) {
                         <span class="material-icons-outlined animate-spin text-sm mr-2">sync</span>
                         Verificando datos...
@@ -349,7 +375,8 @@
                     [class.border-blue-200]="selectedPlan() === 'premium'">
                     <div class="text-center mb-6">
                         <h4 class="font-bold text-slate-800">Finalizar Pago</h4>
-                        <p class="text-xs text-slate-500">Para activar el plan {{ getSelectedPlanName() }} procesa tu pago
+                        <p class="text-xs text-slate-500">Para activar el plan {{ getSelectedPlanName() }} procesa tu
+                            pago
                             seguro</p>
                     </div>
 

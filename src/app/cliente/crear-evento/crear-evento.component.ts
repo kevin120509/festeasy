@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { GeoService } from '../../services/geo.service';
+import { SolicitudDataService } from '../../services/solicitud-data.service';
 
 @Component({
     selector: 'app-crear-evento',
@@ -17,6 +18,7 @@ export class CrearEventoComponent implements OnInit {
     ngZone = inject(NgZone);
     geo = inject(GeoService);
     cdr = inject(ChangeDetectorRef);
+    solicitudData = inject(SolicitudDataService);
 
     // Datos del evento
     titulo = '';
@@ -38,9 +40,20 @@ export class CrearEventoComponent implements OnInit {
     error = '';
 
     ngOnInit() {
+        // Restaurar datos desde el servicio (que ya cargó de localStorage)
+        const data = this.solicitudData.getEventoActual();
+        if (data) {
+            this.titulo = data.titulo || '';
+            this.fecha = data.fecha || '';
+            this.horaInicio = data.horaInicio || '12:00';
+            this.ubicacion = data.ubicacion || '';
+            this.invitados = data.invitados || 50;
+            this.categoriaId = data.categoriaId || '';
+            this.coordenadas = data.coords || null;
+        }
+
         this.api.getServiceCategories().subscribe({
             next: (cats) => {
-                // Filtrar duplicados por nombre
                 const uniqueCats = (cats || []).filter((cat, index, self) =>
                     index === self.findIndex((t) => t.nombre === cat.nombre)
                 );
@@ -54,8 +67,21 @@ export class CrearEventoComponent implements OnInit {
         });
     }
 
+    saveToStorage() {
+        const eventoData = {
+            titulo: this.titulo,
+            fecha: this.fecha,
+            horaInicio: this.horaInicio,
+            ubicacion: this.ubicacion,
+            invitados: this.invitados,
+            categoriaId: this.categoriaId,
+            coords: this.coordenadas
+        };
+        this.solicitudData.setEventoActual(eventoData);
+    }
+
     onCategoryChange() {
-        // Forzar detección de cambios para feedback inmediato
+        this.saveToStorage();
         this.cdr.detectChanges();
     }
 
@@ -67,15 +93,14 @@ export class CrearEventoComponent implements OnInit {
             next: (data) => {
                 this.ngZone.run(() => {
                     this.coordenadas = { lat: data.lat, lng: data.lng };
-                    // Usar la dirección formateada que incluye colonia, calle, etc.
                     this.ubicacion = data.formatted_address || `Ubicación detectada (${data.lat.toFixed(4)}, ${data.lng.toFixed(4)})`;
                     this.isLocating = false;
-                    this.cdr.detectChanges(); // Forzar actualización de vista
+                    this.saveToStorage(); // Guardar al detectar ubicación
+                    this.cdr.detectChanges();
                 });
             },
             error: (err) => {
                 this.ngZone.run(() => {
-                    console.error('Error obteniendo ubicación:', err);
                     this.error = (typeof err === 'string' ? err : 'No se pudo obtener tu ubicación.') + ' Por favor ingrésala manualmente.';
                     this.isLocating = false;
                     this.cdr.detectChanges();
@@ -90,7 +115,6 @@ export class CrearEventoComponent implements OnInit {
             return;
         }
 
-        // VALIDACIÓN DE FECHA PASADA
         const fechaSeleccionada = new Date(this.fecha + 'T' + this.horaInicio);
         const hoy = new Date();
         if (fechaSeleccionada < hoy) {
@@ -101,22 +125,10 @@ export class CrearEventoComponent implements OnInit {
         if (this.isLoading) return;
         this.isLoading = true;
 
-        // Guardar datos del evento en sessionStorage para usarlos después
-        const eventoData = {
-            titulo: this.titulo,
-            fecha: this.fecha,
-            horaInicio: this.horaInicio,
-            ubicacion: this.ubicacion,
-            invitados: this.invitados,
-            categoriaId: this.categoriaId,
-            coords: this.coordenadas // { lat, lng } o null
-        };
-        sessionStorage.setItem('eventoActual', JSON.stringify(eventoData));
+        this.saveToStorage();
 
-        // Navegar al marketplace para ver proveedores cercanos
         this.router.navigate(['/cliente/marketplace']).then(() => {
             this.isLoading = false;
         });
-
     }
 }

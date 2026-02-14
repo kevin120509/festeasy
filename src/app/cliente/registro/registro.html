@@ -117,13 +117,16 @@
         color: var(--color-primary);
         font-weight: 500;
     }
+
     @media (max-width: 600px) {
         .registro-container {
             padding: 20px;
         }
+
         .registro-card {
             padding: 24px;
         }
+
         .registro-header h1 {
             font-size: 24px;
         }
@@ -168,8 +171,8 @@
                 <p>Crea tu cuenta y encuentra los mejores servicios</p>
             </div>
 
-            @if (error) {
-            <div class="error-message">{{ error }}</div>
+            @if (error()) {
+            <div class="error-message">{{ error() }}</div>
             }
 
             <form (ngSubmit)="register()">
@@ -197,8 +200,34 @@
                         placeholder="Mínimo 6 caracteres" required />
                 </div>
 
-                <button type="submit" class="btn-submit" [disabled]="loading">
-                    {{ loading ? 'Registrando...' : 'Registrarme como Cliente' }}
+                <div class="form-group flex flex-col gap-3 py-2">
+                    <div class="flex items-center gap-3">
+                        <p-checkbox [binary]="true" [ngModel]="aceptarTerminos()"
+                            (ngModelChange)="aceptarTerminos.set($event)" name="aceptarTerminos" inputId="terminos"
+                            required />
+                        <label for="terminos" class="cursor-pointer font-normal text-sm m-0">
+                            Acepto los <a routerLink="/terminos" target="_blank"
+                                class="text-primary font-bold hover:underline">Términos y Condiciones</a>
+                        </label>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <p-checkbox [binary]="true" [ngModel]="aceptarPrivacidad()"
+                            (ngModelChange)="aceptarPrivacidad.set($event)" name="aceptarPrivacidad"
+                            inputId="privacidad" required />
+                        <label for="privacidad" class="cursor-pointer font-normal text-sm m-0">
+                            Acepto el <a routerLink="/privacidad" target="_blank"
+                                class="text-primary font-bold hover:underline">Aviso de Privacidad</a>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group flex justify-center py-2">
+                    <div id="recaptcha-cliente"></div>
+                </div>
+
+                <button type="submit" class="btn-submit"
+                    [disabled]="loading() || !captchaResolved() || !aceptarTerminos() || !aceptarPrivacidad()">
+                    {{ loading() ? 'Registrando...' : 'Registrarme como Cliente' }}
                 </button>
             </form>
 

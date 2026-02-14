@@ -56,6 +56,14 @@ export const routes: Routes = [
     { path: '500', component: ServerErrorComponent },
     { path: '403', component: AccessDeniedComponent },
 
+    {
+        path: 'terminos',
+        loadComponent: () => import('./pages/public/legal/terminos.component').then(m => m.TerminosComponent)
+    },
+    {
+        path: 'privacidad',
+        loadComponent: () => import('./pages/public/legal/privacidad.component').then(m => m.PrivacidadComponent)
+    },
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
     {
@@ -108,6 +116,9 @@ export const routes: Routes = [
     { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
     { path: 'admin/users', component: UserManagementComponent, canActivate: [adminGuard] },
     { path: 'admin/providers/approval', component: ProviderApprovalComponent, canActivate: [adminGuard] },
+
+    { path: 'p/:id', component: PaqueteDetalleComponent },
+    { path: 'v/:negocio', loadComponent: () => import('./pages/public/portafolio/portafolio.component').then(c => c.PortafolioComponent) },
 
     // Fallback - debe ser la última ruta
     { path: '**', component: NotFoundComponent }

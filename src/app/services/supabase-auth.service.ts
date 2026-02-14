@@ -96,24 +96,35 @@ export class SupabaseAuthService {
   }
 
   // Determinar rol basado en la existencia del perfil
-  async determineUserRole(userId: string): Promise<'provider' | 'client' | null> {
-    // 1. Check provider profile
+  async determineUserRole(userId: string): Promise<'provider' | 'client' | 'admin' | null> {
+    // 1. Check admin profile
+    const { data: admin } = await this.supabase
+      .from('perfil_admin')
+      .select('id')
+      .eq('usuario_id', userId)
+      .maybeSingle();
+
+    if (admin) return 'admin' as any;
+
+    // 2. Check provider profile
     const { data: provider } = await this.supabase
-        .from('perfil_proveedor')
-        .select('id')
-        .eq('usuario_id', userId)
-        .maybeSingle();
-    
+      .from('perfil_proveedor')
+      .select('id')
+      .eq('usuario_id', userId)
+      .maybeSingle();
+
     if (provider) return 'provider';
 
-    // 2. Check client profile
+    // 3. Check client profile
     const { data: client } = await this.supabase
-        .from('perfil_cliente')
-        .select('id')
-        .eq('usuario_id', userId)
-        .maybeSingle();
+      .from('perfil_cliente')
+      .select('id')
+      .eq('usuario_id', userId)
+      .maybeSingle();
 
     if (client) return 'client';
+
+    return null;
 
     return null;
   }

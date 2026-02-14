@@ -253,11 +253,11 @@
                     </div>
                     <!-- Badge del Plan Actual -->
                     <div class="flex items-center gap-2 px-4 py-2 rounded-full border"
-                        [class]="subscriptionService.currentPlan() === 'basico' ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 text-amber-800'">
+                        [class]="subscriptionService.currentPlan() === 'libre' ? 'bg-slate-50 border-slate-200 text-slate-600' : 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200 text-amber-800'">
                         <span class="text-xs font-bold uppercase tracking-wide">Plan Actual:</span>
                         <span class="text-sm font-black capitalize flex items-center gap-1">
                             {{ subscriptionService.currentPlan() }}
-                            <i *ngIf="subscriptionService.currentPlan() !== 'basico'"
+                            <i *ngIf="subscriptionService.currentPlan() !== 'libre'"
                                 class="pi pi-prime text-amber-600"></i>
                         </span>
                     </div>
@@ -283,7 +283,7 @@
                                                 Activos' }}
                                             </span>
                                             <span class="text-sm text-slate-500">
-                                                {{ subscriptionService.currentPlan() === 'premium' ? 'Crea tantos
+                                                {{ subscriptionService.currentPlan() === 'festeasy' ? 'Crea tantos
                                                 servicios como necesites.' : 'Ideal para tu etapa actual.' }}
                                             </span>
                                         </div>
@@ -320,90 +320,145 @@
                         <!-- Columna 2: Acción / Upgrade -->
                         <div class="p-8 bg-slate-50/50 dark:bg-gray-800/50 flex flex-col justify-center">
 
-                            <!-- CASO 1: Usuario NO Premium (Mostrar Upgrade) -->
-                            @if (subscriptionService.currentPlan() !== 'premium') {
+                            <!-- CASO 1: Usuario NO en Plan FestEasy Plus (Mostrar Upgrade) -->
+                            @if (subscriptionService.currentPlan() === 'libre') {
                             <div
-                                class="bg-white dark:bg-gray-800 rounded-xl border border-amber-200 dark:border-amber-700/50 shadow-lg shadow-amber-100/50 dark:shadow-none overflow-hidden relative">
-                                <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-amber-400 to-orange-500">
+                                class="bg-white dark:bg-gray-800 rounded-xl border border-primary/20 dark:border-primary/50 shadow-lg shadow-primary/10 dark:shadow-none overflow-hidden relative">
+                                <div class="absolute top-0 w-full h-1 bg-gradient-to-r from-primary to-primary-600">
                                 </div>
 
                                 <div class="p-6">
-                                    <div class="flex justify-between items-start mb-4">
-                                        <div>
-                                            <h4 class="text-lg font-bold text-slate-800 dark:text-white">
-                                                {{ subscriptionService.currentPlan() === 'basico' ? 'Mejora a Pro' :
-                                                'Sube a Premium' }}
-                                            </h4>
-                                            <p class="text-sm text-slate-500">
-                                                {{ subscriptionService.currentPlan() === 'basico' ? 'Dobla tu capacidad'
-                                                : 'Sin límites para tu agencia' }}
-                                            </p>
-                                        </div>
-                                        <div class="text-right">
-                                            <span class="block text-2xl font-black text-slate-800 dark:text-white">
-                                                ${{ subscriptionService.currentPlan() === 'basico' ? '900' : '1500' }}
-                                            </span>
-                                            <span class="text-xs text-slate-400">/ mes</span>
-                                        </div>
+                                    <h4 class="text-xl font-black text-slate-800 dark:text-white mb-2">FestEasy Plus
+                                    </h4>
+                                    <div class="flex items-baseline gap-1 mb-6">
+                                        <span class="text-3xl font-black text-primary">$499</span>
+                                        <span class="text-sm text-slate-400">/ mes (Base)</span>
                                     </div>
 
-                                    <!-- PayPal Container -->
-                                    <div class="mt-6">
-                                        <div [style.display]="paypalBlocked() ? 'none' : 'block'"
-                                            id="paypal-button-container"
-                                            class="w-full min-h-[150px] bg-gray-50 dark:bg-gray-700 rounded-xl flex items-center justify-center">
-                                            <!-- SDK injects button here -->
+                                    <!-- Complementos Opcionales -->
+                                    <div class="space-y-3 mb-6">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Añadir
+                                            Complementos</p>
+
+                                        @for (addon of addonsList; track addon.id) {
+                                        <div (click)="toggleAddon(addon.id)"
+                                            [class]="selectedAddons().includes(addon.id) ? 'border-primary bg-primary/5' : 'border-slate-100 bg-slate-50'"
+                                            class="flex items-center justify-between p-3 border rounded-xl cursor-pointer transition-all hover:bg-primary/5 group">
+                                            <div class="flex items-center gap-3">
+                                                <div [class]="selectedAddons().includes(addon.id) ? 'bg-primary text-white' : 'bg-white text-slate-400'"
+                                                    class="w-10 h-10 rounded-lg flex items-center justify-center transition-colors">
+                                                    <span class="material-icons-outlined">{{ addon.icon }}</span>
+                                                </div>
+                                                <div>
+                                                    <p class="text-sm font-bold text-slate-700 dark:text-white">{{
+                                                        addon.nombre }}</p>
+                                                    <p class="text-[10px] text-slate-500">{{ addon.precio |
+                                                        currency:'MXN':'symbol':'1.0-0' }} / mes</p>
+                                                </div>
+                                            </div>
+                                            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all"
+                                                [class]="selectedAddons().includes(addon.id) ? 'border-primary bg-primary' : 'border-slate-200 bg-white'">
+                                                <i *ngIf="selectedAddons().includes(addon.id)"
+                                                    class="pi pi-check text-[10px] text-white"></i>
+                                            </div>
+                                        </div>
+                                        }
+                                    </div>
+
+                                    <!-- Total y Pago -->
+                                    <div class="pt-6 border-t border-slate-100 dark:border-gray-700">
+                                        <div class="flex justify-between items-center mb-6">
+                                            <p class="font-bold text-slate-500">Total Mensual</p>
+                                            <p class="text-2xl font-black text-slate-800 dark:text-white">{{
+                                                totalSuscripcion() | currency:'MXN':'symbol':'1.0-0' }}</p>
                                         </div>
 
-                                        <!-- Fallback Bloqueo -->
-                                        <div *ngIf="paypalBlocked()"
-                                            class="bg-red-50 dark:bg-red-900/20 border border-red-100 rounded-lg p-3 text-center">
-                                            <p class="text-xs font-bold text-red-700 mb-1">Ad-blocker detectado</p>
-                                            <p class="text-[10px] text-red-600">Por favor desactiva el bloqueo de
-                                                anuncios para ver las opciones de pago.</p>
+                                        <!-- Selección de Método de Pago -->
+                                        <div class="grid grid-cols-2 gap-2 mb-4">
+                                            <button (click)="seleccionarMetodoSuscripcion('paypal')"
+                                                [class]="metodoSuscripcion() === 'paypal' ? 'border-2 border-primary bg-primary/5' : 'border border-slate-100 bg-slate-50 text-slate-400'"
+                                                class="p-3 rounded-xl transition-all text-center transform active:scale-95">
+                                                <p class="text-[10px] font-black uppercase">PayPal</p>
+                                            </button>
+                                            <button (click)="seleccionarMetodoSuscripcion('stripe')"
+                                                [class]="metodoSuscripcion() === 'stripe' ? 'border-2 border-primary bg-primary/5' : 'border border-slate-100 bg-slate-50 text-slate-400'"
+                                                class="p-3 rounded-xl transition-all text-center transform active:scale-95">
+                                                <p class="text-[10px] font-black uppercase">Tarjeta</p>
+                                            </button>
+                                        </div>
+
+                                        <!-- PayPal Container -->
+                                        <div [class.hidden]="metodoSuscripcion() !== 'paypal'"
+                                            class="mt-4 animate-in fade-in duration-300">
+                                            <div [style.display]="paypalBlocked() ? 'none' : 'block'"
+                                                id="paypal-button-container"
+                                                class="w-full min-h-[150px] bg-slate-50 dark:bg-gray-700 rounded-xl flex items-center justify-center overflow-hidden">
+                                                <!-- SDK injects button here -->
+                                            </div>
+                                        </div>
+
+                                        <!-- Stripe Container -->
+                                        <div [class.hidden]="metodoSuscripcion() !== 'stripe'"
+                                            class="mt-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                                            <div id="stripe-card-element"
+                                                class="p-4 border border-slate-100 rounded-xl bg-slate-50 mb-4">
+                                                <!-- Stripe Element sits here -->
+                                            </div>
+
+                                            <button (click)="pagarSuscripcionStripe()" [disabled]="upgradingPlan()"
+                                                class="w-full bg-primary hover:bg-black disabled:opacity-50 text-white font-black py-4 rounded-xl transition-all shadow-xl shadow-primary/20 flex items-center justify-center gap-2">
+                                                <span *ngIf="!upgradingPlan()"
+                                                    class="material-icons-outlined text-sm">lock</span>
+                                                <span *ngIf="upgradingPlan()"
+                                                    class="pi pi-spin pi-spinner text-sm"></span>
+                                                {{ upgradingPlan() ? 'Procesando...' : 'Confirmar Suscripción' }}
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             }
 
-                            <!-- CASO 2: Usuario PREMIUM (Mostrar Estado Activo) -->
-                            @if (subscriptionService.currentPlan() === 'premium') {
-                            <div class="text-center space-y-4 py-4">
+                            <!-- CASO 2: Usuario en Plan FestEasy Plus (Mostrar Estado Activo) -->
+                            @if (subscriptionService.currentPlan() === 'festeasy') {
+                            <div
+                                class="text-center space-y-4 py-8 bg-white dark:bg-gray-800 rounded-2xl border border-primary/20 shadow-xl shadow-primary/5">
                                 <div
-                                    class="w-16 h-16 bg-gradient-to-br from-green-100 to-emerald-100 text-emerald-600 rounded-full flex items-center justify-center  mb-2">
-                                    <span class="material-icons-outlined text-3xl">verified</span>
+                                    class="w-20 h-20 bg-gradient-to-br from-primary/10 to-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-4 scale-in duration-500">
+                                    <span class="material-icons-outlined text-4xl">verified</span>
                                 </div>
-                                <h4 class="text-xl font-bold text-slate-800 dark:text-white">¡Plan Premium Activo!</h4>
-                                <p class="text-slate-500 dark:text-slate-400 text-sm max-w-xs ">
-                                    Disfrutas de todos los beneficios desbloqueados y máxima visibilidad.
+                                <h4 class="text-2xl font-black text-slate-800 dark:text-white">¡FestEasy Plus Activo!
+                                </h4>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm max-w-xs mx-auto">
+                                    Tienes desbloqueado el máximo potencial para tu negocio. Revisa tus herramientas de
+                                    IA y Redes en el menú superior.
                                 </p>
                             </div>
                             }
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Action Buttons -->
-            <div class="flex items-center justify-between pt-4">
-                <div class="flex items-center gap-4">
-                    <button routerLink="/proveedor/dashboard"
-                        class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors">
-                        Cancelar
-                    </button>
-                    <button (click)="logout()"
-                        class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
-                        <span class="material-icons-outlined text-[18px]">logout</span>
-                        Cerrar Sesión
-                    </button>
+                    <!-- Action Buttons -->
+                    <div class="flex items-center justify-between pt-4">
+                        <div class="flex items-center gap-4">
+                            <button routerLink="/proveedor/dashboard"
+                                class="px-6 py-3 text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 font-semibold transition-colors">
+                                Cancelar
+                            </button>
+                            <button (click)="logout()"
+                                class="px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-xl font-semibold shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center gap-2">
+                                <span class="material-icons-outlined text-[18px]">logout</span>
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                        <button (click)="saveProfile()" [disabled]="saving()"
+                            class="px-8 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            <span class="material-icons-outlined" *ngIf="!saving()">save</span>
+                            <span class="material-icons-outlined animate-spin" *ngIf="saving()">sync</span>
+                            {{ saving() ? 'Guardando...' : 'Guardar Cambios' }}
+                        </button>
+                    </div>
                 </div>
-                <button (click)="saveProfile()" [disabled]="saving()"
-                    class="px-8 py-3 bg-primary hover:bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-200 dark:shadow-none transition-all transform hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                    <span class="material-icons-outlined" *ngIf="!saving()">save</span>
-                    <span class="material-icons-outlined animate-spin" *ngIf="saving()">sync</span>
-                    {{ saving() ? 'Guardando...' : 'Guardar Cambios' }}
-                </button>
             </div>
         </div>
     </main>

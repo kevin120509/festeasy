@@ -79,9 +79,9 @@ export class CarritoComponent implements OnInit, OnDestroy {
     }
 
     verDetalle(item: any) {
-        sessionStorage.setItem('eventoActual', JSON.stringify(item.evento));
-        sessionStorage.setItem('paquetesSeleccionados', JSON.stringify(item.paquetes));
-        sessionStorage.setItem('proveedorActual', JSON.stringify(item.proveedor));
+        this.solicitudDataService.setEventoActual(item.evento);
+        this.solicitudDataService.setPaquetesSeleccionados(item.paquetes);
+        this.solicitudDataService.setProveedorActual(item.proveedor);
         this.router.navigate(['/cliente/solicitudes/revisar']);
     }
 }
