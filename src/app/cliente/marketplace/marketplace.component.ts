@@ -157,7 +157,7 @@ export class MarketplaceComponent implements OnInit {
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
                 distancia: distancia,
                 disponible: true,
-                tipoSuscripcion: (p.tipo_suscripcion_actual || 'basico').toLowerCase()
+                tipoSuscripcion: (p.tipo_suscripcion_actual || 'libre').toLowerCase()
             };
         });
 
@@ -169,7 +169,7 @@ export class MarketplaceComponent implements OnInit {
             }
 
             // 2. Prioridad de Suscripción (Premium > Pro > Básico)
-            const weights: any = { 'premium': 3, 'pro': 2, 'basico': 1 };
+            const weights: any = { 'festeasy': 2, 'libre': 1 };
             const weightA = weights[a.tipoSuscripcion] || 1;
             const weightB = weights[b.tipoSuscripcion] || 1;
 

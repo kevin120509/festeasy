@@ -24,40 +24,45 @@ export class SubscriptionService {
     // Configuración dinámica desde la DB
     private plansConfig = signal<SubscriptionConfig[]>([]);
 
+    // Signal para los códigos de addons activos del proveedor
+    public activeAddonsCodes = signal<string[]>([]);
+
     // Signal que expone el perfil completo del proveedor
     public providerProfile = computed(() => this.authService.currentUser() as ProviderProfile);
 
     // Signal derivado para el plan actual
-    public currentPlan = computed(() => {
-        const rawPlan = this.providerProfile()?.tipo_suscripcion_actual;
-        const plan = (rawPlan || 'libre').toString().toLowerCase().trim();
+    public currentPlan = computed(() => 'festeasy');
 
-        if (plan === 'basico') return 'libre';
-        if (plan === 'pro' || plan === 'premium' || plan === 'plus') return 'festeasy';
-
-        return plan;
+    // Consolidación de addons activos desde tabla junction y columna JSONB
+    public allActiveAddons = computed(() => {
+        const tableCodes = this.activeAddonsCodes();
+        const profileCodes = this.providerProfile()?.addons || [];
+        const combined = [...tableCodes, ...(Array.isArray(profileCodes) ? profileCodes : [])];
+        return Array.from(new Set(combined));
     });
+
+    // Signal para saber si el constructor web está habilitado
+    public isWebBuilderActive = computed(() => {
+        const active = this.allActiveAddons();
+        return active.includes('WEB_BUILDER') || active.includes('website');
+    });
+
+    // Estado de la suscripción (pago activo) sugerido por el usuario
+    public isSubscribed = computed(() => this.providerProfile()?.suscripcion_activa ?? false);
 
     // Signal derivado para los límites actuales (buscando en la config cargada)
     public limits = computed(() => {
         const configs = this.plansConfig();
-        const planId = this.currentPlan();
-        const config = configs.find(c => c.id === planId && c.tipo === 'plan');
+        const config = configs.find(c => c.id === 'festeasy' && c.tipo === 'plan');
 
-        if (config) {
-            return {
-                nombre: config.nombre,
-                maxPackets: config.max_paquetes,
-                precio: config.precio,
-                // Valores cosméticos fijos o calculados
-                prioridadBusqueda: planId === 'festeasy',
-                badge: planId === 'festeasy',
-                color: planId === 'festeasy' ? 'primary' : 'slate'
-            };
-        }
-
-        // Fallback default coincide con 'libre' hardcoded por seguridad inicial
-        return { nombre: 'Libre', maxPackets: 2, precio: 0, prioridadBusqueda: false, badge: false, color: 'slate' };
+        return {
+            nombre: config?.nombre || 'FestEasy Plus',
+            maxPackets: config?.max_paquetes || 999,
+            precio: config?.precio || 499,
+            prioridadBusqueda: true,
+            badge: true,
+            color: 'primary'
+        };
     });
 
     public planInfo = computed(() => {
@@ -68,25 +73,51 @@ export class SubscriptionService {
                 nombre: c.nombre,
                 precio: c.precio,
                 limite: c.max_paquetes >= 999 ? 'Ilimitado' : `${c.max_paquetes} paquetes`,
-                icon: c.id === 'festeasy' ? 'workspace_premium' : 'spa',
-                color: c.id === 'festeasy' ? 'primary' : 'slate',
-                popular: c.id === 'festeasy',
-                features: c.id === 'festeasy'
-                    ? ['Paquetes ilimitados', 'Prioridad alta', 'Distintivo verificado']
-                    : ['Hasta 2 paquetes', 'Perfil básico']
+                icon: 'workspace_premium',
+                color: 'primary',
+                popular: true,
+                features: [
+                    'Publicación de paquetes ilimitada',
+                    'Prioridad máxima en búsquedas',
+                    'Distintivo de Proveedor Verificado',
+                    'Soporte prioritario'
+                ]
             }));
     });
 
     public addonsInfo = computed(() => {
+        const active = this.allActiveAddons();
         return this.plansConfig()
             .filter(c => c.tipo === 'addon')
-            .map(c => ({
-                id: c.id,
-                nombre: c.nombre,
-                precio: c.precio,
-                icon: c.id === 'ia' ? 'psychology' : (c.id === 'website' ? 'language' : 'share'),
-                descripcion: `Complemento de ${c.nombre} para tu negocio.`
-            }));
+            .map(c => {
+                let icon = 'share';
+                let desc = `Complemento de ${c.nombre} para tu negocio.`;
+
+                // Normalización de IDs para la UI
+                const normalizedId = (c.id === 'website') ? 'WEB_BUILDER' :
+                    (c.id === 'ia') ? 'IA_ASSISTANT' :
+                        (c.id === 'redes') ? 'SOCIAL_SHARE' : c.id;
+
+                if (normalizedId === 'IA_ASSISTANT') {
+                    icon = 'psychology';
+                    desc = 'Optimiza tus respuestas y gestión con ayuda de IA.';
+                } else if (normalizedId === 'WEB_BUILDER') {
+                    icon = 'language';
+                    desc = 'Crea tu propia página web profesional personalizada.';
+                } else if (normalizedId === 'SOCIAL_SHARE') {
+                    icon = 'share';
+                    desc = 'Herramientas para potenciar tu presencia en redes sociales.';
+                }
+
+                return {
+                    id: c.id, // Mantener ID original para el toggle/pago
+                    nombre: c.nombre,
+                    precio: c.precio,
+                    icon: icon,
+                    descripcion: desc,
+                    active: active.includes(c.id) || active.includes(normalizedId)
+                };
+            });
     });
 
     constructor() {
@@ -97,6 +128,13 @@ export class SubscriptionService {
         try {
             const configs = await this.supabaseData.getSubscriptionConfigs();
             this.plansConfig.set(configs);
+
+            // Cargar addons activos si es proveedor
+            const user = this.authService.currentUser();
+            if (user && user.rol === 'provider') {
+                const codes = await this.supabaseData.getProviderAddonsCodes(user.id);
+                this.activeAddonsCodes.set(codes);
+            }
         } catch (error) {
             console.error('Error loading subscription configs:', error);
         }

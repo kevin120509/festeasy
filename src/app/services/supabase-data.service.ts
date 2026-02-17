@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 import { Observable, from, map, switchMap, forkJoin, of } from 'rxjs';
-import { SubscriptionHistory } from '../models';
+import { SubscriptionHistory, Addon, ProviderAddon, ProviderPublicPage } from '../models';
 
 @Injectable({
     providedIn: 'root'
@@ -428,12 +428,15 @@ export class SupabaseDataService {
      * @param plan Plan de suscripción ('basico', 'pro', 'premium')
      * @param amount Monto pagado por la suscripción
      */
-    async upgradeProviderSubscription(providerId: string, plan: string, amount: number): Promise<void> {
+    async upgradeProviderSubscription(providerId: string, plan: string, amount: number, addons: string[] = []): Promise<void> {
         try {
-            // Operación 1: Actualizar el perfil del proveedor
+            // Operación 1: Actualizar el perfil del proveedor (Plan y Columna de Addons)
             const { error: profileError } = await this.supabase
                 .from('perfil_proveedor')
-                .update({ tipo_suscripcion_actual: plan.toLowerCase() })
+                .update({
+                    tipo_suscripcion_actual: plan.toLowerCase(),
+                    addons: addons // Sincroniza la columna JSONB
+                })
                 .eq('usuario_id', providerId);
 
             if (profileError) {
@@ -441,14 +444,31 @@ export class SupabaseDataService {
                 throw new Error(`Error al actualizar el perfil del proveedor: ${profileError.message}`);
             }
 
-            // Operación 2: Crear registro en historial de suscripciones
+            // Operación 2: Activar Addons en la tabla junction 'provider_addons'
+            if (addons.length > 0) {
+                const addonRecords = addons.map(code => ({
+                    provider_id: providerId,
+                    addon_code: code,
+                    status: 'active'
+                }));
+
+                const { error: addonsError } = await this.supabase
+                    .from('provider_addons')
+                    .upsert(addonRecords, { onConflict: 'provider_id,addon_code' });
+
+                if (addonsError) {
+                    console.warn('⚠️ Error al activar addons en provider_addons:', addonsError.message);
+                }
+            }
+
+            // Operación 3: Crear registro en historial de suscripciones
             const fechaInicio = new Date();
             const fechaFin = new Date();
             fechaFin.setMonth(fechaFin.getMonth() + 1); // 1 mes de vigencia
 
             const subscriptionRecord: Partial<SubscriptionHistory> = {
                 proveedor_usuario_id: providerId,
-                plan: plan.toLowerCase() as 'pro' | 'basico' | 'premium' | 'plus',
+                plan: plan.toLowerCase() as 'festeasy' | 'libre',
                 monto_pagado: amount,
                 fecha_inicio: fechaInicio.toISOString(),
                 fecha_fin: fechaFin.toISOString(),
@@ -460,15 +480,31 @@ export class SupabaseDataService {
                 .insert([subscriptionRecord]);
 
             if (historyError) {
-                console.warn('⚠️ No se pudo registrar en historial_suscripciones (posiblemente la tabla no existe):', historyError.message);
-                // No lanzamos error para no bloquear el flujo principal si solo falla el historial
+                console.warn('⚠️ No se pudo registrar en historial_suscripciones:', historyError.message);
             }
 
-            console.log('✅ Suscripción actualizada exitosamente para el proveedor:', providerId);
+            console.log('✅ Suscripción y addons actualizados exitosamente para:', providerId);
         } catch (error: any) {
             console.error('❌ Error en upgradeProviderSubscription:', error);
             throw error;
         }
+    }
+
+    async getProviderAddonsCodes(providerId: string): Promise<string[]> {
+        const { data, error } = await this.supabase
+            .from('provider_addons')
+            .select('addon_code')
+            .eq('provider_id', providerId)
+            .eq('status', 'active');
+
+        if (error) {
+            console.error('Error fetching provider addons codes:', error);
+            return [];
+        }
+        console.log('📦 Raw addon data from DB:', data);
+        const codes = data.map(a => a.addon_code);
+        console.log('📦 Mapped addon codes:', codes);
+        return codes;
     }
 
     // ==========================================
@@ -654,6 +690,60 @@ export class SupabaseDataService {
             .eq('id', planId);
         if (error) throw error;
         return true;
+    }
+
+    // ==========================================
+    // Web Builder & Addons
+    // ==========================================
+
+    async hasAddon(providerId: string, addonCode: string): Promise<boolean> {
+        const { data, error } = await this.supabase
+            .from('provider_addons')
+            .select('id')
+            .eq('provider_id', providerId)
+            .eq('addon_code', addonCode)
+            .eq('status', 'active')
+            .maybeSingle();
+
+        if (error) throw error;
+        return !!data;
+    }
+
+    async getProviderPublicPage(slug: string): Promise<ProviderPublicPage | null> {
+        const { data, error } = await this.supabase
+            .from('provider_public_page')
+            .select('*')
+            .eq('slug', slug)
+            .eq('is_active', true)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data as ProviderPublicPage;
+    }
+
+    async getProviderPublicPageByProviderId(providerId: string): Promise<ProviderPublicPage | null> {
+        const { data, error } = await this.supabase
+            .from('provider_public_page')
+            .select('*')
+            .eq('provider_id', providerId)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data as ProviderPublicPage;
+    }
+
+    async upsertProviderPublicPage(pageData: Partial<ProviderPublicPage>): Promise<ProviderPublicPage> {
+        const { data, error } = await this.supabase
+            .from('provider_public_page')
+            .upsert({
+                ...pageData,
+                updated_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as ProviderPublicPage;
     }
 }
 

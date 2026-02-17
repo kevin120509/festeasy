@@ -83,6 +83,13 @@ export class ProveedorDashboardComponent implements OnInit {
 
             console.log('📊 Cargando dashboard para proveedor:', user.id);
 
+            // Verificar si tiene perfil completo
+            if (!user.profile_id) {
+                console.warn('⚠️ Perfil incompleto detectado, redirigiendo a registro');
+                this.router.navigate(['/proveedor/registro']);
+                return;
+            }
+
             // 2. Obtener todas las solicitudes del proveedor desde Supabase
             const solicitudes = await this.obtenerSolicitudesProveedor(user.id);
 

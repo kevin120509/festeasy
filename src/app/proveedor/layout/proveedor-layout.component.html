@@ -283,7 +283,7 @@
         </div>
 
         <div class="menu-wrapper">
-            <app-menu [items]="items" [miniMode]="isCompact"></app-menu>
+            <app-menu [items]="menuItems()" [miniMode]="isCompact"></app-menu>
         </div>
 
         <!-- Perfil al fondo -->
@@ -317,7 +317,7 @@
 
     <!-- Nav de Tareas Inferior (Móvil) -->
     <nav class="bottom-nav">
-        <a *ngFor="let item of items" (click)="$event.preventDefault(); navigateToItem(item)"
+        <a *ngFor="let item of menuItems()" (click)="$event.preventDefault(); navigateToItem(item)"
             [routerLink]="item.routerLink" routerLinkActive="active" class="nav-item cursor-pointer">
             <i [class]="item.icon"></i>
             <span>{{ item.label }}</span>

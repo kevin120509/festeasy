@@ -10,11 +10,11 @@ CREATE TABLE IF NOT EXISTS public.configuracion_planes (
 -- Deshabilitar RLS para que la app pueda leer la tabla de configuración
 ALTER TABLE public.configuracion_planes DISABLE ROW LEVEL SECURITY;
 
--- Datos indispensables
+-- Datos indispensables con nombres actualizados según Dashboard
 INSERT INTO public.configuracion_planes (id, nombre, precio, tipo, max_paquetes)
 VALUES 
-('libre', 'Plan Libre', 0, 'plan', 2),
-('festeasy', 'Plan Plus', 499, 'plan', 999),
+('libre', 'Libre', 0, 'plan', 2),
+('festeasy', 'FestEasy Plus', 499, 'plan', 999),
 ('website', 'Sitio Web', 299, 'addon', 0),
 ('redes', 'Redes Sociales', 399, 'addon', 0),
 ('ia', 'Asistente IA', 599, 'addon', 0)

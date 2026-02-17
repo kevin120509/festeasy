@@ -116,6 +116,10 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                     titular: bankData.titular || '',
                     clabe: bankData.clabe || ''
                 });
+
+                // Addons are now handled reactively by checking the activeAddonsCodes in SubscriptionService. 
+                // No need to pre-select them here as that implies they are ready for payment.
+                this.selectedAddons.set([]);
                 this.loading.set(false);
             },
             error: (err) => {
@@ -410,11 +414,15 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
             if (userId) {
                 const targetPlan = 'festeasy';
                 const amount = this.totalSuscripcion();
+                // Mergear los ya activos con los nuevos seleccionados para no sobreescribir
+                const addons = [...this.subscriptionService.activeAddonsCodes(), ...this.selectedAddons()];
 
-                await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount);
+                await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount, addons);
+                await this.subscriptionService.refreshConfigs(); // Recargar estados de addons
                 await this.auth.refreshUserProfile();
                 await this.loadProfile();
 
+                this.selectedAddons.set([]); // Limpiar selección tras éxito
                 this.successMessage.set(`¡Bienvenido al Plan FestEasy! 🌟 Disfruta de todos tus complementos.`);
                 setTimeout(() => this.successMessage.set(''), 5000);
             }
@@ -512,14 +520,18 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
 
                         const targetPlan = 'festeasy';
                         const amount = this.totalSuscripcion();
+                        // Mergear los ya activos con los nuevos seleccionados para no sobreescribir
+                        const addons = [...this.subscriptionService.activeAddonsCodes(), ...this.selectedAddons()];
 
                         // Llamar al servicio que actualiza DB y crea historial
-                        await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount);
+                        await this.supabaseData.upgradeProviderSubscription(userId, targetPlan, amount, addons);
 
                         // Refrescar estado en la app
+                        await this.subscriptionService.refreshConfigs(); // Recargar estados de addons
                         await this.auth.refreshUserProfile();
                         await this.loadProfile();
 
+                        this.selectedAddons.set([]); // Limpiar selección tras éxito
                         this.successMessage.set(`¡Bienvenido al Plan FestEasy Plus! 🌟 Disfruta de tus beneficios y complementos.`);
 
                         // Limpiar mensaje después de un tiempo

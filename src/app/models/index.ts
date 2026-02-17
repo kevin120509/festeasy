@@ -42,7 +42,7 @@ export interface ProviderProfile {
     latitud?: number;
     longitud?: number;
     radio_cobertura_km?: number;
-    tipo_suscripcion_actual: 'basico' | 'pro' | 'premium' | 'plus';
+    tipo_suscripcion_actual: 'festeasy' | 'libre';
     categoria_principal_id?: string;
     creado_en: string;
     actualizado_en: string;
@@ -50,6 +50,8 @@ export interface ProviderProfile {
     estado?: 'active' | 'blocked';
     datos_bancarios_json?: any;
     precio_base?: number; // Added property
+    addons?: string[]; // Added property for active addons
+    suscripcion_activa?: boolean; // simple indicator of paid status
     // contrasena is not included in the frontend model
 }
 
@@ -193,7 +195,7 @@ export interface Payment {
 export interface SubscriptionHistory {
     id: string;
     proveedor_usuario_id: string;
-    plan: 'basico' | 'pro' | 'premium' | 'plus';
+    plan: 'festeasy' | 'libre';
     monto_pagado: number;
     fecha_inicio: string;
     fecha_fin: string;
@@ -220,6 +222,44 @@ export interface Review {
     calificacion: number;
     comentario?: string;
     creado_en: string;
+}
+
+// Web Builder & Addons
+export interface Addon {
+    id: string;
+    name: string;
+    price: number;
+    code: string;
+    created_at: string;
+}
+
+export interface ProviderAddon {
+    id: string;
+    provider_id: string;
+    addon_code: string;
+    status: 'active' | 'inactive' | 'pending';
+    created_at: string;
+}
+
+export interface ProviderPublicPage {
+    id: string;
+    provider_id: string;
+    slug: string;
+    slogan?: string;
+    description?: string;
+    hero_image?: string;
+    hero_alignment: 'left' | 'center' | 'right';
+    contact_phone?: string;
+    contact_email?: string;
+    contact_whatsapp?: string;
+    gallery?: any[];
+    instagram_url?: string;
+    facebook_url?: string;
+    tiktok_url?: string;
+    twitter_url?: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface AuthResponse {
