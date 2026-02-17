@@ -130,10 +130,40 @@
         .registro-header h1 {
             font-size: 24px;
         }
+        .registro-header h1 {
+            font-size: 24px;
+        }
+    }
+
+    .btn-back {
+        position: absolute;
+        top: 32px;
+        left: 32px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: var(--color-gray);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        z-index: 10;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.8);
+    }
+
+    .btn-back:hover {
+        color: var(--color-primary);
+        background: white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 </style>
 
 <div class="registro-page">
+    <a routerLink="/" class="btn-back">
+        <span class="material-icons-outlined">arrow_back</span>
+        Volver al inicio
+    </a>
     <div class="registro-container">
         <div class="registro-card">
             <div class="registro-header">

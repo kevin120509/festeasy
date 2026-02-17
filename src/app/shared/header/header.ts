@@ -26,4 +26,14 @@ export class HeaderComponent {
         this.auth.logout();
         window.location.href = '/';
     }
+
+    toggleVideo(event: any): void {
+        const video = event.target as HTMLVideoElement;
+        if (video.paused) {
+            video.muted = false;
+            video.play();
+        } else {
+            video.pause();
+        }
+    }
 }
