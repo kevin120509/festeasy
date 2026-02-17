@@ -306,7 +306,7 @@
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
-                                    [class]="plan.id === 'premium' ? 'bg-primary/10 text-primary' : (plan.id === 'pro' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600')">
+                                    [class]="plan.color === 'primary' ? 'bg-primary/10 text-primary' : (plan.color === 'amber' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600')">
                                     <span class="material-icons-outlined text-3xl">{{ plan.icon }}</span>
                                 </div>
                                 <div>
@@ -339,7 +339,7 @@
                 </div>
 
                 <!-- PayPal Payment Section -->
-                <div *ngIf="selectedPlan() && selectedPlan() !== 'basico'"
+                <div *ngIf="selectedPlan() && selectedPlan() !== 'basico' && selectedPlan() !== 'libre'"
                     class="mt-8 p-6 bg-slate-50 rounded-2xl border-2 animate-in fade-in slide-in-from-bottom-4"
                     [class.border-amber-200]="selectedPlan() === 'pro'"
                     [class.border-blue-200]="selectedPlan() === 'premium'">

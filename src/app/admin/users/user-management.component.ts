@@ -12,6 +12,12 @@ interface Usuario {
     fecha_registro: Date;
     estado: 'activo' | 'bloqueado' | 'pendiente';
     avatar?: string;
+    // Campos adicionales para vista detallada
+    telefono?: string;
+    direccion?: string;
+    descripcion?: string;
+    nombre_negocio?: string;
+    tipo_suscripcion?: string;
 }
 
 @Component({
@@ -27,7 +33,7 @@ export class UserManagementComponent implements OnInit {
     usuarios = signal<Usuario[]>([]);
     usuariosFiltrados = signal<Usuario[]>([]);
     isLoading = signal(true);
-    
+
     // Filtros
     busqueda = '';
     filtroRol: string = 'todos';
@@ -41,6 +47,10 @@ export class UserManagementComponent implements OnInit {
     usuarioSeleccionado = signal<Usuario | null>(null);
     mostrarModal = signal(false);
 
+    // Paquetes del proveedor seleccionado
+    paquetesProveedor = signal<any[]>([]);
+    isLoadingPaquetes = signal(false);
+
     ngOnInit(): void {
         this.cargarUsuarios();
     }
@@ -48,21 +58,40 @@ export class UserManagementComponent implements OnInit {
     async cargarUsuarios() {
         this.isLoading.set(true);
         try {
-            // TODO: Implementar llamada real a Supabase
-            // Por ahora usamos datos de ejemplo
-            setTimeout(() => {
-                const mockUsuarios: Usuario[] = [
-                    { id: '1', correo_electronico: 'maria@email.com', rol: 'client', nombre: 'María González', fecha_registro: new Date('2025-12-01'), estado: 'activo' },
-                    { id: '2', correo_electronico: 'carlos@email.com', rol: 'provider', nombre: 'Carlos Ramírez - DJ Fiesta', fecha_registro: new Date('2025-11-15'), estado: 'activo' },
-                    { id: '3', correo_electronico: 'ana@email.com', rol: 'client', nombre: 'Ana López', fecha_registro: new Date('2026-01-10'), estado: 'activo' },
-                    { id: '4', correo_electronico: 'pedro@email.com', rol: 'provider', nombre: 'Pedro Sánchez - Catering Deluxe', fecha_registro: new Date('2026-01-05'), estado: 'pendiente' },
-                    { id: '5', correo_electronico: 'lucia@email.com', rol: 'client', nombre: 'Lucía Martínez', fecha_registro: new Date('2025-10-20'), estado: 'bloqueado' },
-                    { id: '6', correo_electronico: 'admin@festeasy.com', rol: 'admin', nombre: 'Administrador', fecha_registro: new Date('2025-01-01'), estado: 'activo' },
-                ];
-                this.usuarios.set(mockUsuarios);
-                this.aplicarFiltros();
-                this.isLoading.set(false);
-            }, 500);
+            const [proveedores, clientes] = await Promise.all([
+                this.supabaseData.getAllProvidersDetailed(),
+                this.supabaseData.getAllClientsDetailed()
+            ]);
+
+            const usuariosProveedores: Usuario[] = proveedores.map(p => ({
+                id: p.usuario_id,
+                correo_electronico: p.correo_electronico || '',
+                rol: 'provider',
+                nombre: p.nombre_negocio,
+                fecha_registro: new Date(p.creado_en),
+                estado: p.estado === 'blocked' ? 'bloqueado' : 'activo',
+                avatar: p.avatar_url,
+                telefono: p.telefono,
+                direccion: p.direccion_formato,
+                descripcion: p.descripcion,
+                nombre_negocio: p.nombre_negocio,
+                tipo_suscripcion: p.tipo_suscripcion_actual
+            }));
+
+            const usuariosClientes: Usuario[] = clientes.map(c => ({
+                id: c.usuario_id,
+                correo_electronico: '', // Perfil cliente no suele tener el core de auth aquí
+                rol: 'client',
+                nombre: c.nombre_completo,
+                fecha_registro: new Date(c.creado_en),
+                estado: c.estado === 'blocked' ? 'bloqueado' : 'activo',
+                avatar: c.avatar_url,
+                telefono: c.telefono
+            }));
+
+            this.usuarios.set([...usuariosProveedores, ...usuariosClientes]);
+            this.aplicarFiltros();
+            this.isLoading.set(false);
         } catch (error) {
             console.error('Error cargando usuarios:', error);
             this.isLoading.set(false);
@@ -75,7 +104,7 @@ export class UserManagementComponent implements OnInit {
         // Filtro por búsqueda
         if (this.busqueda.trim()) {
             const busquedaLower = this.busqueda.toLowerCase();
-            filtrados = filtrados.filter(u => 
+            filtrados = filtrados.filter(u =>
                 u.nombre.toLowerCase().includes(busquedaLower) ||
                 u.correo_electronico.toLowerCase().includes(busquedaLower)
             );
@@ -110,38 +139,74 @@ export class UserManagementComponent implements OnInit {
         }
     }
 
-    abrirModalUsuario(usuario: Usuario) {
+    async abrirModalUsuario(usuario: Usuario) {
         this.usuarioSeleccionado.set(usuario);
         this.mostrarModal.set(true);
+        this.paquetesProveedor.set([]);
+
+        if (usuario.rol === 'provider') {
+            this.isLoadingPaquetes.set(true);
+            try {
+                this.supabaseData.getProviderPackages(usuario.id).subscribe({
+                    next: (paquetes) => {
+                        this.paquetesProveedor.set(paquetes);
+                        this.isLoadingPaquetes.set(false);
+                    },
+                    error: (err) => {
+                        console.error('Error cargando paquetes:', err);
+                        this.isLoadingPaquetes.set(false);
+                    }
+                });
+            } catch (error) {
+                console.error('Error fetch paquetes:', error);
+                this.isLoadingPaquetes.set(false);
+            }
+        }
     }
 
     cerrarModal() {
         this.mostrarModal.set(false);
         this.usuarioSeleccionado.set(null);
+        this.paquetesProveedor.set([]);
     }
 
     async cambiarEstadoUsuario(usuario: Usuario, nuevoEstado: 'activo' | 'bloqueado') {
-        // TODO: Implementar llamada a Supabase para actualizar estado
-        console.log(`Cambiando estado de ${usuario.nombre} a ${nuevoEstado}`);
-        
-        // Actualizar localmente
-        const usuarios = this.usuarios().map(u => 
-            u.id === usuario.id ? { ...u, estado: nuevoEstado } : u
-        );
-        this.usuarios.set(usuarios);
-        this.aplicarFiltros();
-        this.cerrarModal();
+        try {
+            const statusToDb = nuevoEstado === 'bloqueado' ? 'blocked' : 'active';
+            await this.supabaseData.updateUserStatus(usuario.id, usuario.rol as any, statusToDb);
+
+            // Actualizar localmente
+            const usuarios = this.usuarios().map(u =>
+                u.id === usuario.id ? { ...u, estado: nuevoEstado } : u
+            );
+            this.usuarios.set(usuarios);
+            this.aplicarFiltros();
+            this.cerrarModal();
+        } catch (error) {
+            console.error('Error al cambiar estado:', error);
+            alert('No se pudo actualizar el estado del usuario');
+        }
+    }
+
+    /**
+     * Permite al admin modificar el precio de un paquete desde la gestión de usuarios
+     * (Asumiendo que seleccionamos un proveedor y vemos sus paquetes)
+     */
+    async modificarPrecioPaquete(paqueteId: string, nuevoPrecio: number) {
+        try {
+            await this.supabaseData.updatePackagePrice(paqueteId, nuevoPrecio);
+            alert('Precio actualizado correctamente');
+            // Podríamos recargar si estuviéramos viendo una lista de paquetes del usuario
+        } catch (error) {
+            console.error('Error al actualizar precio:', error);
+            alert('Error al actualizar el precio del paquete');
+        }
     }
 
     async cambiarRolUsuario(usuario: Usuario, nuevoRol: 'client' | 'provider' | 'admin') {
-        // TODO: Implementar llamada a Supabase para actualizar rol
-        console.log(`Cambiando rol de ${usuario.nombre} a ${nuevoRol}`);
-        
-        const usuarios = this.usuarios().map(u => 
-            u.id === usuario.id ? { ...u, rol: nuevoRol } : u
-        );
-        this.usuarios.set(usuarios);
-        this.aplicarFiltros();
+        // Esta funcionalidad requiere más cuidado ya que implica mover perfiles entre tablas
+        console.warn('Cambio de rol no implementado por seguridad de integridad referencial');
+        alert('El cambio de rol requiere intervención técnica directa');
     }
 
     getRolLabel(rol: string): string {

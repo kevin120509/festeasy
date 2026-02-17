@@ -340,7 +340,7 @@
                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Añadir
                                             Complementos</p>
 
-                                        @for (addon of addonsList; track addon.id) {
+                                        @for (addon of subscriptionService.addonsInfo(); track addon.id) {
                                         <div (click)="toggleAddon(addon.id)"
                                             [class]="selectedAddons().includes(addon.id) ? 'border-primary bg-primary/5' : 'border-slate-100 bg-slate-50'"
                                             class="flex items-center justify-between p-3 border rounded-xl cursor-pointer transition-all hover:bg-primary/5 group">

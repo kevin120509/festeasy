@@ -115,6 +115,8 @@ export const routes: Routes = [
     // Admin
     { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
     { path: 'admin/users', component: UserManagementComponent, canActivate: [adminGuard] },
+    { path: 'admin/packages', loadComponent: () => import('./admin/packages/admin-package-management.component').then(m => m.AdminPackageManagementComponent), canActivate: [adminGuard] },
+    { path: 'admin/subscriptions', loadComponent: () => import('./admin/subscriptions/subscription-management.component').then(m => m.SubscriptionManagementComponent), canActivate: [adminGuard] },
     { path: 'admin/providers/approval', component: ProviderApprovalComponent, canActivate: [adminGuard] },
 
     { path: 'p/:id', component: PaqueteDetalleComponent },

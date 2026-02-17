@@ -593,5 +593,67 @@ export class SupabaseDataService {
         if (error) throw error;
         return data || [];
     }
+
+    /**
+     * Obtiene todos los clientes registrados
+     */
+    async getAllClientsDetailed() {
+        const { data, error } = await this.supabase
+            .from('perfil_cliente')
+            .select('*')
+            .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    /**
+     * Actualiza el estado de un usuario (cliente o proveedor)
+     */
+    async updateUserStatus(id: string, role: 'client' | 'provider', newStatus: 'active' | 'blocked') {
+        const table = role === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
+        const { data, error } = await this.supabase
+            .from(table)
+            .update({ estado: newStatus })
+            .eq('usuario_id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Permite al admin modificar el precio de un paquete
+     */
+    async updatePackagePrice(packageId: string, newPrice: number) {
+        const { data, error } = await this.supabase
+            .from('paquetes_proveedor')
+            .update({ precio_base: newPrice })
+            .eq('id', packageId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    async getSubscriptionConfigs() {
+        const { data, error } = await this.supabase
+            .from('configuracion_planes')
+            .select('*')
+            .order('precio', { ascending: true });
+        if (error) throw error;
+        return data || [];
+    }
+
+    async updatePlanPrice(planId: string, newPrice: number) {
+        const { error } = await this.supabase
+            .from('configuracion_planes')
+            .update({ precio: newPrice })
+            .eq('id', planId);
+        if (error) throw error;
+        return true;
+    }
 }
 

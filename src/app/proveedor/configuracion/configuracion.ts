@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { SupabaseService } from '../../services/supabase.service';
-import { SubscriptionService, ADDONS_INFO } from '../../services/subscription.service';
+import { SubscriptionService } from '../../services/subscription.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { ProviderProfile } from '../../models';
 
@@ -47,14 +47,13 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     metodoSuscripcion = signal<'paypal' | 'stripe'>('paypal');
 
     // Add-on states
-    addonsList = ADDONS_INFO;
     selectedAddons = signal<string[]>([]);
 
     totalSuscripcion = computed(() => {
-        const basePrice = 499;
-        const addonsPrice = this.addonsList
-            .filter(a => this.selectedAddons().includes(a.id))
-            .reduce((sum, a) => sum + a.precio, 0);
+        const basePrice = 499; // Precio fijo del plan Plus
+        const addonsPrice = this.subscriptionService.addonsInfo()
+            .filter((a: any) => this.selectedAddons().includes(a.id))
+            .reduce((sum: number, a: any) => sum + a.precio, 0);
         return basePrice + addonsPrice;
     });
 
@@ -489,9 +488,9 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
             createOrder: (data: any, actions: any) => {
                 const planId = 'festeasy-plus';
                 const amount = this.totalSuscripcion().toString();
-                const addonsNames = this.addonsList
-                    .filter(a => this.selectedAddons().includes(a.id))
-                    .map(a => a.nombre).join(', ');
+                const addonsNames = this.subscriptionService.addonsInfo()
+                    .filter((a: any) => this.selectedAddons().includes(a.id))
+                    .map((a: any) => a.nombre).join(', ');
 
                 return actions.order.create({
                     purchase_units: [{

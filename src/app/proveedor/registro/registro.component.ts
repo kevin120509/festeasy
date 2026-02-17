@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
-import { PLAN_INFO, SUBSCRIPTION_LIMITS } from '../../services/subscription.service';
+import { SubscriptionService } from '../../services/subscription.service';
 import { environment } from '../../../environments/environment';
 import { OnDestroy } from '@angular/core';
 import { CheckboxModule } from 'primeng/checkbox';
@@ -20,6 +20,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
     private supabaseAuth = inject(SupabaseAuthService);
     private auth = inject(AuthService);
     private api = inject(ApiService);
+    private subscriptionService = inject(SubscriptionService);
     private router = inject(Router);
     private ngZone = inject(NgZone);
 
@@ -72,7 +73,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
     // Multi-step registration
     step = signal(1); // 1: Datos, 2: Planes
     selectedPlan = signal<string | null>(null);
-    planes = signal(PLAN_INFO);
+    planes = this.subscriptionService.planInfo;
 
     // State between steps
     registeredUserId: string | null = null;
@@ -164,7 +165,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
                 if (error.code === 1) {
                     this.error = 'Acceso a ubicación denegado. Por favor permite el acceso a tu ubicación.';
                 } else if (error.code === 2) {
-                    this.error = 'No se pudo determinar tu ubicación. Verifica tu conexión a internet y el GPS.';
+                    this.error = 'No se pudo determinar tu ubicación. Verifica tu conexión a internet und el GPS.';
                 } else if (error.code === 3) {
                     this.error = 'Tiempo de espera agotado al obtener tu ubicación.';
                 } else {
@@ -218,7 +219,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
     selectPlan(planId: string) {
         this.selectedPlan.set(planId);
 
-        if (planId === 'basico') {
+        if (planId === 'libre' || planId === 'basico') {
             this.register();
         } else {
             // Iniciar flujo de PayPal para Pro o Premium
@@ -230,7 +231,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
     getSelectedPlanName() {
         const planId = this.selectedPlan();
         if (!planId) return '';
-        return PLAN_INFO.find(p => p.id === planId)?.nombre || planId;
+        return this.planes().find((p: any) => p.id === planId)?.nombre || planId;
     }
 
     // Getter para color del plan
@@ -286,15 +287,17 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
         const planId = this.selectedPlan();
         if (!planId) return;
 
-        const limits = SUBSCRIPTION_LIMITS[planId as keyof typeof SUBSCRIPTION_LIMITS];
-        const amount = limits.precio.toString();
+        const plan = this.planes().find((p: any) => p.id === planId);
+        if (!plan) return;
+
+        const amount = plan.precio.toString();
 
         (window as any).paypal.Buttons({
             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
             createOrder: (data: any, actions: any) => {
                 return actions.order.create({
                     purchase_units: [{
-                        description: `Registro FestEasy - Plan ${limits.nombre}`,
+                        description: `Registro FestEasy - Plan ${plan.nombre}`,
                         amount: { value: amount }
                     }]
                 });
@@ -337,7 +340,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
                 direccion_formato: this.ubicacion || 'Ciudad de México',
                 latitud: this.latitud ? parseFloat(this.latitud) : null,
                 longitud: this.longitud ? parseFloat(this.longitud) : null,
-                tipo_suscripcion_actual: this.selectedPlan() || 'basico'
+                tipo_suscripcion_actual: this.selectedPlan() === 'basico' ? 'libre' : (this.selectedPlan() || 'libre')
             });
 
             if (!this.authSession) {
