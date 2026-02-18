@@ -262,6 +262,48 @@ export class SupabaseDataService {
         return data;
     }
 
+    async createPackageItems(paqueteId: string, items: any[]) {
+        if (!items || items.length === 0) return null;
+
+        const itemsToInsert = items.map(item => ({
+            paquete_id: paqueteId,
+            nombre_item: item.nombre_item,
+            cantidad: item.cantidad,
+            unidad: item.unidad || 'unidad(es)'
+        }));
+
+        const { data, error } = await this.supabase
+            .from('items_paquete')
+            .insert(itemsToInsert)
+            .select();
+
+        if (error) {
+            console.error('❌ Error creating package items:', error);
+            throw error;
+        }
+        console.log('✅ Package items created:', data);
+        return data;
+    }
+
+    async updatePackageItems(paqueteId: string, items: any[]) {
+        // Primero eliminar los items existentes
+        const { error: deleteError } = await this.supabase
+            .from('items_paquete')
+            .delete()
+            .eq('paquete_id', paqueteId);
+
+        if (deleteError) {
+            console.error('❌ Error deleting old package items:', deleteError);
+            throw deleteError;
+        }
+
+        // Luego insertar los nuevos items
+        if (items && items.length > 0) {
+            return await this.createPackageItems(paqueteId, items);
+        }
+        return null;
+    }
+
     async getServiceCategories(): Promise<any[]> {
         const { data, error } = await this.supabase
             .from('categorias_servicio')

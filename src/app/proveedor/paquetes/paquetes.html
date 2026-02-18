@@ -132,54 +132,58 @@
                 <div *ngFor="let paquete of paquetesFiltrados()"
                     class="bg-white dark:bg-gray-800 shadow-sm rounded-lg p-5 flex flex-col sm:flex-row items-center gap-6 border border-transparent hover:border-primary/20 transition-all duration-300">
 
-                    <!-- Imagen -->
-                    <div class="w-[100px] h-[100px] rounded-lg overflow-hidden shrink-0 shadow-sm bg-gray-100">
-                        <img [src]="getPackageImage(paquete)" [alt]="paquete.nombre" class="w-full h-full object-cover"
-                            onerror="this.src='assets/placeholder-package.png'" />
-                    </div>
+                    <!-- Imagen + Info (clickeable) -->
+                    <div (click)="verDetallePaquete(paquete)" 
+                         class="flex-1 flex items-center gap-6 cursor-pointer hover:opacity-80 transition-opacity">
+                        <!-- Imagen -->
+                        <div class="w-[100px] h-[100px] rounded-lg overflow-hidden shrink-0 shadow-sm bg-gray-100">
+                            <img [src]="getPackageImage(paquete)" [alt]="paquete.nombre" class="w-full h-full object-cover"
+                                onerror="this.src='assets/placeholder-package.png'" />
+                        </div>
 
-                    <!-- Info -->
-                    <div class="flex-1 flex flex-col gap-1 min-w-0">
-                        <div class="flex items-center gap-3">
-                            <span *ngIf="paquete.estado === 'publicado'"
-                                class="flex items-center text-green-500 text-[10px] font-bold uppercase tracking-wider">
-                                <span class="size-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
-                                Online
-                            </span>
-                            <span *ngIf="paquete.estado === 'borrador'"
-                                class="flex items-center text-yellow-500 text-[10px] font-bold uppercase tracking-wider">
-                                <span class="size-1.5 bg-yellow-500 rounded-full mr-1.5"></span>
-                                Borrador
-                            </span>
-                            <span *ngIf="paquete.estado === 'archivado'"
-                                class="flex items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-                                <span class="size-1.5 bg-gray-400 rounded-full mr-1.5"></span>
-                                Archivado
-                            </span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <div
-                                class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
-                                @if (authService.currentUser()?.avatar_url) {
-                                <img [src]="authService.currentUser()?.avatar_url" class="w-full h-full object-cover">
-                                } @else {
-                                <span class="text-[10px] font-black text-slate-400 font-bold">{{
-                                    (authService.currentUser()?.nombre_negocio || 'P').charAt(0) }}</span>
-                                }
+                        <!-- Info -->
+                        <div class="flex flex-col gap-1 min-w-0">
+                            <div class="flex items-center gap-3">
+                                <span *ngIf="paquete.estado === 'publicado'"
+                                    class="flex items-center text-green-500 text-[10px] font-bold uppercase tracking-wider">
+                                    <span class="size-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
+                                    Online
+                                </span>
+                                <span *ngIf="paquete.estado === 'borrador'"
+                                    class="flex items-center text-yellow-500 text-[10px] font-bold uppercase tracking-wider">
+                                    <span class="size-1.5 bg-yellow-500 rounded-full mr-1.5"></span>
+                                    Borrador
+                                </span>
+                                <span *ngIf="paquete.estado === 'archivado'"
+                                    class="flex items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
+                                    <span class="size-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                                    Archivado
+                                </span>
                             </div>
-                            <h3 class="text-jet-black dark:text-white text-xl font-bold truncate">{{ paquete.nombre }}
-                            </h3>
-                        </div>
-                        <p class="text-primary font-black text-lg">${{ paquete.precio_base | number:'1.2-2' }} <span
-                                class="text-xs text-gray-400 font-medium">/ servicio</span></p>
-                        <div class="flex items-center gap-6 mt-2 text-gray-500 dark:text-gray-400">
-                            <div class="flex items-center gap-1.5">
-                                <span class="material-icons-outlined text-lg">visibility</span>
-                                <span class="text-xs font-semibold">{{ paquete.vistas || 0 }} Vistas</span>
+                            <div class="flex items-center gap-2">
+                                <div
+                                    class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
+                                    @if (authService.currentUser()?.avatar_url) {
+                                    <img [src]="authService.currentUser()?.avatar_url" class="w-full h-full object-cover">
+                                    } @else {
+                                    <span class="text-[10px] font-black text-slate-400 font-bold">{{
+                                        (authService.currentUser()?.nombre_negocio || 'P').charAt(0) }}</span>
+                                    }
+                                </div>
+                                <h3 class="text-jet-black dark:text-white text-xl font-bold truncate">{{ paquete.nombre }}
+                                </h3>
                             </div>
-                            <div class="flex items-center gap-1.5">
-                                <span class="material-icons-outlined text-lg">calendar_today</span>
-                                <span class="text-xs font-semibold">{{ paquete.reservas || 0 }} Reservas</span>
+                            <p class="text-primary font-black text-lg">${{ paquete.precio_base | number:'1.2-2' }} <span
+                                    class="text-xs text-gray-400 font-medium">/ servicio</span></p>
+                            <div class="flex items-center gap-6 mt-2 text-gray-500 dark:text-gray-400">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-icons-outlined text-lg">visibility</span>
+                                    <span class="text-xs font-semibold">{{ paquete.vistas || 0 }} Vistas</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-icons-outlined text-lg">calendar_today</span>
+                                    <span class="text-xs font-semibold">{{ paquete.reservas || 0 }} Reservas</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -429,6 +433,61 @@
                                 (input)="updateField('precio_base', +$any($event.target).value)"
                                 class="w-full pl-10 pr-4 py-4 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-xl text-2xl font-bold focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none"
                                 placeholder="0.00" min="0" step="0.01" />
+                        </div>
+                    </div>
+
+                    <!-- Items del Paquete -->
+                    <div
+                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
+                            <span class="material-icons-outlined text-primary">inventory_2</span>
+                            Elementos Incluidos
+                        </h3>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Agrega los elementos que incluye tu paquete (mesas, sillas, decoración, etc.)</p>
+
+                        <div class="flex flex-col gap-3 mb-4">
+                            <div class="grid grid-cols-12 gap-3">
+                                <input type="text" [value]="newItemName()"
+                                    (input)="newItemName.set($any($event.target).value)"
+                                    class="col-span-5 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
+                                    placeholder="Nombre del elemento" />
+                                
+                                <input type="number" [value]="newItemQuantity()"
+                                    (input)="newItemQuantity.set(+$any($event.target).value)"
+                                    class="col-span-2 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
+                                    placeholder="Cant." min="1" />
+                                
+                                <input type="text" [value]="newItemUnit()"
+                                    (input)="newItemUnit.set($any($event.target).value)"
+                                    class="col-span-4 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
+                                    placeholder="Unidad (ej: piezas)" />
+                                
+                                <button (click)="addPackageItem()"
+                                    class="col-span-1 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
+                                    <span class="material-icons-outlined">add</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div *ngFor="let item of packageItems(); let i = index"
+                                class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                        <span class="material-icons-outlined text-primary text-sm">check_circle</span>
+                                    </div>
+                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ item.nombre_item }}</span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="text-sm text-slate-600 dark:text-slate-400">{{ item.cantidad }} {{ item.unidad }}</span>
+                                    <button (click)="removePackageItem(i)" class="text-red-400 hover:text-red-600">
+                                        <span class="material-icons-outlined text-sm">close</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div *ngIf="packageItems().length === 0" class="text-center py-4 text-slate-400 text-sm">
+                                No hay elementos agregados
+                            </div>
                         </div>
                     </div>
 

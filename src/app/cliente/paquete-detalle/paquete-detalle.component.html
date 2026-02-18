@@ -18,24 +18,53 @@
 <!-- Main Content Wrapper -->
 <main *ngIf="package()" class="bg-gray-50 dark:bg-gray-900 font-sans">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <!-- Back Button -->
-        <button (click)="goBack()" class="flex items-center gap-2 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-primary-light font-semibold mb-8 transition-colors">
-            <span class="material-symbols-outlined">arrow_back</span>
-            Volver
-        </button>
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
             <!-- Left Column: Details -->
             <div class="lg:col-span-2">
-                <!-- Image Hero -->
-                <div class="h-80 rounded-2xl overflow-hidden shadow-lg mb-8 relative">
-                    <img [src]="coverImageUrl()" 
-                         alt="Imagen del paquete {{package().nombre}}" 
-                         class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/50"></div>
-                    <div class="absolute bottom-6 left-6">
-                        <h1 class="text-4xl font-extrabold text-white tracking-tight">{{ package().nombre }}</h1>
-                        <p class="text-lg text-white/80 mt-1">Ofrecido por: {{ package().perfil_proveedor.nombre_negocio }}</p>
+                <!-- Image Gallery -->
+                <div class="mb-8">
+                    <!-- Main Image -->
+                    <div class="h-80 rounded-2xl overflow-hidden shadow-lg mb-4 relative group">
+                        <img [src]="currentImageUrl()" 
+                             alt="Imagen del paquete {{package().nombre}}" 
+                             class="w-full h-full object-cover transition-transform duration-300">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/50"></div>
+                        <div class="absolute bottom-6 left-6 z-10">
+                            <h1 class="text-4xl font-extrabold text-white tracking-tight">{{ package().nombre }}</h1>
+                            <p class="text-lg text-white/80 mt-1">Ofrecido por: {{ package().perfil_proveedor.nombre_negocio }}</p>
+                        </div>
+                        
+                        <!-- Navigation Buttons (only if more than 1 image) -->
+                        <div *ngIf="allImages().length > 1">
+                            <button (click)="prevImage()" 
+                                class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 text-gray-800 dark:text-white rounded-full p-3 shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
+                                <span class="material-symbols-outlined">chevron_left</span>
+                            </button>
+                            <button (click)="nextImage()" 
+                                class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 text-gray-800 dark:text-white rounded-full p-3 shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
+                                <span class="material-symbols-outlined">chevron_right</span>
+                            </button>
+                        </div>
+
+                        <!-- Image Counter -->
+                        <div *ngIf="allImages().length > 1" 
+                             class="absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-semibold z-10">
+                            {{ currentImageIndex() + 1 }} / {{ allImages().length }}
+                        </div>
+                    </div>
+
+                    <!-- Thumbnails -->
+                    <div *ngIf="allImages().length > 1" 
+                         class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <button *ngFor="let img of allImages(); let i = index"
+                                (click)="selectImage(i)"
+                                [class]="i === currentImageIndex() 
+                                    ? 'w-20 h-20 rounded-lg overflow-hidden border-3 border-primary shadow-md flex-shrink-0 transition-all' 
+                                    : 'w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 opacity-60 hover:opacity-100 flex-shrink-0 transition-all'">
+                            <img [src]="img.url" 
+                                 [alt]="'Imagen ' + (i + 1)" 
+                                 class="w-full h-full object-cover">
+                        </button>
                     </div>
                 </div>
 
@@ -45,6 +74,29 @@
                     <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
                         {{ package().descripcion || 'No hay descripción disponible para este paquete.' }}
                     </p>
+                </div>
+
+                <!-- Items Incluidos en el Paquete -->
+                <div *ngIf="package()?.items_paquete && package()!.items_paquete.length > 0" 
+                     class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary">inventory_2</span>
+                        Incluye
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div *ngFor="let item of package()?.items_paquete" 
+                             class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="font-semibold text-gray-800 dark:text-white">{{ item.nombre_item }}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    {{ item.cantidad }} {{ item.unidad || 'unidad(es)' }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Incluidos -->
@@ -75,10 +127,32 @@
             <div class="lg:col-span-1">
                 <div class="sticky top-24">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">Resumen del Pedido</h2>
+                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+                            {{ isOwner() ? 'Vista de Cliente' : 'Resumen del Pedido' }}
+                        </h2>
+                        
+                        <!-- Botones de Editar/Eliminar (solo para el dueño) -->
+                        <div *ngIf="isOwner()" class="mb-6 space-y-3">
+                            <button (click)="editarPaquete()" 
+                                class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">edit</span>
+                                Editar Paquete
+                            </button>
+                            <button (click)="eliminarPaquete()" 
+                                class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">delete</span>
+                                Eliminar Paquete
+                            </button>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3">
+                                <p class="text-xs text-blue-800 dark:text-blue-200 flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-sm flex-shrink-0">info</span>
+                                    <span>Estás viendo tu paquete como lo ven los clientes. Usa los botones de arriba para editarlo o eliminarlo.</span>
+                                </p>
+                            </div>
+                        </div>
                         
                         <!-- Base Package -->
-                        <div class="flex justify-between items-center mb-6">
+                        <div *ngIf="!isOwner()" class="flex justify-between items-center mb-6">
                             <div>
                                 <p class="font-semibold text-gray-800 dark:text-white">Paquete Principal</p>
                                 <p class="text-sm text-gray-500 dark:text-gray-400">${{ package().precio_base | number:'1.2-2' }} / c.u.</p>
@@ -95,7 +169,7 @@
                         </div>
 
                         <!-- Total Section -->
-                        <div class="border-t border-gray-100 dark:border-gray-700 pt-6 space-y-4">
+                        <div *ngIf="!isOwner()" class="border-t border-gray-100 dark:border-gray-700 pt-6 space-y-4">
                             <div class="flex justify-between items-center text-lg">
                                 <p class="font-semibold text-gray-800 dark:text-white">Subtotal</p>
                                 <p class="font-bold text-gray-900 dark:text-white">${{ total() | number:'1.2-2' }}</p>
