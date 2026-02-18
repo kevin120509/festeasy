@@ -236,7 +236,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     </div>
   `,
     styles: [`
-    :host { display: block; background: #fafafa; min-h-screen; }
+    :host { display: block; background: #fafafa; min-height: 100vh; }
   `]
 })
 export class WebBuilderComponent implements OnInit {
