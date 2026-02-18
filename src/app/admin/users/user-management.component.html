@@ -9,7 +9,8 @@
                     </a>
                     <div>
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Gestión de Usuarios</h1>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ usuariosFiltrados().length }} usuarios encontrados</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ usuariosFiltrados().length }} usuarios
+                            encontrados</p>
                     </div>
                 </div>
             </div>
@@ -19,31 +20,26 @@
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Filtros -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <!-- Búsqueda -->
                 <div class="md:col-span-2">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Buscar</label>
                     <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
-                        <input 
-                            type="text" 
-                            [(ngModel)]="busqueda"
-                            (input)="aplicarFiltros()"
+                        <span
+                            class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-gray-400">search</span>
+                        <input type="text" [(ngModel)]="busqueda" (input)="aplicarFiltros()"
                             placeholder="Nombre o correo..."
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
-                        >
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500">
                     </div>
                 </div>
 
                 <!-- Filtro Rol -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
-                    <select 
-                        [(ngModel)]="filtroRol"
-                        (change)="aplicarFiltros()"
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
+                    <select [(ngModel)]="filtroRol" (change)="aplicarFiltros()"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="todos">Todos</option>
                         <option value="client">Clientes</option>
                         <option value="provider">Proveedores</option>
@@ -54,11 +50,8 @@
                 <!-- Filtro Estado -->
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
-                    <select 
-                        [(ngModel)]="filtroEstado"
-                        (change)="aplicarFiltros()"
-                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                    >
+                    <select [(ngModel)]="filtroEstado" (change)="aplicarFiltros()"
+                        class="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
                         <option value="todos">Todos</option>
                         <option value="activo">Activos</option>
                         <option value="bloqueado">Bloqueados</option>
@@ -70,156 +63,244 @@
 
         <!-- Loading -->
         @if (isLoading()) {
-            <div class="flex items-center justify-center py-20">
-                <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
-            </div>
+        <div class="flex items-center justify-center py-20">
+            <div class="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
+        </div>
         } @else {
-            <!-- Tabla de Usuarios -->
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-gray-50 dark:bg-gray-700/50">
-                            <tr>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Usuario</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Rol</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Estado</th>
-                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Registro</th>
-                                <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                            @for (usuario of usuariosPaginados; track usuario.id) {
-                                <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
-                                    <td class="px-6 py-4">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                                                {{ usuario.nombre.charAt(0) }}
-                                            </div>
-                                            <div>
-                                                <p class="font-medium text-gray-900 dark:text-white">{{ usuario.nombre }}</p>
-                                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ usuario.correo_electronico }}</p>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-3 py-1 rounded-full text-xs font-medium {{ getRolClasses(usuario.rol) }}">
-                                            {{ getRolLabel(usuario.rol) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4">
-                                        <span class="px-3 py-1 rounded-full text-xs font-medium capitalize {{ getEstadoClasses(usuario.estado) }}">
-                                            {{ usuario.estado }}
-                                        </span>
-                                    </td>
-                                    <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
-                                        {{ usuario.fecha_registro | date:'dd/MM/yyyy' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-right">
-                                        <button 
-                                            (click)="abrirModalUsuario(usuario)"
-                                            class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
-                                        >
-                                            <span class="material-symbols-outlined">more_vert</span>
-                                        </button>
-                                    </td>
-                                </tr>
-                            } @empty {
-                                <tr>
-                                    <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                                        No se encontraron usuarios
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Paginación -->
-                @if (totalPaginas > 1) {
-                    <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
-                        <p class="text-sm text-gray-600 dark:text-gray-400">
-                            Página {{ paginaActual() }} de {{ totalPaginas }}
-                        </p>
-                        <div class="flex gap-2">
-                            <button 
-                                (click)="cambiarPagina(paginaActual() - 1)"
-                                [disabled]="paginaActual() === 1"
-                                class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
-                            >
-                                Anterior
-                            </button>
-                            <button 
-                                (click)="cambiarPagina(paginaActual() + 1)"
-                                [disabled]="paginaActual() === totalPaginas"
-                                class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700"
-                            >
-                                Siguiente
-                            </button>
-                        </div>
-                    </div>
-                }
+        <!-- Tabla de Usuarios -->
+        <div
+            class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50 dark:bg-gray-700/50">
+                        <tr>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                Usuario</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                Rol</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                Estado</th>
+                            <th
+                                class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                Registro</th>
+                            <th
+                                class="px-6 py-4 text-right text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
+                                Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
+                        @for (usuario of usuariosPaginados; track usuario.id) {
+                        <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                                        {{ usuario.nombre.charAt(0) }}
+                                    </div>
+                                    <div>
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ usuario.nombre }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{
+                                            usuario.correo_electronico }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-medium {{ getRolClasses(usuario.rol) }}">
+                                    {{ getRolLabel(usuario.rol) }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span
+                                    class="px-3 py-1 rounded-full text-xs font-medium capitalize {{ getEstadoClasses(usuario.estado) }}">
+                                    {{ usuario.estado }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                                {{ usuario.fecha_registro | date:'dd/MM/yyyy' }}
+                            </td>
+                            <td class="px-6 py-4 text-right">
+                                <button (click)="abrirModalUsuario(usuario)"
+                                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                    <span class="material-symbols-outlined">more_vert</span>
+                                </button>
+                            </td>
+                        </tr>
+                        } @empty {
+                        <tr>
+                            <td colspan="5" class="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
+                                No se encontraron usuarios
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
             </div>
+
+            <!-- Paginación -->
+            @if (totalPaginas > 1) {
+            <div class="px-6 py-4 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between">
+                <p class="text-sm text-gray-600 dark:text-gray-400">
+                    Página {{ paginaActual() }} de {{ totalPaginas }}
+                </p>
+                <div class="flex gap-2">
+                    <button (click)="cambiarPagina(paginaActual() - 1)" [disabled]="paginaActual() === 1"
+                        class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Anterior
+                    </button>
+                    <button (click)="cambiarPagina(paginaActual() + 1)" [disabled]="paginaActual() === totalPaginas"
+                        class="px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700">
+                        Siguiente
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
         }
     </main>
 
     <!-- Modal de Usuario -->
     @if (mostrarModal() && usuarioSeleccionado()) {
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" (click)="cerrarModal()">
-            <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 shadow-xl" (click)="$event.stopPropagation()">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white">Gestionar Usuario</h3>
-                    <button (click)="cerrarModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
-                        <span class="material-symbols-outlined text-gray-500">close</span>
-                    </button>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" (click)="cerrarModal()">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md p-6 shadow-xl"
+            (click)="$event.stopPropagation()">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Gestionar Usuario</h3>
+                <button (click)="cerrarModal()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <span class="material-symbols-outlined text-gray-500">close</span>
+                </button>
+            </div>
+
+            <div class="space-y-6 max-h-[80vh] overflow-y-auto pr-2">
+                <!-- Info Básica -->
+                <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                    <div
+                        class="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-2xl font-bold border-4 border-white dark:border-gray-700 shadow-sm">
+                        {{ usuarioSeleccionado()!.nombre.charAt(0) }}
+                    </div>
+                    <div>
+                        <p class="font-bold text-lg text-gray-900 dark:text-white">{{ usuarioSeleccionado()!.nombre }}
+                        </p>
+                        <span
+                            class="px-2.5 py-0.5 rounded-full text-xs font-medium {{ getRolClasses(usuarioSeleccionado()!.rol) }}">
+                            {{ getRolLabel(usuarioSeleccionado()!.rol) }}
+                        </span>
+                    </div>
                 </div>
 
-                <div class="space-y-4">
-                    <div class="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
-                        <div class="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl font-bold">
-                            {{ usuarioSeleccionado()!.nombre.charAt(0) }}
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-900 dark:text-white">{{ usuarioSeleccionado()!.nombre }}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ usuarioSeleccionado()!.correo_electronico }}</p>
-                        </div>
-                    </div>
+                <!-- Detalles del Perfil -->
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl space-y-3">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Información de Contacto
+                        </h4>
 
-                    <!-- Acciones -->
-                    <div class="space-y-2">
-                        @if (usuarioSeleccionado()!.estado === 'activo') {
-                            <button 
-                                (click)="cambiarEstadoUsuario(usuarioSeleccionado()!, 'bloqueado')"
-                                class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 transition-colors"
-                            >
-                                <span class="material-symbols-outlined">block</span>
-                                <span>Bloquear usuario</span>
-                            </button>
-                        } @else {
-                            <button 
-                                (click)="cambiarEstadoUsuario(usuarioSeleccionado()!, 'activo')"
-                                class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-green-50 dark:hover:bg-green-900/20 text-green-600 dark:text-green-400 transition-colors"
-                            >
-                                <span class="material-symbols-outlined">check_circle</span>
-                                <span>Activar usuario</span>
-                            </button>
+                        <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                            <span class="material-symbols-outlined text-gray-400">mail</span>
+                            <span class="text-sm">{{ usuarioSeleccionado()!.correo_electronico || 'Sin correo
+                                registrado' }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-3 text-gray-600 dark:text-gray-300">
+                            <span class="material-symbols-outlined text-gray-400">phone</span>
+                            <span class="text-sm">{{ usuarioSeleccionado()!.telefono || 'Sin teléfono' }}</span>
+                        </div>
+
+                        @if (usuarioSeleccionado()!.direccion) {
+                        <div class="flex items-start gap-3 text-gray-600 dark:text-gray-300">
+                            <span class="material-symbols-outlined text-gray-400">location_on</span>
+                            <span class="text-sm">{{ usuarioSeleccionado()!.direccion }}</span>
+                        </div>
                         }
-
-                        <button 
-                            class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
-                        >
-                            <span class="material-symbols-outlined">visibility</span>
-                            <span>Ver perfil completo</span>
-                        </button>
-
-                        <button 
-                            class="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
-                        >
-                            <span class="material-symbols-outlined">mail</span>
-                            <span>Enviar mensaje</span>
-                        </button>
                     </div>
+
+                    @if (usuarioSeleccionado()!.descripcion) {
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700/30 rounded-xl space-y-2">
+                        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Descripción / Bio</h4>
+                        <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed italic">
+                            "{{ usuarioSeleccionado()!.descripcion }}"
+                        </p>
+                    </div>
+                    }
+                </div>
+
+                <!-- Gestión de Paquetes (Solo para Proveedores) -->
+                @if (usuarioSeleccionado()!.rol === 'provider') {
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <span class="material-symbols-outlined text-indigo-500">inventory_2</span>
+                            Paquetes y Precios
+                        </h4>
+                        @if (isLoadingPaquetes()) {
+                        <div class="animate-spin h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full">
+                        </div>
+                        }
+                    </div>
+
+                    <div class="space-y-3">
+                        @for (paquete of paquetesProveedor(); track paquete.id) {
+                        <div
+                            class="p-4 border border-gray-100 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="min-w-0 flex-1">
+                                    <p class="font-medium text-gray-900 dark:text-white truncate">{{ paquete.nombre }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400">ID: {{ paquete.id.substring(0,8)
+                                        }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="relative w-32">
+                                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">$</span>
+                                        <input type="number" [(ngModel)]="paquete.precio_base"
+                                            class="w-full pl-6 pr-3 py-2 text-sm font-bold rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500">
+                                    </div>
+                                    <button (click)="modificarPrecioPaquete(paquete.id, paquete.precio_base)"
+                                        class="p-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors shadow-sm"
+                                        title="Guardar precio">
+                                        <span class="material-symbols-outlined text-sm">save</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        } @empty {
+                        @if (!isLoadingPaquetes()) {
+                        <div
+                            class="text-center py-6 bg-gray-50 dark:bg-gray-700/20 rounded-xl border border-dashed border-gray-200 dark:border-gray-600">
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Este proveedor no tiene paquetes
+                                registrados.</p>
+                        </div>
+                        }
+                        }
+                    </div>
+                </div>
+                }
+
+                <!-- Botones de Acción de Estado -->
+                <div class="pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 gap-3">
+                    @if (usuarioSeleccionado()!.estado === 'activo') {
+                    <button (click)="cambiarEstadoUsuario(usuarioSeleccionado()!, 'bloqueado')"
+                        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400 font-semibold transition-colors">
+                        <span class="material-symbols-outlined text-lg">block</span>
+                        Bloquear
+                    </button>
+                    } @else {
+                    <button (click)="cambiarEstadoUsuario(usuarioSeleccionado()!, 'activo')"
+                        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-green-50 hover:bg-green-100 text-green-600 dark:bg-green-900/20 dark:hover:bg-green-900/30 dark:text-green-400 font-semibold transition-colors">
+                        <span class="material-symbols-outlined text-lg">check_circle</span>
+                        Activar
+                    </button>
+                    }
+
+                    <button (click)="cerrarModal()"
+                        class="flex items-center justify-center px-4 py-3 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-gray-300 font-semibold transition-colors">
+                        Cerrar
+                    </button>
                 </div>
             </div>
         </div>
+    </div>
     }
 </div>

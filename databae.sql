@@ -1,6 +1,14 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
+CREATE TABLE public.addons (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  price numeric NOT NULL,
+  code text NOT NULL UNIQUE,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT addons_pkey PRIMARY KEY (id)
+);
 CREATE TABLE public.carrito (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   cliente_usuario_id uuid NOT NULL,
@@ -14,12 +22,6 @@ CREATE TABLE public.carrito (
   CONSTRAINT carrito_pkey PRIMARY KEY (id),
   CONSTRAINT fk_carrito_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.categorias_evento (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  nombre character varying NOT NULL,
-  icono character varying,
-  CONSTRAINT categorias_evento_pkey PRIMARY KEY (id)
-);
 CREATE TABLE public.categorias_servicio (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   nombre character varying NOT NULL,
@@ -28,18 +30,13 @@ CREATE TABLE public.categorias_servicio (
   activa boolean NOT NULL DEFAULT true,
   CONSTRAINT categorias_servicio_pkey PRIMARY KEY (id)
 );
-CREATE TABLE public.cotizaciones (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  solicitud_id uuid NOT NULL,
-  proveedor_usuario_id uuid NOT NULL,
-  precio_total_propuesto numeric NOT NULL,
-  desglose_json jsonb,
-  notas text,
-  estado text NOT NULL DEFAULT 'pendiente'::text CHECK (estado = ANY (ARRAY['pendiente'::text, 'aceptada_cliente'::text, 'rechazada_cliente'::text])),
-  creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  fecha_expiracion date,
-  CONSTRAINT cotizaciones_pkey PRIMARY KEY (id),
-  CONSTRAINT cotizaciones_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id)
+CREATE TABLE public.configuracion_planes (
+  id text NOT NULL,
+  nombre text NOT NULL,
+  precio numeric NOT NULL DEFAULT 0,
+  tipo text NOT NULL,
+  max_paquetes integer DEFAULT 0,
+  CONSTRAINT configuracion_planes_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.disponibilidad_bloqueada (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -53,7 +50,7 @@ CREATE TABLE public.disponibilidad_bloqueada (
 CREATE TABLE public.historial_suscripciones (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   proveedor_usuario_id uuid NOT NULL,
-  plan text NOT NULL CHECK (plan = ANY (ARRAY['basico'::text, 'plus'::text])),
+  plan text NOT NULL,
   monto_pagado numeric NOT NULL,
   fecha_inicio timestamp with time zone NOT NULL,
   fecha_fin timestamp with time zone NOT NULL,
@@ -98,7 +95,6 @@ CREATE TABLE public.items_solicitud (
 );
 CREATE TABLE public.pagos (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  cotizacion_id uuid,
   cliente_usuario_id uuid NOT NULL,
   proveedor_usuario_id uuid NOT NULL,
   monto numeric NOT NULL,
@@ -114,7 +110,6 @@ CREATE TABLE public.pagos (
   CONSTRAINT pagos_pkey PRIMARY KEY (id),
   CONSTRAINT fk_pagos_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_pagos_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),
-  CONSTRAINT pagos_cotizacion_id_fkey FOREIGN KEY (cotizacion_id) REFERENCES public.cotizaciones(id),
   CONSTRAINT pagos_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id)
 );
 CREATE TABLE public.paquetes_proveedor (
@@ -132,6 +127,14 @@ CREATE TABLE public.paquetes_proveedor (
   CONSTRAINT paquetes_proveedor_categoria_servicio_id_fkey FOREIGN KEY (categoria_servicio_id) REFERENCES public.categorias_servicio(id),
   CONSTRAINT paquetes_proveedor_proveedor_usuario_id_fkey FOREIGN KEY (proveedor_usuario_id) REFERENCES public.perfil_proveedor(usuario_id)
 );
+CREATE TABLE public.perfil_admin (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  usuario_id uuid NOT NULL UNIQUE,
+  nombre_completo text,
+  creado_en timestamp with time zone DEFAULT now(),
+  CONSTRAINT perfil_admin_pkey PRIMARY KEY (id),
+  CONSTRAINT perfil_admin_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.perfil_cliente (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   usuario_id uuid NOT NULL UNIQUE,
@@ -139,6 +142,7 @@ CREATE TABLE public.perfil_cliente (
   telefono character varying,
   avatar_url character varying,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  estado text DEFAULT 'active'::text CHECK (estado = ANY (ARRAY['active'::text, 'blocked'::text])),
   CONSTRAINT perfil_cliente_pkey PRIMARY KEY (id),
   CONSTRAINT fk_perfil_cliente_auth FOREIGN KEY (usuario_id) REFERENCES auth.users(id)
 );
@@ -153,7 +157,7 @@ CREATE TABLE public.perfil_proveedor (
   latitud numeric,
   longitud numeric,
   radio_cobertura_km integer DEFAULT 20,
-  tipo_suscripcion_actual text NOT NULL DEFAULT 'basico'::text CHECK (tipo_suscripcion_actual = ANY (ARRAY['basico'::text, 'plus'::text])),
+  tipo_suscripcion_actual text NOT NULL DEFAULT 'festeasy'::text,
   categoria_principal_id uuid,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   actualizado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -161,9 +165,39 @@ CREATE TABLE public.perfil_proveedor (
   contrasena character varying,
   estado text DEFAULT 'active'::text CHECK (estado = ANY (ARRAY['active'::text, 'blocked'::text])),
   datos_bancarios_json jsonb,
+  addons jsonb DEFAULT '[]'::jsonb,
+  suscripcion_activa boolean DEFAULT true,
   CONSTRAINT perfil_proveedor_pkey PRIMARY KEY (id),
   CONSTRAINT fk_perfil_proveedor_auth FOREIGN KEY (usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_perfil_proveedor_categoria FOREIGN KEY (categoria_principal_id) REFERENCES public.categorias_servicio(id)
+);
+CREATE TABLE public.provider_addons (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  provider_id uuid,
+  addon_code text NOT NULL,
+  status text DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'inactive'::text, 'pending'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT provider_addons_pkey PRIMARY KEY (id),
+  CONSTRAINT provider_addons_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES auth.users(id),
+  CONSTRAINT provider_addons_addon_code_fkey FOREIGN KEY (addon_code) REFERENCES public.addons(code)
+);
+CREATE TABLE public.provider_public_page (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  provider_id uuid,
+  slug text NOT NULL UNIQUE,
+  slogan text,
+  description text,
+  hero_image text,
+  hero_alignment text DEFAULT 'center'::text CHECK (hero_alignment = ANY (ARRAY['left'::text, 'center'::text, 'right'::text])),
+  contact_phone text,
+  contact_email text,
+  contact_whatsapp text,
+  gallery jsonb DEFAULT '[]'::jsonb,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT provider_public_page_pkey PRIMARY KEY (id),
+  CONSTRAINT provider_public_page_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.resenas (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -201,8 +235,12 @@ CREATE TABLE public.solicitudes (
   pin_validado_en timestamp with time zone,
   pin_validacion text,
   fecha_validacion_pin timestamp with time zone,
+  cancelado_por_id uuid,
+  motivo_cancelacion text,
+  fecha_cancelacion timestamp with time zone DEFAULT now(),
   CONSTRAINT solicitudes_pkey PRIMARY KEY (id),
   CONSTRAINT fk_solicitud_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_solicitud_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),
-  CONSTRAINT solicitudes_cliente_perfil_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.perfil_cliente(usuario_id)
+  CONSTRAINT solicitudes_cliente_perfil_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.perfil_cliente(usuario_id),
+  CONSTRAINT solicitudes_cancelado_por_id_fkey FOREIGN KEY (cancelado_por_id) REFERENCES auth.users(id)
 );

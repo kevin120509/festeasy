@@ -1,3 +1,59 @@
+<!-- Diálogo de Confirmación de PrimeNG -->
+<p-confirmDialog [style]="{width: '500px'}" [baseZIndex]="10000"></p-confirmDialog>
+
+<!-- Notificaciones Toast -->
+<p-toast position="top-right"></p-toast>
+
+<!-- 🚫 Diálogo Personalizado de Motivo de Cancelación -->
+<p-dialog [(visible)]="displayCancelDialog" [modal]="true" [style]="{width: '500px'}" [draggable]="false"
+    [resizable]="false" [baseZIndex]="10000">
+    <ng-template pTemplate="header">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                <span class="material-symbols-outlined text-red-600">cancel</span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900">Motivo de Cancelación</h3>
+        </div>
+    </ng-template>
+
+    <div class="space-y-4">
+        <p class="text-sm text-gray-600 flex items-start gap-2">
+            <span class="material-symbols-outlined text-amber-500 text-lg">info</span>
+            <span>Por favor, explica brevemente por qué necesitas cancelar el servicio.</span>
+        </p>
+
+        @if (solicitudACancelar?.estado === 'reservado') {
+        <div class="bg-orange-50 border border-orange-200 rounded-xl p-4">
+            <p class="text-sm text-orange-800 flex items-start gap-2">
+                <span class="material-symbols-outlined text-orange-600 text-lg">warning</span>
+                <span><strong>Atención:</strong> Si ya pagaste el anticipo, la devolución queda sujeta a las políticas
+                    del proveedor.</span>
+            </p>
+        </div>
+        }
+
+        <div class="space-y-2">
+            <label for="motivoCancelacion" class="block text-sm font-semibold text-gray-700">
+                Motivo de cancelación *
+            </label>
+            <textarea id="motivoCancelacion" [(ngModel)]="motivoTemporal" rows="4"
+                class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                placeholder="Ejemplo: Cambio de fecha del evento, problema personal, etc." maxlength="500"></textarea>
+            <p class="text-xs text-gray-500">{{ motivoTemporal.length }}/500 caracteres (mínimo 10)</p>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-3 justify-end">
+            <button pButton pRipple label="Volver" icon="pi pi-times" (click)="cerrarDialogoCancelacion()"
+                class="p-button-text p-button-secondary"></button>
+            <button pButton pRipple label="Confirmar Cancelación" icon="pi pi-check"
+                (click)="ejecutarCancelacionFinal()" class="p-button-danger"
+                [disabled]="motivoTemporal.trim().length < 10"></button>
+        </div>
+    </ng-template>
+</p-dialog>
+
 <div class="min-h-screen bg-gray-50 pb-24">
 
     <main class="max-w-4xl mx-auto px-4 py-8">
@@ -40,6 +96,55 @@
             </div>
         </div>
 
+        <!-- 🚫 TARJETA DE CANCELACIÓN - Visible cuando el servicio está cancelado -->
+        @if (evento().estado === 'cancelada') {
+        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-3xl shadow-lg my-4 text-white">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="bg-white/20 p-3 rounded-full flex-shrink-0">
+                    <span class="material-symbols-outlined text-3xl">cancel</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 flex items-center gap-2">
+                        <span>Servicio Cancelado</span>
+                    </h3>
+                    <p class="text-red-100 text-base mb-3">
+                        Este servicio fue cancelado por
+                        <strong class="text-white">
+                            {{ evento().cancelado_por_id === auth.currentUser()?.id ? 'ti (Cliente)' : 'el Proveedor' }}
+                        </strong>.
+                    </p>
+
+                    @if (evento().motivo_cancelacion) {
+                    <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                        <p class="text-sm font-semibold text-red-100 mb-1 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-lg">info</span>
+                            Motivo de cancelación:
+                        </p>
+                        <p class="text-white font-medium">{{ evento().motivo_cancelacion }}</p>
+                    </div>
+                    }
+
+                    @if (evento().fecha_cancelacion) {
+                    <p class="text-xs text-red-200 mt-3 flex items-center gap-1">
+                        <span class="material-symbols-outlined text-sm">schedule</span>
+                        Cancelado el {{ evento().fecha_cancelacion | date:'dd/MM/yyyy HH:mm' }}
+                    </p>
+                    }
+                </div>
+            </div>
+
+            <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+                <p class="text-sm text-red-100 flex items-start gap-2">
+                    <span class="material-symbols-outlined text-lg flex-shrink-0">lightbulb</span>
+                    <span>Si tienes dudas sobre esta cancelación, puedes contactar al
+                        {{ evento().cancelado_por_id === auth.currentUser()?.id ? 'proveedor' : 'soporte de FestEasy'
+                        }}.
+                    </span>
+                </p>
+            </div>
+        </div>
+        }
+
         <!-- 🔒 TARJETA DE PIN - Siempre visible para servicios confirmados/reservados -->
         @if (evento().estado === 'confirmado' || evento().estado === 'reservado') {
         <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-red-100 my-4">
@@ -66,6 +171,33 @@
                 </svg>
                 Código disponible para tu seguridad
             </p>
+        </div>
+        }
+
+        <!-- 🚫 BOTÓN DE CANCELACIÓN - Visible para estados cancelables -->
+        @if (['pendiente_aprobacion', 'esperando_anticipo', 'reservado'].includes(evento().estado)) {
+        <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-red-100 my-4">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="bg-red-100 p-3 rounded-full">
+                    <span class="material-symbols-outlined text-red-600">cancel</span>
+                </div>
+                <div>
+                    <h3 class="text-sm text-gray-500 font-medium">¿Necesitas cancelar?</h3>
+                    <p class="text-xs text-gray-400">Puedes cancelar tu evento si tus planes cambiaron</p>
+                </div>
+            </div>
+
+            <button (click)="cancelarMiEvento(evento())"
+                class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg">
+                <span class="material-symbols-outlined">close</span>
+                <span>Cancelar Evento</span>
+            </button>
+
+            @if (evento().estado === 'reservado') {
+            <p class="text-xs text-orange-600 mt-3 text-center font-medium">
+                ⚠️ Si ya pagaste el anticipo, la devolución queda sujeta a las políticas del proveedor
+            </p>
+            }
         </div>
         }
 

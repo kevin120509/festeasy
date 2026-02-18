@@ -32,38 +32,43 @@ export class AdminDashboardComponent implements OnInit {
     });
 
     isLoading = signal(true);
-    
-    // Actividad reciente mock
-    actividadReciente = signal([
-        { tipo: 'nuevo_proveedor', mensaje: 'Nuevo proveedor registrado: DJ Fiesta Total', tiempo: 'Hace 5 min', icono: 'person_add' },
-        { tipo: 'solicitud', mensaje: 'Nueva solicitud de cotización recibida', tiempo: 'Hace 15 min', icono: 'request_quote' },
-        { tipo: 'pago', mensaje: 'Pago confirmado: $5,000 MXN', tiempo: 'Hace 1 hora', icono: 'payments' },
-        { tipo: 'reseña', mensaje: 'Nueva reseña 5 estrellas para Catering Deluxe', tiempo: 'Hace 2 horas', icono: 'star' },
-    ]);
+    todosProveedores = signal<any[]>([]);
+
+    // Actividad reciente real
+    actividadReciente = signal<any[]>([]);
 
     ngOnInit(): void {
-        this.cargarEstadisticas();
+        this.cargarDatosDashboard();
     }
 
-    async cargarEstadisticas() {
+    async cargarDatosDashboard() {
         this.isLoading.set(true);
         try {
-            // TODO: Implementar llamadas reales a Supabase para obtener estadísticas
-            // Por ahora usamos datos de ejemplo
-            setTimeout(() => {
-                this.stats.set({
-                    totalUsuarios: 156,
-                    totalProveedores: 42,
-                    totalClientes: 114,
-                    proveedoresPendientes: 5,
-                    solicitudesHoy: 12,
-                    ingresosMes: 125000
-                });
-                this.isLoading.set(false);
-            }, 500);
+            const [estatisticas, actividad, proveedores] = await Promise.all([
+                this.supabaseData.getAdminDashboardStats(),
+                this.supabaseData.getRecentAdminActivity(),
+                this.supabaseData.getAllProvidersDetailed()
+            ]);
+
+            this.stats.set(estatisticas);
+            this.actividadReciente.set(actividad);
+            this.todosProveedores.set(proveedores);
+
+            this.isLoading.set(false);
         } catch (error) {
-            console.error('Error cargando estadísticas:', error);
+            console.error('Error cargando datos del dashboard:', error);
             this.isLoading.set(false);
         }
+    }
+
+    formatearFechaRelativa(fecha: string) {
+        const date = new Date(fecha);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (diffInSeconds < 60) return 'Hace un momento';
+        if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} min`;
+        if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} horas`;
+        return date.toLocaleDateString();
     }
 }

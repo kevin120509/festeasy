@@ -1,24 +1,26 @@
-import { Component, inject, OnInit, signal, NgZone } from '@angular/core';
+import { Component, inject, OnInit, signal, NgZone, AfterViewInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
-import { PLAN_INFO, SUBSCRIPTION_LIMITS } from '../../services/subscription.service';
+import { SubscriptionService } from '../../services/subscription.service';
 import { environment } from '../../../environments/environment';
 import { OnDestroy } from '@angular/core';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
     selector: 'app-proveedor-registro',
     standalone: true,
-    imports: [RouterLink, FormsModule, CommonModule],
+    imports: [RouterLink, FormsModule, CommonModule, CheckboxModule],
     templateUrl: './registro.html'
 })
-export class ProveedorRegistroComponent implements OnInit, OnDestroy {
+export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewInit {
     private supabaseAuth = inject(SupabaseAuthService);
     private auth = inject(AuthService);
     private api = inject(ApiService);
+    private subscriptionService = inject(SubscriptionService);
     private router = inject(Router);
     private ngZone = inject(NgZone);
 
@@ -34,11 +36,46 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
     detectingLocation = false;
     isPaying = signal(false);
     paypalBlocked = signal(false);
+    captchaResolved = signal(false);
+    aceptarTerminos = signal(false);
+    aceptarPrivacidad = signal(false);
+
+    constructor() {
+        (window as any).onCaptchaResolved = (token: string) => {
+            this.ngZone.run(() => {
+                this.captchaResolved.set(!!token);
+            });
+        };
+    }
+
+    ngAfterViewInit() {
+        this.renderCaptcha();
+    }
+
+    renderCaptcha() {
+        const checkGrecaptcha = () => {
+            if ((window as any).grecaptcha && (window as any).grecaptcha.render) {
+                try {
+                    (window as any).grecaptcha.render('recaptcha-proveedor', {
+                        'sitekey': '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+                        'callback': 'onCaptchaResolved'
+                    });
+                } catch (e) {
+                    console.warn('reCAPTCHA Proveedor already rendered or element missing', e);
+                }
+            } else {
+                setTimeout(checkGrecaptcha, 500);
+            }
+        };
+        checkGrecaptcha();
+    }
 
     // Multi-step registration
     step = signal(1); // 1: Datos, 2: Planes
-    selectedPlan = signal<string | null>(null);
-    planes = signal(PLAN_INFO);
+    selectedPlan = signal<string | null>('festeasy');
+    selectedAddons = signal<string[]>([]);
+    planes = this.subscriptionService.planInfo;
+    addons = this.subscriptionService.addonsInfo;
 
     // State between steps
     registeredUserId: string | null = null;
@@ -52,6 +89,28 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
             next: (cats) => this.categorias.set(cats),
             error: (err) => console.error('Error cargando categorías', err)
         });
+
+        // Verificar si ya hay una sesión (el usuario ya existe en Auth) pero sin perfil
+        this.checkExistingUser();
+    }
+
+    private async checkExistingUser() {
+        const user = await this.supabaseAuth.getCurrentUser();
+        if (user) {
+            console.log('👤 Usuario detectado en registro:', user.email);
+            // Si el rol es proveedor, ver si ya tiene perfil
+            const profile = await this.supabaseAuth.getUserProfile(user.id, 'provider');
+            if (!profile) {
+                console.log('🚀 Usuario sin perfil, saltando al Paso 2');
+                this.registeredUserId = user.id;
+                this.email = user.email || '';
+                this.nombreNegocio = user.user_metadata?.['nombre_negocio'] || '';
+                this.step.set(2);
+            } else {
+                console.log('✅ Perfil ya existe, redirigiendo a dashboard');
+                this.router.navigate(['/proveedor/dashboard']);
+            }
+        }
     }
 
     ngOnDestroy() {
@@ -130,7 +189,7 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
                 if (error.code === 1) {
                     this.error = 'Acceso a ubicación denegado. Por favor permite el acceso a tu ubicación.';
                 } else if (error.code === 2) {
-                    this.error = 'No se pudo determinar tu ubicación. Verifica tu conexión a internet y el GPS.';
+                    this.error = 'No se pudo determinar tu ubicación. Verifica tu conexión a internet und el GPS.';
                 } else if (error.code === 3) {
                     this.error = 'Tiempo de espera agotado al obtener tu ubicación.';
                 } else {
@@ -179,26 +238,65 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
         this.step.set(1);
         this.error = '';
         this.selectedPlan.set(null);
+        this.selectedAddons.set([]);
     }
 
     selectPlan(planId: string) {
         this.selectedPlan.set(planId);
-
-        if (planId === 'basico') {
-            this.register();
-        } else {
-            // Iniciar flujo de PayPal para Pro o Premium
-            this.initPaypal();
+        // Ahora no registramos automáticamente, permitimos elegir addons
+        // Solo para planes de pago mostramos el botón de PayPal más tarde
+        if (planId === 'libre' || planId === 'basico') {
+            this.selectedAddons.set([]); // Limpiar addons si elige el libre?
         }
+    }
+
+    toggleAddon(addonId: string) {
+        this.selectedAddons.update(addons =>
+            addons.includes(addonId)
+                ? addons.filter(id => id !== addonId)
+                : [...addons, addonId]
+        );
+    }
+
+    getTotalPrice(): number {
+        const basePrice = 499; // Precio fijo del plan FestEasy Plus
+        const addonsPrice = this.addons()
+            .filter(a => this.selectedAddons().includes(a.id))
+            .reduce((sum, a) => sum + a.precio, 0);
+
+        return basePrice + addonsPrice;
+    }
+
+    hasSelectedAnyPayment(): boolean {
+        return this.getTotalPrice() > 0;
+    }
+
+    // Getter para obtener el nombre del plan seleccionado de forma legible
+    getSelectedPlanName() {
+        const planId = this.selectedPlan();
+        if (!planId) return '';
+        return this.planes().find((p: any) => p.id === planId)?.nombre || planId;
+    }
+
+    // Getter para color del plan
+    getPlanColor() {
+        const planId = this.selectedPlan();
+        if (planId === 'premium') return 'primary';
+        if (planId === 'pro') return 'amber';
+        return 'slate';
     }
 
     async initPaypal() {
         try {
             this.error = '';
+            // Limpiar contenedor previo por si acaso
+            const container = document.getElementById('paypal-button-container');
+            if (container) container.innerHTML = '';
+
             await this.loadPaypalScript();
             setTimeout(() => {
                 this.renderPaypalButton();
-            }, 500);
+            }, 100);
         } catch (error) {
             console.error('Error initializing PayPal:', error);
             this.paypalBlocked.set(true);
@@ -230,18 +328,16 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
         if (!container) return;
         container.innerHTML = '';
 
-        const planId = this.selectedPlan();
-        if (!planId) return;
-
-        const limits = SUBSCRIPTION_LIMITS[planId as keyof typeof SUBSCRIPTION_LIMITS];
-        const amount = limits.precio.toString();
+        const amount = this.getTotalPrice().toString();
+        const description = `Registro FestEasy - Membresía FestEasy Plus` +
+            (this.selectedAddons().length > 0 ? ` + ${this.selectedAddons().length} Complementos` : '');
 
         (window as any).paypal.Buttons({
             style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'pay' },
             createOrder: (data: any, actions: any) => {
                 return actions.order.create({
                     purchase_units: [{
-                        description: `Registro FestEasy - Plan ${limits.nombre}`,
+                        description: description,
                         amount: { value: amount }
                     }]
                 });
@@ -284,7 +380,8 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy {
                 direccion_formato: this.ubicacion || 'Ciudad de México',
                 latitud: this.latitud ? parseFloat(this.latitud) : null,
                 longitud: this.longitud ? parseFloat(this.longitud) : null,
-                tipo_suscripcion_actual: this.selectedPlan() || 'basico'
+                tipo_suscripcion_actual: this.selectedPlan() === 'basico' ? 'libre' : (this.selectedPlan() || 'libre'),
+                addons: this.selectedAddons()
             });
 
             if (!this.authSession) {

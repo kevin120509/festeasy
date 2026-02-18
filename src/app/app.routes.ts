@@ -45,6 +45,9 @@ import { UserManagementComponent } from './admin/users/user-management.component
 import { ProviderApprovalComponent } from './admin/provider-approval/provider-approval.component';
 import { PaqueteDetalleComponent } from './cliente/paquete-detalle/paquete-detalle.component';
 import { SolicitudDetalleComponent } from './proveedor/solicitudes/detalle/solicitud-detalle.component';
+import { ProviderPublicPageComponent } from './public/provider-page/provider-page.component';
+import { WebBuilderComponent } from './proveedor/web-builder/web-builder.component';
+import { webBuilderGuard } from './guards/web-builder.guard';
 
 export const routes: Routes = [
     // General
@@ -56,6 +59,14 @@ export const routes: Routes = [
     { path: '500', component: ServerErrorComponent },
     { path: '403', component: AccessDeniedComponent },
 
+    {
+        path: 'terminos',
+        loadComponent: () => import('./pages/public/legal/terminos.component').then(m => m.TerminosComponent)
+    },
+    {
+        path: 'privacidad',
+        loadComponent: () => import('./pages/public/legal/privacidad.component').then(m => m.PrivacidadComponent)
+    },
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
     {
@@ -101,13 +112,19 @@ export const routes: Routes = [
             { path: 'paquetes', component: PaquetesComponent },
             { path: 'resenas', component: ResenasRecibidasComponent },
             { path: 'configuracion', component: ProveedorConfiguracionComponent },
+            { path: 'web-builder', component: WebBuilderComponent, canActivate: [webBuilderGuard] },
         ]
     },
 
     // Admin
     { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },
     { path: 'admin/users', component: UserManagementComponent, canActivate: [adminGuard] },
+    { path: 'admin/packages', loadComponent: () => import('./admin/packages/admin-package-management.component').then(m => m.AdminPackageManagementComponent), canActivate: [adminGuard] },
+    { path: 'admin/subscriptions', loadComponent: () => import('./admin/subscriptions/subscription-management.component').then(m => m.SubscriptionManagementComponent), canActivate: [adminGuard] },
     { path: 'admin/providers/approval', component: ProviderApprovalComponent, canActivate: [adminGuard] },
+
+    { path: 'p/:slug', component: ProviderPublicPageComponent },
+    { path: 'v/:negocio', loadComponent: () => import('./pages/public/portafolio/portafolio.component').then(c => c.PortafolioComponent) },
 
     // Fallback - debe ser la última ruta
     { path: '**', component: NotFoundComponent }

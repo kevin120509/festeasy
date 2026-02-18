@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 import { Observable, from, map, switchMap, forkJoin, of } from 'rxjs';
-import { SubscriptionHistory } from '../models';
+import { SubscriptionHistory, Addon, ProviderAddon, ProviderPublicPage } from '../models';
 
 @Injectable({
     providedIn: 'root'
@@ -120,7 +120,7 @@ export class SupabaseDataService {
                 ).pipe(
                     map(({ data: provider }) => ({
                         ...pkg,
-                        perfil_proveedor: provider
+                        perfil_proveedor: provider as any // Cast to any to avoid array type mismatch
                     }))
                 );
             })
@@ -423,18 +423,20 @@ export class SupabaseDataService {
     }
 
     /**
-     * Actualiza el plan de suscripción de un proveedor a Plus
-     * y registra el cambio en el historial de suscripciones
+     * Actualiza el plan de suscripción de un proveedor
      * @param providerId ID del usuario proveedor
-     * @param plan Plan de suscripción ('plus')
+     * @param plan Plan de suscripción ('basico', 'pro', 'premium')
      * @param amount Monto pagado por la suscripción
      */
-    async upgradeProviderSubscription(providerId: string, plan: 'plus', amount: number): Promise<void> {
+    async upgradeProviderSubscription(providerId: string, plan: string, amount: number, addons: string[] = []): Promise<void> {
         try {
-            // Operación 1: Actualizar el perfil del proveedor
+            // Operación 1: Actualizar el perfil del proveedor (Plan y Columna de Addons)
             const { error: profileError } = await this.supabase
                 .from('perfil_proveedor')
-                .update({ tipo_suscripcion_actual: plan })
+                .update({
+                    tipo_suscripcion_actual: plan.toLowerCase(),
+                    addons: addons // Sincroniza la columna JSONB
+                })
                 .eq('usuario_id', providerId);
 
             if (profileError) {
@@ -442,14 +444,31 @@ export class SupabaseDataService {
                 throw new Error(`Error al actualizar el perfil del proveedor: ${profileError.message}`);
             }
 
-            // Operación 2: Crear registro en historial de suscripciones
+            // Operación 2: Activar Addons en la tabla junction 'provider_addons'
+            if (addons.length > 0) {
+                const addonRecords = addons.map(code => ({
+                    provider_id: providerId,
+                    addon_code: code,
+                    status: 'active'
+                }));
+
+                const { error: addonsError } = await this.supabase
+                    .from('provider_addons')
+                    .upsert(addonRecords, { onConflict: 'provider_id,addon_code' });
+
+                if (addonsError) {
+                    console.warn('⚠️ Error al activar addons en provider_addons:', addonsError.message);
+                }
+            }
+
+            // Operación 3: Crear registro en historial de suscripciones
             const fechaInicio = new Date();
             const fechaFin = new Date();
-            fechaFin.setDate(fechaFin.getDate() + 30); // Exactamente 30 días desde ahora
+            fechaFin.setMonth(fechaFin.getMonth() + 1); // 1 mes de vigencia
 
             const subscriptionRecord: Partial<SubscriptionHistory> = {
                 proveedor_usuario_id: providerId,
-                plan: plan,
+                plan: plan.toLowerCase() as 'festeasy' | 'libre',
                 monto_pagado: amount,
                 fecha_inicio: fechaInicio.toISOString(),
                 fecha_fin: fechaFin.toISOString(),
@@ -461,14 +480,270 @@ export class SupabaseDataService {
                 .insert([subscriptionRecord]);
 
             if (historyError) {
-                console.error('❌ Error al registrar el historial de suscripción:', historyError);
-                throw new Error(`Error al registrar el historial de suscripción: ${historyError.message}`);
+                console.warn('⚠️ No se pudo registrar en historial_suscripciones:', historyError.message);
             }
 
-            console.log('✅ Suscripción actualizada exitosamente para el proveedor:', providerId);
+            console.log('✅ Suscripción y addons actualizados exitosamente para:', providerId);
         } catch (error: any) {
             console.error('❌ Error en upgradeProviderSubscription:', error);
             throw error;
         }
     }
+
+    async getProviderAddonsCodes(providerId: string): Promise<string[]> {
+        const { data, error } = await this.supabase
+            .from('provider_addons')
+            .select('addon_code')
+            .eq('provider_id', providerId)
+            .eq('status', 'active');
+
+        if (error) {
+            console.error('Error fetching provider addons codes:', error);
+            return [];
+        }
+        console.log('📦 Raw addon data from DB:', data);
+        const codes = data.map(a => a.addon_code);
+        console.log('📦 Mapped addon codes:', codes);
+        return codes;
+    }
+
+    // ==========================================
+    // Admin & Metrics
+    // ==========================================
+
+    /**
+     * Obtiene estadísticas globales para el Dashboard Admin
+     */
+    async getAdminDashboardStats() {
+        try {
+            // 1. Total Usuarios (Clientes + Proveedores)
+            const { count: clientCount } = await this.supabase.from('perfil_cliente').select('*', { count: 'exact', head: true });
+            const { count: providerCount } = await this.supabase.from('perfil_proveedor').select('*', { count: 'exact', head: true });
+
+            // 2. Proveedores Pendientes
+            const { count: pendingCount } = await this.supabase
+                .from('perfil_proveedor')
+                .select('*', { count: 'exact', head: true })
+                .eq('estado', 'pendiente');
+
+            // 3. Solicitudes de hoy
+            const today = new Date().toISOString().split('T')[0];
+            const { count: todayRequests } = await this.supabase
+                .from('solicitudes')
+                .select('*', { count: 'exact', head: true })
+                .gte('creado_en', today);
+
+            // 4. Ingresos del mes (suscripciones)
+            const firstDayMonth = new Date();
+            firstDayMonth.setDate(1);
+            const { data: payments } = await this.supabase
+                .from('historial_suscripciones')
+                .select('monto_pagado')
+                .gte('creado_en', firstDayMonth.toISOString())
+                .eq('estado_pago', 'pagado');
+
+            const totalIncome = (payments || []).reduce((sum, p) => sum + (p.monto_pagado || 0), 0);
+
+            return {
+                totalUsuarios: (clientCount || 0) + (providerCount || 0),
+                totalProveedores: providerCount || 0,
+                totalClientes: clientCount || 0,
+                proveedoresPendientes: pendingCount || 0,
+                solicitudesHoy: todayRequests || 0,
+                ingresosMes: totalIncome
+            };
+        } catch (error) {
+            console.error('Error fetching admin stats:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Obtiene actividad reciente (Suscripciones y Cancelaciones)
+     */
+    async getRecentAdminActivity() {
+        try {
+            // Traer últimas 5 suscripciones
+            const { data: subs } = await this.supabase
+                .from('historial_suscripciones')
+                .select(`
+                    id, 
+                    created_at:creado_en, 
+                    plan, 
+                    monto_pagado,
+                    proveedor:perfil_proveedor(nombre_negocio)
+                `)
+                .order('creado_en', { ascending: false })
+                .limit(5);
+
+            // Traer últimas 5 cancelaciones
+            const { data: cancels } = await this.supabase
+                .from('solicitudes')
+                .select(`
+                    id, 
+                    created_at:creado_en, 
+                    estado, 
+                    proveedor:perfil_proveedor(nombre_negocio)
+                `)
+                .eq('estado', 'cancelada')
+                .order('creado_en', { ascending: false })
+                .limit(5);
+
+            const activity = [
+                ...(subs as any[] || []).map(s => {
+                    const prov = Array.isArray(s.proveedor) ? s.proveedor[0] : s.proveedor;
+                    return {
+                        tipo: 'pago',
+                        mensaje: `Suscripción ${(s.plan || 'Base').toUpperCase()} - ${prov?.nombre_negocio || 'Proveedor'} ($${s.monto_pagado || 0})`,
+                        tiempo: s.created_at,
+                        icono: 'payments'
+                    };
+                }),
+                ...(cancels as any[] || []).map(c => {
+                    const prov = Array.isArray(c.proveedor) ? c.proveedor[0] : c.proveedor;
+                    return {
+                        tipo: 'cancelacion',
+                        mensaje: `Cancelada: Solicitud para ${prov?.nombre_negocio || 'Proveedor'}`,
+                        tiempo: c.created_at,
+                        icono: 'cancel'
+                    };
+                })
+            ].sort((a, b) => new Date(b.tiempo).getTime() - new Date(a.tiempo).getTime());
+
+            return activity.slice(0, 10);
+        } catch (error) {
+            console.error('Error fetching admin activity:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Obtiene lista completa de proveedores para la tabla central
+     */
+    async getAllProvidersDetailed() {
+        const { data, error } = await this.supabase
+            .from('perfil_proveedor')
+            .select('*')
+            .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    /**
+     * Obtiene todos los clientes registrados
+     */
+    async getAllClientsDetailed() {
+        const { data, error } = await this.supabase
+            .from('perfil_cliente')
+            .select('*')
+            .order('creado_en', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    }
+
+    /**
+     * Actualiza el estado de un usuario (cliente o proveedor)
+     */
+    async updateUserStatus(id: string, role: 'client' | 'provider', newStatus: 'active' | 'blocked') {
+        const table = role === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
+        const { data, error } = await this.supabase
+            .from(table)
+            .update({ estado: newStatus })
+            .eq('usuario_id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    /**
+     * Permite al admin modificar el precio de un paquete
+     */
+    async updatePackagePrice(packageId: string, newPrice: number) {
+        const { data, error } = await this.supabase
+            .from('paquetes_proveedor')
+            .update({ precio_base: newPrice })
+            .eq('id', packageId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
+
+    async getSubscriptionConfigs() {
+        const { data, error } = await this.supabase
+            .from('configuracion_planes')
+            .select('*')
+            .order('precio', { ascending: true });
+        if (error) throw error;
+        return data || [];
+    }
+
+    async updatePlanPrice(planId: string, newPrice: number) {
+        const { error } = await this.supabase
+            .from('configuracion_planes')
+            .update({ precio: newPrice })
+            .eq('id', planId);
+        if (error) throw error;
+        return true;
+    }
+
+    // ==========================================
+    // Web Builder & Addons
+    // ==========================================
+
+    async hasAddon(providerId: string, addonCode: string): Promise<boolean> {
+        const { data, error } = await this.supabase
+            .from('provider_addons')
+            .select('id')
+            .eq('provider_id', providerId)
+            .eq('addon_code', addonCode)
+            .eq('status', 'active')
+            .maybeSingle();
+
+        if (error) throw error;
+        return !!data;
+    }
+
+    async getProviderPublicPage(slug: string): Promise<ProviderPublicPage | null> {
+        const { data, error } = await this.supabase
+            .from('provider_public_page')
+            .select('*')
+            .eq('slug', slug)
+            .eq('is_active', true)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data as ProviderPublicPage;
+    }
+
+    async getProviderPublicPageByProviderId(providerId: string): Promise<ProviderPublicPage | null> {
+        const { data, error } = await this.supabase
+            .from('provider_public_page')
+            .select('*')
+            .eq('provider_id', providerId)
+            .maybeSingle();
+
+        if (error) throw error;
+        return data as ProviderPublicPage;
+    }
+
+    async upsertProviderPublicPage(pageData: Partial<ProviderPublicPage>): Promise<ProviderPublicPage> {
+        const { data, error } = await this.supabase
+            .from('provider_public_page')
+            .upsert({
+                ...pageData,
+                updated_at: new Date().toISOString()
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as ProviderPublicPage;
+    }
 }
+

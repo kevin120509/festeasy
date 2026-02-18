@@ -1,32 +1,40 @@
-import { Component, inject, OnInit, HostListener } from '@angular/core';
+import { Component, inject, OnInit, HostListener, computed, signal, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, ConfirmationService } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
 import { HeaderDashboardComponent } from '../../shared/header-dashboard/header-dashboard.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
-import { signal, OnDestroy } from '@angular/core';
 import { filter, Subscription } from 'rxjs';
 import { NavigationEnd } from '@angular/router';
-import { ConfirmationService } from 'primeng/api';
+import { SupabaseDataService } from '../../services/supabase-data.service';
+import { SubscriptionService } from '../../services/subscription.service';
 
 @Component({
   selector: 'app-proveedor-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, HeaderDashboardComponent, RouterLink, RouterLinkActive, ConfirmDialogModule],
   templateUrl: './proveedor-layout.component.html',
+  styles: [`
+    :host {
+      display: block;
+      width: 100%;
+    }
+  `]
 })
 export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
   private router = inject(Router);
   private confirmationService = inject(ConfirmationService);
-  items: MenuItem[] = [];
+  private subscriptionService = inject(SubscriptionService);
+
   isSidebarExpanded = signal(true);
   private routerSubscription: Subscription | null = null;
 
-  ngOnInit(): void {
-    this.items = [
+  // Menú reactivo basado en el estado de la suscripción y addons
+  public menuItems = computed(() => {
+    const baseItems: MenuItem[] = [
       {
         label: 'Dashboard',
         icon: 'pi pi-chart-bar',
@@ -41,7 +49,26 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
         label: 'Solicitudes',
         icon: 'pi pi-file',
         routerLink: '/proveedor/solicitudes'
-      },
+      }
+    ];
+
+    // Inyectar el constructor web si está activo
+    const isActive = this.subscriptionService.isWebBuilderActive();
+    console.log('🔍 Menu construction - isWebBuilderActive:', isActive);
+    console.log('🔍 Active addons:', this.subscriptionService.allActiveAddons());
+
+    if (isActive) {
+      console.log('✅ Adding Mi Página Web to menu');
+      baseItems.push({
+        label: 'Mi Página Web',
+        icon: 'pi pi-globe',
+        routerLink: '/proveedor/web-builder'
+      });
+    } else {
+      console.log('❌ Web Builder not active, menu item not added');
+    }
+
+    baseItems.push(
       {
         label: 'Configuración',
         icon: 'pi pi-cog',
@@ -75,12 +102,17 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
           });
         }
       }
-    ];
+    );
+    return baseItems;
+  });
+
+  ngOnInit(): void {
+    // Forzar recarga de addons para asegurar que el menú se actualice
+    this.subscriptionService.refreshConfigs();
 
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
-      // Logic for mobile closing if needed
     });
   }
 
@@ -96,10 +128,7 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   }
 
   get isCompact(): boolean {
-    // Si el usuario lo colapsó manualmente
     if (!this.isSidebarExpanded()) return true;
-
-    // Alinear con el nuevo media query de CSS (1440px) para auto-colapso
     return window.innerWidth > 1024 && window.innerWidth <= 1440;
   }
 

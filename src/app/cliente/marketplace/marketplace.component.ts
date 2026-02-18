@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { MarketplaceService } from './marketplace.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
+import { SolicitudDataService } from '../../services/solicitud-data.service';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -17,12 +18,14 @@ export class MarketplaceComponent implements OnInit {
     private router = inject(Router);
     private marketplaceState = inject(MarketplaceService);
     private supabaseData = inject(SupabaseDataService);
+    private solicitudData = inject(SolicitudDataService);
 
     providers = signal<any[]>([]);
 
     // Usar estado persistente
     searchQuery = this.marketplaceState.searchQuery;
     categoriaSeleccionada = this.marketplaceState.categoriaSeleccionada;
+    searchLocation = this.marketplaceState.searchLocation;
 
     eventoActual = signal<any>(null);
 
@@ -63,14 +66,12 @@ export class MarketplaceComponent implements OnInit {
     }
 
     ngOnInit(): void {
-        const eventoStr = sessionStorage.getItem('eventoActual');
-        if (eventoStr) {
-            const evento = JSON.parse(eventoStr);
+        const evento = this.solicitudData.getEventoActual();
+        if (evento) {
             this.eventoActual.set(evento);
             if (evento.categoriaId) {
                 this.categoriaSeleccionada.set(evento.categoriaId);
             }
-
         }
 
         // Cargar categorías
@@ -156,7 +157,7 @@ export class MarketplaceComponent implements OnInit {
                 imagen: p.avatar_url || 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=500&q=60',
                 distancia: distancia,
                 disponible: true,
-                tipoSuscripcion: (p.tipo_suscripcion_actual || 'basico').toLowerCase()
+                tipoSuscripcion: (p.tipo_suscripcion_actual || 'libre').toLowerCase()
             };
         });
 
@@ -168,7 +169,7 @@ export class MarketplaceComponent implements OnInit {
             }
 
             // 2. Prioridad de Suscripción (Premium > Pro > Básico)
-            const weights: any = { 'premium': 3, 'pro': 2, 'basico': 1 };
+            const weights: any = { 'festeasy': 2, 'libre': 1 };
             const weightA = weights[a.tipoSuscripcion] || 1;
             const weightB = weights[b.tipoSuscripcion] || 1;
 
@@ -189,10 +190,14 @@ export class MarketplaceComponent implements OnInit {
 
     filteredProviders = computed(() => {
         const query = this.searchQuery().toLowerCase();
+        const locationQuery = this.searchLocation().toLowerCase();
         const catId = this.categoriaSeleccionada();
 
         return this.providers().filter(p => {
             const matchesQuery = !query || p.nombre.toLowerCase().includes(query);
+
+            // Filtro de ubicación: Búsqueda flexible en el string de ubicación
+            const matchesLocation = !locationQuery || p.ubicacion.toLowerCase().includes(locationQuery);
 
             // Nuevo filtro: Coincide si el proveedor ofrece CUALQUIER paquete de esa categoría
             // O si su categoría principal es esa.
@@ -204,7 +209,7 @@ export class MarketplaceComponent implements OnInit {
                 matchesCategory = providerCats ? providerCats.has(catId) : false;
             }
 
-            return matchesQuery && matchesCategory;
+            return matchesQuery && matchesLocation && matchesCategory;
         });
     });
 

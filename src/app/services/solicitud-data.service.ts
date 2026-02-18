@@ -11,6 +11,9 @@ export class SolicitudDataService {
 
     // BehaviorSubject para el carrito
     private carrito = new BehaviorSubject<any[]>([]);
+    eventoActual = signal<any>(null);
+    paquetesSeleccionados = signal<any[]>([]);
+    proveedorActual = signal<any>(null);
 
     // Observable para que los componentes se suscriban
     carrito$ = this.carrito.asObservable();
@@ -21,6 +24,54 @@ export class SolicitudDataService {
         if (carritoGuardado) {
             this.carrito.next(JSON.parse(carritoGuardado));
         }
+
+        this.cargarBorrador();
+    }
+
+    private cargarBorrador() {
+        // Cargar evento actual
+        const ev = localStorage.getItem('eventoActual') || sessionStorage.getItem('eventoActual');
+        if (ev) try { this.eventoActual.set(JSON.parse(ev)); } catch (e) { }
+
+        // Cargar paquetes seleccionados
+        const pkgs = localStorage.getItem('paquetesSeleccionados') || sessionStorage.getItem('paquetesSeleccionados');
+        if (pkgs) try { this.paquetesSeleccionados.set(JSON.parse(pkgs)); } catch (e) { }
+
+        // Cargar proveedor actual
+        const prov = localStorage.getItem('proveedorActual') || sessionStorage.getItem('proveedorActual');
+        if (prov) try { this.proveedorActual.set(JSON.parse(prov)); } catch (e) { }
+    }
+
+    setEventoActual(data: any) {
+        this.eventoActual.set(data);
+        localStorage.setItem('eventoActual', JSON.stringify(data));
+        sessionStorage.setItem('eventoActual', JSON.stringify(data));
+    }
+
+    setPaquetesSeleccionados(pkgs: any[]) {
+        this.paquetesSeleccionados.set(pkgs);
+        localStorage.setItem('paquetesSeleccionados', JSON.stringify(pkgs));
+        sessionStorage.setItem('paquetesSeleccionados', JSON.stringify(pkgs));
+    }
+
+    setProveedorActual(prov: any) {
+        this.proveedorActual.set(prov);
+        localStorage.setItem('proveedorActual', JSON.stringify(prov));
+        sessionStorage.setItem('proveedorActual', JSON.stringify(prov));
+    }
+
+    getEventoActual() { return this.eventoActual(); }
+    getPaquetesSeleccionados() { return this.paquetesSeleccionados(); }
+    getProveedorActual() { return this.proveedorActual(); }
+
+    limpiarBorrador() {
+        this.eventoActual.set(null);
+        this.paquetesSeleccionados.set([]);
+        this.proveedorActual.set(null);
+        ['eventoActual', 'paquetesSeleccionados', 'proveedorActual'].forEach(k => {
+            localStorage.removeItem(k);
+            sessionStorage.removeItem(k);
+        });
     }
 
     agregarAlCarrito(solicitud: any): boolean {

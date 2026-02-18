@@ -46,7 +46,7 @@ export class AuthService {
       rol = user.user_metadata?.rol || 'client';
     }
 
-    const table = rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente';
+    const table = rol === 'admin' ? 'perfil_admin' : (rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente');
 
     const { data: profile } = await this.supabase
       .from(table)
@@ -106,23 +106,19 @@ export class AuthService {
   }
 
   getToken(): string | null {
-    // Return token from current session if available
-    // We can't synchronously get it easily from Supabase client without async getSession
-    // But for HttpClient legacy support, we might need it.
-    // However, since we migrated ApiService to use SupabaseClient directly, 
-    // this might only be used by HttpClient methods (getProfile, etc.)
-    // Let's try to get it from localStorage where Supabase saves it?
-    // Supabase key is `sb-<url>-auth-token`
-    // Or just return null and let ApiService handle it via client?
-    // ApiService's getHeaders() calls this.
-    // We'll rely on the localStorage key we used to use? 
-    // No, we want to remove "festeasy_token".
-
-    // Quick fix: Attempt to read from Supabase local storage entry if possible, 
-    // or just return empty string as we are moving away from HTTP Client for core logic.
-    return localStorage.getItem('sb-ghlosgnopdmrowiygxdm-auth-token')
-      ? JSON.parse(localStorage.getItem('sb-ghlosgnopdmrowiygxdm-auth-token')!).access_token
-      : null;
+    // Attempt to find the Supabase token in any of the potential keys in localStorage
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('sb-') && key?.endsWith('-auth-token')) {
+        try {
+          const session = JSON.parse(localStorage.getItem(key)!);
+          return session?.access_token || null;
+        } catch (e) {
+          console.error('Error parsing session from localStorage', e);
+        }
+      }
+    }
+    return null;
   }
 
   isClient(): boolean {

@@ -3,6 +3,15 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { FormsModule } from '@angular/forms';
+import { ServiceRequest } from '../../models';
 import {
     esDiaDelEvento,
     faltanTresHorasParaEvento,
@@ -15,13 +24,17 @@ import {
 @Component({
     selector: 'app-seguimiento-evento',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, ConfirmDialogModule, ToastModule, DialogModule, ButtonModule, RippleModule, FormsModule],
+    providers: [ConfirmationService, MessageService],
     templateUrl: './seguimiento.component.html',
     styleUrl: './seguimiento.component.css'
 })
 export class SeguimientoEventoComponent implements OnInit, OnDestroy {
     private route = inject(ActivatedRoute);
     public api = inject(ApiService);
+    public auth = inject(AuthService);
+    private confirmationService = inject(ConfirmationService);
+    private messageService = inject(MessageService);
 
     loading = signal(true);
     evento = signal<any>(null);
@@ -31,6 +44,11 @@ export class SeguimientoEventoComponent implements OnInit, OnDestroy {
     diasRestantes = signal(0);
     horasRestantes = signal(0);
     private timer: any;
+
+    // 🚫 Control del diálogo de cancelación
+    displayCancelDialog: boolean = false;
+    motivoTemporal: string = '';
+    solicitudACancelar: ServiceRequest | null = null;
 
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
@@ -187,5 +205,96 @@ export class SeguimientoEventoComponent implements OnInit, OnDestroy {
 
     ngOnDestroy() {
         if (this.timer) clearInterval(this.timer);
+    }
+
+    /**
+     * 🚫 Abrir diálogo de cancelación
+     */
+    cancelarMiEvento(solicitud: ServiceRequest): void {
+        if (!solicitud) return;
+
+        // Guardar la solicitud a cancelar y abrir el diálogo
+        this.solicitudACancelar = solicitud;
+        this.motivoTemporal = '';
+        this.displayCancelDialog = true;
+    }
+
+    /**
+     * 🚫 Ejecutar cancelación final con el motivo ingresado
+     */
+    ejecutarCancelacionFinal(): void {
+        const solicitud = this.solicitudACancelar;
+
+        if (!solicitud) {
+            this.displayCancelDialog = false;
+            return;
+        }
+
+        // Validar que el motivo no esté vacío
+        if (!this.motivoTemporal || this.motivoTemporal.trim() === '') {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Motivo requerido',
+                detail: 'Debes proporcionar un motivo para cancelar el evento.',
+                life: 3000
+            });
+            return;
+        }
+
+        // Obtener userId del AuthService
+        const userId = this.auth.currentUser()?.id;
+        if (!userId) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'No se pudo obtener la información del usuario.',
+                life: 3000
+            });
+            this.displayCancelDialog = false;
+            return;
+        }
+
+        // Llamar al servicio de cancelación
+        this.api.cancelarSolicitud(solicitud.id, this.motivoTemporal.trim(), userId).subscribe({
+            next: (resultado) => {
+                console.log('✅ Evento cancelado por el cliente:', resultado);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Evento Cancelado',
+                    detail: 'Tu evento ha sido cancelado exitosamente. El proveedor será notificado.',
+                    life: 4000
+                });
+
+                // Cerrar diálogo y limpiar
+                this.displayCancelDialog = false;
+                this.motivoTemporal = '';
+                this.solicitudACancelar = null;
+
+                // Recargar los detalles del evento
+                const id = this.route.snapshot.paramMap.get('id');
+                if (id) {
+                    this.cargarDetalles(id);
+                }
+            },
+            error: (err) => {
+                console.error('❌ Error al cancelar evento:', err);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: err.error?.message || 'No se pudo cancelar el evento. Intenta nuevamente.',
+                    life: 4000
+                });
+                this.displayCancelDialog = false;
+            }
+        });
+    }
+
+    /**
+     * 🚫 Cerrar diálogo de cancelación
+     */
+    cerrarDialogoCancelacion(): void {
+        this.displayCancelDialog = false;
+        this.motivoTemporal = '';
+        this.solicitudACancelar = null;
     }
 }

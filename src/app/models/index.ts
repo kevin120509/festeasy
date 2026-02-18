@@ -1,3 +1,16 @@
+// Enumeraciones
+export enum SolicitudEstado {
+    PENDIENTE_APROBACION = 'pendiente_aprobacion',
+    RECHAZADA = 'rechazada',
+    ESPERANDO_ANTICIPO = 'esperando_anticipo',
+    RESERVADO = 'reservado',
+    EN_PROGRESO = 'en_progreso',
+    ENTREGADO_PENDIENTE_LIQ = 'entregado_pendiente_liq',
+    FINALIZADO = 'finalizado',
+    CANCELADA = 'cancelada',
+    ABANDONADA = 'abandonada'
+}
+
 // User and Profiles
 export interface User {
     id: string;
@@ -29,7 +42,7 @@ export interface ProviderProfile {
     latitud?: number;
     longitud?: number;
     radio_cobertura_km?: number;
-    tipo_suscripcion_actual: 'basico' | 'plus';
+    tipo_suscripcion_actual: 'festeasy' | 'libre';
     categoria_principal_id?: string;
     creado_en: string;
     actualizado_en: string;
@@ -37,6 +50,8 @@ export interface ProviderProfile {
     estado?: 'active' | 'blocked';
     datos_bancarios_json?: any;
     precio_base?: number; // Added property
+    addons?: string[]; // Added property for active addons
+    suscripcion_activa?: boolean; // simple indicator of paid status
     // contrasena is not included in the frontend model
 }
 
@@ -126,6 +141,10 @@ export interface ServiceRequest {
     pin_validado_en?: string;
     pin_validacion?: string;
     fecha_validacion_pin?: string | Date;
+    // Campos para cancelaciones
+    cancelado_por_id?: string;
+    motivo_cancelacion?: string;
+    fecha_cancelacion?: string | Date;
     provider?: ProviderProfile; // Joined data
     cliente?: ClientProfile; // Joined data
     items?: RequestItem[]; // Joined data
@@ -176,7 +195,7 @@ export interface Payment {
 export interface SubscriptionHistory {
     id: string;
     proveedor_usuario_id: string;
-    plan: 'basico' | 'plus';
+    plan: 'festeasy' | 'libre';
     monto_pagado: number;
     fecha_inicio: string;
     fecha_fin: string;
@@ -203,6 +222,44 @@ export interface Review {
     calificacion: number;
     comentario?: string;
     creado_en: string;
+}
+
+// Web Builder & Addons
+export interface Addon {
+    id: string;
+    name: string;
+    price: number;
+    code: string;
+    created_at: string;
+}
+
+export interface ProviderAddon {
+    id: string;
+    provider_id: string;
+    addon_code: string;
+    status: 'active' | 'inactive' | 'pending';
+    created_at: string;
+}
+
+export interface ProviderPublicPage {
+    id: string;
+    provider_id: string;
+    slug: string;
+    slogan?: string;
+    description?: string;
+    hero_image?: string;
+    hero_alignment: 'left' | 'center' | 'right';
+    contact_phone?: string;
+    contact_email?: string;
+    contact_whatsapp?: string;
+    gallery?: any[];
+    instagram_url?: string;
+    facebook_url?: string;
+    tiktok_url?: string;
+    twitter_url?: string;
+    is_active: boolean;
+    created_at: string;
+    updated_at: string;
 }
 
 export interface AuthResponse {

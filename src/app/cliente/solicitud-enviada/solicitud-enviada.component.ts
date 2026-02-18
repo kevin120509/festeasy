@@ -2,6 +2,7 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 
 
@@ -15,6 +16,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
     private router = inject(Router);
     private route = inject(ActivatedRoute);
     private api = inject(ApiService);
+    public auth = inject(AuthService);
     private supabaseData = inject(SupabaseDataService);
     private timerInterval: any;
 
@@ -69,6 +71,9 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                                 fechaEnvio: sol.creado_en || new Date().toISOString(),
                                 estado: sol.estado,
                                 pin_validacion: sol.pin_validacion,
+                                cancelado_por_id: sol.cancelado_por_id,
+                                motivo_cancelacion: sol.motivo_cancelacion,
+                                fecha_cancelacion: sol.fecha_cancelacion,
                                 evento,
                                 proveedor: {
                                     nombre: proveedor.nombre_negocio || proveedor.nombre || 'Proveedor',

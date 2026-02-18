@@ -6,6 +6,7 @@ import { ApiService } from '../../services/api.service';
 import { ProviderPackage } from '../../models';
 import { AuthService } from '../../services/auth.service';
 import { ResenasService } from '../../services/resenas.service';
+import { SolicitudDataService } from '../../services/solicitud-data.service';
 
 @Component({
     selector: 'app-proveedor-detalle',
@@ -19,6 +20,7 @@ export class ProveedorDetalleComponent implements OnInit {
     private api = inject(ApiService);
     private auth = inject(AuthService);
     private resenasService = inject(ResenasService);
+    private solicitudData = inject(SolicitudDataService);
 
     provider = signal<any>(null);
     packages = signal<ProviderPackage[]>([]);
@@ -217,8 +219,8 @@ export class ProveedorDetalleComponent implements OnInit {
             // Guardar proveedor actual también para mostrar datos en la siguiente pantalla
             const proveedorActual = this.provider();
 
-            sessionStorage.setItem('paquetesSeleccionados', JSON.stringify(paquetesSeleccionados));
-            sessionStorage.setItem('proveedorActual', JSON.stringify(proveedorActual));
+            this.solicitudData.setPaquetesSeleccionados(paquetesSeleccionados);
+            this.solicitudData.setProveedorActual(proveedorActual);
 
             this.router.navigate(['/cliente/solicitudes/revisar']);
 

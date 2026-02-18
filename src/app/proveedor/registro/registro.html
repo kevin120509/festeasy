@@ -186,10 +186,41 @@
         .registro-header h1 {
             font-size: 24px;
         }
+
+        .registro-header h1 {
+            font-size: 24px;
+        }
+    }
+
+    .btn-back {
+        position: absolute;
+        top: 32px;
+        left: 32px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        color: var(--color-gray);
+        font-weight: 600;
+        transition: all 0.3s ease;
+        z-index: 10;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.8);
+    }
+
+    .btn-back:hover {
+        color: var(--color-primary);
+        background: white;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 </style>
 
 <div class="registro-page">
+    <a routerLink="/" class="btn-back">
+        <span class="material-icons-outlined">arrow_back</span>
+        Volver al inicio
+    </a>
     <!-- <app-header></app-header> Removed per user request -->
 
     <div class="registro-container">
@@ -253,7 +284,33 @@
                             placeholder="Mínimo 6 caracteres" required />
                     </div>
 
-                    <button type="submit" class="btn-submit" [disabled]="loading">
+                    <div class="form-group flex flex-col gap-3 py-2">
+                        <div class="flex items-center gap-3">
+                            <p-checkbox [binary]="true" [ngModel]="aceptarTerminos()"
+                                (ngModelChange)="aceptarTerminos.set($event)" name="aceptarTerminos"
+                                inputId="terminos-prov" required />
+                            <label for="terminos-prov" class="cursor-pointer font-normal text-sm m-0">
+                                Acepto los <a routerLink="/terminos" target="_blank"
+                                    class="text-primary font-bold hover:underline">Términos y Condiciones</a>
+                            </label>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <p-checkbox [binary]="true" [ngModel]="aceptarPrivacidad()"
+                                (ngModelChange)="aceptarPrivacidad.set($event)" name="aceptarPrivacidad"
+                                inputId="privacidad-prov" required />
+                            <label for="privacidad-prov" class="cursor-pointer font-normal text-sm m-0">
+                                Acepto el <a routerLink="/privacidad" target="_blank"
+                                    class="text-primary font-bold hover:underline">Aviso de Privacidad</a>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group flex justify-center py-2">
+                        <div id="recaptcha-proveedor"></div>
+                    </div>
+
+                    <button type="submit" class="btn-submit"
+                        [disabled]="loading || !captchaResolved() || !aceptarTerminos() || !aceptarPrivacidad()">
                         @if (loading) {
                         <span class="material-icons-outlined animate-spin text-sm mr-2">sync</span>
                         Verificando datos...
@@ -264,82 +321,160 @@
                 </form>
             </div>
 
-            <!-- STEP 2: SELECCIÓN DE PLAN -->
+            <!-- STEP 2: SELECCIÓN DE PLAN Y COMPLEMENTOS -->
             <div *ngIf="step() === 2" class="plan-selection">
                 <div class="flex items-center gap-2 mb-6 cursor-pointer text-primary font-bold" (click)="prevStep()">
                     <span class="material-icons-outlined">arrow_back</span>
                     <span>Volver a mis datos</span>
                 </div>
 
-                <div class="space-y-4">
-                    @for (plan of planes(); track plan.id) {
-                    <div class="bg-white border-2 rounded-2xl p-6 transition-all cursor-pointer hover:border-primary group"
-                        [class.border-primary]="selectedPlan() === plan.id"
-                        [class.border-gray-100]="selectedPlan() !== plan.id" (click)="selectPlan(plan.id)">
+                <h3 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                    <span class="material-icons-outlined text-indigo-500">layers</span>
+                    1. Tu Membresía Mensual
+                </h3>
 
+                <!-- Fixed Base Plan Display -->
+                <div class="mb-8">
+                    <div class="bg-white border-2 border-primary rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                        <div class="absolute top-0 right-0 pt-2 pr-2">
+                            <span
+                                class="bg-primary/10 text-primary text-[10px] font-bold px-2 py-1 rounded-full uppercase">Obligatorio</span>
+                        </div>
                         <div class="flex items-start justify-between mb-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-12 h-12 rounded-xl flex items-center justify-center transition-colors"
-                                    [class]="plan.id === 'premium' ? 'bg-primary/10 text-primary' : (plan.id === 'pro' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600')">
-                                    <span class="material-icons-outlined text-3xl">{{ plan.icon }}</span>
+                                <div
+                                    class="w-12 h-12 rounded-xl flex items-center justify-center bg-primary/10 text-primary">
+                                    <span class="material-icons-outlined text-3xl">workspace_premium</span>
                                 </div>
                                 <div>
-                                    <h3 class="font-black text-xl text-slate-800">{{ plan.nombre }}</h3>
-                                    <p class="text-sm text-slate-500">{{ plan.limite }}</p>
+                                    <h3 class="font-black text-xl text-slate-800">FestEasy Plus</h3>
+                                    <p class="text-sm text-slate-500">Acceso total, paquetes ilimitados y prioridad</p>
                                 </div>
                             </div>
                             <div class="text-right">
-                                <span class="text-2xl font-black text-slate-800">${{ plan.precio }}</span>
+                                <span class="text-2xl font-black text-slate-800">$499</span>
                                 <span class="text-xs text-slate-400 block">MXN/mes</span>
                             </div>
                         </div>
 
-                        <ul class="space-y-2 mb-6">
-                            @for (feature of plan.features; track feature) {
+                        <ul class="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <li class="flex items-center gap-2 text-sm text-slate-600">
                                 <span class="material-icons-outlined text-green-500 text-sm">check_circle</span>
-                                {{ feature }}
+                                Publicación ilimitada
                             </li>
-                            }
+                            <li class="flex items-center gap-2 text-sm text-slate-600">
+                                <span class="material-icons-outlined text-green-500 text-sm">check_circle</span>
+                                Prioridad en búsquedas
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-600">
+                                <span class="material-icons-outlined text-green-500 text-sm">check_circle</span>
+                                Distintivo Verificado
+                            </li>
+                            <li class="flex items-center gap-2 text-sm text-slate-600">
+                                <span class="material-icons-outlined text-green-500 text-sm">check_circle</span>
+                                Soporte 24/7
+                            </li>
                         </ul>
+                    </div>
+                </div>
 
-                        <button class="w-full py-3 rounded-xl font-bold transition-all"
-                            [class]="selectedPlan() === plan.id ? 'bg-primary text-white' : 'bg-slate-50 text-slate-700 group-hover:bg-primary/5'">
-                            {{ selectedPlan() === plan.id ? 'Seleccionado' : (plan.precio > 0 ? 'Elegir Plan' : 'Empezar
-                            Gratis') }}
-                        </button>
+                @if (selectedPlan()) {
+                <h3
+                    class="font-bold text-slate-800 mb-4 flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+                    <span class="material-icons-outlined text-emerald-500">add_circle</span>
+                    2. Agrega Complementos (Opcional)
+                </h3>
+
+                <div class="grid grid-cols-1 gap-3 mb-8 animate-in fade-in slide-in-from-bottom-4">
+                    @for (addon of addons(); track addon.id) {
+                    <div class="flex items-center justify-between p-4 bg-white border-2 rounded-xl cursor-pointer transition-all hover:bg-slate-50"
+                        [class.border-emerald-500]="selectedAddons().includes(addon.id)"
+                        [class.border-slate-100]="!selectedAddons().includes(addon.id)" (click)="toggleAddon(addon.id)">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                                [class]="selectedAddons().includes(addon.id) ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'">
+                                <span class="material-icons-outlined">{{ addon.icon }}</span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm">{{ addon.nombre }}</h4>
+                                <p class="text-[10px] text-slate-500">Activación inmediata</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-slate-700 text-sm">${{ addon.precio }}</span>
+                            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors"
+                                [class]="selectedAddons().includes(addon.id) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 bg-white'">
+                                <span *ngIf="selectedAddons().includes(addon.id)"
+                                    class="material-icons-outlined text-xs">check</span>
+                            </div>
+                        </div>
                     </div>
                     }
                 </div>
 
-                <!-- PayPal Payment Section -->
-                <div *ngIf="selectedPlan() && selectedPlan() !== 'basico'"
-                    class="mt-8 p-6 bg-slate-50 rounded-2xl border-2 border-amber-200 animate-in fade-in slide-in-from-bottom-4">
-                    <div class="text-center mb-6">
-                        <h4 class="font-bold text-slate-800">Finalizar Pago</h4>
-                        <p class="text-xs text-slate-500">Para activar el plan {{ selectedPlan() }} procesa tu pago
-                            seguro</p>
+                <!-- Resumen y Pago -->
+                <div class="mt-10 p-6 bg-slate-900 rounded-2xl text-white shadow-xl animate-in zoom-in-95">
+                    <div class="flex justify-between items-center mb-6">
+                        <div>
+                            <p class="text-slate-400 text-xs uppercase tracking-wider font-bold">Resumen de Selección
+                            </p>
+                            <h4 class="text-xl font-black">Plan {{ getSelectedPlanName() }}</h4>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-slate-400 text-xs">Total a Pagar</p>
+                            <p class="text-3xl font-black text-primary">${{ getTotalPrice() }}</p>
+                        </div>
                     </div>
 
-                    <div id="paypal-button-container" class="min-h-[150px]"></div>
+                    @if (hasSelectedAnyPayment()) {
+                    <div class="space-y-4">
+                        <div class="bg-white/10 p-4 rounded-xl">
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                <span class="material-icons-outlined text-[14px] align-middle mr-1">info</span>
+                                Al completar tu pago vía PayPal, tu cuenta se activará con todos los beneficios
+                                seleccionados.
+                            </p>
+                        </div>
 
-                    <div *ngIf="paypalBlocked()" class="bg-red-50 border border-red-100 rounded-lg p-3 text-center">
-                        <p class="text-xs font-bold text-red-700">Bloqueador detectado</p>
-                        <p class="text-[10px] text-red-600">Desactiva el Ad-block para ver PayPal.</p>
+                        <button *ngIf="!isPaying()" (click)="initPaypal()"
+                            class="w-full py-4 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
+                            <span class="material-icons-outlined">payment</span>
+                            Pagar con PayPal
+                        </button>
+
+                        <div id="paypal-button-container" class="mt-4"></div>
                     </div>
+                    } @else if (selectedPlan()) {
+                    <button (click)="register()" [disabled]="loading"
+                        class="w-full py-4 bg-white text-slate-900 hover:bg-slate-100 rounded-xl font-bold transition-all shadow-lg flex items-center justify-center gap-2">
+                        @if (loading) {
+                        <span class="material-icons-outlined animate-spin text-sm">sync</span>
+                        Creando perfil...
+                        } @else {
+                        <span class="material-icons-outlined">rocket_launch</span>
+                        Completar Registro Gratis
+                        }
+                    </button>
+                    }
 
-                    <p class="text-center text-[10px] text-slate-400 mt-4 flex items-center justify-center gap-1">
-                        <span class="material-icons-outlined text-[12px]">lock</span>
-                        Pago seguro vía PayPal
+                    <p class="text-center text-[10px] text-slate-500 mt-4 flex items-center justify-center gap-1">
+                        <span class="material-icons-outlined text-[12px]">verified_user</span>
+                        Pago y transacciones 100% seguras
                     </p>
                 </div>
+                }
 
                 <!-- Loading Overlay for Payment -->
                 <div *ngIf="isPaying()"
-                    class="fixed inset-0 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center z-50">
-                    <span class="material-icons-outlined animate-spin text-primary text-5xl mb-4">sync</span>
-                    <p class="font-bold text-slate-800">Procesando tu pago...</p>
-                    <p class="text-sm text-slate-500">No cierres esta ventana</p>
+                    class="fixed inset-0 bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center z-50 transition-all">
+                    <div class="relative">
+                        <div class="w-20 h-20 rounded-full border-4 border-primary/20 border-t-primary animate-spin">
+                        </div>
+                        <span
+                            class="material-icons-outlined text-primary text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">bolt</span>
+                    </div>
+                    <p class="font-black text-white text-xl mt-6">Procesando tu pago</p>
+                    <p class="text-slate-400 mt-2">Estamos configurando tu panel de proveedor...</p>
                 </div>
             </div>
 

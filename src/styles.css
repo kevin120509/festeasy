@@ -1,21 +1,31 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import 'primeicons/primeicons.css';
+@import 'animate.css/animate.min.css';
 
 :root {
-  --color-primary: #E53935;
-  --color-primary-dark: #C62828;
-  --color-white: #FFFFFF;
+  /* Existing variables */
+  --color-primary: #e53935;
+  --color-primary-dark: #c62828;
+  --color-white: #ffffff;
   --color-dark: #212121;
   --color-gray: #757575;
-  --color-gray-light: #F5F5F5;
-  --color-gray-border: #E0E0E0;
-  --color-success: #4CAF50;
-  --color-warning: #FF9800;
+  --color-gray-light: #f5f5f5;
+  --color-gray-border: #e0e0e0;
+  --color-success: #4caf50;
+  --color-warning: #ff9800;
   --border-radius: 32px;
   --border-radius-sm: 16px;
   --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.12);
   --font-family: 'Inter', sans-serif;
+
+  /* New Landing Page Variables */
+  --festeasy-red: #e01d25;
+  --festeasy-red-dark: #c01820;
+  --text-main: #1a1a1a;
+  --text-body: #4a4a4a;
+  --bg-light: #f8f9fa;
+  --border-light: #e0e0e0;
 }
 
 * {
@@ -33,7 +43,9 @@ body {
 }
 
 /* Material Icons Fix */
-.material-icons, .material-icons-outlined, .material-symbols-outlined {
+.material-icons,
+.material-icons-outlined,
+.material-symbols-outlined {
   font-family: 'Material Icons Outlined', 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
@@ -52,7 +64,11 @@ body {
 }
 
 .star-filled {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-variation-settings:
+    'FILL' 1,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 24;
 }
 
 a {
@@ -181,4 +197,26 @@ textarea:focus {
 
 .mb-4 {
   margin-bottom: 32px;
+}
+
+/* Solución para ancho completo en el Dashboard y Proveedor */
+.dashboard-layout,
+.main-content,
+.router-container {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+app-proveedor-dashboard main,
+app-paquetes main,
+app-solicitudes main,
+app-bandeja-solicitudes main {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* WOW.js initial visibility fix */
+.wow {
+  visibility: hidden;
 }

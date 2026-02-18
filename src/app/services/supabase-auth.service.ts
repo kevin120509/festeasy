@@ -60,13 +60,37 @@ export class SupabaseAuthService {
 
   // Crear perfil de proveedor en la tabla 'perfil_proveedor'
   async createProviderProfile(profile: any) {
+    const { addons, ...profileData } = profile;
+
+    // 1. Insertar perfil básico
     const { data, error } = await this.supabase
       .from('perfil_proveedor')
-      .insert([profile])
+      .insert([{
+        ...profileData,
+        addons: addons || [] // Sincronizar columna JSONB
+      }])
       .select()
       .single();
 
     if (error) throw error;
+
+    // 2. Si hay addons, insertarlos en la tabla junction para control de acceso
+    if (addons && addons.length > 0) {
+      const addonRecords = addons.map((code: string) => ({
+        provider_id: profileData.usuario_id,
+        addon_code: code,
+        status: 'active'
+      }));
+
+      const { error: addonsError } = await this.supabase
+        .from('provider_addons')
+        .upsert(addonRecords, { onConflict: 'provider_id,addon_code' });
+
+      if (addonsError) {
+        console.warn('⚠️ Error activando addons en registro:', addonsError.message);
+      }
+    }
+
     return data;
   }
 
@@ -96,24 +120,35 @@ export class SupabaseAuthService {
   }
 
   // Determinar rol basado en la existencia del perfil
-  async determineUserRole(userId: string): Promise<'provider' | 'client' | null> {
-    // 1. Check provider profile
+  async determineUserRole(userId: string): Promise<'provider' | 'client' | 'admin' | null> {
+    // 1. Check admin profile
+    const { data: admin } = await this.supabase
+      .from('perfil_admin')
+      .select('id')
+      .eq('usuario_id', userId)
+      .maybeSingle();
+
+    if (admin) return 'admin' as any;
+
+    // 2. Check provider profile
     const { data: provider } = await this.supabase
-        .from('perfil_proveedor')
-        .select('id')
-        .eq('usuario_id', userId)
-        .maybeSingle();
-    
+      .from('perfil_proveedor')
+      .select('id')
+      .eq('usuario_id', userId)
+      .maybeSingle();
+
     if (provider) return 'provider';
 
-    // 2. Check client profile
+    // 3. Check client profile
     const { data: client } = await this.supabase
-        .from('perfil_cliente')
-        .select('id')
-        .eq('usuario_id', userId)
-        .maybeSingle();
+      .from('perfil_cliente')
+      .select('id')
+      .eq('usuario_id', userId)
+      .maybeSingle();
 
     if (client) return 'client';
+
+    return null;
 
     return null;
   }
