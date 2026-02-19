@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SupabaseDataService } from '../../services/supabase-data.service';
+import { SupabaseService } from '../../services/supabase.service';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -16,6 +17,7 @@ export class PaqueteDetalleComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private supabaseDataService = inject(SupabaseDataService);
+  private supabaseService = inject(SupabaseService);
   private location = inject(Location);
   private auth = inject(AuthService);
 
@@ -24,6 +26,33 @@ export class PaqueteDetalleComponent implements OnInit {
 
   cantidadSeleccionada = signal(1);
   selectedIncluded = signal<Record<string, number>>({});
+  
+  // Galería de imágenes
+  currentImageIndex = signal(0);
+
+  // Detectar si el usuario actual es el dueño del paquete
+  isOwner = computed(() => {
+    const pkg = this.package();
+    const user = this.auth.currentUser();
+    if (!pkg || !user) return false;
+    return pkg.proveedor_usuario_id === user.id;
+  });
+
+  // Todas las imágenes del paquete
+  allImages = computed(() => {
+    const pkg = this.package();
+    if (!pkg || !pkg.detalles_json || !pkg.detalles_json.imagenes || pkg.detalles_json.imagenes.length === 0) {
+      return [{ url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=800&q=60', isPortada: true }];
+    }
+    return pkg.detalles_json.imagenes;
+  });
+
+  // Imagen actual según el índice
+  currentImageUrl = computed(() => {
+    const images = this.allImages();
+    const index = this.currentImageIndex();
+    return images[index]?.url || images[0]?.url;
+  });
 
   coverImageUrl = computed(() => {
     const pkg = this.package();
@@ -72,6 +101,25 @@ export class PaqueteDetalleComponent implements OnInit {
     return this.selectedIncluded()[name] || 0;
   }
 
+  // Navegación de galería
+  nextImage() {
+    const images = this.allImages();
+    if (images.length > 1) {
+      this.currentImageIndex.update(i => (i + 1) % images.length);
+    }
+  }
+
+  prevImage() {
+    const images = this.allImages();
+    if (images.length > 1) {
+      this.currentImageIndex.update(i => (i - 1 + images.length) % images.length);
+    }
+  }
+
+  selectImage(index: number) {
+    this.currentImageIndex.set(index);
+  }
+
   ngOnInit(): void {
     const packageId = this.route.snapshot.paramMap.get('id');
     console.log('Package ID from route:', packageId);
@@ -79,6 +127,8 @@ export class PaqueteDetalleComponent implements OnInit {
       this.supabaseDataService.getPackageById(packageId).subscribe({
         next: (pkg) => {
           console.log('Package data received:', pkg);
+          console.log('Items del paquete:', pkg.items_paquete);
+          console.log('Número de items:', pkg.items_paquete?.length || 0);
           // Assuming 'detalles_json' might contain the extra charges
           if (pkg.detalles_json && pkg.detalles_json.cargos_adicionales && !pkg.extra_charges) {
             pkg.extra_charges = pkg.detalles_json.cargos_adicionales;
@@ -151,4 +201,40 @@ export class PaqueteDetalleComponent implements OnInit {
         alert('Error al procesar selección: ' + (e.message || 'Error desconocido'));
     }
   }
-}
+
+  // Editar paquete (solo si es el dueño)
+  editarPaquete() {
+    if (!this.isOwner()) return;
+    const pkg = this.package();
+    if (!pkg) return;
+    // Navegar a la página de edición de paquetes
+    this.router.navigate(['/proveedor/paquetes'], { 
+      queryParams: { editar: pkg.id } 
+    });
+  }
+
+  // Eliminar paquete (solo si es el dueño)
+  async eliminarPaquete() {
+    if (!this.isOwner()) return;
+    const pkg = this.package();
+    if (!pkg) return;
+
+    if (!confirm(`¿Estás seguro de eliminar el paquete "${pkg.nombre}"? Esta acción no se puede deshacer.`)) {
+      return;
+    }
+
+    try {
+      const { error } = await this.supabaseService.getClient()
+        .from('paquetes_proveedor')
+        .delete()
+        .eq('id', pkg.id);
+
+      if (error) throw error;
+
+      alert('Paquete eliminado exitosamente');
+      this.router.navigate(['/proveedor/paquetes']);
+    } catch (error: any) {
+      console.error('Error al eliminar paquete:', error);
+      alert('Error al eliminar el paquete: ' + error.message);
+    }
+  }}

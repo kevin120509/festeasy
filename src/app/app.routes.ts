@@ -110,6 +110,7 @@ export const routes: Routes = [
             { path: 'bandeja', component: BandejaSolicitudesComponent },
             { path: 'notificaciones', component: NotificacionesComponent },
             { path: 'paquetes', component: PaquetesComponent },
+            { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
             { path: 'resenas', component: ResenasRecibidasComponent },
             { path: 'configuracion', component: ProveedorConfiguracionComponent },
             { path: 'web-builder', component: WebBuilderComponent, canActivate: [webBuilderGuard] },

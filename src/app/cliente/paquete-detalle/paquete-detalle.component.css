@@ -1,0 +1,24 @@
+/* Ocultar scrollbar en miniaturas */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Transición suave para las imágenes */
+.transition-transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Efecto hover en miniaturas */
+button:hover img {
+  transform: scale(1.05);
+}
+
+/* Estilo para el borde de la miniatura activa */
+.border-3 {
+  border-width: 3px;
+}

@@ -1,5 +1,5 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
@@ -24,8 +24,9 @@ interface Paquete {
 }
 
 interface PackageItem {
-  nombre: string;
+  nombre_item: string;
   cantidad: number;
+  unidad?: string;
 }
 
 interface ExtraCharge {
@@ -52,6 +53,7 @@ export class PaquetesComponent implements OnInit {
   private supabaseService = inject(SupabaseService);
   public authService = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private api = inject(ApiService);
   private confirmationService = inject(ConfirmationService);
   public subscriptionService = inject(SubscriptionService);
@@ -126,6 +128,12 @@ export class PaquetesComponent implements OnInit {
   // Categorías disponibles
   categorias = signal<any[]>([]);
 
+  // Items del paquete (elementos incluidos)
+  packageItems = signal<PackageItem[]>([]);
+  newItemName = signal('');
+  newItemQuantity = signal(1);
+  newItemUnit = signal('');
+
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
   newChargeName = signal('');
@@ -139,6 +147,19 @@ export class PaquetesComponent implements OnInit {
     await this.cargarPerfil();
     await this.cargarCategorias();
     await this.cargarPaquetes();
+
+    // Verificar si hay un query param para editar después de cargar los paquetes
+    this.route.queryParams.subscribe(params => {
+      const editarId = params['editar'];
+      if (editarId && this.paquetes().length > 0) {
+        const paquete = this.paquetes().find(p => p.id === editarId);
+        if (paquete) {
+          setTimeout(() => {
+            this.editarPaquete(paquete);
+          }, 100);
+        }
+      }
+    });
   }
 
   async cargarCategorias() {
@@ -166,7 +187,8 @@ export class PaquetesComponent implements OnInit {
       const { data, error } = await this.supabaseService.getClient()
         .from('paquetes_proveedor')
         .select(`
-          *
+          *,
+          items_paquete (*)
         `)
         .eq('proveedor_usuario_id', this.profile.usuario_id)
         .order('creado_en', { ascending: false });
@@ -299,6 +321,11 @@ export class PaquetesComponent implements OnInit {
       }
     }
 
+    // Cargar items del paquete si existen
+    if ((paquete as any).items_paquete) {
+      this.packageItems.set((paquete as any).items_paquete);
+    }
+
     this.currentStep.set(1);
     this.vistaActual.set('editar');
   }
@@ -378,6 +405,28 @@ export class PaquetesComponent implements OnInit {
 
   removeExtraCharge(index: number) {
     this.extraCharges.update(charges => charges.filter((_, i) => i !== index));
+  }
+
+  // Gestión de items del paquete
+  addPackageItem() {
+    const name = this.newItemName().trim();
+    const quantity = this.newItemQuantity();
+    const unit = this.newItemUnit().trim();
+
+    if (name && quantity > 0) {
+      this.packageItems.update(items => [...items, { 
+        nombre_item: name, 
+        cantidad: quantity, 
+        unidad: unit || 'unidad(es)' 
+      }]);
+      this.newItemName.set('');
+      this.newItemQuantity.set(1);
+      this.newItemUnit.set('');
+    }
+  }
+
+  removePackageItem(index: number) {
+    this.packageItems.update(items => items.filter((_, i) => i !== index));
   }
 
   // Gestión de imágenes
@@ -538,10 +587,25 @@ export class PaquetesComponent implements OnInit {
 
         if (error) throw error;
 
+        // Actualizar items del paquete usando el servicio
+        await this.supabaseData.updatePackageItems(
+          this.paqueteEditando()!.id, 
+          this.packageItems()
+        );
+
         this.successMessage.set('¡Paquete actualizado exitosamente! 🎉');
       } else {
         // Crear nuevo paquete
         const createdPackage = await this.supabaseData.createProviderPackage(packageToSave);
+        
+        // Insertar items del paquete usando el servicio
+        if (this.packageItems().length > 0 && createdPackage?.id) {
+          await this.supabaseData.createPackageItems(
+            createdPackage.id,
+            this.packageItems()
+          );
+        }
+
         const estado = this.packageData().estado;
         this.successMessage.set(
           estado === 'publicado'
@@ -580,6 +644,7 @@ export class PaquetesComponent implements OnInit {
       categoria_servicio_id: defaultCategoriaId,
       estado: 'publicado'
     });
+    this.packageItems.set([]);
     this.extraCharges.set([]);
     this.images.set([]);
     this.currentStep.set(1);
@@ -591,5 +656,10 @@ export class PaquetesComponent implements OnInit {
   // Actualizar campo del paquete
   updateField(field: string, value: any) {
     this.packageData.update(data => ({ ...data, [field]: value }));
+  }
+
+  // Ver detalle del paquete
+  verDetallePaquete(paquete: Paquete) {
+    this.router.navigate(['/proveedor/paquete', paquete.id]);
   }
 }
