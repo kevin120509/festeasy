@@ -16,22 +16,22 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
-    selector: 'app-web-builder',
-    standalone: true,
-    imports: [
-        CommonModule,
-        FormsModule,
-        ButtonModule,
-        InputTextModule,
-        TextareaModule,
-        RadioButtonModule,
-        CardModule,
-        ToastModule,
-        FileUploadModule,
-        ProgressSpinnerModule
-    ],
-    providers: [MessageService],
-    template: `
+  selector: 'app-web-builder',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    InputTextModule,
+    TextareaModule,
+    RadioButtonModule,
+    CardModule,
+    ToastModule,
+    FileUploadModule,
+    ProgressSpinnerModule
+  ],
+  providers: [MessageService],
+  template: `
     <div class="p-6 max-w-4xl mx-auto">
       <p-toast></p-toast>
       <div class="flex justify-between items-center mb-8">
@@ -235,136 +235,136 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     :host { display: block; background: #fafafa; min-h-screen; }
   `]
 })
 export class WebBuilderComponent implements OnInit {
-    private supabaseData = inject(SupabaseDataService);
-    private supabaseService = inject(SupabaseService);
-    private authService = inject(AuthService);
-    private messageService = inject(MessageService);
+  private supabaseData = inject(SupabaseDataService);
+  private supabaseService = inject(SupabaseService);
+  private authService = inject(AuthService);
+  private messageService = inject(MessageService);
 
-    page = signal<Partial<ProviderPublicPage>>({
-        hero_alignment: 'center',
-        is_active: true,
-        gallery: []
-    });
+  page = signal<Partial<ProviderPublicPage>>({
+    hero_alignment: 'center',
+    is_active: true,
+    gallery: []
+  });
 
-    loading = signal(true);
-    saving = signal(false);
-    uploadingHero = signal(false);
-    uploadingGallery = signal(false);
+  loading = signal(true);
+  saving = signal(false);
+  uploadingHero = signal(false);
+  uploadingGallery = signal(false);
 
-    ngOnInit() {
-        this.loadPageData();
+  ngOnInit() {
+    this.loadPageData();
+  }
+
+  async loadPageData() {
+    const user = this.authService.currentUser();
+    if (!user) return;
+
+    try {
+      const data = await this.supabaseData.getProviderPublicPageByProviderId(user.id);
+      if (data) {
+        this.page.set(data);
+      } else {
+        // Inicializar con datos del perfil
+        this.page.set({
+          provider_id: user.id,
+          hero_alignment: 'center',
+          hero_image: user.avatar_url, // Pre-cargar avatar como imagen hero por defecto
+          is_active: true,
+          slug: user.nombre_negocio?.toLowerCase().replace(/\s+/g, '-') || '',
+          slogan: '¡Bienvenidos a ' + (user.nombre_negocio || 'nuestro negocio') + '!',
+          description: user.description || user.descripcion,
+          contact_phone: user.telefono,
+          contact_email: user.correo_electronico,
+          gallery: []
+        });
+      }
+    } catch (error) {
+      console.error('Error loading page data:', error);
+    } finally {
+      this.loading.set(false);
     }
+  }
 
-    async loadPageData() {
-        const user = this.authService.currentUser();
-        if (!user) return;
-
-        try {
-            const data = await this.supabaseData.getProviderPublicPageByProviderId(user.id);
-            if (data) {
-                this.page.set(data);
-            } else {
-                // Inicializar con datos del perfil
-                this.page.set({
-                    provider_id: user.id,
-                    hero_alignment: 'center',
-                    hero_image: user.avatar_url, // Pre-cargar avatar como imagen hero por defecto
-                    is_active: true,
-                    slug: user.nombre_negocio?.toLowerCase().replace(/\s+/g, '-') || '',
-                    slogan: '¡Bienvenidos a ' + (user.nombre_negocio || 'nuestro negocio') + '!',
-                    description: user.description || user.descripcion,
-                    contact_phone: user.telefono,
-                    contact_email: user.correo_electronico,
-                    gallery: []
-                });
-            }
-        } catch (error) {
-            console.error('Error loading page data:', error);
-        } finally {
-            this.loading.set(false);
-        }
+  async saveChanges() {
+    this.saving.set(true);
+    try {
+      // Clean up metadata from page if any
+      const dataToSave = { ...this.page() };
+      const updated = await this.supabaseData.upsertProviderPublicPage(dataToSave);
+      this.page.set(updated);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Éxito',
+        detail: 'Página actualizada correctamente'
+      });
+    } catch (error: any) {
+      console.error('Error saving page:', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: error.message || 'No se pudo guardar los cambios'
+      });
+    } finally {
+      this.saving.set(false);
     }
+  }
 
-    async saveChanges() {
-        this.saving.set(true);
-        try {
-            // Clean up metadata from page if any
-            const dataToSave = { ...this.page() };
-            const updated = await this.supabaseData.upsertProviderPublicPage(dataToSave);
-            this.page.set(updated);
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Éxito',
-                detail: 'Página actualizada correctamente'
-            });
-        } catch (error: any) {
-            console.error('Error saving page:', error);
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Error',
-                detail: error.message || 'No se pudo guardar los cambios'
-            });
-        } finally {
-            this.saving.set(false);
-        }
+  async onHeroImageSelect(event: any) {
+    const file = event.files[0];
+    if (!file) return;
+
+    this.uploadingHero.set(true);
+    try {
+      const user = this.authService.currentUser();
+      const path = `heroes/${user?.id}-${Date.now()}.${file.name.split('.').pop()}`;
+      const url = await this.supabaseService.uploadFile('website', path, file);
+      this.page.update(p => ({ ...p, hero_image: url }));
+    } catch (error) {
+      console.error('Error uploading hero image:', error);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir la imagen' });
+    } finally {
+      this.uploadingHero.set(false);
     }
+  }
 
-    async onHeroImageSelect(event: any) {
-        const file = event.files[0];
-        if (!file) return;
+  async onGallerySelect(event: any) {
+    const files = event.files;
+    if (!files?.length) return;
 
-        this.uploadingHero.set(true);
-        try {
-            const user = this.authService.currentUser();
-            const path = `heroes/${user?.id}-${Date.now()}.${file.name.split('.').pop()}`;
-            const url = await this.supabaseService.uploadFile('website', path, file);
-            this.page.update(p => ({ ...p, hero_image: url }));
-        } catch (error) {
-            console.error('Error uploading hero image:', error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir la imagen' });
-        } finally {
-            this.uploadingHero.set(false);
-        }
-    }
-
-    async onGallerySelect(event: any) {
-        const files = event.files;
-        if (!files?.length) return;
-
-        this.uploadingGallery.set(true);
-        try {
-            const user = this.authService.currentUser();
-            for (const file of files) {
-                const path = `gallery/${user?.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
-                const url = await this.supabaseService.uploadFile('website', path, file);
-                this.page.update(p => ({
-                    ...p,
-                    gallery: [...(p.gallery || []), url]
-                }));
-            }
-        } catch (error) {
-            console.error('Error uploading gallery images:', error);
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron subir algunas imágenes' });
-        } finally {
-            this.uploadingGallery.set(false);
-        }
-    }
-
-    removeGalleryImage(index: number) {
+    this.uploadingGallery.set(true);
+    try {
+      const user = this.authService.currentUser();
+      for (const file of files) {
+        const path = `gallery/${user?.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
+        const url = await this.supabaseService.uploadFile('website', path, file);
         this.page.update(p => ({
-            ...p,
-            gallery: p.gallery?.filter((_: any, i: number) => i !== index)
+          ...p,
+          gallery: [...(p.gallery || []), url]
         }));
+      }
+    } catch (error) {
+      console.error('Error uploading gallery images:', error);
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudieron subir algunas imágenes' });
+    } finally {
+      this.uploadingGallery.set(false);
     }
+  }
 
-    openLivePage() {
-        if (this.page().slug) {
-            window.open(`/p/${this.page().slug}`, '_blank');
-        }
+  removeGalleryImage(index: number) {
+    this.page.update(p => ({
+      ...p,
+      gallery: p.gallery?.filter((_: any, i: number) => i !== index)
+    }));
+  }
+
+  openLivePage() {
+    if (this.page().slug) {
+      window.open(`/p/${this.page().slug}`, '_blank');
     }
+  }
 }
