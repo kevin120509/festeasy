@@ -20,9 +20,8 @@ import { CommonModule } from '@angular/common';
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Image Slider State
   currentSlide = 0;
-  slides = ['assets/slide1.png', 'assets/slide2.png', 'assets/slide3.png'];
+  slides = ['assets/slide2.png', 'assets/slide3.png'];
 
-  // Scroll Button State
   // Scroll State
   showScrollButton = false;
   isNavbarVisible = true;
@@ -82,45 +81,28 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Pricing Data
   plans = [
     {
-
-      name: 'Sitio Web Profesional',
-      price: '$399',
-      period: 'MXN / mes',
+      name: 'FestEasy',
+      price: 'Gratis',
+      period: 'por siempre',
       features: [
-        'URL personalizada para tu negocio',
-        'Diseño optimizado para móviles',
-        'Edición en tiempo real',
-        'Estadísticas de visitas',
-
-        name: 'FestEasy',
-        price: '$499',
-        period: 'por mes',
-        features: [
-          'Perfil de proveedor básico',
-          'Gestión de portafolio y servicios',
-          'Recepción de solicitudes ilimitadas',
-          'Bandeja de entrada y notificaciones',
-          'Dashboard de gestión básica',
-
-        ],
-        featured: false,
-        tag: 'BÁSICO',
+        'Perfil de proveedor básico',
+        'Gestión de portafolio y servicios',
+        'Recepción de solicitudes ilimitadas',
+        'Bandeja de entrada y notificaciones',
+        'Dashboard de gestión básica',
+      ],
+      featured: false,
+      tag: 'BÁSICO',
     },
     {
-<<<<<<< HEAD
-      name: 'Asistente de IA Experto',
-      price: '$599',
-      period: 'MXN / mes',
-=======
       name: 'Servicio de Agente de IA',
       price: '$499',
-      period: 'por mes',
->>>>>>> 8b01e0b3d5bef279efba46350555fc0984e84d18
+      period: 'MXN / mes',
       features: [
-        'Respuesta automática a clientes',
-        'Atención 24/7 sin esfuerzo',
-        'Gestión inteligente de agenda',
-        'Optimización de ventas con IA',
+        'Automatización de solicitudes',
+        'Asistente experto en tu negocio',
+        'Solicitudes disponibles para tu agenda',
+        'Respuestas inteligentes',
       ],
       featured: true,
       tag: 'NUEVO',
@@ -130,7 +112,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-  ) { }
+  ) {}
 
   ngOnInit(): void {
     // Auto slide - run outside Angular for performance
@@ -145,27 +127,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-<<<<<<< HEAD
-    // Custom WOW.js implementation to avoid build errors with 'require'
-    // This replicates the exact behavior of WOW.js:
-    // 1. Hides elements with .wow class
-    // 2. Checks for scroll
-    // 3. Reveals them and adds animation class
-
-    class CustomWow {
-      boxClass: string;
-      animateClass: string;
-      offset: number;
-      mobile: boolean;
-      live: boolean;
-
-      constructor(options: any = {}) {
-        this.boxClass = options.boxClass || 'wow';
-        this.animateClass = options.animateClass || 'animate__animated';
-        this.offset = options.offset || 0;
-        this.mobile = options.mobile !== false;
-        this.live = options.live !== false;
-=======
     // 1. PRELOADER
     this.initPreloader();
 
@@ -200,38 +161,10 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       const preloader = document.getElementById('preloader');
       if (preloader && !preloader.classList.contains('loaded')) {
         preloader.classList.add('loaded');
->>>>>>> 8b01e0b3d5bef279efba46350555fc0984e84d18
       }
     }, 3000);
   }
 
-<<<<<<< HEAD
-  init() {
-    const elements = document.querySelectorAll(`.${this.boxClass}`);
-
-    // Initial hide and setup
-    elements.forEach((el: any) => {
-      el.style.visibility = 'hidden';
-      // If animation names are in 'data-wow-animation' or just standard usage
-      // In standard usage, the animation class (e.g. animate__fadeInUp) is already on the element.
-      // We just need to toggle visibility and add the 'animated' class.
-    });
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const el = entry.target as HTMLElement;
-          el.style.visibility = 'visible';
-          el.classList.add(this.animateClass);
-          // Trigger animation (sometimes removing/re-adding helps if it was already there)
-          const existingAnimationClasses = Array.from(el.classList).filter(c => c.startsWith('animate__'));
-          existingAnimationClasses.forEach(c => {
-            el.classList.remove(c);
-            void el.offsetWidth; // trigger reflow
-            el.classList.add(c);
-          });
-
-=======
   // =========================================
   // INTERSECTION OBSERVER (replaces WOW.js)
   // =========================================
@@ -246,35 +179,19 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
               setTimeout(() => {
                 el.classList.add('visible');
               }, delay);
->>>>>>> 8b01e0b3d5bef279efba46350555fc0984e84d18
-          observer.unobserve(el);
-        }
+              observer.unobserve(el);
+            }
+          });
+        },
+        { threshold: 0.15 },
+      );
+
+      document.querySelectorAll('.animado').forEach((el) => {
+        observer.observe(el);
       });
-    },
-      { threshold: 0.15 },
-    );
-
-    document.querySelectorAll('.animado').forEach((el) => {
-      observer.observe(el);
-    });
-  }, 200); // Small delay to ensure DOM is ready
-}
-
-<<<<<<< HEAD
-@HostListener('window:scroll')
-onWindowScroll() {
-  this.showScrollButton = window.scrollY > 500;
-
-  // Logic for hiding/showing navbar
-  // If we are near the top (e.g. within Hero section), show it.
-  // If we scroll down past a threshold, hide it.
-  // User requested: "hide menu when scrolling... and when returning to hero appear"
-  if (window.scrollY > 100) {
-    this.isNavbarVisible = false;
-  } else {
-    this.isNavbarVisible = true;
+    }, 200); // Small delay to ensure DOM is ready
   }
-=======
+
   // =========================================
   // PARTICLES
   // =========================================
@@ -317,68 +234,67 @@ onWindowScroll() {
 
     // Active nav link highlight
     this.updateActiveNavLink();
->>>>>>> 8b01e0b3d5bef279efba46350555fc0984e84d18
-}
+  }
 
   // =========================================
   // ACTIVE NAV HIGHLIGHT
   // =========================================
   private updateActiveNavLink(): void {
-  const sections = document.querySelectorAll('section[id]');
-  const navLinks = document.querySelectorAll('.nav-link-custom');
-  const scrollPos = window.scrollY + 250;
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-link-custom');
+    const scrollPos = window.scrollY + 250;
 
-  sections.forEach((section) => {
-    const el = section as HTMLElement;
-    if (el.offsetTop <= scrollPos && el.offsetTop + el.offsetHeight > scrollPos) {
-      navLinks.forEach((link) => {
-        link.classList.remove('active-link');
-      });
-      // Find matching nav link
-      const sectionId = section.getAttribute('id');
-      navLinks.forEach((link) => {
-        const onClick = link.getAttribute('(click)');
-        if (onClick && onClick.includes(sectionId || '')) {
-          link.classList.add('active-link');
-        }
-      });
-    }
-  });
-}
-
-// =========================================
-// UTILITIES
-// =========================================
-scrollToTop(): void {
-  try {
-    window.scroll({
-      top: 0,
-      left: 0,
-      behavior: 'smooth',
+    sections.forEach((section) => {
+      const el = section as HTMLElement;
+      if (el.offsetTop <= scrollPos && el.offsetTop + el.offsetHeight > scrollPos) {
+        navLinks.forEach((link) => {
+          link.classList.remove('active-link');
+        });
+        // Find matching nav link
+        const sectionId = section.getAttribute('id');
+        navLinks.forEach((link) => {
+          const onClick = link.getAttribute('(click)');
+          if (onClick && onClick.includes(sectionId || '')) {
+            link.classList.add('active-link');
+          }
+        });
+      }
     });
-  } catch(e) {
-    window.scrollTo(0, 0);
-  }
-}
-
-scrollToSection(sectionId: string): void {
-  const element = document.getElementById(sectionId);
-  if(element) {
-    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-}
-
-toggleVideo(event: any): void {
-  const video = event.target as HTMLVideoElement;
-  if(video.paused) {
-  video.muted = false;
-  video.play();
-} else {
-  video.pause();
-}
   }
 
-toggleMobileMenu(): void {
-  this.isMobileMenuOpen = !this.isMobileMenuOpen;
-}
+  // =========================================
+  // UTILITIES
+  // =========================================
+  scrollToTop(): void {
+    try {
+      window.scroll({
+        top: 0,
+        left: 0,
+        behavior: 'smooth',
+      });
+    } catch (e) {
+      window.scrollTo(0, 0);
+    }
+  }
+
+  scrollToSection(sectionId: string): void {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  toggleVideo(event: any): void {
+    const video = event.target as HTMLVideoElement;
+    if (video.paused) {
+      video.muted = false;
+      video.play();
+    } else {
+      video.pause();
+    }
+  }
+
+  toggleMobileMenu(): void {
+    this.isMobileMenuOpen = !this.isMobileMenuOpen;
+  }
 }
