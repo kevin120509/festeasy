@@ -67,6 +67,11 @@ export const routes: Routes = [
         path: 'privacidad',
         loadComponent: () => import('./pages/public/legal/privacidad.component').then(m => m.PrivacidadComponent)
     },
+    // Public Marketplace & Details
+    { path: 'marketplace', component: MarketplaceComponent, data: { hideSidebar: true } },
+    { path: 'proveedor/:id', component: ProveedorDetalleComponent, data: { hideSidebar: true } },
+    { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
+
     // Cliente
     { path: 'cliente/registro', component: ClienteRegistroComponent },
     {
@@ -76,12 +81,9 @@ export const routes: Routes = [
         data: { role: 'client' },
         children: [
             { path: 'dashboard', component: ClienteDashboardComponent },
-            { path: 'marketplace', component: MarketplaceComponent, data: { hideSidebar: true } },
             { path: 'solicitudes/crear', component: CrearEventoComponent },
             { path: 'solicitudes/revisar', component: RevisarSolicitudComponent },
             { path: 'solicitud-enviada', component: SolicitudEnviadaComponent },
-            { path: 'proveedor/:id', component: ProveedorDetalleComponent, data: { hideSidebar: true } },
-            { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
             { path: 'seguimiento/:id', component: SeguimientoEventoComponent },
             { path: 'carrito', component: CarritoComponent },
             { path: 'solicitudes', component: MisSolicitudesComponent },

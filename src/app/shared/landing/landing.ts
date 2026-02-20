@@ -81,7 +81,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Pricing Data
   plans = [
     {
-<<<<<<< HEAD
       name: 'FestEasy',
       price: 'Gratis',
       period: 'por siempre',
@@ -91,19 +90,18 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         'Recepción de solicitudes ilimitadas',
         'Bandeja de entrada y notificaciones',
         'Dashboard de gestión básica',
-=======
-      name: 'Sitio Web Profesional',
-      price: '$399',
-      period: 'MXN / mes',
-      features: [
-        'URL personalizada para tu negocio',
-        'Diseño optimizado para móviles',
-        'Edición en tiempo real',
-        'Estadísticas de visitas',
+        name: 'Sitio Web Profesional',
+        price: '$399',
+        period: 'MXN / mes',
+        features: [
+          'URL personalizada para tu negocio',
+          'Diseño optimizado para móviles',
+          'Edición en tiempo real',
+          'Estadísticas de visitas',
 >>>>>>> f53250e (cambios orjiofhrsofhrsoif)
-      ],
-      featured: false,
-      tag: 'BÁSICO',
+        ],
+        featured: false,
+        tag: 'BÁSICO',
     },
     {
 <<<<<<< HEAD
@@ -128,7 +126,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     private ngZone: NgZone,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     // Auto slide - run outside Angular for performance

@@ -102,7 +102,7 @@
                         <h3 class="text-xl font-bold text-text-main mb-6 px-1 dark:text-white">Paquetes Disponibles</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
                             @for (pkg of packages(); track pkg.id; let i = $index) {
-                            <a [routerLink]="['/cliente/paquete', pkg.id]" class="block">
+                            <a [routerLink]="['/paquete', pkg.id]" class="block">
                                 <!-- Package Card -->
                                 <div class="bg-surface border border-[#f4f0f0] rounded-lg overflow-hidden hover:shadow-hover transition-all duration-300 group flex flex-col bg-white dark:bg-[#1a1a1a] dark:border-gray-800"
                                     [class.border-primary]="getQuantity(pkg.id) > 0"
