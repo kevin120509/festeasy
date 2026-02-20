@@ -31,10 +31,20 @@ export class RevisarSolicitudComponent implements OnInit {
         const pkgs = this.solicitudDataService.getPaquetesSeleccionados();
         const prov = this.solicitudDataService.getProveedorActual();
 
+        console.log('🧐 RevisarSolicitud: Validando datos:', { 
+            evento: !!ev, 
+            paquetes: pkgs?.length, 
+            proveedor: !!prov 
+        });
+
         if (!ev || !pkgs || pkgs.length === 0 || !prov) {
-            // Si falta información, regresar al inicio del flujo
-            this.router.navigate(['/cliente/solicitudes/crear']);
-            return;
+            console.warn('⚠️ Faltan datos críticos, intentando recuperar de storage...');
+            // Pequeña espera o intento de recuperación manual si el signal falló
+            if (!ev || !prov) {
+                console.error('❌ Datos no recuperables, regresando a creación.');
+                this.router.navigate(['/cliente/solicitudes/crear']);
+                return;
+            }
         }
 
         this.evento.set(ev);

@@ -437,104 +437,140 @@
                     </div>
 
                     <!-- Items del Paquete -->
-                    <div
-                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-2 flex items-center gap-2">
-                            <span class="material-icons-outlined text-primary">inventory_2</span>
-                            Elementos Incluidos
-                        </h3>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Agrega los elementos que incluye tu paquete (mesas, sillas, decoración, etc.)</p>
-
-                        <div class="flex flex-col gap-3 mb-4">
-                            <div class="grid grid-cols-12 gap-3">
-                                <input type="text" [value]="newItemName()"
-                                    (input)="newItemName.set($any($event.target).value)"
-                                    class="col-span-5 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                    placeholder="Nombre del elemento" />
-                                
-                                <input type="number" [value]="newItemQuantity()"
-                                    (input)="newItemQuantity.set(+$any($event.target).value)"
-                                    class="col-span-2 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                    placeholder="Cant." min="1" />
-                                
-                                <input type="text" [value]="newItemUnit()"
-                                    (input)="newItemUnit.set($any($event.target).value)"
-                                    class="col-span-4 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                    placeholder="Unidad (ej: piezas)" />
-                                
-                                <button (click)="addPackageItem()"
-                                    class="col-span-1 px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
-                                    <span class="material-icons-outlined">add</span>
-                                </button>
-                            </div>
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div class="bg-slate-50 dark:bg-gray-700/50 p-6 border-b border-slate-100 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <span class="material-icons-outlined text-primary">inventory_2</span>
+                                Elementos Incluidos
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Listado de mobiliario, equipos o servicios integrados en este paquete.</p>
                         </div>
-
-                        <div class="space-y-2">
-                            <div *ngFor="let item of packageItems(); let i = index"
-                                class="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <span class="material-icons-outlined text-primary text-sm">check_circle</span>
+                        
+                        <div class="p-6">
+                            <div class="flex flex-col gap-4 mb-6 p-4 bg-slate-50 dark:bg-gray-900/30 rounded-xl border border-slate-100 dark:border-gray-700">
+                                <div class="grid grid-cols-12 gap-3">
+                                    <div class="col-span-8">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Descripción del elemento</label>
+                                        <input type="text" [value]="newItemName()"
+                                            (input)="newItemName.set($any($event.target).value)"
+                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                            placeholder="Ej: Mesas rectangulares" />
                                     </div>
-                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ item.nombre_item }}</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <span class="text-sm text-slate-600 dark:text-slate-400">{{ item.cantidad }} {{ item.unidad }}</span>
-                                    <button (click)="removePackageItem(i)" class="text-red-400 hover:text-red-600">
-                                        <span class="material-icons-outlined text-sm">close</span>
-                                    </button>
+                                    
+                                    <div class="col-span-3">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Cantidad</label>
+                                        <input type="number" [value]="newItemQuantity()"
+                                            (input)="newItemQuantity.set(+$any($event.target).value)"
+                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all text-center font-bold"
+                                            placeholder="0" min="1" />
+                                    </div>
+                                    
+                                    <div class="col-span-1 flex items-end">
+                                        <button (click)="addPackageItem()"
+                                            class="w-full h-[45px] bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-all shadow-md active:scale-95 flex items-center justify-center"
+                                            title="Agregar elemento">
+                                            <span class="material-icons-outlined">add</span>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div *ngIf="packageItems().length === 0" class="text-center py-4 text-slate-400 text-sm">
-                                No hay elementos agregados
+
+                            <div class="space-y-3">
+                                <div *ngFor="let item of packageItems(); let i = index"
+                                    class="group flex items-center justify-between px-5 py-4 bg-white dark:bg-gray-700/30 border border-slate-100 dark:border-gray-700 rounded-xl hover:shadow-md hover:border-primary/20 transition-all">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+                                            <span class="material-icons-outlined text-lg">check_circle</span>
+                                        </div>
+                                        <span class="font-bold text-slate-700 dark:text-slate-200">{{ item.nombre_item }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-4">
+                                        <span class="px-3 py-1 bg-slate-100 dark:bg-gray-700 text-slate-600 dark:text-slate-300 rounded-full text-xs font-black">{{ item.cantidad }} Unidades</span>
+                                        <button (click)="removePackageItem(i)" 
+                                                class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                                            <span class="material-icons-outlined text-sm">delete</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div *ngIf="packageItems().length === 0" class="text-center py-10 bg-slate-50/50 dark:bg-gray-800/50 rounded-xl border border-dashed border-slate-200 dark:border-gray-700">
+                                    <span class="material-icons-outlined text-4xl text-slate-200 mb-2 block">inventory_2</span>
+                                    <p class="text-slate-400 text-sm italic">No hay elementos agregados aún</p>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Incluidos (antes Cargos Adicionales) -->
-                    <div
-                        class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm p-6">
-                        <h3 class="text-lg font-bold text-slate-800 dark:text-white mb-4">Incluidos (Opcionales)</h3>
-
-                        <div class="flex flex-col gap-3 mb-4">
-                            <div class="flex gap-3">
-                                <input type="text" [value]="newChargeName()"
-                                    (input)="newChargeName.set($any($event.target).value)"
-                                    class="flex-1 px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                    placeholder="Concepto" />
-                                <div class="relative w-32">
-                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                                    <input type="number" [value]="newChargePrice()"
-                                        (input)="newChargePrice.set(+$any($event.target).value)"
-                                        class="w-full pl-7 pr-3 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                        min="0" step="0.01" />
-                                </div>
-                                <button (click)="addExtraCharge()"
-                                    class="px-4 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-colors">
-                                    <span class="material-icons-outlined">add</span>
-                                </button>
-                            </div>
-                            <textarea [value]="newChargeDescription()"
-                                (input)="newChargeDescription.set($any($event.target).value)"
-                                class="w-full px-4 py-2 bg-slate-50 dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20"
-                                placeholder="Descripción (opcional)" rows="2"></textarea>
+                    <!-- Extras (antes Incluidos (Opcionales)) -->
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-200 dark:border-gray-700 shadow-sm overflow-hidden">
+                        <div class="bg-slate-50 dark:bg-gray-700/50 p-6 border-b border-slate-100 dark:border-gray-700">
+                            <h3 class="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <span class="material-icons-outlined text-primary">add_circle_outline</span>
+                                Extras
+                            </h3>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Servicios o elementos adicionales que el cliente puede contratar.</p>
                         </div>
 
-                        <div class="space-y-2">
-                            <div *ngFor="let charge of extraCharges(); let i = index"
-                                class="flex flex-col items-start justify-between px-4 py-3 bg-slate-50 dark:bg-gray-700 rounded-lg">
-                                <div class="flex justify-between w-full">
-                                    <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{
-                                        charge.nombre }}</span>
-                                    <div class="flex items-center gap-3">
-                                        <span class="text-sm font-bold text-primary">+${{ charge.precio | number:'1.2-2'
-                                            }}</span>
-                                        <button (click)="removeExtraCharge(i)" class="text-red-400 hover:text-red-600">
-                                            <span class="material-icons-outlined text-sm">close</span>
+                        <div class="p-6">
+                            <div class="flex flex-col gap-4 mb-6 p-4 bg-slate-50 dark:bg-gray-900/30 rounded-xl border border-slate-100 dark:border-gray-700">
+                                <div class="flex gap-3">
+                                    <div class="flex-grow">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nombre del Extra</label>
+                                        <input type="text" [value]="newChargeName()"
+                                            (input)="newChargeName.set($any($event.target).value)"
+                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                            placeholder="Ej: Hora extra de DJ" />
+                                    </div>
+                                    <div class="w-36">
+                                        <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Precio Adicional</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                                            <input type="number" [value]="newChargePrice()"
+                                                (input)="newChargePrice.set(+$any($event.target).value)"
+                                                class="w-full pl-7 pr-3 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold text-primary"
+                                                min="0" step="0.01" />
+                                        </div>
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button (click)="addExtraCharge()"
+                                            class="h-[45px] px-6 bg-primary text-white rounded-lg font-semibold hover:bg-red-600 transition-all shadow-md active:scale-95 flex items-center gap-2">
+                                            <span class="material-icons-outlined">add</span>
+                                            <span>Añadir</span>
                                         </button>
                                     </div>
                                 </div>
-                                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ charge.descripcion }}</p>
+                                <div>
+                                    <label class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Descripción breve (opcional)</label>
+                                    <textarea [value]="newChargeDescription()"
+                                        (input)="newChargeDescription.set($any($event.target).value)"
+                                        class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
+                                        placeholder="Detalles sobre este servicio adicional..." rows="2"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div *ngFor="let charge of extraCharges(); let i = index"
+                                    class="group flex flex-col px-5 py-4 bg-white dark:bg-gray-700/30 border border-slate-100 dark:border-gray-700 rounded-xl hover:shadow-md hover:border-primary/20 transition-all">
+                                    <div class="flex justify-between items-center w-full">
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-10 h-10 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-primary">
+                                                <span class="material-icons-outlined text-lg">add_task</span>
+                                            </div>
+                                            <span class="font-bold text-slate-700 dark:text-slate-200">{{ charge.nombre }}</span>
+                                        </div>
+                                        <div class="flex items-center gap-4">
+                                            <span class="text-lg font-black text-primary">+${{ charge.precio | number:'1.2-2' }}</span>
+                                            <button (click)="removeExtraCharge(i)" 
+                                                    class="w-8 h-8 flex items-center justify-center text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-full transition-all">
+                                                <span class="material-icons-outlined text-sm">delete</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <p *ngIf="charge.descripcion" class="text-xs text-slate-500 dark:text-slate-400 mt-2 pl-14 italic">{{ charge.descripcion }}</p>
+                                </div>
+                                <div *ngIf="extraCharges().length === 0" class="text-center py-10 bg-slate-50/50 dark:bg-gray-800/50 rounded-xl border border-dashed border-slate-200 dark:border-gray-700">
+                                    <span class="material-icons-outlined text-4xl text-slate-200 mb-2 block">add_circle_outline</span>
+                                    <p class="text-slate-400 text-sm italic">No hay servicios extra configurados</p>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -11,9 +11,9 @@ export class SolicitudDataService {
 
     // BehaviorSubject para el carrito
     private carrito = new BehaviorSubject<any[]>([]);
-    eventoActual = signal<any>(null);
-    paquetesSeleccionados = signal<any[]>([]);
-    proveedorActual = signal<any>(null);
+    eventoActual = signal<any>(this.getSavedItem('eventoActual'));
+    paquetesSeleccionados = signal<any[]>(this.getSavedItem('paquetesSeleccionados') || []);
+    proveedorActual = signal<any>(this.getSavedItem('proveedorActual'));
 
     // Observable para que los componentes se suscriban
     carrito$ = this.carrito.asObservable();
@@ -24,22 +24,16 @@ export class SolicitudDataService {
         if (carritoGuardado) {
             this.carrito.next(JSON.parse(carritoGuardado));
         }
-
-        this.cargarBorrador();
     }
 
-    private cargarBorrador() {
-        // Cargar evento actual
-        const ev = localStorage.getItem('eventoActual') || sessionStorage.getItem('eventoActual');
-        if (ev) try { this.eventoActual.set(JSON.parse(ev)); } catch (e) { }
-
-        // Cargar paquetes seleccionados
-        const pkgs = localStorage.getItem('paquetesSeleccionados') || sessionStorage.getItem('paquetesSeleccionados');
-        if (pkgs) try { this.paquetesSeleccionados.set(JSON.parse(pkgs)); } catch (e) { }
-
-        // Cargar proveedor actual
-        const prov = localStorage.getItem('proveedorActual') || sessionStorage.getItem('proveedorActual');
-        if (prov) try { this.proveedorActual.set(JSON.parse(prov)); } catch (e) { }
+    private getSavedItem(key: string): any {
+        const item = localStorage.getItem(key) || sessionStorage.getItem(key);
+        if (!item) return null;
+        try {
+            return JSON.parse(item);
+        } catch (e) {
+            return null;
+        }
     }
 
     setEventoActual(data: any) {

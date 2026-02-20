@@ -268,8 +268,7 @@ export class SupabaseDataService {
         const itemsToInsert = items.map(item => ({
             paquete_id: paqueteId,
             nombre_item: item.nombre_item,
-            cantidad: item.cantidad,
-            unidad: item.unidad || 'unidad(es)'
+            cantidad: item.cantidad
         }));
 
         const { data, error } = await this.supabase

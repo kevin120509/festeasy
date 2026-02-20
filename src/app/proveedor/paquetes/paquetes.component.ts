@@ -26,7 +26,6 @@ interface Paquete {
 interface PackageItem {
   nombre_item: string;
   cantidad: number;
-  unidad?: string;
 }
 
 interface ExtraCharge {
@@ -132,7 +131,6 @@ export class PaquetesComponent implements OnInit {
   packageItems = signal<PackageItem[]>([]);
   newItemName = signal('');
   newItemQuantity = signal(1);
-  newItemUnit = signal('');
 
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
@@ -411,17 +409,14 @@ export class PaquetesComponent implements OnInit {
   addPackageItem() {
     const name = this.newItemName().trim();
     const quantity = this.newItemQuantity();
-    const unit = this.newItemUnit().trim();
 
     if (name && quantity > 0) {
       this.packageItems.update(items => [...items, { 
         nombre_item: name, 
-        cantidad: quantity, 
-        unidad: unit || 'unidad(es)' 
+        cantidad: quantity
       }]);
       this.newItemName.set('');
       this.newItemQuantity.set(1);
-      this.newItemUnit.set('');
     }
   }
 
