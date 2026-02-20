@@ -89,6 +89,8 @@ export class SubscriptionService {
         const active = this.allActiveAddons();
         return this.plansConfig()
             .filter(c => c.tipo === 'addon')
+            // Filtrar el addon de redes sociales que ya no se usará
+            .filter(c => c.id !== 'redes' && c.id !== 'SOCIAL_SHARE')
             .map(c => {
                 let icon = 'share';
                 let desc = `Complemento de ${c.nombre} para tu negocio.`;

@@ -16,7 +16,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
   // Image Slider State
   currentSlide = 0;
   slides = ['assets/slide1.png', 'assets/slide2.png', 'assets/slide3.png'];
-  
+
   // Scroll Button State
   showScrollButton = false;
   isNavbarVisible = true;
@@ -71,27 +71,27 @@ export class LandingComponent implements OnInit, AfterViewInit {
   // Pricing Data
   plans = [
     {
-      name: 'Servicio de Publicidad',
-      price: '$299',
+      name: 'Sitio Web Profesional',
+      price: '$399',
       period: 'MXN / mes',
       features: [
-        'URL personalizada para compartir',
-        'Promoción en redes sociales',
-        'Mayor alcance de clientes',
+        'URL personalizada para tu negocio',
+        'Diseño optimizado para móviles',
+        'Edición en tiempo real',
         'Estadísticas de visitas',
       ],
       featured: true,
       tag: 'MÁS POPULAR'
     },
     {
-      name: 'Servicio de Agente de IA',
-      price: '$499',
+      name: 'Asistente de IA Experto',
+      price: '$599',
       period: 'MXN / mes',
       features: [
-        'Automatización de solicitudes',
-        'Asistente experto en tu negocio',
-        'Solicitudes disponibles para tu agenda',
-        'Respuestas inteligentes',
+        'Respuesta automática a clientes',
+        'Atención 24/7 sin esfuerzo',
+        'Gestión inteligente de agenda',
+        'Optimización de ventas con IA',
       ],
       featured: false,
       tag: 'NUEVO'
@@ -111,14 +111,14 @@ export class LandingComponent implements OnInit, AfterViewInit {
     // 1. Hides elements with .wow class
     // 2. Checks for scroll
     // 3. Reveals them and adds animation class
-    
+
     class CustomWow {
       boxClass: string;
       animateClass: string;
       offset: number;
       mobile: boolean;
       live: boolean;
-      
+
       constructor(options: any = {}) {
         this.boxClass = options.boxClass || 'wow';
         this.animateClass = options.animateClass || 'animate__animated';
@@ -129,7 +129,7 @@ export class LandingComponent implements OnInit, AfterViewInit {
 
       init() {
         const elements = document.querySelectorAll(`.${this.boxClass}`);
-        
+
         // Initial hide and setup
         elements.forEach((el: any) => {
           el.style.visibility = 'hidden';
@@ -147,11 +147,11 @@ export class LandingComponent implements OnInit, AfterViewInit {
               // Trigger animation (sometimes removing/re-adding helps if it was already there)
               const existingAnimationClasses = Array.from(el.classList).filter(c => c.startsWith('animate__'));
               existingAnimationClasses.forEach(c => {
-                  el.classList.remove(c);
-                  void el.offsetWidth; // trigger reflow
-                  el.classList.add(c);
+                el.classList.remove(c);
+                void el.offsetWidth; // trigger reflow
+                el.classList.add(c);
               });
-              
+
               observer.unobserve(el);
             }
           });
@@ -173,11 +173,11 @@ export class LandingComponent implements OnInit, AfterViewInit {
       }).init();
     }, 100);
   }
-  
+
   @HostListener('window:scroll')
   onWindowScroll() {
     this.showScrollButton = window.scrollY > 500;
-    
+
     // Logic for hiding/showing navbar
     // If we are near the top (e.g. within Hero section), show it.
     // If we scroll down past a threshold, hide it.
