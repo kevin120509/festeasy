@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 @import 'primeicons/primeicons.css';
-@import 'animate.css/animate.min.css';
 
 :root {
   /* Existing variables */
@@ -35,7 +34,7 @@
 }
 
 body {
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: 'Poppins', 'Inter', sans-serif;
   background-color: #f8fafc;
   /* bg-slate-50 */
   color: var(--color-dark);
@@ -216,7 +215,34 @@ app-bandeja-solicitudes main {
   margin: 0 !important;
 }
 
-/* WOW.js initial visibility fix */
-.wow {
-  visibility: hidden;
+/* Animaciones de entrada - estado inicial */
+.animado {
+  opacity: 0;
+  transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.animado[data-anim="fadeUp"] {
+  transform: translateY(40px);
+}
+
+.animado[data-anim="fadeDown"] {
+  transform: translateY(-40px);
+}
+
+.animado[data-anim="fadeLeft"] {
+  transform: translateX(40px);
+}
+
+.animado[data-anim="fadeRight"] {
+  transform: translateX(-40px);
+}
+
+.animado[data-anim="zoomIn"] {
+  transform: scale(0.9);
+}
+
+.animado.visible {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
 }

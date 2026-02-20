@@ -4,7 +4,6 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
-import { HeaderComponent } from '../../shared/header/header';
 
 declare var paypal: any;
 declare var Stripe: any;
@@ -12,7 +11,7 @@ declare var Stripe: any;
 @Component({
     selector: 'app-pago',
     standalone: true,
-    imports: [CommonModule, HeaderComponent],
+    imports: [CommonModule],
     templateUrl: './pago.component.html'
 })
 export class PagoComponent implements OnInit, AfterViewInit {
@@ -157,7 +156,11 @@ export class PagoComponent implements OnInit, AfterViewInit {
     }
 
     renderPaypalButtons() {
-        if (!document.getElementById('paypal-button-container')) return;
+        const container = document.getElementById('paypal-button-container');
+        if (!container) return;
+
+        // Limpiar el contenedor antes de renderizar para evitar duplicados
+        container.innerHTML = '';
 
         paypal.Buttons({
             createOrder: (data: any, actions: any) => {

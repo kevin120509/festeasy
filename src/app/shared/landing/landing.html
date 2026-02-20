@@ -1,355 +1,363 @@
-<!-- Navbar -->
-<header class="navbar-custom" [class.hidden-nav]="!isNavbarVisible">
-  <div class="logo-container">
-      <video 
-        src="assets/festeasy.mp4" 
-        class="navbar-logo-custom cursor-pointer" 
-        (click)="toggleVideo($event)"
-        loop
-        muted
-        playsinline
-        title="Click para reproducir con sonido"
-      ></video>
+<!-- Preloader -->
+<div class="preloader" id="preloader">
+  <div class="loader">
+    <div class="loader-ring"></div>
+    <span>FESTEASY</span>
   </div>
-  
+</div>
+
+<!-- Navbar -->
+<header
+  class="navbar-custom"
+  id="mainHeader"
+  [class.scrolled]="isScrolled"
+  [class.hidden-nav]="!isNavbarVisible"
+>
+  <div class="logo-container">
+    <video
+      src="assets/festeasy.mp4"
+      class="navbar-logo-custom cursor-pointer"
+      (click)="toggleVideo($event)"
+      loop
+      muted
+      playsinline
+      title="Click para reproducir con sonido"
+    ></video>
+  </div>
+
   <nav class="nav-links-custom" [class.open]="isMobileMenuOpen">
-      <a (click)="scrollToSection('beneficios'); isMobileMenuOpen = false" class="nav-link-custom">Beneficios</a>
-      <a (click)="scrollToSection('como-funciona'); isMobileMenuOpen = false" class="nav-link-custom">Cómo funciona</a>
-      <a (click)="scrollToSection('precios'); isMobileMenuOpen = false" class="nav-link-custom">Servicios</a>
-      <a routerLink="/login" class="nav-link-custom md:hidden" (click)="isMobileMenuOpen = false">Login</a>
+    <!-- Close button inside mobile menu -->
+    <button class="md:hidden absolute top-8 right-8 text-3xl text-gray-800" (click)="toggleMobileMenu()">
+      <i class="pi pi-times"></i>
+    </button>
+    <a (click)="scrollToSection('beneficios'); isMobileMenuOpen = false" class="nav-link-custom"
+      >Beneficios</a
+    >
+    <a (click)="scrollToSection('como-funciona'); isMobileMenuOpen = false" class="nav-link-custom"
+      >Cómo funciona</a
+    >
+    <a (click)="scrollToSection('precios'); isMobileMenuOpen = false" class="nav-link-custom"
+      >Servicios</a
+    >
+    <a routerLink="/login" class="nav-link-custom md:hidden" (click)="isMobileMenuOpen = false"
+      >Login</a
+    >
   </nav>
 
   <div class="navbar-cta-desktop">
-      <a routerLink="/login" class="btn btn-navbar-custom">
-          Login
-      </a>
+    <a routerLink="/login" class="btn btn-navbar-custom"> Login </a>
   </div>
 
   <!-- Mobile Menu Button -->
   <button class="md:hidden text-2xl z-50" (click)="toggleMobileMenu()">
-      <i class="pi" [ngClass]="isMobileMenuOpen ? 'pi-times' : 'pi-bars'"></i>
+    <i class="pi" [ngClass]="isMobileMenuOpen ? 'pi-times' : 'pi-bars'"></i>
   </button>
 </header>
 
 <main>
   <!-- Hero Section -->
   <section class="hero-section">
-      <div class="hero-background">
-          <div *ngFor="let slide of slides; let i = index" 
-               class="hero-slide" 
-               [class.active]="i === currentSlide"
-               [style.backgroundImage]="'url(' + slide + ')'">
-          </div>
-          <div class="hero-overlay"></div>
-      </div>
+    <div class="hero-background">
+      <div
+        *ngFor="let slide of slides; let i = index"
+        class="hero-slide"
+        [class.active]="i === currentSlide"
+        [style.backgroundImage]="'url(' + slide + ')'"
+      ></div>
+      <div class="hero-overlay"></div>
+    </div>
 
-      <div class="hero-content">
-          <span class="hero-badge wow animate__animated animate__fadeInDown">Plataforma para Proveedores</span>
-          <h1 class="hero-title wow animate__animated animate__fadeInDown" data-wow-delay="0.1s">
-              Consigue <span style="color: white; font-weight: bold;">clientes reales</span> para tus servicios de eventos
-          </h1>
-          <p class="hero-description wow animate__animated animate__fadeInUp" data-wow-delay="0.2s">
-              Deja de perseguir pagos y lidiar con clientes fantasmas. La plataforma todo-en-uno que garantiza tu seguridad y automatiza tu negocio.
-          </p>
-          <div class="hero-buttons wow animate__animated animate__fadeInUp" data-wow-delay="0.3s">
-              <a routerLink="/proveedor/registro" class="btn btn-primary text-lg px-8 py-3">
-                  Quiero ser proveedor
-              </a>
-              <a routerLink="/cliente/registro" class="btn btn-outline text-white border-white hover:bg-white hover:text-red-600 text-lg px-8 py-3">
-                  Quiero ser usuario
-              </a>
-          </div>
+    <!-- Particles -->
+    <div class="hero-particles" id="particles"></div>
+
+    <div class="hero-content">
+      <h1 class="hero-title animado" data-anim="fadeDown">
+        Consigue <span class="gradient-text" style="font-weight: bold">clientes reales</span> para
+        tus servicios de eventos
+      </h1>
+      <p class="hero-description animado" data-anim="fadeUp" data-delay="200">
+        Deja de perseguir pagos y lidiar con clientes fantasmas. La plataforma todo-en-uno que
+        garantiza tu seguridad y automatiza tu negocio.
+      </p>
+      <div class="hero-buttons animado" data-anim="fadeUp" data-delay="400">
+        <a routerLink="/proveedor/registro" class="btn btn-primary text-lg px-8 py-3">
+          Quiero ser proveedor
+        </a>
+        <a
+          routerLink="/cliente/registro"
+          class="btn btn-outline text-white border-white hover:bg-white hover:text-red-600 text-lg px-8 py-3"
+        >
+          Quiero ser usuario
+        </a>
       </div>
+    </div>
+
+    <!-- Scroll indicator -->
+    <div class="scroll-indicator animado" data-anim="fadeUp" data-delay="800">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
   </section>
 
   <!-- Problem Section -->
   <section id="problem" class="section-padding bg-gray-50">
-      <div class="text-center mb-16 wow animate__animated animate__fadeInDown">
-          <span class="section-tag">El problema actual</span>
-          <h2 class="section-title">Los desafíos frustrantes que limitan tu crecimiento hoy.</h2>
+    <div class="text-center mb-16">
+      <div class="section-divider animado" data-anim="fadeUp">
+        <i class="pi pi-star-fill"></i>
       </div>
+      <span class="section-tag animado" data-anim="fadeDown">El problema actual</span>
+      <h2 class="section-title animado" data-anim="fadeUp" data-delay="100">
+        Los desafíos frustrantes que limitan tu crecimiento hoy.
+      </h2>
+    </div>
 
-      <div class="problem-grid">
-          <div *ngFor="let problem of problems; let i = index" 
-               class="problem-item wow animate__animated animate__fadeInLeft"
-               [attr.data-wow-delay]="(i * 0.15) + 's'">
-              <span class="problem-number">{{problem.number}}</span>
-              <div class="problem-content">
-                  <h3>{{problem.title}}</h3>
-                  <p>{{problem.description}}</p>
-              </div>
-          </div>
+    <div class="problem-grid">
+      <div
+        *ngFor="let problem of problems; let i = index"
+        class="problem-item animado"
+        data-anim="fadeRight"
+        [attr.data-delay]="i * 150"
+      >
+        <span class="problem-number">{{ problem.number }}</span>
+        <div class="problem-content">
+          <h3>{{ problem.title }}</h3>
+          <p>{{ problem.description }}</p>
+        </div>
       </div>
+    </div>
   </section>
 
   <!-- Solution Section -->
   <section id="beneficios" class="section-padding">
-      <div class="text-center mb-16 wow animate__animated animate__fadeInDown">
-          <span class="section-tag">La solución profesional</span>
-          <h2 class="section-title">Transformamos el caos en un proceso simple, seguro y rentable.</h2>
+    <div class="text-center mb-16">
+      <div class="section-divider animado" data-anim="fadeUp">
+        <i class="pi pi-star-fill"></i>
       </div>
+      <span class="section-tag animado" data-anim="fadeDown">La solución profesional</span>
+      <h2 class="section-title animado" data-anim="fadeUp" data-delay="100">
+        Transformamos el caos en un proceso simple, seguro y rentable.
+      </h2>
+    </div>
 
-      <!-- Feature 1 -->
-      <div class="solution-row wow animate__animated animate__zoomIn">
-          <div class="solution-content">
-              <h3 class="text-3xl font-bold mb-4">Solicitudes verificadas, no curiosos</h3>
-              <p class="text-lg text-gray-600 leading-relaxed mb-6">
-                  Filtramos a los clientes reales de los que solo "están viendo". 
-                  Cada solicitud en tu bandeja viene de alguien listo para contratar.
-              </p>
-              <ul class="space-y-3">
-                  <li class="flex items-center gap-3">
-                      <i class="pi pi-check-circle text-green-500"></i>
-                      <span>Verificación de identidad de clientes</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                      <i class="pi pi-check-circle text-green-500"></i>
-                      <span>Intención de compra validada</span>
-                  </li>
-              </ul>
-          </div>
-          <div class="solution-visual">
-             <div class="abstract-visual">
-                 <span class="material-symbols-outlined abstract-icon">verified</span>
-             </div>
-          </div>
+    <!-- Feature 1 -->
+    <div class="solution-row animado" data-anim="fadeUp">
+      <div class="solution-content">
+        <h3 class="text-3xl font-bold mb-4">Solicitudes verificadas, no curiosos</h3>
+        <p class="text-lg text-gray-600 leading-relaxed mb-6">
+          Filtramos a los clientes reales de los que solo "están viendo". Cada solicitud en tu
+          bandeja viene de alguien listo para contratar.
+        </p>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span>Verificación de identidad de clientes</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span>Intención de compra validada</span>
+          </li>
+        </ul>
       </div>
+      <div class="solution-visual">
+        <div class="abstract-visual">
+          <span class="material-symbols-outlined abstract-icon">verified</span>
+        </div>
+      </div>
+    </div>
 
-      <!-- Feature 2 -->
-      <div class="solution-row reverse wow animate__animated animate__zoomIn" data-wow-delay="0.15s">
-          <div class="solution-content">
-              <h3 class="text-3xl font-bold mb-4">Pagos garantizados con Escrow</h3>
-              <p class="text-lg text-gray-600 leading-relaxed mb-6">
-                  El cliente paga antes del evento, pero tú recibes el dinero cuando cumples. 
-                  Adiós a las cobranzas incómodas y los "te deposito mañana".
-              </p>
-              <ul class="space-y-3">
-                  <li class="flex items-center gap-3">
-                      <i class="pi pi-check-circle text-green-500"></i>
-                      <span>Fondos asegurados antes del evento</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                      <i class="pi pi-check-circle text-green-500"></i>
-                      <span>Liberación automática al finalizar</span>
-                  </li>
-              </ul>
-          </div>
-          <div class="solution-visual">
-              <div class="abstract-visual">
-                  <span class="material-symbols-outlined abstract-icon">lock</span>
-              </div>
-          </div>
+    <!-- Feature 2 -->
+    <div class="solution-row reverse animado" data-anim="fadeUp" data-delay="100">
+      <div class="solution-content">
+        <h3 class="text-3xl font-bold mb-4">Pagos garantizados con Escrow</h3>
+        <p class="text-lg text-gray-600 leading-relaxed mb-6">
+          El cliente paga antes del evento, pero tú recibes el dinero cuando cumples. Adiós a las
+          cobranzas incómodas y los "te deposito mañana".
+        </p>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span>Fondos asegurados antes del evento</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span>Liberación automática al finalizar</span>
+          </li>
+        </ul>
       </div>
+      <div class="solution-visual">
+        <div class="abstract-visual">
+          <span class="material-symbols-outlined abstract-icon">lock</span>
+        </div>
+      </div>
+    </div>
 
-      <!-- Feature 3 -->
-      <div class="solution-row wow animate__animated animate__zoomIn" data-wow-delay="0.3s">
-          <div class="solution-content">
-              <h3 class="text-3xl font-bold mb-4">Gestión automática de tu negocio</h3>
-              <p class="text-lg text-gray-600 leading-relaxed mb-6">
-                  Contratos digitales firmados automáticamente, facturación integrada y 
-                  recordatorios para tus clientes. Todo en un solo lugar.
-              </p>
-              <ul class="space-y-3">
-                  <li class="flex items-center gap-3">
-                      <i class="pi pi-check-circle text-green-500"></i>
-                      <span>Contratos legales generados al instante</span>
-                  </li>
-                  <li class="flex items-center gap-3">
-                      <i class="pi pi-check-circle text-green-500"></i>
-                      <span>Calendario sincronizado y recordatorios</span>
-                  </li>
-              </ul>
-          </div>
-          <div class="solution-visual">
-              <div class="abstract-visual">
-                  <span class="material-symbols-outlined abstract-icon">description</span>
-              </div>
-          </div>
+    <!-- Feature 3 -->
+    <div class="solution-row animado" data-anim="fadeUp" data-delay="200">
+      <div class="solution-content">
+        <h3 class="text-3xl font-bold mb-4">Gestión automática de tu negocio</h3>
+        <p class="text-lg text-gray-600 leading-relaxed mb-6">
+          Contratos digitales firmados automáticamente, facturación integrada y recordatorios para
+          tus clientes. Todo en un solo lugar.
+        </p>
+        <ul class="space-y-3">
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span>Contratos legales generados al instante</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-green-500"></i>
+            <span>Calendario sincronizado y recordatorios</span>
+          </li>
+        </ul>
       </div>
+      <div class="solution-visual">
+        <div class="abstract-visual">
+          <span class="material-symbols-outlined abstract-icon">description</span>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- How It Works -->
-  <section id="como-funciona" class="section-padding" style="background-color: var(--background-alt);">
-      <div class="text-center mb-16 wow animate__animated animate__fadeInDown">
-          <span class="section-tag mb-2 inline-block">Proceso Simple</span>
-          <h2 class="section-title">¿Cómo funciona?</h2>
-          <p class="section-subtitle">Tres pasos para empezar a escalar tu negocio.</p>
+  <section
+    id="como-funciona"
+    class="section-padding"
+    style="background-color: var(--background-alt)"
+  >
+    <div class="text-center mb-16">
+      <div class="section-divider animado" data-anim="fadeUp">
+        <i class="pi pi-star-fill"></i>
       </div>
+      <span class="section-tag mb-2 inline-block animado" data-anim="fadeDown">Proceso Simple</span>
+      <h2 class="section-title animado" data-anim="fadeUp" data-delay="100">¿Cómo funciona?</h2>
+      <p class="section-subtitle animado" data-anim="fadeUp" data-delay="200">
+        Tres pasos para empezar a escalar tu negocio.
+      </p>
+    </div>
 
-      <div class="hiw-grid">
-          <div *ngFor="let step of steps; let i = index" 
-               class="hiw-card wow animate__animated animate__slideInUp"
-               [attr.data-wow-delay]="(i * 0.2) + 's'">
-              <div class="hiw-icon-container">
-                  <span class="material-symbols-outlined hiw-icon">{{step.icon}}</span>
-              </div>
-              <div class="hiw-content">
-                  <div class="hiw-number">0{{i + 1}}</div>
-                  <h3 class="text-2xl font-bold mb-4">{{step.title}}</h3>
-                  <p class="text-gray-600 leading-relaxed">
-                      {{step.description}}
-                  </p>
-              </div>
-          </div>
+    <div class="hiw-grid">
+      <div
+        *ngFor="let step of steps; let i = index"
+        class="hiw-card animado"
+        data-anim="fadeUp"
+        [attr.data-delay]="i * 200"
+      >
+        <div class="hiw-icon-container">
+          <span class="material-symbols-outlined hiw-icon">{{ step.icon }}</span>
+        </div>
+        <div class="hiw-content">
+          <div class="hiw-number">0{{ i + 1 }}</div>
+          <h3 class="text-2xl font-bold mb-4">{{ step.title }}</h3>
+          <p class="text-gray-600 leading-relaxed">
+            {{ step.description }}
+          </p>
+        </div>
       </div>
+    </div>
   </section>
 
   <!-- Pricing -->
   <section id="precios" class="section-padding">
-      <div class="text-center mb-16 wow animate__animated animate__fadeInDown">
-          <span class="section-tag">Precios transparentes</span>
-          <h2 class="section-title">Elige el plan que se adapte a tu etapa</h2>
+    <div class="text-center mb-16">
+      <div class="section-divider animado" data-anim="fadeUp">
+        <i class="pi pi-star-fill"></i>
       </div>
+      <span class="section-tag animado" data-anim="fadeDown">Precios transparentes</span>
+      <h2 class="section-title animado" data-anim="fadeUp" data-delay="100">
+        Elige el plan que se adapte a tu etapa
+      </h2>
+    </div>
 
-      <div class="pricing-grid max-w-4xl mx-auto">
-          <div *ngFor="let plan of plans; let i = index" 
-               class="service-card-light wow animate__animated"
-               [class.featured]="plan.featured"
-               [ngClass]="i === 1 ? 'animate__flipInY' : 'animate__fadeInUp'"
-               [attr.data-wow-delay]="(i * 0.15) + 's'">
-              
-              <div *ngIf="plan.tag" class="popular-tag">{{plan.tag}}</div>
-              
-              <h3 class="text-2xl font-bold mb-2">{{plan.name}}</h3>
-              <div class="price-amount">
-                  {{plan.price}}
-                  <span class="text-base font-normal text-gray-500">{{plan.period}}</span>
-              </div>
+    <div class="pricing-grid max-w-4xl mx-auto">
+      <div
+        *ngFor="let plan of plans; let i = index"
+        class="service-card-light animado"
+        [class.featured]="plan.featured"
+        data-anim="fadeUp"
+        [attr.data-delay]="i * 200"
+      >
+        <div *ngIf="plan.tag" class="popular-tag">{{ plan.tag }}</div>
 
-              <ul class="space-y-4 my-8">
-                  <li *ngFor="let feature of plan.features" class="flex items-center gap-3">
-                      <span class="material-symbols-outlined text-red-600">check_circle</span>
-                      <span>{{feature}}</span>
-                  </li>
-              </ul>
+        <h3 class="text-2xl font-bold mb-2">{{ plan.name }}</h3>
+        <div class="price-amount">
+          {{ plan.price }}
+          <span class="text-base font-normal text-gray-500">{{ plan.period }}</span>
+        </div>
 
-              <a routerLink="/proveedor/registro" 
-                 class="btn w-full text-center"
-                 [ngClass]="plan.featured ? 'btn-primary' : 'btn-outline'">
-                 Activar ahora
-              </a>
-          </div>
+        <ul class="space-y-4 my-8">
+          <li *ngFor="let feature of plan.features" class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-red-600">check_circle</span>
+            <span>{{ feature }}</span>
+          </li>
+        </ul>
+
+        <a
+          routerLink="/proveedor/registro"
+          class="btn w-full text-center"
+          [ngClass]="plan.featured ? 'btn-primary' : 'btn-outline'"
+        >
+          Activar ahora
+        </a>
       </div>
+    </div>
   </section>
 
-  <!-- Contact Form -->
-  <section id="contacto" class="container">
-      <div class="contact-split-wrapper wow animate__animated animate__fadeInUp">
-          
-          <!-- Left Side -->
-          <div class="contact-info-side">
-            <div class="contact-pattern"></div>
-            <div style="position: relative; z-index: 2;">
-              <span class="hero-badge" style="background: rgba(255,255,255,0.2);">Únete hoy</span>
-              <h2 class="text-4xl font-black mb-6 leading-tight">¿Listo para crecer?</h2>
-              <p class="text-lg opacity-90 mb-10 leading-relaxed">
-                  Completa tus datos y uno de nuestros especialistas te contactará 
-                  para configurar tu perfil.
-              </p>
-              
-              <div class="space-y-6">
-                  <div class="flex items-center gap-4">
-                      <div class="w-10 h-10 bg-white text-red-600 rounded-full flex items-center justify-center">
-                          <span class="material-symbols-outlined">email</span>
-                      </div>
-                      <span class="text-lg font-medium">soporte@festeasy.com</span>
-                  </div>
-                  <div class="flex items-center gap-4">
-                      <div class="w-10 h-10 bg-white text-red-600 rounded-full flex items-center justify-center">
-                          <span class="material-symbols-outlined">phone_iphone</span>
-                      </div>
-                      <span class="text-lg font-medium">+52 (55) 1234 5678</span>
-                  </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Right Side -->
-          <div class="contact-form-side">
-              <h3 class="text-2xl font-bold mb-8 text-gray-800">Solicitud de registro</h3>
-              <form class="space-y-4">
-                  <div class="grid grid-cols-2 gap-4">
-                      <div>
-                          <label class="block text-sm font-medium mb-1">Nombre</label>
-                          <input type="text" class="form-input-pro" placeholder="Tu nombre">
-                      </div>
-                      <div>
-                          <label class="block text-sm font-medium mb-1">Apellido</label>
-                          <input type="text" class="form-input-pro" placeholder="Tu apellido">
-                      </div>
-                  </div>
-                  
-                  <div>
-                      <label class="block text-sm font-medium mb-1">Correo electrónico</label>
-                      <input type="email" class="form-input-pro" placeholder="ejemplo@empresa.com">
-                  </div>
-
-                  <div>
-                      <label class="block text-sm font-medium mb-1">Tipo de servicio</label>
-                      <select class="form-input-pro">
-                          <option>Mobiliario</option>
-                          <option>Lugar / Venue</option>
-                          <option>Catering / Comida</option>
-                          <option>Música / DJ</option>
-                          <option>Otro</option>
-                      </select>
-                  </div>
-
-                  <div class="mt-6">
-                      <button class="btn btn-primary w-full py-3 text-lg">
-                          Enviar Solicitud
-                      </button>
-                  </div>
-              </form>
-          </div>
-      </div>
-  </section>
   <!-- Scroll to Top Button -->
-  <button class="scroll-to-top" 
-          [class.visible]="showScrollButton" 
-          (click)="scrollToTop()">
-      <i class="pi pi-arrow-up"></i>
+  <button class="scroll-to-top" [class.visible]="showScrollButton" (click)="scrollToTop()">
+    <i class="pi pi-arrow-up"></i>
   </button>
 </main>
 
 <!-- Footer -->
 <footer class="footer-custom">
   <div class="footer-grid">
-      <div>
-          <img src="assets/logo-festeasy.png" alt="FestEasy" style="height: 30px; margin-bottom: 1.5rem; filter: grayscale(100%); opacity: 0.7;">
-          <p class="text-gray-500 mb-6 max-w-sm">
-              Transformando la industria de eventos en Latinoamérica con tecnología y confianza.
-          </p>
-          <div class="flex gap-4">
-              <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i class="pi pi-facebook text-xl"></i></a>
-              <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i class="pi pi-instagram text-xl"></i></a>
-              <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i class="pi pi-twitter text-xl"></i></a>
-          </div>
+    <div class="animado" data-anim="fadeUp">
+      <img
+        src="assets/logo-festeasy.png"
+        alt="FestEasy"
+        style="height: 30px; margin-bottom: 1.5rem; filter: grayscale(100%); opacity: 0.7"
+      />
+      <p class="text-gray-500 mb-6 max-w-sm">
+        Transformando la industria de eventos en Latinoamérica con tecnología y confianza.
+      </p>
+      <div class="flex gap-4">
+        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"
+          ><i class="pi pi-facebook text-xl"></i
+        ></a>
+        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"
+          ><i class="pi pi-instagram text-xl"></i
+        ></a>
+        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"
+          ><i class="pi pi-twitter text-xl"></i
+        ></a>
       </div>
+    </div>
 
-      <div>
-          <h4 class="font-bold mb-6 text-gray-900">Plataforma</h4>
-          <a (click)="scrollToSection('beneficios')" class="footer-link cursor-pointer">Beneficios</a>
-          <a (click)="scrollToSection('como-funciona')" class="footer-link cursor-pointer">Cómo funciona</a>
-          <a (click)="scrollToSection('precios')" class="footer-link cursor-pointer">Precios</a>
-      </div>
+    <div class="animado" data-anim="fadeUp" data-delay="100">
+      <h4 class="font-bold mb-6 text-gray-900">Plataforma</h4>
+      <a (click)="scrollToSection('beneficios')" class="footer-link cursor-pointer">Beneficios</a>
+      <a (click)="scrollToSection('como-funciona')" class="footer-link cursor-pointer"
+        >Cómo funciona</a
+      >
+      <a (click)="scrollToSection('precios')" class="footer-link cursor-pointer">Precios</a>
+    </div>
 
-      <div>
-          <h4 class="font-bold mb-6 text-gray-900">Empresa</h4>
-          <a href="#" class="footer-link">Sobre Nosotros</a>
-          <a href="#" class="footer-link">Carreras</a>
-          <a href="#" class="footer-link">Blog</a>
-      </div>
+    <div class="animado" data-anim="fadeUp" data-delay="200">
+      <h4 class="font-bold mb-6 text-gray-900">Empresa</h4>
+      <a href="#" class="footer-link">Sobre Nosotros</a>
+      <a href="#" class="footer-link">Carreras</a>
+      <a href="#" class="footer-link">Blog</a>
+    </div>
 
-      <div>
-          <h4 class="font-bold mb-6 text-gray-900">Legal</h4>
-          <a href="#" class="footer-link">Privacidad</a>
-          <a href="#" class="footer-link">Términos</a>
-          <a href="#" class="footer-link">Cookies</a>
-      </div>
+    <div class="animado" data-anim="fadeUp" data-delay="300">
+      <h4 class="font-bold mb-6 text-gray-900">Legal</h4>
+      <a href="#" class="footer-link">Privacidad</a>
+      <a href="#" class="footer-link">Términos</a>
+      <a href="#" class="footer-link">Cookies</a>
+    </div>
   </div>
-  
+
   <div class="border-t border-gray-200 pt-8 text-center text-gray-400 text-sm">
-      <p>© 2026 FestEasy Inc. Todos los derechos reservados.</p>
+    <p>© 2026 FestEasy Inc. Todos los derechos reservados.</p>
   </div>
 </footer>
