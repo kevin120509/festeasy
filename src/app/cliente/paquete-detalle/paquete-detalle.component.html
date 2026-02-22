@@ -109,7 +109,8 @@
                                 <p *ngIf="item.descripcion" class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ item.descripcion }}</p>
                                 <p class="text-sm text-primary dark:text-primary-light font-medium">+${{ item.precio | number:'1.2-2' }}</p>
                             </div>
-                            <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+                            <!-- Contador solo para clientes -->
+                            <div *ngIf="!isOwner()" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
                                 <button (click)="updateIncludedQuantity(item.nombre, -1)" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
                                     <span class="material-symbols-outlined">remove</span>
                                 </button>
@@ -133,6 +134,13 @@
                         
                         <!-- Botones de Editar/Eliminar (solo para el dueño) -->
                         <div *ngIf="isOwner()" class="mb-6 space-y-3">
+                            <!-- Precio Base del Paquete -->
+                            <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4">
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Precio Base</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ package().precio_base | number:'1.2-2' }}</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">por unidad</p>
+                            </div>
+                            
                             <button (click)="editarPaquete()" 
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
                                 <span class="material-symbols-outlined">edit</span>
@@ -165,6 +173,25 @@
                                 <button (click)="incrementarCantidad()" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
                                     <span class="material-symbols-outlined">add</span>
                                 </button>
+                            </div>
+                        </div>
+
+                        <!-- Extras Seleccionados -->
+                        <div *ngIf="!isOwner() && objectKeys(selectedIncluded()).length > 0" class="mb-6">
+                            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Extras agregados:</h3>
+                            <div class="space-y-2">
+                                <div *ngFor="let key of objectKeys(selectedIncluded())" 
+                                     class="flex justify-between items-center text-sm p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                    <div class="flex-1">
+                                        <p class="font-medium text-gray-800 dark:text-white">{{ key }}</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ selectedIncluded()[key] }} × ${{ getExtraPrice(key) | number:'1.2-2' }}
+                                        </p>
+                                    </div>
+                                    <p class="font-semibold text-gray-900 dark:text-white">
+                                        ${{ selectedIncluded()[key] * getExtraPrice(key) | number:'1.2-2' }}
+                                    </p>
+                                </div>
                             </div>
                         </div>
 

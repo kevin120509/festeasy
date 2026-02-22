@@ -71,11 +71,23 @@ export class SolicitudDataService {
     agregarAlCarrito(solicitud: any): boolean {
         const carritoActual = this.carrito.getValue();
 
-        // Evitar duplicados por proveedor + fecha (mismo proveedor, misma fecha de servicio)
-        const yaExiste = carritoActual.some(item =>
-            item.proveedor?.usuario_id === solicitud?.proveedor?.usuario_id &&
-            item.evento?.fecha === solicitud?.evento?.fecha
-        );
+        // Evitar duplicados exactos: mismo proveedor, fecha Y los mismos paquetes
+        const yaExiste = carritoActual.some(item => {
+            if (item.proveedor?.usuario_id !== solicitud?.proveedor?.usuario_id) return false;
+            if (item.evento?.fecha !== solicitud?.evento?.fecha) return false;
+            
+            // Comparar paquetes
+            const paquetesItem = item.paquetes || [];
+            const paquetesSolicitud = solicitud.paquetes || [];
+            
+            if (paquetesItem.length !== paquetesSolicitud.length) return false;
+            
+            // Verificar si tienen exactamente los mismos paquetes (por ID)
+            const idsItem = paquetesItem.map((p: any) => p.id).sort();
+            const idsSolicitud = paquetesSolicitud.map((p: any) => p.id).sort();
+            
+            return JSON.stringify(idsItem) === JSON.stringify(idsSolicitud);
+        });
 
         if (yaExiste) {
             return false;
@@ -121,16 +133,21 @@ export class SolicitudDataService {
     async enviarSolicitud(item: any, user: any): Promise<string> {
         const { evento, proveedor, paquetes, total } = item;
 
+        // Construir título con horario e invitados (igual que en revisar component)
+        const horarioStr = evento.horaInicio ? `(${evento.horaInicio})` : '';
+        const invitadosStr = evento.invitados ? ` - ${evento.invitados} invitados` : '';
+        const tituloCompleto = `${evento.titulo} ${horarioStr}${invitadosStr}`.trim();
+
         const solicitudPayload = {
             cliente_usuario_id: user.id,
             proveedor_usuario_id: proveedor.usuario_id,
             fecha_servicio: evento.fecha,
             direccion_servicio: evento.ubicacion,
-            titulo_evento: evento.titulo,
+            titulo_evento: tituloCompleto,
             monto_total: total,
             estado: 'pendiente_aprobacion',
-            latitud_servicio: 0,
-            longitud_servicio: 0
+            latitud_servicio: evento.coords?.lat || 0,
+            longitud_servicio: evento.coords?.lng || 0
         };
 
         const solicitud = await firstValueFrom(this.api.createRequest(solicitudPayload));
@@ -150,12 +167,17 @@ export class SolicitudDataService {
 
     // Guarda la solicitud y los items en la base de datos
     guardarSolicitudCompleta(solicitud: any, proveedor: any, paquetes: any[]): Observable<any> {
+        // Construir título con horario e invitados
+        const horarioStr = solicitud.horaInicio ? `(${solicitud.horaInicio})` : '';
+        const invitadosStr = solicitud.invitados ? ` - ${solicitud.invitados} invitados` : '';
+        const tituloCompleto = `${solicitud.titulo_evento || 'Evento'} ${horarioStr}${invitadosStr}`.trim();
+
         // Unificar payload para usar lógica centralizada de ApiService
         const solicitudPayload = {
             proveedor_usuario_id: proveedor.usuario_id,
             fecha_servicio: solicitud.fecha_servicio,
             direccion_servicio: solicitud.ubicacion,
-            titulo_evento: solicitud.titulo_evento || 'Evento',
+            titulo_evento: tituloCompleto,
             monto_total: solicitud.monto_total,
             estado: 'pendiente_aprobacion'
         };

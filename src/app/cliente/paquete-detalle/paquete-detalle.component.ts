@@ -101,6 +101,13 @@ export class PaqueteDetalleComponent implements OnInit {
     return this.selectedIncluded()[name] || 0;
   }
 
+  getExtraPrice(name: string): number {
+    const pkg = this.package();
+    if (!pkg || !pkg.extra_charges) return 0;
+    const item = pkg.extra_charges.find((i: any) => i.nombre === name);
+    return item?.precio || 0;
+  }
+
   // Navegación de galería
   nextImage() {
     const images = this.allImages();

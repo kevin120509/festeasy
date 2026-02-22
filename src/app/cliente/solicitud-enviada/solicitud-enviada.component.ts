@@ -77,6 +77,7 @@ export class SolicitudEnviadaComponent implements OnInit, OnDestroy {
                                 evento,
                                 proveedor: {
                                     nombre: proveedor.nombre_negocio || proveedor.nombre || 'Proveedor',
+                                    nombre_negocio: proveedor.nombre_negocio,
                                     imagen: proveedor.avatar_url || null,
                                     ubicacion: proveedor.direccion_formato || null,
                                     rating: proveedor.rating || 4.5

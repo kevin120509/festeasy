@@ -252,17 +252,17 @@
             <div class="space-y-4">
                 @for (paquete of solicitudData().paquetesSeleccionados; track paquete.id) {
                 <div
-                    class="flex items-center justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                    class="flex items-start justify-between py-3 border-b border-gray-100 dark:border-gray-700 last:border-0">
+                    <div class="flex items-start gap-3 flex-1">
+                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                             <span class="text-primary font-bold">{{ paquete.cantidad }}</span>
                         </div>
-                        <div>
-                            <p class="font-medium text-gray-900 dark:text-white">{{ paquete.nombre }}</p>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">${{ paquete.precioUnitario }} c/u</p>
+                        <div class="flex-1">
+                            <p class="font-medium text-gray-900 dark:text-white whitespace-pre-line">{{ paquete.nombre }}</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${{ paquete.precioUnitario | number:'1.2-2' }} c/u</p>
                         </div>
                     </div>
-                    <p class="font-bold text-gray-900 dark:text-white">${{ paquete.subtotal.toLocaleString() }}</p>
+                    <p class="font-bold text-gray-900 dark:text-white ml-4">${{ paquete.subtotal.toLocaleString() }}</p>
                 </div>
                 }
             </div>
