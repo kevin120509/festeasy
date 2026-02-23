@@ -20,7 +20,7 @@ import { CommonModule } from '@angular/common';
 export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Image Slider State
   currentSlide = 0;
-  slides = ['assets/slide1.png', 'assets/slide2.png', 'assets/slide3.png'];
+  slides = ['assets/slide2.png', 'assets/slide3.png'];
 
   // Scroll State
   showScrollButton = false;
@@ -98,10 +98,10 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       price: '$599',
       period: 'MXN / mes',
       features: [
-        'Respuesta automática a clientes',
-        'Atención 24/7 sin esfuerzo',
-        'Gestión inteligente de agenda',
-        'Optimización de ventas con IA',
+        'Automatización de solicitudes',
+        'Asistente experto en tu negocio',
+        'Solicitudes disponibles para tu agenda',
+        'Respuestas inteligentes',
       ],
       featured: true,
       tag: 'NUEVO',
