@@ -204,7 +204,14 @@ export class RevisarSolicitudComponent implements OnInit {
                 id: solicitud.id,
                 fechaEnvio: new Date().toISOString(),
                 evento: eventoParaMostrar,
-                proveedor: proveedorData,
+                proveedor: {
+                    nombre: proveedorData.nombre_negocio || proveedorData.nombre || 'Proveedor',
+                    nombre_negocio: proveedorData.nombre_negocio,
+                    imagen: proveedorData.avatar_url || null,
+                    ubicacion: proveedorData.direccion_formato || null,
+                    rating: proveedorData.rating || 4.5,
+                    usuario_id: proveedorData.usuario_id
+                },
                 paquetesSeleccionados: finalPaquetes,
                 total: finalPaquetes.reduce((acc: number, p: any) => acc + (p.subtotal || 0), 0) || this.total()
             };
