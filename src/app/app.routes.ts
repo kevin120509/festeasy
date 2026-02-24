@@ -12,6 +12,7 @@ import { ServerErrorComponent } from './shared/errors/server-error/server-error.
 import { AccessDeniedComponent } from './shared/errors/access-denied/access-denied.component';
 
 import { ClienteLayoutComponent } from './cliente/layout/cliente-layout.component';
+import { ClienteNotificacionesComponent } from './cliente/notificaciones/notificaciones.component';
 import { ClienteRegistroComponent } from './cliente/registro/registro.component';
 import { MarketplaceComponent } from './cliente/marketplace/marketplace.component';
 import { ProveedorDetalleComponent } from './cliente/proveedor-detalle/proveedor-detalle.component';
@@ -94,8 +95,10 @@ export const routes: Routes = [
             { path: 'resenas/resumen/:eventoId', component: ResenasSummaryComponent },
             { path: 'resenas/crear/:solicitudId', component: ResenaFormComponent },
             { path: 'resenas/exito', component: ResenaExitoComponent },
+                { path: 'notificaciones', component: ClienteNotificacionesComponent },
         ]
     },
+    
 
 
     // Proveedor

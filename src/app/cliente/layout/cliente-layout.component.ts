@@ -34,6 +34,11 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
         routerLink: '/cliente/dashboard'
       },
       {
+        label: 'Notificaciones',
+        icon: 'pi pi-bell',
+        routerLink: '/cliente/notificaciones'
+      },
+      {
         label: 'Mis Solicitudes',
         icon: 'pi pi-file',
         routerLink: '/cliente/solicitudes'
