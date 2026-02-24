@@ -81,6 +81,7 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Pricing Data
   plans = [
     {
+<<<<<<< HEAD
       name: 'FestEasy',
       price: 'Gratis',
       period: 'por siempre',
@@ -90,13 +91,28 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
         'Recepción de solicitudes ilimitadas',
         'Bandeja de entrada y notificaciones',
         'Dashboard de gestión básica',
+=======
+      name: 'Sitio Web Profesional',
+      price: '$399',
+      period: 'MXN / mes',
+      features: [
+        'URL personalizada para tu negocio',
+        'Diseño optimizado para móviles',
+        'Edición en tiempo real',
+        'Estadísticas de visitas',
+>>>>>>> f53250e (cambios orjiofhrsofhrsoif)
       ],
       featured: false,
       tag: 'BÁSICO',
     },
     {
+<<<<<<< HEAD
       name: 'Servicio de Agente de IA',
       price: '$499',
+=======
+      name: 'Asistente de IA Experto',
+      price: '$599',
+>>>>>>> f53250e (cambios orjiofhrsofhrsoif)
       period: 'MXN / mes',
       features: [
         'Automatización de solicitudes',
@@ -282,6 +298,10 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
+<<<<<<< HEAD
+=======
+    this.isMobileMenuOpen = false; // Close menu if open
+>>>>>>> f53250e (cambios orjiofhrsofhrsoif)
   }
 
   toggleVideo(event: any): void {

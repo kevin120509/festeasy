@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { GeoService } from '../../services/geo.service';
 import { SolicitudDataService } from '../../services/solicitud-data.service';
+import { Subject, debounceTime } from 'rxjs';
 
 @Component({
     selector: 'app-crear-evento',
@@ -39,6 +40,8 @@ export class CrearEventoComponent implements OnInit {
     isLocating = false;
     error = '';
 
+    private saveSubject = new Subject<void>();
+
     ngOnInit() {
         // Restaurar datos desde el servicio (que ya cargó de localStorage)
         const data = this.solicitudData.getEventoActual();
@@ -65,9 +68,20 @@ export class CrearEventoComponent implements OnInit {
                 this.loadingCategories.set(false);
             }
         });
+
+        // Setup debounced save
+        this.saveSubject.pipe(
+            debounceTime(500)
+        ).subscribe(() => {
+            this.executeSave();
+        });
     }
 
     saveToStorage() {
+        this.saveSubject.next();
+    }
+
+    private executeSave() {
         const eventoData = {
             titulo: this.titulo,
             fecha: this.fecha,
