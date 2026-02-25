@@ -81,20 +81,20 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Pricing Data
   plans = [
     {
-      name: 'FestEasy',
-      price: 'Gratis',
-      period: 'por siempre',
+      name: 'Sitio Web Profesional',
+      price: '$399',
+      period: 'MXN / mes',
       features: [
-        'Perfil de proveedor básico',
-        'Gestión de portafolio y servicios',
-        'Recepción de solicitudes ilimitadas',
-        'Bandeja de entrada y notificaciones',
-        'Dashboard de gestión básica',
+        'URL personalizada para tu negocio',
+        'Diseño optimizado para móviles',
+        'Edición en tiempo real',
+        'Estadísticas de visitas',
       ],
       featured: false,
       tag: 'BÁSICO',
     },
     {
+<<<<<<< HEAD
       name: 'Sitio Web Profesional',
       price: '$399',
       period: 'MXN / mes',
@@ -108,6 +108,8 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       tag: 'POPULAR',
     },
     {
+=======
+>>>>>>> 3bd9e6016226d960d2fe801986f0847b4b531e55
       name: 'Asistente de IA Experto',
       price: '$599',
       period: 'MXN / mes',

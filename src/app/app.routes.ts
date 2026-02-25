@@ -94,9 +94,9 @@ export const routes: Routes = [
             { path: 'resenas/resumen/:eventoId', component: ResenasSummaryComponent },
             { path: 'resenas/crear/:solicitudId', component: ResenaFormComponent },
             { path: 'resenas/exito', component: ResenaExitoComponent },
-            { path: 'notificaciones', component: ClienteNotificacionesComponent },
         ]
     },
+
 
 
     // Proveedor
