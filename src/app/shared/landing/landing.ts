@@ -94,7 +94,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       tag: 'BÁSICO',
     },
     {
-<<<<<<< HEAD
       name: 'Sitio Web Profesional',
       price: '$399',
       period: 'MXN / mes',
@@ -108,8 +107,6 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
       tag: 'POPULAR',
     },
     {
-=======
->>>>>>> 3bd9e6016226d960d2fe801986f0847b4b531e55
       name: 'Asistente de IA Experto',
       price: '$599',
       period: 'MXN / mes',
