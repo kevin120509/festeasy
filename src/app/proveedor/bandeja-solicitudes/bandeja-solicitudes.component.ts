@@ -28,7 +28,7 @@ interface SolicitudBandeja {
 
 type TabType = 'pendientes' | 'aceptadas' | 'historial';
 
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 
 @Component({
     selector: 'app-bandeja-solicitudes',
@@ -41,6 +41,7 @@ export class BandejaSolicitudesComponent implements OnInit {
     private auth = inject(AuthService);
     private api = inject(ApiService);
     private confirmationService = inject(ConfirmationService);
+    private route = inject(ActivatedRoute);
 
     tabActivo = signal<TabType>('pendientes');
     isLoading = signal(true);
@@ -83,6 +84,14 @@ export class BandejaSolicitudesComponent implements OnInit {
 
     ngOnInit(): void {
         this.cargarSolicitudes();
+
+        // Leer tab desde parámetros de consulta
+        this.route.queryParams.subscribe(params => {
+            const tab = params['tab'] as TabType;
+            if (tab && ['pendientes', 'aceptadas', 'historial'].includes(tab)) {
+                this.tabActivo.set(tab);
+            }
+        });
     }
 
     cargarSolicitudes(): void {

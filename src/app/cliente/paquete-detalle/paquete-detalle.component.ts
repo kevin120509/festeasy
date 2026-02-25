@@ -5,6 +5,7 @@ import { SupabaseService } from '../../services/supabase.service';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
+import { SolicitudDataService } from '../../services/solicitud-data.service';
 
 @Component({
   selector: 'app-paquete-detalle',
@@ -20,13 +21,15 @@ export class PaqueteDetalleComponent implements OnInit {
   private supabaseService = inject(SupabaseService);
   private location = inject(Location);
   private auth = inject(AuthService);
+  private solicitudData = inject(SolicitudDataService);
+
 
   package = signal<any>(null);
   public Object = Object; // Make Object constructor available in template
 
   cantidadSeleccionada = signal(1);
   selectedIncluded = signal<Record<string, number>>({});
-  
+
   // Galería de imágenes
   currentImageIndex = signal(0);
 
@@ -68,7 +71,7 @@ export class PaqueteDetalleComponent implements OnInit {
     if (!pkg) return 0;
 
     const basePrice = pkg.precio_base * this.cantidadSeleccionada();
-    
+
     const includedTotal = Object.keys(this.selectedIncluded()).reduce((acc, key) => {
       const item = pkg.extra_charges.find((i: any) => i.nombre === key);
       const quantity = this.selectedIncluded()[key];
@@ -148,16 +151,16 @@ export class PaqueteDetalleComponent implements OnInit {
       });
     }
   }
-  
-    // Utilidad para verificar si un valor es un array
-    isArray(val: any): boolean {
-      return Array.isArray(val);
-    }
-  
-    // Utilidad para obtener las claves de un objeto
-    objectKeys(obj: any): string[] {
-      return obj ? Object.keys(obj) : [];
-    }
+
+  // Utilidad para verificar si un valor es un array
+  isArray(val: any): boolean {
+    return Array.isArray(val);
+  }
+
+  // Utilidad para obtener las claves de un objeto
+  objectKeys(obj: any): string[] {
+    return obj ? Object.keys(obj) : [];
+  }
 
   goBack(): void {
     this.location.back();
@@ -166,46 +169,45 @@ export class PaqueteDetalleComponent implements OnInit {
   async goToCheckout() {
     const selection = this.selectedIncluded();
     const pkg = this.package();
-    
+
     if (!pkg) {
-        alert('Error: No se ha cargado el paquete.');
-        return;
+      alert('Error: No se ha cargado el paquete.');
+      return;
     }
 
     try {
-        const user = this.auth.currentUser();
-        if (!user) {
-            alert('Inicia sesión para continuar');
-            this.router.navigate(['/login']);
-            return;
-        }
+      const user = this.auth.currentUser();
+      if (!user) {
+        alert('Inicia sesión para continuar');
+        this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+        return;
+      }
 
-        // Prepare the selected package and its included items
-        const paqueteSeleccionado = {
-            ...pkg,
-            cantidad: this.cantidadSeleccionada(),
-            subtotal: pkg.precio_base * this.cantidadSeleccionada(),
-            incluidos: Object.keys(selection).map(key => {
-                const incluido = pkg.extra_charges.find((i: any) => i.nombre === key);
-                return {
-                    ...incluido,
-                    cantidad: selection[key],
-                    subtotal: incluido.precio * selection[key]
-                };
-            })
-        };
+      // Prepare the selected package and its included items
+      const paqueteSeleccionado = {
+        ...pkg,
+        cantidad: this.cantidadSeleccionada(),
+        subtotal: pkg.precio_base * this.cantidadSeleccionada(),
+        incluidos: Object.keys(selection).map(key => {
+          const incluido = pkg.extra_charges.find((i: any) => i.nombre === key);
+          return {
+            ...incluido,
+            cantidad: selection[key],
+            subtotal: incluido.precio * selection[key]
+          };
+        })
+      };
 
-        // Get the provider info from the package
-        const proveedorActual = pkg.perfil_proveedor;
+      const proveedorActual = pkg.perfil_proveedor;
 
-        sessionStorage.setItem('paquetesSeleccionados', JSON.stringify([paqueteSeleccionado]));
-        sessionStorage.setItem('proveedorActual', JSON.stringify(proveedorActual));
+      this.solicitudData.setPaquetesSeleccionados([paqueteSeleccionado]);
+      this.solicitudData.setProveedorActual(proveedorActual);
 
-        this.router.navigate(['/cliente/solicitudes/revisar']);
+      this.router.navigate(['/cliente/solicitudes/revisar']);
 
     } catch (e: any) {
-        console.error('Error al procesar selección:', e);
-        alert('Error al procesar selección: ' + (e.message || 'Error desconocido'));
+      console.error('Error al procesar selección:', e);
+      alert('Error al procesar selección: ' + (e.message || 'Error desconocido'));
     }
   }
 
@@ -215,8 +217,8 @@ export class PaqueteDetalleComponent implements OnInit {
     const pkg = this.package();
     if (!pkg) return;
     // Navegar a la página de edición de paquetes
-    this.router.navigate(['/proveedor/paquetes'], { 
-      queryParams: { editar: pkg.id } 
+    this.router.navigate(['/proveedor/paquetes'], {
+      queryParams: { editar: pkg.id }
     });
   }
 
@@ -244,4 +246,5 @@ export class PaqueteDetalleComponent implements OnInit {
       console.error('Error al eliminar paquete:', error);
       alert('Error al eliminar el paquete: ' + error.message);
     }
-  }}
+  }
+}

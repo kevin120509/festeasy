@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { RouterLink, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -10,9 +10,19 @@ import { AuthService } from '../../services/auth.service';
   template: `
     <header class="h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 flex items-center justify-between lg:justify-end sticky top-0 z-40">
       <!-- Logo solo en móvil (se oculta en desktop ya que está el sidebar) -->
-      <a routerLink="/" class="flex items-center gap-2 lg:hidden">
-        <img src="assets/festeasy.png" alt="FESTEASY" class="h-8 w-auto object-contain">
-      </a>
+      <div class="flex items-center gap-2 lg:hidden">
+        <!-- Botón Volver al Dashboard (Solo si no estamos en el dashboard) -->
+        <button *ngIf="!router.url.includes('/dashboard')" 
+          [routerLink]="auth.isProvider() ? '/proveedor/dashboard' : '/cliente/dashboard'"
+          class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-gray-100 transition-all text-gray-600 mr-1"
+          title="Regresar al Dashboard">
+          <i class="pi pi-chevron-left text-lg"></i>
+        </button>
+        
+        <div class="flex items-center gap-2">
+          <img src="assets/festeasy.png" alt="FESTEASY" class="h-8 w-auto object-contain">
+        </div>
+      </div>
 
       <!-- Perfil Usuario (alineado a la derecha) -->
       <div class="flex items-center gap-3">
@@ -44,4 +54,5 @@ import { AuthService } from '../../services/auth.service';
 })
 export class HeaderDashboardComponent {
   auth = inject(AuthService);
+  router = inject(Router);
 }

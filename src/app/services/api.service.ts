@@ -286,6 +286,29 @@ export class ApiService {
         return this.fromSupabase(this.supabase.from('solicitudes').update({ estado: status }).eq('id', id).select().single());
     }
 
+    createPaymentIntent(amount: number): Observable<any> {
+        // Stripe requiere montos en centavos para MXN
+        const amountInCents = Math.round(amount * 100);
+        console.log('📡 Llamando a Edge Function create-payment-intent:', { amount: amountInCents, currency: 'mxn' });
+
+        return from(this.supabase.functions.invoke('create-payment-intent', {
+            body: { amount: amountInCents, currency: 'mxn' }
+        })).pipe(
+            map(res => {
+                console.log('📥 Respuesta de Edge Function:', res);
+                if (res.error) {
+                    console.error('❌ Error devuelto por Supabase Invoke:', res.error);
+                    throw res.error;
+                }
+                return res.data;
+            }),
+            catchError(error => {
+                console.error('❌ Error crítico en invoke de create-payment-intent:', error);
+                return throwError(() => error);
+            })
+        );
+    }
+
 
     getClientRequests(): Observable<any[]> {
         return from(this.supabase.auth.getUser()).pipe(map(u => {

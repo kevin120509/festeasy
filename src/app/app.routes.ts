@@ -70,7 +70,6 @@ export const routes: Routes = [
     },
     // Public Marketplace & Details
     { path: 'marketplace', component: MarketplaceComponent, data: { hideSidebar: true } },
-    { path: 'proveedor/:id', component: ProveedorDetalleComponent, data: { hideSidebar: true } },
     { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
 
     // Cliente
@@ -95,10 +94,9 @@ export const routes: Routes = [
             { path: 'resenas/resumen/:eventoId', component: ResenasSummaryComponent },
             { path: 'resenas/crear/:solicitudId', component: ResenaFormComponent },
             { path: 'resenas/exito', component: ResenaExitoComponent },
-                { path: 'notificaciones', component: ClienteNotificacionesComponent },
+            { path: 'notificaciones', component: ClienteNotificacionesComponent },
         ]
     },
-    
 
 
     // Proveedor
@@ -121,6 +119,9 @@ export const routes: Routes = [
             { path: 'web-builder', component: WebBuilderComponent, canActivate: [webBuilderGuard] },
         ]
     },
+
+    // Detalle de proveedor público (Después de las rutas específicas de proveedor para evitar conflictos con 'dashboard', etc.)
+    { path: 'proveedor/:id', component: ProveedorDetalleComponent, data: { hideSidebar: true } },
 
     // Admin
     { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [adminGuard] },

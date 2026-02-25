@@ -17,7 +17,7 @@ import { ConfirmationService } from 'primeng/api';
 })
 export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDestroy
   auth = inject(AuthService);
-  private router = inject(Router);
+  public router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
   private confirmationService = inject(ConfirmationService);
   items: MenuItem[] = [];

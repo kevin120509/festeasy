@@ -231,7 +231,7 @@ export class ProveedorDetalleComponent implements OnInit {
     }
 
     goBack(): void {
-        this.router.navigate(['/cliente/marketplace']);
+        this.router.navigate(['/marketplace']);
     }
 
     private async addItemsToCartAsync(cartId: string, pkgIds: string[], selection: Record<string, number>) {

@@ -295,8 +295,15 @@
 <div class="dashboard-layout">
     <!-- Mobile Header (Logo only, no hamburger) -->
     <header class="mobile-header">
-        <div class="mobile-logo">
-            <img src="assets/festeasy.png" alt="FESTEASY">
+        <div class="flex items-center gap-2">
+            <button *ngIf="!router.url.includes('/dashboard')" routerLink="/cliente/dashboard"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-gray-50 hover:bg-gray-100 transition-all text-gray-600 mr-1"
+                title="Regresar al Dashboard">
+                <i class="pi pi-chevron-left text-lg"></i>
+            </button>
+            <div class="mobile-logo">
+                <img src="assets/festeasy.png" alt="FESTEASY">
+            </div>
         </div>
     </header>
 

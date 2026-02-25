@@ -101,7 +101,7 @@
                 <div class="flex justify-between items-center">
                     <span class="text-yellow-500 font-bold">★ {{ provider.rating }}</span>
                     @if (provider.disponible) {
-                    <a [routerLink]="['/cliente/proveedor', provider.id]"
+                    <a [routerLink]="['/proveedor', provider.id]"
                         class="px-4 py-2 bg-primary text-white rounded-lg font-bold hover:bg-primary/90 transition-colors">Ver
                         Paquetes</a>
                     } @else {

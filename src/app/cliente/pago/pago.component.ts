@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
 
 declare var paypal: any;
@@ -18,6 +19,7 @@ export class PagoComponent implements OnInit, AfterViewInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private api = inject(ApiService);
+    private auth = inject(AuthService);
 
     solicitud = signal<any>(null);
     loading = signal(true);
@@ -110,20 +112,46 @@ export class PagoComponent implements OnInit, AfterViewInit {
         if (this.procesando()) return;
         this.procesando.set(true);
 
-        // Aquí se requiere llamar al backend para obtener el client_secret del PaymentIntent
-        // Por ahora, simularemos la confirmación exitosa si el usuario no tiene backend configurado aún.
         try {
-            // SIMULACIÓN: En un caso real, llamarías a:
-            // const { clientSecret } = await firstValueFrom(this.api.createPaymentIntent(this.montoPagar()));
-            // const result = await this.stripe.confirmCardPayment(clientSecret, { payment_method: { card: this.cardElement } });
+            console.log('💳 Iniciando pago real con Stripe...');
 
-            console.log('💳 Procesando pago con Stripe (Simulado)...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            // 1. Crear el PaymentIntent en el backend (Edge Function)
+            const response = await firstValueFrom(this.api.createPaymentIntent(this.montoPagar()));
+            const clientSecret = response.clientSecret;
 
-            this.finalizarPago('stripe', 'stripe-ref-' + Date.now());
-        } catch (error) {
-            console.error('Error con Stripe:', error);
-            alert('Error al procesar el pago con tarjeta.');
+            if (!clientSecret) {
+                throw new Error('No se pudo obtener el clientSecret de Stripe');
+            }
+
+            // 2. Confirmar el pago con Stripe.js
+            const { paymentIntent, error } = await this.stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: this.cardElement,
+                    billing_details: {
+                        name: this.auth.currentUser()?.email || 'Cliente FestEasy'
+                    }
+                }
+            });
+
+            if (error) {
+                throw error;
+            }
+
+            if (paymentIntent.status === 'succeeded') {
+                console.log('✅ Pago confirmado exitosamente por Stripe');
+                this.finalizarPago('stripe', paymentIntent.id);
+            } else {
+                throw new Error(`Estado de pago no esperado: ${paymentIntent.status}`);
+            }
+
+        } catch (error: any) {
+            console.error('❌ Error detallado con Stripe:', error);
+
+            let userMessage = 'Error al procesar el pago. ';
+            if (error.message) userMessage += error.message;
+            if (error.context?.reason) userMessage += ' (' + error.context.reason + ')';
+
+            alert(userMessage);
             this.procesando.set(false);
         }
     }

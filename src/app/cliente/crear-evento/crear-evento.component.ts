@@ -141,7 +141,7 @@ export class CrearEventoComponent implements OnInit {
 
         this.saveToStorage();
 
-        this.router.navigate(['/cliente/marketplace']).then(() => {
+        this.router.navigate(['/marketplace']).then(() => {
             this.isLoading = false;
         });
     }

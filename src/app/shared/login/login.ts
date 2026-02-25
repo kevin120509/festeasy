@@ -1,5 +1,5 @@
 import { Component, inject, signal, AfterViewInit, NgZone } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SupabaseAuthService } from '../../services/supabase-auth.service';
 import { AuthService } from '../../services/auth.service';
@@ -17,6 +17,7 @@ export class LoginComponent implements AfterViewInit {
     private auth = inject(AuthService);
     private router = inject(Router);
     private ngZone = inject(NgZone);
+    private route = inject(ActivatedRoute);
 
     email = '';
     password = '';
@@ -72,7 +73,7 @@ export class LoginComponent implements AfterViewInit {
 
                 const profile = await this.supabaseAuth.getUserProfile(user.id, rol as any);
 
-                this.auth.login(session.access_token, {
+                this.auth.login((session as any).access_token, {
                     ...profile,
                     profile_id: (profile as any)?.id ?? null,
                     id: user.id,
@@ -81,8 +82,12 @@ export class LoginComponent implements AfterViewInit {
                     nombre: user.user_metadata['nombre_negocio'] || user.user_metadata['nombre'] || 'Usuario',
                 });
 
-                console.log(`✅ Login exitoso como ${rol} - Redirigiendo...`);
-                if (rol === 'admin') {
+                const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+                console.log(`✅ Login exitoso como ${rol} - Redirigiendo a ${returnUrl || 'dashboard'}...`);
+
+                if (returnUrl) {
+                    this.router.navigateByUrl(returnUrl);
+                } else if (rol === 'admin') {
                     this.router.navigate(['/admin/dashboard']);
                 } else if (rol === 'provider') {
                     this.router.navigate(['/proveedor/dashboard']);
