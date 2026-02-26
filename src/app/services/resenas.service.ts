@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, from, map, switchMap, forkJoin, of, catchError } from 'rxjs';
 import { SupabaseService } from './supabase.service';
 import { SupabaseClient } from '@supabase/supabase-js';
+import { NotificationService } from './notification.service';
 
 @Injectable({
     providedIn: 'root'
@@ -9,6 +10,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 export class ResenasService {
     private supabaseService = inject(SupabaseService);
     private supabase: SupabaseClient;
+    private notificationService = inject(NotificationService);
 
     constructor() {
         this.supabase = this.supabaseService.getClient();
@@ -161,6 +163,16 @@ export class ResenasService {
         }
 
         console.log('✅ ResenasService: Reseña guardada con éxito:', data);
+
+        // Notificar al proveedor sobre la nueva reseña
+        this.notificationService.createNotification({
+            usuario_id: resena.destinatario_id,
+            tipo: 'review',
+            titulo: 'Nueva reseña recibida',
+            mensaje: `Un cliente te ha calificado con ${resena.calificacion} estrellas ⭐`,
+            data: { solicitud_id: resena.solicitud_id, review_id: data.id }
+        }).subscribe();
+
         return data;
     }
 

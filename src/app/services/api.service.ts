@@ -10,6 +10,7 @@ import {
     User, ClientProfile, ProviderProfile, Cart, CartItem,
     ServiceRequest, Quote, Payment, ProviderPackage
 } from '../models';
+import { NotificationService } from './notification.service';
 
 @Injectable({
     providedIn: 'root'
@@ -22,6 +23,7 @@ export class ApiService {
     // Real-time subscription management
     private solicitudesChannel: RealtimeChannel | null = null;
     private solicitudFinalizadaSubject = new Subject<{ solicitud_id: string; destinatario_id: string; autor_id: string }>();
+    private notificationService = inject(NotificationService);
 
     constructor() {
         this.supabase = this.supabaseService.getClient();
@@ -241,7 +243,17 @@ export class ApiService {
                 console.log('🚀 API: Creando solicitud con payload:', payload);
 
                 return this.fromSupabase(this.supabase.from('solicitudes').insert(payload).select().single()).pipe(
-                    tap(res => console.log('✅ API: Solicitud creada exitosamente:', res)),
+                    tap(res => {
+                        console.log('✅ API: Solicitud creada exitosamente:', res);
+                        // Notificar al proveedor
+                        this.notificationService.createNotification({
+                            usuario_id: payload.proveedor_usuario_id,
+                            tipo: 'solicitud',
+                            titulo: 'Nueva solicitud recibida',
+                            mensaje: `Has recibido una nueva solicitud para el evento: ${payload.titulo_evento}`,
+                            data: { solicitud_id: (res as any).id }
+                        }).subscribe();
+                    }),
                     catchError(err => {
                         console.error('❌ API: Error al crear solicitud:', err);
                         // Log extra details if available
@@ -283,7 +295,19 @@ export class ApiService {
     }
 
     updateRequestStatus(id: string, status: string): Observable<any> {
-        return this.fromSupabase(this.supabase.from('solicitudes').update({ estado: status }).eq('id', id).select().single());
+        return this.fromSupabase(this.supabase.from('solicitudes').update({ estado: status }).eq('id', id).select().single()).pipe(
+            tap(res => {
+                const req = res as any;
+                // Notificar al cliente sobre el cambio de estado
+                this.notificationService.createNotification({
+                    usuario_id: req.cliente_usuario_id,
+                    tipo: 'solicitud',
+                    titulo: 'Actualización de solicitud',
+                    mensaje: `Tu solicitud para "${req.titulo_evento}" ha cambiado a estado: ${status}`,
+                    data: { solicitud_id: req.id }
+                }).subscribe();
+            })
+        );
     }
 
     createPaymentIntent(amount: number): Observable<any> {
@@ -527,6 +551,15 @@ export class ApiService {
             }),
             tap((result: any) => {
                 console.log('✅ Solicitud cancelada exitosamente:', result);
+                // Notificar a la otra parte
+                const destinatarioId = userId === result.cliente_usuario_id ? result.proveedor_usuario_id : result.cliente_usuario_id;
+                this.notificationService.createNotification({
+                    usuario_id: destinatarioId,
+                    tipo: 'cancelacion',
+                    titulo: 'Solicitud cancelada',
+                    mensaje: `La solicitud para "${result.titulo_evento}" ha sido cancelada.`,
+                    data: { solicitud_id: result.id, motivo: motivo }
+                }).subscribe();
             }),
             catchError(error => {
                 console.error('❌ Error en cancelarSolicitud:', error);

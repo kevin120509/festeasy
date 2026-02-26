@@ -90,6 +90,7 @@ export const routes: Routes = [
             { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
             { path: 'pago/:id', component: PagoComponent },
             { path: 'configuracion', component: ClienteConfiguracionComponent },
+            { path: 'notificaciones', component: ClienteNotificacionesComponent },
             { path: 'resenas/resumen', component: ResenasSummaryComponent },
             { path: 'resenas/resumen/:eventoId', component: ResenasSummaryComponent },
             { path: 'resenas/crear/:solicitudId', component: ResenaFormComponent },

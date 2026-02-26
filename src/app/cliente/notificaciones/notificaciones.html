@@ -1,7 +1,8 @@
 <div class="p-4">
   <div class="flex justify-between items-center mb-4">
     <h2 class="text-2xl font-semibold">Notificaciones</h2>
-    <button pButton type="button" label="Marcar todas como leídas" (click)="marcarTodasComoLeidas()" class="p-button-outlined"></button>
+    <button pButton type="button" label="Marcar todas como leídas" (click)="marcarTodasComoLeidas()"
+      class="p-button-outlined"></button>
   </div>
 
   <div class="grid">
@@ -9,9 +10,9 @@
       <div *ngFor="let notif of notificaciones()" class="col-12 mb-3">
         <p-card [styleClass]="notif.leida ? '' : 'p-card-highlight'" (click)="marcarLeida(notif.id)">
           <ng-template pCardHeader>
-            <i class="pi" [ngClass]="getIcono(notif.tipo)"></i>
+            <i [class]="getIcono(notif.tipo)"></i>
             <span class="ml-2 font-semibold">{{ notif.titulo }}</span>
-            <span class="ml-auto text-sm text-500">{{ notif.tiempo }}</span>
+            <span class="ml-auto text-sm text-500">{{ formatTime(notif.creado_en) }}</span>
           </ng-template>
           <ng-template pCardContent>
             <p class="text-sm text-600">{{ notif.mensaje }}</p>

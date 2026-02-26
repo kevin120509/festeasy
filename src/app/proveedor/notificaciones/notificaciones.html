@@ -152,7 +152,7 @@
                 <h1 class="text-3xl font-bold text-slate-800">Notificaciones 🔔</h1>
                 <p class="text-slate-500 mt-1">Mantente al día con tu actividad</p>
             </div>
-            <button
+            <button (click)="marcarTodasLeidas()"
                 class="px-4 py-2 bg-white border border-slate-200 rounded-xl font-medium text-sm text-slate-600 hover:bg-slate-50 transition-colors">Marcar
                 todas como leídas</button>
         </div>
@@ -168,13 +168,19 @@
                 <div class="flex-1">
                     <div class="flex justify-between items-start mb-1">
                         <span class="font-semibold text-slate-800">{{ notif.titulo }}</span>
-                        <span class="text-xs text-slate-400">{{ notif.tiempo }}</span>
+                        <span class="text-xs text-slate-400">{{ formatTime(notif.creado_en) }}</span>
                     </div>
                     <p class="text-sm text-slate-600">{{ notif.mensaje }}</p>
                 </div>
                 @if (!notif.leida) {
                 <div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-2"></div>
                 }
+            </div>
+            } @empty {
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <h3 class="text-slate-800 font-semibold">No hay notificaciones</h3>
+                <p class="text-slate-500">Te avisaremos cuando pase algo importante.</p>
             </div>
             }
         </div>

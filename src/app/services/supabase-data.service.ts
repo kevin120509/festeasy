@@ -221,25 +221,40 @@ export class SupabaseDataService {
      * Elimina una solicitud por ID
      */
     async deleteRequestById(id: string) {
-        // Primero intentamos eliminar las cotizaciones asociadas si no hay cascade en DB
-        // Esto es un "best effort"
+        console.log('🗑️ deleteRequestById: Iniciando eliminación de solicitud', id);
+
+        // 1. Eliminar Items asociados
+        const { error: errItems } = await this.supabase.from('items_solicitud').delete().eq('solicitud_id', id);
+        if (errItems) console.warn('⚠️ Error al eliminar items:', errItems);
+
+        // 2. Eliminar Pagos asociados
+        const { error: errPagos } = await this.supabase.from('pagos').delete().eq('solicitud_id', id);
+        if (errPagos) console.warn('⚠️ Error al eliminar pagos:', errPagos);
+
+        // 3. Eliminar Reseñas asociadas
+        const { error: errResenas } = await this.supabase.from('resenas').delete().eq('solicitud_id', id);
+        if (errResenas) console.warn('⚠️ Error al eliminar reseñas:', errResenas);
+
+        // 4. Eliminar Cotizaciones asociadas (Best effort)
         await this.supabase.from('cotizaciones').delete().eq('solicitud_id', id);
 
+        // 5. Eliminar la Solicitud
         const { error, count } = await this.supabase
             .from('solicitudes')
             .delete({ count: 'exact' })
             .eq('id', id);
 
         if (error) {
-            console.error('Error DB delete:', error);
+            console.error('❌ Error DB delete solicitud:', error);
             throw error;
         }
 
         if (count === 0) {
-            console.warn('No se eliminó ninguna fila. RLS o ID incorrecto.');
-            throw new Error('No se pudo eliminar la solicitud de la base de datos (Permisos insuficientes o no encontrada).');
+            console.warn('⚠️ No se eliminó ninguna fila. RLS o ID incorrecto.');
+            throw new Error('No se pudo eliminar la solicitud de la base de datos.');
         }
 
+        console.log('✅ Solicitud eliminada exitosamente del servidor');
         return { success: true, count };
     }
 

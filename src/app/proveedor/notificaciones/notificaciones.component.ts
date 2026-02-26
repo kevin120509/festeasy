@@ -1,6 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
+import { NotificationService, Notification } from '../../services/notification.service';
 
 @Component({
     selector: 'app-notificaciones',
@@ -8,46 +8,31 @@ import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.compon
     imports: [CommonModule],
     templateUrl: './notificaciones.html'
 })
-export class NotificacionesComponent {
-    notificaciones = signal([
-        {
-            id: 1,
-            tipo: 'solicitud',
-            titulo: 'Nueva solicitud recibida',
-            mensaje: 'María García solicita tu servicio para una boda el 15 de marzo',
-            tiempo: 'Hace 2 horas',
-            leida: false
-        },
-        {
-            id: 2,
-            tipo: 'pago',
-            titulo: 'Pago confirmado',
-            mensaje: 'Se ha confirmado el pago de $8,500 por el evento de Carlos López',
-            tiempo: 'Hace 5 horas',
-            leida: false
-        },
-        {
-            id: 3,
-            tipo: 'recordatorio',
-            titulo: 'Evento mañana',
-            mensaje: 'Recuerda que mañana tienes el evento de Ana Martínez a las 20:00',
-            tiempo: 'Hace 1 día',
-            leida: true
-        },
-        {
-            id: 4,
-            tipo: 'review',
-            titulo: 'Nueva reseña',
-            mensaje: 'Juan Pérez te ha dejado una reseña de 5 estrellas ⭐',
-            tiempo: 'Hace 2 días',
-            leida: true
-        }
-    ]);
+export class NotificacionesComponent implements OnInit {
+    private notificationService = inject(NotificationService);
+    notificaciones = this.notificationService.notifications;
 
-    marcarLeida(id: number) {
-        this.notificaciones.update(items =>
-            items.map(n => n.id === id ? { ...n, leida: true } : n)
-        );
+    ngOnInit() {
+        this.notificationService.getNotifications().subscribe();
+    }
+
+    marcarLeida(id: string) {
+        this.notificationService.markAsRead(id).subscribe();
+    }
+
+    marcarTodasLeidas() {
+        this.notificationService.markAllAsRead().subscribe();
+    }
+
+    formatTime(dateStr: string): string {
+        const date = new Date(dateStr);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+        if (diffInSeconds < 60) return 'Hace un momento';
+        if (diffInSeconds < 3600) return `Hace ${Math.floor(diffInSeconds / 60)} min`;
+        if (diffInSeconds < 86400) return `Hace ${Math.floor(diffInSeconds / 3600)} h`;
+        return `Hace ${Math.floor(diffInSeconds / 86400)} d`;
     }
 
     getIcono(tipo: string): string {

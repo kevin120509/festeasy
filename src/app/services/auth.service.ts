@@ -133,6 +133,10 @@ export class AuthService {
     return this.currentUser()?.rol || null;
   }
 
+  getUserId(): string | null {
+    return this.currentUser()?.id || null;
+  }
+
   /**
    * Asegura que el usuario actual tenga un registro en perfil_cliente.
    * Útil para proveedores que quieren contratar servicios o usuarios nuevos.

@@ -10,6 +10,7 @@ import { filter, Subscription } from 'rxjs';
 import { NavigationEnd } from '@angular/router';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { SubscriptionService } from '../../services/subscription.service';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-proveedor-layout',
@@ -28,6 +29,7 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   private router = inject(Router);
   private confirmationService = inject(ConfirmationService);
   private subscriptionService = inject(SubscriptionService);
+  private notificationService = inject(NotificationService);
 
   isSidebarExpanded = signal(true);
   private routerSubscription: Subscription | null = null;
@@ -49,6 +51,11 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
         label: 'Solicitudes',
         icon: 'pi pi-file',
         routerLink: '/proveedor/solicitudes'
+      },
+      {
+        label: 'Notificaciones',
+        icon: 'pi pi-bell',
+        routerLink: '/proveedor/notificaciones'
       }
     ];
 
@@ -109,6 +116,9 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Forzar recarga de addons para asegurar que el menú se actualice
     this.subscriptionService.refreshConfigs();
+
+    // Verificar eventos próximos
+    this.notificationService.checkUpcomingEvents();
 
     this.routerSubscription = this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)

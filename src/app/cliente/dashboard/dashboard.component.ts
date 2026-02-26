@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -28,20 +28,37 @@ export class ClienteDashboardComponent implements OnInit {
     });
 
 
-    // Actividad reciente (solicitudes)
-    actividades = signal<any[]>([]);
+    // Todas las solicitudes del cliente (raw data)
+    misSolicitudes = signal<any[]>([]);
 
-    // Categorías de solicitudes
-    reservadas = signal<any[]>([]);
-    pendientesPago = signal<any[]>([]);
-    pendientesRespuesta = signal<any[]>([]);
-    historial = signal<any[]>([]);
+    // Mapeo unificado para la UI
+    actividadesMapped = computed(() => {
+        return this.misSolicitudes().map(req => {
+            const rawProv = req.perfil_proveedor;
+            const provData = Array.isArray(rawProv) ? rawProv[0] : rawProv;
+
+            return {
+                id: req.id,
+                proveedor: provData?.nombre_negocio || 'Proveedor',
+                servicio: req.titulo_evento || 'Evento Especial',
+                fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
+                estado: req.estado,
+                estadoLabel: this.formatEstado(req.estado),
+                monto: req.monto_total || 0,
+                hora: req.hora_servicio || '12:00',
+                direccion: req.direccion_servicio || 'Ubicación no disponible'
+            };
+        });
+    });
+
+    // Categorías de solicitudes automáticas
+    reservadas = computed(() => this.actividadesMapped().filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)));
+    pendientesPago = computed(() => this.actividadesMapped().filter(r => ['esperando_anticipo', 'entregado_pendiente_liq'].includes(r.estado)));
+    pendientesRespuesta = computed(() => this.actividadesMapped().filter(r => r.estado === 'pendiente_aprobacion'));
+    historial = computed(() => this.actividadesMapped().filter(r => ['rechazada', 'cancelada', 'abandonada', 'finalizado'].includes(r.estado)));
 
     // Tab activo
     activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes' | 'historial'>('reservadas');
-
-    // Todas las solicitudes del cliente
-    misSolicitudes = signal<any[]>([]);
 
     loading = signal(true);
     showQuickRequestModal = signal(true);
@@ -99,36 +116,9 @@ export class ClienteDashboardComponent implements OnInit {
             next: (requests) => {
                 this.misSolicitudes.set(requests);
 
-                // Mapear a actividades para la tabla
-                const mappedRequests = requests.map(req => {
-                    const rawProv = req.perfil_proveedor;
-                    const provData = Array.isArray(rawProv) ? rawProv[0] : rawProv;
-
-                    return {
-                        id: req.id,
-                        proveedor: provData?.nombre_negocio || 'Proveedor',
-                        servicio: req.titulo_evento || 'Evento Especial',
-                        fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
-                        estado: req.estado,
-                        estadoLabel: this.formatEstado(req.estado),
-                        monto: req.monto_total || 0,
-                        // Additional fields for reserved view
-                        hora: req.hora_servicio || '12:00',
-                        direccion: req.direccion_servicio || 'Ubicación no disponible'
-                    };
-                });
-
-                this.actividades.set(mappedRequests);
-
-                // Categorizar
-                this.reservadas.set(mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)));
-                this.pendientesPago.set(mappedRequests.filter(r => ['esperando_anticipo', 'entregado_pendiente_liq'].includes(r.estado)));
-                this.pendientesRespuesta.set(mappedRequests.filter(r => r.estado === 'pendiente_aprobacion'));
-                this.historial.set(mappedRequests.filter(r => ['rechazada', 'cancelada', 'abandonada', 'finalizado'].includes(r.estado)));
-
                 // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
-                const reservadasCount = mappedRequests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)).length;
+                const reservadasCount = requests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)).length;
 
                 this.metricas.set({
                     solicitudesTotales: reservadasCount,
@@ -181,15 +171,18 @@ export class ClienteDashboardComponent implements OnInit {
         return clases[estado] || 'estado-pendiente';
     }
 
-    // Eliminar solicitud finalizada
+    // Eliminar solicitud
     async eliminarSolicitud(id: string) {
+        if (!confirm('¿Estás seguro de que deseas eliminar esta solicitud del historial?')) return;
+
         try {
             await this.supabaseData.deleteRequestById(id);
-            // Quitar de la UI
-            this.misSolicitudes.set(this.misSolicitudes().filter(s => s.id !== id));
-            this.reservadas.set(this.reservadas().filter(s => s.id !== id));
+            // Al actualizar misSolicitudes, los computeds se encargan del resto
+            this.misSolicitudes.update(items => items.filter(s => s.id !== id));
+            console.log('✅ Solicitud eliminada de la vista local');
         } catch (e) {
-            alert('Error al eliminar la solicitud.');
+            console.error('Error al eliminar:', e);
+            alert('Error al eliminar la solicitud. Verifica tu conexión.');
         }
     }
 
