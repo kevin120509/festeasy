@@ -10,6 +10,7 @@ import { LoginComponent } from './shared/login/login';
 import { NotFoundComponent } from './shared/errors/not-found/not-found.component';
 import { ServerErrorComponent } from './shared/errors/server-error/server-error.component';
 import { AccessDeniedComponent } from './shared/errors/access-denied/access-denied.component';
+import { SeleccionarRolComponent } from './shared/seleccionar-rol/seleccionar-rol';
 
 import { ClienteLayoutComponent } from './cliente/layout/cliente-layout.component';
 import { ClienteNotificacionesComponent } from './cliente/notificaciones/notificaciones.component';
@@ -54,6 +55,7 @@ export const routes: Routes = [
     // General
     { path: '', component: LandingComponent },
     { path: 'login', component: LoginComponent },
+    { path: 'seleccionar-rol', component: SeleccionarRolComponent },
 
     // Error Pages
     { path: '404', component: NotFoundComponent },

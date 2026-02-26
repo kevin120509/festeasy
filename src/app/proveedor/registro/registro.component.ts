@@ -101,11 +101,12 @@ export class ProveedorRegistroComponent implements OnInit, OnDestroy, AfterViewI
             // Si el rol es proveedor, ver si ya tiene perfil
             const profile = await this.supabaseAuth.getUserProfile(user.id, 'provider');
             if (!profile) {
-                console.log('🚀 Usuario sin perfil, saltando al Paso 2');
+                console.log('🚀 Usuario pre-autenticado sin perfil de proveedor. Completando datos del Paso 1.');
                 this.registeredUserId = user.id;
                 this.email = user.email || '';
-                this.nombreNegocio = user.user_metadata?.['nombre_negocio'] || '';
-                this.step.set(2);
+                this.nombreNegocio = user.user_metadata?.['nombre_negocio'] || user.user_metadata?.['full_name'] || '';
+                // No pasamos al paso 2, nos quedamos en el paso 1 para que llene Categoría y Ubicación.
+                this.step.set(1);
             } else {
                 console.log('✅ Perfil ya existe, redirigiendo a dashboard');
                 this.router.navigate(['/proveedor/dashboard']);

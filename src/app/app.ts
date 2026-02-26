@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { AuthService } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -17,4 +18,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     }
   `]
 })
-export class App { }
+export class App {
+  private auth = inject(AuthService); // Force init
+}

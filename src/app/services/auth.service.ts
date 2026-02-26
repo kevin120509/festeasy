@@ -1,4 +1,4 @@
-import { Injectable, signal, inject } from '@angular/core';
+import { Injectable, signal, inject, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { SupabaseService } from './supabase.service';
 import { SupabaseAuthService } from './supabase-auth.service';
@@ -10,6 +10,7 @@ export class AuthService {
   private supabase = inject(SupabaseService).getClient();
   private supabaseAuth = inject(SupabaseAuthService);
   private router = inject(Router);
+  private ngZone = inject(NgZone);
 
   // Signals for state
   isLoggedIn = signal(false);
@@ -26,7 +27,33 @@ export class AuthService {
       const { data: { session } } = await this.supabase.auth.getSession();
       if (session?.user) {
         await this.loadUserProfile(session.user);
+        this.redirectBasedOnRole();
+      } else {
+         // Si no hay sesión inmediata, revisamos si venimos de un redireccionamiento OAuth (con hash en la URL)
+         // Supabase procesa el hash automáticamente, pero a veces tarda unos milisegundos más que el getSession inicial.
+         // Si hay un token en la URL, el onAuthStateChange (SIGNED_IN) se encargará de atraparlo en breve.
+         const hash = window.location.hash;
+         if (hash && hash.includes('access_token')) {
+             console.log('Detectado token OAuth en URL, esperando onAuthStateChange...');
+             // No hacemos nada, dejamos que onAuthStateChange haga su trabajo
+         }
       }
+      
+      this.supabase.auth.onAuthStateChange((event, session) => {
+        this.ngZone.run(async () => {
+          if (event === 'SIGNED_IN' && session?.user) {
+            // This captures the flow when returning from an OAuth callback
+            if (!this.currentUser()) {
+               await this.loadUserProfile(session.user);
+            }
+            this.redirectBasedOnRole();
+          } else if (event === 'SIGNED_OUT') {
+             this.isLoggedIn.set(false);
+             this.currentUser.set(null);
+             localStorage.clear();
+          }
+        });
+      });
     } catch (error) {
       console.error('Error initializing auth:', error);
     }
@@ -37,25 +64,67 @@ export class AuthService {
     return this.isLoggedIn();
   }
 
+  private redirectBasedOnRole() {
+    this.ngZone.run(() => {
+      const role = this.currentUser()?.rol;
+      const currentPath = window.location.pathname;
+      const hasOAuthHash = window.location.hash && window.location.hash.includes('access_token');
+
+      const navigateTo = (path: string) => {
+          if (hasOAuthHash) {
+              // Si venimos de Google OAuth, la URL tiene un hash gigante. 
+              // Usamos location.replace para limpiar la URL y forzar la entrada limpia.
+              window.location.replace(path);
+          } else {
+              this.router.navigate([path]);
+          }
+      };
+
+      // Siempre forzar la selección si es pending
+      if (role === 'pending' && currentPath !== '/seleccionar-rol') {
+          navigateTo('/seleccionar-rol');
+          return;
+      }
+
+      // Solo redirigir al dashboard si estamos en la landing page o en login (o retornando de OAuth)
+      if (currentPath === '/' || currentPath === '/login' || currentPath === '/registro' || hasOAuthHash) {
+        if (role === 'admin') {
+           navigateTo('/admin/dashboard');
+        } else if (role === 'provider') {
+           navigateTo('/proveedor/dashboard');
+        } else if (role === 'client') {
+           navigateTo('/cliente/dashboard');
+        }
+      }
+    });
+  }
+
   private async loadUserProfile(user: any) {
     // 1. Determine role from DB (source of truth)
-    let rol = await this.supabaseAuth.determineUserRole(user.id);
+    let rol: string | null = await this.supabaseAuth.determineUserRole(user.id);
 
     // 2. Fallback to metadata if DB check fails (e.g. new user not yet in profile table)
     if (!rol) {
-      rol = user.user_metadata?.rol || 'client';
+      rol = user.user_metadata?.rol || 'pending';
     }
 
-    const table = rol === 'admin' ? 'perfil_admin' : (rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente');
-
-    const { data: profile } = await this.supabase
-      .from(table)
-      .select('*')
-      .eq('usuario_id', user.id)
-      .single();
+    let profile = null;
+    
+    // Solo buscar en DB si no es pending
+    if (rol !== 'pending') {
+      const table = rol === 'admin' ? 'perfil_admin' : (rol === 'provider' ? 'perfil_proveedor' : 'perfil_cliente');
+      const { data } = await this.supabase
+        .from(table)
+        .select('*')
+        .eq('usuario_id', user.id)
+        .maybeSingle();
+      profile = data;
+    }
 
     const fullUser = {
       nombre_completo: profile?.nombre_completo ||
+        user.user_metadata?.full_name ||
+        user.user_metadata?.name ||
         user.user_metadata?.nombre ||
         user.user_metadata?.nombre_completo ||
         user.email?.split('@')[0] ||
@@ -78,6 +147,51 @@ export class AuthService {
     }
   }
 
+  async completeGoogleClientRegistration() {
+    const user = this.currentUser();
+    if (!user || user.rol !== 'pending') return;
+
+    const authUserResponse = await this.supabase.auth.getUser();
+    const authUser = authUserResponse.data.user;
+    
+    if (!authUser) throw new Error('Usuario autenticado no encontrado');
+
+    const nombre = authUser.user_metadata?.['full_name'] || 
+                   authUser.user_metadata?.['name'] || 
+                   authUser.user_metadata?.['nombre'] ||
+                   authUser.user_metadata?.['nombre_completo'] ||
+                   authUser.email?.split('@')[0] || 
+                   'Usuario';
+
+    // 1. Crear el perfil de cliente
+    const { data: profile, error } = await this.supabase
+      .from('perfil_cliente')
+      .insert({
+        usuario_id: user.id,
+        nombre_completo: nombre,
+      })
+      .select()
+      .single();
+
+    if (error) {
+       console.error('Error al registrar al cliente de Google', error);
+       throw error;
+    }
+
+    // 2. Actualizar el Auth metadata (Opcional, pero bueno)
+    await this.supabase.auth.updateUser({
+      data: { rol: 'client' }
+    });
+
+    // 3. Actualizar la señal del currentUser para que ya esté logueado como cliente
+    this.currentUser.update(curr => ({
+      ...curr,
+      rol: 'client',
+      profile_id: profile.id,
+      ...profile
+    }));
+  }
+
   // Legacy method used by Login component
   login(token: string, user: any): void {
     // Just update state, Supabase client already has session from the login call
@@ -97,7 +211,10 @@ export class AuthService {
     const { data, error } = await this.supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin
+        redirectTo: window.location.origin,
+        queryParams: {
+          prompt: 'select_account' // Forzar a que siempre pregunte qué cuenta usar
+        }
       }
     });
 
