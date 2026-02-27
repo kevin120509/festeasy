@@ -257,6 +257,11 @@ export interface ProviderPublicPage {
     facebook_url?: string;
     tiktok_url?: string;
     twitter_url?: string;
+    primary_color?: string;
+    accent_color?: string;
+    hero_overlay_color?: string;
+    hero_overlay_opacity?: number;
+    theme?: string;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -265,4 +270,19 @@ export interface ProviderPublicPage {
 export interface AuthResponse {
     token: string;
     user: User;
+}
+
+// Inventory
+export interface Producto {
+    id: string;
+    proveedor_id: string;
+    nombre: string;
+    categoria?: string;
+    descripcion?: string;
+    precio_unitario: number;
+    stock: number;
+    imagen_url?: string;
+    destacado: boolean;
+    creado_en: string;
+    actualizado_en: string;
 }

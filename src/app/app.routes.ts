@@ -40,6 +40,7 @@ import { PaquetesComponent } from './proveedor/paquetes/paquetes.component';
 import { ProveedorConfiguracionComponent } from './proveedor/configuracion/configuracion';
 import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.component';
 import { ResenasRecibidasComponent } from './proveedor/resenas/resenas-recibidas.component';
+import { InventarioComponent } from './proveedor/inventario/inventario.component';
 
 // Admin
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
@@ -82,6 +83,7 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { role: 'client' },
         children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', component: ClienteDashboardComponent },
             { path: 'solicitudes/crear', component: CrearEventoComponent },
             { path: 'solicitudes/revisar', component: RevisarSolicitudComponent },
@@ -110,12 +112,14 @@ export const routes: Routes = [
         canActivate: [roleGuard],
         data: { role: 'provider' },
         children: [
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
             { path: 'dashboard', component: ProveedorDashboardComponent },
             { path: 'solicitudes/:id', component: SolicitudDetalleComponent },
             { path: 'solicitudes', component: BandejaSolicitudesComponent },
             { path: 'bandeja', component: BandejaSolicitudesComponent },
             { path: 'notificaciones', component: NotificacionesComponent },
             { path: 'paquetes', component: PaquetesComponent },
+            { path: 'inventario', component: InventarioComponent },
             { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
             { path: 'resenas', component: ResenasRecibidasComponent },
             { path: 'configuracion', component: ProveedorConfiguracionComponent },

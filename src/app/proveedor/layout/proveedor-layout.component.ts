@@ -38,17 +38,22 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   public menuItems = computed(() => {
     const baseItems: MenuItem[] = [
       {
-        label: 'Dashboard',
+        label: 'Tablero',
         icon: 'pi pi-chart-bar',
         routerLink: '/proveedor/dashboard'
       },
       {
-        label: 'Paquetes',
+        label: 'Inventario',
         icon: 'pi pi-box',
+        routerLink: '/proveedor/inventario'
+      },
+      {
+        label: 'Paquetes',
+        icon: 'pi pi-tags',
         routerLink: '/proveedor/paquetes'
       },
       {
-        label: 'Solicitudes',
+        label: 'Pedidos',
         icon: 'pi pi-file',
         routerLink: '/proveedor/solicitudes'
       },

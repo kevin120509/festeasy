@@ -2,12 +2,15 @@ import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
-import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
 
 interface SolicitudBandeja {
     id: string;
@@ -28,12 +31,19 @@ interface SolicitudBandeja {
 
 type TabType = 'pendientes' | 'aceptadas' | 'historial';
 
-import { RouterModule, ActivatedRoute } from '@angular/router';
-
 @Component({
     selector: 'app-bandeja-solicitudes',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin, ConfirmDialogModule],
+    imports: [
+        CommonModule,
+        CurrencyPipe,
+        RouterModule,
+        ValidarPin,
+        ConfirmDialogModule,
+        ButtonModule,
+        TooltipModule,
+        CardModule
+    ],
     providers: [ConfirmationService],
     templateUrl: './bandeja-solicitudes.component.html'
 })

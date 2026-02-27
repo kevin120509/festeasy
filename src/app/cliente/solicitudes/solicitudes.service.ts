@@ -60,22 +60,28 @@ export class SolicitudesService {
         // Normalizar a minúsculas para evitar problemas de case
         const estado = (estadoDb || '').toLowerCase();
 
-        // Mapeo simple de estados de DB a estados de UI
+        // Mapeo de estados de DB a categorías lógicas de UI
         switch (estado) {
-            case 'pendiente_aprobacion': return 'pendiente';
-            case 'esperando_anticipo': return 'contratado';
+            case 'pendiente_aprobacion':
+            case 'pendiente':
+                return 'pendiente';
+
+            case 'esperando_anticipo':
             case 'reservado':
             case 'en_progreso':
             case 'entregado_pendiente_liq':
                 return 'contratado';
+
             case 'finalizado':
             case 'rechazada':
-            case 'rechazado': // Added variations
+            case 'rechazado':
             case 'cancelada':
             case 'cancelado':
             case 'abandonada':
                 return 'finalizado';
-            default: return 'pendiente';
+
+            default:
+                return 'pendiente';
         }
     }
 

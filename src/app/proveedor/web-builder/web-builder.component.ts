@@ -8,6 +8,10 @@ import { ProviderPublicPage } from '../../models';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { SelectModule } from 'primeng/select';
+import { SliderModule } from 'primeng/slider';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
@@ -28,7 +32,11 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
     CardModule,
     ToastModule,
     FileUploadModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    ColorPickerModule,
+    SelectModule,
+    SliderModule,
+    InputNumberModule
   ],
   providers: [MessageService],
   template: `
@@ -76,6 +84,12 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
           <p-card header="Diseño Hero">
             <div class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
+                <label class="font-bold text-sm">Tema Visual</label>
+                <p-select [options]="themes" [(ngModel)]="page().theme" optionLabel="label" optionValue="value" 
+                            placeholder="Selecciona un estilo" styleClass="w-full"></p-select>
+              </div>
+
+              <div class="flex flex-col gap-2">
                 <label class="font-bold text-sm">Alineación del Texto</label>
                 <div class="flex flex-wrap gap-4">
                   <div class="flex align-items-center">
@@ -109,6 +123,24 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
                     <p class="text-[10px] text-slate-400 mt-2">Máximo 5MB. Formatos: JPG, PNG, WEBP.</p>
                   </div>
                 </div>
+              </div>
+
+              <div class="flex flex-col gap-4 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                  <div class="flex items-center justify-between">
+                      <label class="font-bold text-xs uppercase tracking-wider text-slate-500">Color Primario</label>
+                      <p-colorPicker [(ngModel)]="page().primary_color"></p-colorPicker>
+                  </div>
+                  <div class="flex items-center justify-between">
+                      <label class="font-bold text-xs uppercase tracking-wider text-slate-500">Color de Acento</label>
+                      <p-colorPicker [(ngModel)]="page().accent_color"></p-colorPicker>
+                  </div>
+                  <div class="flex flex-col gap-2">
+                      <div class="flex justify-between items-center">
+                        <label class="font-bold text-xs uppercase tracking-wider text-slate-500">Opacidad Overlay</label>
+                        <span class="text-xs font-bold">{{ page().hero_overlay_opacity || 0 }}%</span>
+                      </div>
+                      <p-slider [(ngModel)]="page().hero_overlay_opacity" [min]="0" [max]="100" class="w-full"></p-slider>
+                  </div>
               </div>
             </div>
           </p-card>
@@ -189,24 +221,53 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
           <div class="border-4 border-slate-200 rounded-3xl overflow-hidden shadow-2xl scale-[0.8] origin-top">
             <div class="bg-white h-[800px] overflow-y-auto overflow-x-hidden">
                <!-- Mockup of the public page -->
-               <section class="relative h-64 flex items-center p-6 bg-slate-100 overflow-hidden"
+               <section class="relative h-64 flex items-center p-6 bg-slate-900 overflow-hidden"
                         [ngClass]="{
                           'justify-start text-left': page().hero_alignment === 'left',
                           'justify-center text-center': page().hero_alignment === 'center',
                           'justify-end text-right': page().hero_alignment === 'right'
                         }">
-                  <img *ngIf="page().hero_image" [src]="page().hero_image" class="absolute inset-0 w-full h-full object-cover z-0 opacity-40">
-                  <div class="relative z-10 w-full">
-                    <h2 class="text-2xl font-black mb-2">{{ page().slogan || 'Tu Slogan Aquí' }}</h2>
-                    <p class="text-xs text-slate-600 line-clamp-3">{{ page().description || 'Descripción de tu negocio...' }}</p>
+                  <!-- Background Image -->
+                  <img *ngIf="page().hero_image" [src]="page().hero_image" class="absolute inset-0 w-full h-full object-cover z-0">
+                  
+                  <!-- Overlay -->
+                  <div class="absolute inset-0 z-10" 
+                       [style.background-color]="'rgba(0,0,0,' + (page().hero_overlay_opacity || 40) / 100 + ')'"></div>
+
+                  <!-- Futuristic Glow (if theme is futuristic) -->
+                  <div *ngIf="page().theme === 'futuristic'" 
+                       class="absolute inset-0 z-10"
+                       [style.box-shadow]="'inset 0 0 100px ' + (page().accent_color || '#22c55e')"></div>
+
+                  <div class="relative z-20 w-full">
+                    <h2 class="text-2xl font-black mb-2 text-white" 
+                        [style.color]="page().theme === 'futuristic' ? 'white' : 'inherit'">
+                        {{ page().slogan || 'Tu Slogan Aquí' }}
+                    </h2>
+                    <p class="text-xs line-clamp-3 text-slate-200">
+                        {{ page().description || 'Descripción de tu negocio...' }}
+                    </p>
                     
-                    <!-- Social Icons Mockup -->
+                    <!-- Action Buttons Mockup -->
                     <div class="flex gap-2 mt-4" 
                          [ngClass]="{'justify-start': page().hero_alignment === 'left', 'justify-center': page().hero_alignment === 'center', 'justify-end': page().hero_alignment === 'right'}">
-                      <i *ngIf="page().instagram_url" class="pi pi-instagram text-slate-600"></i>
-                      <i *ngIf="page().facebook_url" class="pi pi-facebook text-slate-600"></i>
-                      <i *ngIf="page().tiktok_url" class="pi pi-at text-slate-600"></i>
-                      <i *ngIf="page().twitter_url" class="pi pi-twitter text-slate-600"></i>
+                         <button class="px-4 py-2 rounded-lg text-[10px] font-bold text-white shadow-lg"
+                                 [style.background-color]="page().primary_color || '#ef4444'">
+                            Llamar ahora
+                         </button>
+                         <button class="px-4 py-2 rounded-lg text-[10px] font-bold text-white shadow-lg"
+                                 [style.background-color]="page().accent_color || '#22c55e'">
+                            WhatsApp
+                         </button>
+                    </div>
+
+                    <!-- Social Icons Mockup -->
+                    <div class="flex gap-2 mt-4 opacity-70" 
+                         [ngClass]="{'justify-start': page().hero_alignment === 'left', 'justify-center': page().hero_alignment === 'center', 'justify-end': page().hero_alignment === 'right'}">
+                      <i *ngIf="page().instagram_url" class="pi pi-instagram text-white text-xs"></i>
+                      <i *ngIf="page().facebook_url" class="pi pi-facebook text-white text-xs"></i>
+                      <i *ngIf="page().tiktok_url" class="pi pi-at text-white text-xs"></i>
+                      <i *ngIf="page().twitter_url" class="pi pi-twitter text-white text-xs"></i>
                     </div>
                   </div>
                </section>
@@ -256,6 +317,12 @@ export class WebBuilderComponent implements OnInit {
   uploadingHero = signal(false);
   uploadingGallery = signal(false);
 
+  themes = [
+    { label: '💎 Elegante y Moderno', value: 'modern' },
+    { label: '🚀 HUD / Futurista', value: 'futuristic' },
+    { label: '🎨 Minimalista', value: 'minimal' }
+  ];
+
   ngOnInit() {
     this.loadPageData();
   }
@@ -267,7 +334,13 @@ export class WebBuilderComponent implements OnInit {
     try {
       const data = await this.supabaseData.getProviderPublicPageByProviderId(user.id);
       if (data) {
-        this.page.set(data);
+        this.page.set({
+          ...data,
+          primary_color: data.primary_color || '#ef4444',
+          accent_color: data.accent_color || '#22c55e',
+          hero_overlay_opacity: data.hero_overlay_opacity ?? 40,
+          theme: data.theme || 'modern'
+        });
       } else {
         // Inicializar con datos del perfil
         this.page.set({
@@ -280,7 +353,11 @@ export class WebBuilderComponent implements OnInit {
           description: user.description || user.descripcion,
           contact_phone: user.telefono,
           contact_email: user.correo_electronico,
-          gallery: []
+          gallery: [],
+          primary_color: '#ef4444',
+          accent_color: '#22c55e',
+          hero_overlay_opacity: 40,
+          theme: 'modern'
         });
       }
     } catch (error) {
@@ -322,7 +399,7 @@ export class WebBuilderComponent implements OnInit {
     try {
       const user = this.authService.currentUser();
       const path = `heroes/${user?.id}-${Date.now()}.${file.name.split('.').pop()}`;
-      const url = await this.supabaseService.uploadFile('website', path, file);
+      const url = await this.supabaseService.uploadFile('sitio_web', path, file);
       this.page.update(p => ({ ...p, hero_image: url }));
     } catch (error) {
       console.error('Error uploading hero image:', error);
@@ -341,7 +418,7 @@ export class WebBuilderComponent implements OnInit {
       const user = this.authService.currentUser();
       for (const file of files) {
         const path = `gallery/${user?.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${file.name.split('.').pop()}`;
-        const url = await this.supabaseService.uploadFile('website', path, file);
+        const url = await this.supabaseService.uploadFile('sitio_web', path, file);
         this.page.update(p => ({
           ...p,
           gallery: [...(p.gallery || []), url]

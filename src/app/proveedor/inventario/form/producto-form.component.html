@@ -1,0 +1,73 @@
+<p-dialog [header]="_producto ? 'Editar Producto' : 'Agregar Nuevo Producto'" [(visible)]="visible" [modal]="true"
+    [style]="{ width: '500px' }" [draggable]="false" [resizable]="false" (onHide)="close()" class="inventory-dialog">
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="flex flex-col gap-4 mt-2">
+        <!-- Image Upload -->
+        <div class="flex flex-col items-center gap-3 mb-2">
+            <div
+                class="w-32 h-32 rounded-2xl border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center bg-slate-50 relative group">
+                <img *ngIf="previewUrl()" [src]="previewUrl()" class="w-full h-full object-cover">
+                <span *ngIf="!previewUrl()" class="material-icons text-slate-300 text-4xl">add_a_photo</span>
+
+                <div
+                    class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <p-fileUpload mode="basic" name="demo[]" accept="image/*" [maxFileSize]="1000000"
+                        (onSelect)="onFileSelect($event)" chooseIcon="pi pi-pencil"
+                        class="p-button-rounded p-button-text p-button-plain">
+                    </p-fileUpload>
+                </div>
+            </div>
+            <span class="text-xs text-slate-400">Recomendado: 800x800px (JPG/PNG)</span>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-bold text-slate-700">Nombre del Producto *</label>
+            <input pInputText formControlName="nombre" placeholder="Ej: Globo de Helio Rojo"
+                class="rounded-xl border-slate-200 p-3">
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-bold text-slate-700">Categoría</label>
+                <input pInputText formControlName="categoria" placeholder="Ej: Decoración"
+                    class="rounded-xl border-slate-200 p-3">
+            </div>
+            <div class="flex flex-col gap-1">
+                <label class="text-sm font-bold text-slate-700">Precio Unitario ($) *</label>
+                <p-inputNumber formControlName="precio_unitario" mode="decimal" [minFractionDigits]="2"
+                    class="rounded-xl overflow-hidden" inputStyleClass="w-full rounded-xl border-slate-200 p-3">
+                </p-inputNumber>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-bold text-slate-700">Stock Inicial *</label>
+            <p-inputNumber formControlName="stock" [showButtons]="true" [min]="0"
+                inputStyleClass="w-full rounded-xl border-slate-200 p-3">
+            </p-inputNumber>
+        </div>
+
+        <div class="flex flex-col gap-1">
+            <label class="text-sm font-bold text-slate-700">Descripción</label>
+            <textarea pInputTextarea formControlName="descripcion" rows="3"
+                placeholder="Detalla las características del producto..."
+                class="rounded-xl border-slate-200 p-3 resize-none"></textarea>
+        </div>
+
+        <div class="flex items-center gap-2 py-2">
+            <p-checkbox formControlName="destacado" [binary]="true" inputId="destacado"></p-checkbox>
+            <label for="destacado" class="text-sm font-medium text-slate-600 cursor-pointer">Destacar este
+                producto</label>
+        </div>
+
+        <div class="flex gap-3 mt-4">
+            <button type="button" pButton pRipple label="Cancelar" (click)="close()"
+                class="p-button-text p-button-secondary flex-grow rounded-xl font-bold border border-slate-100">
+            </button>
+            <button type="submit" pButton pRipple [label]="_producto ? 'Guardar Cambios' : 'Crear Producto'"
+                [loading]="isLoading()" [disabled]="form.invalid"
+                class="p-button-danger flex-grow rounded-xl font-bold shadow-lg shadow-red-100">
+            </button>
+        </div>
+    </form>
+</p-dialog>

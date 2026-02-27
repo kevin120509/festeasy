@@ -1,0 +1,40 @@
+:host {
+    display: block;
+    background-color: #f8fafc;
+    min-height: 100vh;
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Custom transitions for buttons */
+button {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+/* PrimeNG Button Customization */
+:deep(.p-button.p-button-danger) {
+    background: #ff3b30;
+    border: none;
+}
+
+:deep(.p-button.p-button-danger:hover) {
+    background: #e6352b;
+}
+
+:deep(.p-button.p-button-text.p-button-secondary) {
+    color: #64748b;
+}
+
+:deep(.p-button.p-button-warning.p-button-text) {
+    color: #f59e0b;
+}

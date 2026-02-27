@@ -30,7 +30,9 @@ export class ApiService {
     }
 
     private http = inject(HttpClient);
-    private API_URL = 'https://api.backend.com';
+    // Nota: El backend tradicional (api.backend.com) está desactivado. 
+    // Se utiliza Supabase directamente para todas las operaciones de datos.
+    private API_URL = '';
 
     private getHeaders(): HttpHeaders {
         const token = this.auth.getToken();
@@ -95,11 +97,17 @@ export class ApiService {
     }
 
     getUser(id: string): Observable<User> {
-        return this.http.get<User>(`${this.API_URL}/users/${id}`, { headers: this.getHeaders() });
+        // Redirigir a Supabase ya que el backend tradicional no está configurado
+        return this.fromSupabase<User>(
+            this.supabase.from('perfil_cliente').select('*').eq('usuario_id', id).single()
+        );
     }
 
     updateUser(id: string, data: Partial<User>): Observable<User> {
-        return this.http.put<User>(`${this.API_URL}/users/${id}`, data, { headers: this.getHeaders() });
+        // Redirigir a Supabase
+        return this.fromSupabase<User>(
+            this.supabase.from('perfil_cliente').update(data).eq('usuario_id', id).select().single()
+        );
     }
 
     // ==========================================
@@ -151,7 +159,7 @@ export class ApiService {
     }
 
     getClientProfiles(): Observable<ClientProfile[]> {
-        return this.http.get<ClientProfile[]>(`${this.API_URL}/perfil-cliente`, { headers: this.getHeaders() });
+        return this.fromSupabase<ClientProfile[]>(this.supabase.from('perfil_cliente').select('*'));
     }
 
     getClientProfile(userId: string): Observable<ClientProfile> {
@@ -335,9 +343,15 @@ export class ApiService {
 
 
     getClientRequests(): Observable<any[]> {
-        return from(this.supabase.auth.getUser()).pipe(map(u => {
-            return this.supabase.from('solicitudes').select('*').eq('cliente_usuario_id', u.data.user?.id);
-        })) as any;
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap(u => {
+                const userId = u.data.user?.id;
+                if (!userId) return of([]);
+                return from(this.supabase.from('solicitudes').select('*').eq('cliente_usuario_id', userId)).pipe(
+                    map(res => res.data || [])
+                );
+            })
+        );
     }
 
     // Obtener solicitudes del cliente con datos completos (Resiliente a falta de FK)

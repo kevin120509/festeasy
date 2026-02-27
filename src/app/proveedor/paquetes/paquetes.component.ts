@@ -411,8 +411,8 @@ export class PaquetesComponent implements OnInit {
     const quantity = this.newItemQuantity();
 
     if (name && quantity > 0) {
-      this.packageItems.update(items => [...items, { 
-        nombre_item: name, 
+      this.packageItems.update(items => [...items, {
+        nombre_item: name,
         cantidad: quantity
       }]);
       this.newItemName.set('');
@@ -493,12 +493,14 @@ export class PaquetesComponent implements OnInit {
 
   // Guardar borrador
   async guardarBorrador() {
+    if (this.saving()) return;
     this.packageData.update(data => ({ ...data, estado: 'borrador' }));
     await this.savePackage();
   }
 
   // Publicar paquete
   async publicar() {
+    if (this.saving()) return;
     if (!this.packageData().nombre) {
       this.errorMessage.set('El nombre del paquete es obligatorio');
       return;
@@ -520,6 +522,8 @@ export class PaquetesComponent implements OnInit {
 
   // Guardar paquete
   private async savePackage() {
+    if (this.saving()) return;
+
     this.saving.set(true);
     this.errorMessage.set('');
     this.successMessage.set('');
@@ -584,7 +588,7 @@ export class PaquetesComponent implements OnInit {
 
         // Actualizar items del paquete usando el servicio
         await this.supabaseData.updatePackageItems(
-          this.paqueteEditando()!.id, 
+          this.paqueteEditando()!.id,
           this.packageItems()
         );
 
@@ -592,7 +596,7 @@ export class PaquetesComponent implements OnInit {
       } else {
         // Crear nuevo paquete
         const createdPackage = await this.supabaseData.createProviderPackage(packageToSave);
-        
+
         // Insertar items del paquete usando el servicio
         if (this.packageItems().length > 0 && createdPackage?.id) {
           await this.supabaseData.createPackageItems(
@@ -609,11 +613,10 @@ export class PaquetesComponent implements OnInit {
         );
       }
 
-      this.saving.set(false);
-
       // Volver a la lista después de 2 segundos
       setTimeout(() => {
         this.volverALista();
+        this.saving.set(false);
       }, 2000);
 
     } catch (error: any) {
@@ -646,6 +649,7 @@ export class PaquetesComponent implements OnInit {
     this.successMessage.set('');
     this.errorMessage.set('');
     this.paqueteEditando.set(null);
+    this.saving.set(false);
   }
 
   // Actualizar campo del paquete
