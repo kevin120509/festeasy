@@ -62,7 +62,7 @@ export class ClienteConfiguracionComponent implements OnInit {
             error: (err) => {
                 console.error('Error loading profile', err);
                 this.errorMessage.set('Error al cargar el perfil.');
-                this.loading.set(false);
+                this.loading.set(true);
             }
         });
     }
