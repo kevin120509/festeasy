@@ -12,12 +12,75 @@ export class NotificacionesComponent implements OnInit {
     private notificationService = inject(NotificationService);
     notificaciones = this.notificationService.notifications;
 
+    // Estados interactivos
+    notificationStyles = signal<Record<string, any>>({});
+    touchStartX = 0;
+    activeSwipeId = signal<string | null>(null);
+    showMenuId = signal<string | null>(null);
+
     ngOnInit() {
         this.notificationService.getNotifications().subscribe();
     }
 
     marcarLeida(id: string) {
         this.notificationService.markAsRead(id).subscribe();
+        this.showMenuId.set(null);
+    }
+
+    marcarNoLeida(id: string, event?: Event) {
+        if (event) event.stopPropagation();
+        this.notificationService.markAsUnread(id).subscribe();
+        this.showMenuId.set(null);
+    }
+
+    borrarNotificacion(id: string, event?: Event) {
+        if (event) event.stopPropagation();
+        this.notificationService.deleteNotification(id).subscribe();
+        this.showMenuId.set(null);
+    }
+
+    toggleMenu(id: string, event: Event) {
+        event.stopPropagation();
+        this.showMenuId.set(this.showMenuId() === id ? null : id);
+    }
+
+    /**
+     * GESTOS DE SWIPE
+     */
+    onTouchStart(event: TouchEvent, id: string) {
+        this.touchStartX = event.touches[0].clientX;
+        this.activeSwipeId.set(id);
+    }
+
+    onTouchMove(event: TouchEvent, id: string) {
+        const touchX = event.touches[0].clientX;
+        const diff = touchX - this.touchStartX;
+
+        if (Math.abs(diff) > 5) {
+            this.notificationStyles.update(prev => ({
+                ...prev,
+                [id]: { transform: `translateX(${diff}px)` }
+            }));
+        }
+    }
+
+    onTouchEnd(event: TouchEvent, id: string) {
+        const touchX = event.changedTouches[0].clientX;
+        const diff = touchX - this.touchStartX;
+        const threshold = 100;
+
+        if (diff > threshold) {
+            this.borrarNotificacion(id);
+        } else if (diff < -threshold) {
+            this.marcarNoLeida(id);
+        }
+
+        this.notificationStyles.update(prev => {
+            const next = { ...prev };
+            delete next[id];
+            return next;
+        });
+        this.activeSwipeId.set(null);
     }
 
     marcarTodasLeidas() {

@@ -146,6 +146,95 @@
         }
     </style>
 
+    <style>
+        .notificacion-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 0.75rem;
+        }
+
+        .swipe-reveal {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            border-radius: 0.75rem;
+            z-index: 0;
+        }
+
+        .reveal-delete {
+            background-color: #ef4444;
+            justify-content: flex-start;
+            padding-left: 1.5rem;
+            color: white;
+        }
+
+        .reveal-unread {
+            background-color: #3b82f6;
+            justify-content: flex-end;
+            padding-right: 1.5rem;
+            color: white;
+        }
+
+        .notificacion-card-item {
+            position: relative;
+            z-index: 10;
+            transition: transform 0.2s ease-out;
+            background: white;
+            will-change: transform;
+        }
+
+        .context-menu {
+            position: absolute;
+            right: 10px;
+            top: 40px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            min-width: 150px;
+            overflow: hidden;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-5px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-item {
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+            transition: background 0.2s;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+        }
+
+        .menu-item:hover {
+            background: #f8fafc;
+        }
+
+        .menu-item.delete {
+            color: #ef4444;
+        }
+    </style>
+
     <main class="p-8 w-full ">
         <div class="page-header mb-8 flex justify-between items-center">
             <div>
@@ -159,22 +248,61 @@
 
         <div class="notificaciones-list space-y-3">
             @for (notif of notificaciones(); track notif.id) {
-            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex gap-4 items-start cursor-pointer hover:shadow-md transition-all"
-                [class.border-l-4]="!notif.leida" [class.border-l-red-500]="!notif.leida"
-                [class.bg-red-50/50]="!notif.leida" (click)="marcarLeida(notif.id)">
-                <div
-                    class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl flex-shrink-0">
-                    {{ getIcono(notif.tipo) }}</div>
-                <div class="flex-1">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="font-semibold text-slate-800">{{ notif.titulo }}</span>
-                        <span class="text-xs text-slate-400">{{ formatTime(notif.creado_en) }}</span>
-                    </div>
-                    <p class="text-sm text-slate-600">{{ notif.mensaje }}</p>
+            <div class="notificacion-container shadow-sm">
+                <!-- Capas de Revelación -->
+                <div class="swipe-reveal reveal-delete">
+                    <span class="material-icons">delete</span>
                 </div>
-                @if (!notif.leida) {
-                <div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-2"></div>
-                }
+                <div class="swipe-reveal reveal-unread">
+                    <span class="material-icons">mark_chat_unread</span>
+                </div>
+
+                <!-- Tarjeta Principal -->
+                <div class="notificacion-card-item bg-white p-5 border border-slate-100 flex gap-4 items-start cursor-pointer transition-all"
+                    [class.border-l-4]="!notif.leida" [class.border-l-red-500]="!notif.leida"
+                    [class.bg-red-50/50]="!notif.leida" [ngStyle]="notificationStyles()[notif.id] || {}"
+                    (touchstart)="onTouchStart($event, notif.id)" (touchmove)="onTouchMove($event, notif.id)"
+                    (touchend)="onTouchEnd($event, notif.id)"
+                    (contextmenu)="$event.preventDefault(); toggleMenu(notif.id, $event)"
+                    (click)="marcarLeida(notif.id)">
+
+                    <div
+                        class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl flex-shrink-0">
+                        {{ getIcono(notif.tipo) }}
+                    </div>
+
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="font-semibold text-slate-800">{{ notif.titulo }}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-slate-400">{{ formatTime(notif.creado_en) }}</span>
+                                <button (click)="toggleMenu(notif.id, $event)"
+                                    class="p-1 hover:bg-slate-100 rounded-full transition-colors">
+                                    <span class="material-icons text-slate-400 text-sm">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-slate-600">{{ notif.mensaje }}</p>
+                    </div>
+
+                    @if (!notif.leida) {
+                    <div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-2"></div>
+                    }
+
+                    <!-- Menú Contextual / Opciones -->
+                    @if (showMenuId() === notif.id) {
+                    <div class="context-menu" (click)="$event.stopPropagation()">
+                        <button (click)="marcarNoLeida(notif.id, $event)" class="menu-item">
+                            <span class="material-icons text-sm">mark_chat_unread</span>
+                            Marcar como no leído
+                        </button>
+                        <button (click)="borrarNotificacion(notif.id, $event)" class="menu-item delete">
+                            <span class="material-icons text-sm">delete</span>
+                            Borrar notificación
+                        </button>
+                    </div>
+                    }
+                </div>
             </div>
             } @empty {
             <div class="empty-state">

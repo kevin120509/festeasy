@@ -4,7 +4,7 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 import { ServiceRequest, RequestItem, SolicitudEstado } from '../../../models';
-import { ValidarPin } from '../../validar-pin/validar-pin';
+import { ConcluirServicioComponent } from '../../concluir-servicio/concluir-servicio';
 import { esDiaDelEvento, formatearFechaEvento } from '../../../utils/date.utils';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
     selector: 'app-solicitud-detalle',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule, ValidarPin, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ConcluirServicioComponent, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule],
     providers: [ConfirmationService],
     templateUrl: './solicitud-detalle.component.html'
 })
@@ -39,6 +39,7 @@ export class SolicitudDetalleComponent implements OnInit {
     // Control del modal de validación de PIN
     mostrarModalPin = signal(false);
     solicitudSeleccionadaId = signal<string>('');
+    procesando = signal(false);
 
     // 🚫 Control del diálogo de cancelación
     displayCancelDialog: boolean = false;
@@ -140,10 +141,10 @@ export class SolicitudDetalleComponent implements OnInit {
         this.mostrarModalPin.set(false);
     }
 
-    onPinValidado(solicitudActualizada: ServiceRequest) {
-        console.log('✅ PIN validado en detalle:', solicitudActualizada);
+    onServicioConcluido(solicitudActualizada: ServiceRequest) {
+        console.log('✅ Servicio concluido exitosamente:', solicitudActualizada);
         this.solicitud.set(solicitudActualizada);
-        this.mensajeExito.set('¡PIN validado! El cliente puede proceder con el pago de liquidación.');
+        this.mensajeExito.set('¡Entrega registrada! El servicio ha sido marcado como entregado.');
         setTimeout(() => this.mensajeExito.set(''), 4000);
         this.cerrarModalPin();
     }
@@ -156,6 +157,65 @@ export class SolicitudDetalleComponent implements OnInit {
     formatearFechaCompleta(fecha: string | undefined): string {
         if (!fecha) return '';
         return formatearFechaEvento(fecha);
+    }
+
+    /**
+     * ✅ Aceptar solicitud
+     */
+    aceptarSolicitud(): void {
+        const id = this.solicitud()?.id;
+        if (!id || this.procesando()) return;
+
+        this.procesando.set(true);
+        this.api.updateSolicitudEstado(id, 'esperando_anticipo').subscribe({
+            next: () => {
+                this.mensajeExito.set('¡Solicitud aceptada! Se ha notificado al cliente.');
+                setTimeout(() => this.mensajeExito.set(''), 3000);
+                this.procesando.set(false);
+                this.cargarDetalle(id);
+            },
+            error: (err) => {
+                console.error('Error aceptando solicitud:', err);
+                this.mensajeError.set('No se pudo aceptar la solicitud');
+                setTimeout(() => this.mensajeError.set(''), 3000);
+                this.procesando.set(false);
+            }
+        });
+    }
+
+    /**
+     * ❌ Rechazar solicitud con confirmación
+     */
+    rechazarSolicitud(): void {
+        const id = this.solicitud()?.id;
+        if (!id || this.procesando()) return;
+
+        this.confirmationService.confirm({
+            message: '¿Estás seguro que deseas rechazar este evento? El cliente será notificado de la cancelación y no podrá retomar esta solicitud.',
+            header: 'Confirmar Rechazo',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Sí, rechazar',
+            rejectLabel: 'No, mantener',
+            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
+            accept: () => {
+                this.procesando.set(true);
+                this.api.updateSolicitudEstado(id, 'rechazada').subscribe({
+                    next: () => {
+                        this.mensajeExito.set('Solicitud rechazada');
+                        setTimeout(() => this.mensajeExito.set(''), 3000);
+                        this.procesando.set(false);
+                        this.cargarDetalle(id);
+                    },
+                    error: (err) => {
+                        console.error('Error rechazando solicitud:', err);
+                        this.mensajeError.set('No se pudo rechazar la solicitud');
+                        setTimeout(() => this.mensajeError.set(''), 3000);
+                        this.procesando.set(false);
+                    }
+                });
+            }
+        });
     }
 
     /**

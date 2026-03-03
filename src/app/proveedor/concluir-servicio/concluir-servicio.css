@@ -1,0 +1,38 @@
+.animate-in {
+    animation-fill-mode: both;
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease-in;
+}
+
+.zoom-in {
+    animation: zoomIn 0.2s ease-out;
+}
+
+.slide-in-from-right {
+    animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes zoomIn {
+    from { transform: scale(0.95); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes slideInRight {
+    from { transform: translateX(20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.touch-none {
+    touch-action: none;
+}
+
+canvas {
+    image-rendering: -webkit-optimize-contrast;
+}

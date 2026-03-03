@@ -200,7 +200,7 @@ export class BandejaSolicitudesComponent implements OnInit {
         if (this.procesando()) return;
 
         this.confirmationService.confirm({
-            message: `¿Estás seguro de rechazar la solicitud de ${solicitud.cliente_nombre}? El cliente será notificado automáticamente.`,
+            message: '¿Estás seguro que deseas rechazar este evento? El cliente será notificado automáticamente.',
             header: 'Confirmar Rechazo',
             icon: 'pi pi-exclamation-circle',
             acceptLabel: 'Sí, rechazar',

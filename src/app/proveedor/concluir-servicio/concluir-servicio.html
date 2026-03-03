@@ -1,0 +1,135 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" (click)="close()"></div>
+
+    <!-- Modal Content -->
+    <div
+        class="relative bg-white dark:bg-gray-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
+        <!-- Progress Bar -->
+        <div class="h-1.5 w-full bg-slate-100 dark:bg-gray-800 flex">
+            <div class="h-full bg-primary transition-all duration-500" [style.width.%]="(paso() / 3) * 100"></div>
+        </div>
+
+        <!-- Header -->
+        <div class="p-6 border-b border-slate-100 dark:border-gray-800 flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-black text-slate-800 dark:text-white">Concluir Servicio</h3>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Paso {{ paso() }} de 3</p>
+            </div>
+            <button (click)="close()"
+                class="p-2 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-full transition-colors">
+                <span class="material-icons-outlined text-slate-400">close</span>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="p-8">
+            <!-- STEP 1: EVIDENCIA FOTO -->
+            <div *ngIf="paso() === 1" class="space-y-6 animate-in slide-in-from-right duration-300">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons-outlined text-4xl text-primary">photo_camera</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-800 dark:text-white">Evidencia Fotográfica</h4>
+                    <p class="text-sm text-slate-500 mt-2">Toma una foto del servicio entregado para seguridad de ambos.
+                    </p>
+                </div>
+
+                <!-- Preview or Upload Area -->
+                <div class="relative group">
+                    <div *ngIf="fotoImg()"
+                        class="aspect-video rounded-2xl overflow-hidden border-2 border-primary shadow-lg">
+                        <img [src]="fotoImg()" class="w-full h-full object-cover">
+                        <button (click)="fotoImg.set(null)"
+                            class="absolute top-3 right-3 p-2 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span class="material-icons-outlined text-sm">delete</span>
+                        </button>
+                    </div>
+
+                    <label *ngIf="!fotoImg()" for="foto-input"
+                        class="aspect-video rounded-2xl border-2 border-dashed border-slate-200 dark:border-gray-700 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-primary hover:bg-primary/5 transition-all">
+                        <span class="material-icons-outlined text-4xl text-slate-300">add_a_photo</span>
+                        <span class="text-sm font-bold text-slate-400">Click para capturar o subir</span>
+                        <input id="foto-input" type="file" accept="image/*" capture="environment"
+                            (change)="capturarFoto($event)" class="hidden">
+                    </label>
+                </div>
+
+                <!-- GPS Info -->
+                <div *ngIf="latitud()"
+                    class="flex items-center gap-2 text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 px-3 py-2 rounded-lg">
+                    <span class="material-icons-outlined text-sm">location_on</span>
+                    Ubicación capturada correctamente
+                </div>
+            </div>
+
+            <!-- STEP 2: FIRMA DEL CLIENTE -->
+            <div *ngIf="paso() === 2" class="space-y-6 animate-in slide-in-from-right duration-300">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons-outlined text-4xl text-primary">draw</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-800 dark:text-white">Firma de Conformidad</h4>
+                    <p class="text-sm text-slate-500 mt-2">Pide al cliente que firme aquí para confirmar la recepción.
+                    </p>
+                </div>
+
+                <div
+                    class="relative bg-slate-50 dark:bg-gray-800 rounded-2xl border-2 border-slate-200 dark:border-gray-700 overflow-hidden">
+                    <canvas #signatureCanvas class="w-full h-48 cursor-crosshair touch-none"
+                        (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()"
+                        (touchstart)="startDrawing($event)" (touchmove)="draw($event)" (touchend)="stopDrawing()">
+                    </canvas>
+                    <button (click)="clearSignature()"
+                        class="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-red-500 transition-colors">
+                        Limpiar Firma
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP 3: VALIDACIÓN PIN -->
+            <div *ngIf="paso() === 3" class="space-y-6 animate-in slide-in-from-right duration-300">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons-outlined text-4xl text-primary">key</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-800 dark:text-white">Validar PIN</h4>
+                    <p class="text-sm text-slate-500 mt-2">Ingresa el PIN de 4 dígitos que tiene el cliente en su app.
+                    </p>
+                </div>
+
+                <div class="flex justify-center gap-4">
+                    <input *ngFor="let d of [0,1,2,3]" type="text" maxlength="1" pattern="\d*"
+                        class="w-14 h-16 text-center text-2xl font-black bg-slate-50 dark:bg-gray-800 border-2 border-slate-200 dark:border-gray-700 rounded-2xl focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition-all"
+                        (input)="onPinInput($event, d)" [value]="pinDigits()[d]">
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <p *ngIf="errorMessage()"
+                class="mt-4 text-xs font-bold text-red-500 text-center flex items-center justify-center gap-1">
+                <span class="material-icons-outlined text-sm">error</span>
+                {{ errorMessage() }}
+            </p>
+        </div>
+
+        <!-- Footer -->
+        <div class="p-8 pt-0 flex gap-3">
+            <button *ngIf="paso() > 1" (click)="paso.set(paso() - 1)"
+                class="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-gray-800 rounded-2xl transition-all">
+                Anterior
+            </button>
+
+            <button *ngIf="paso() < 3" (click)="siguientePaso()"
+                class="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-black transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                Siguiente Paso
+            </button>
+
+            <button *ngIf="paso() === 3" (click)="finalizar()" [disabled]="isProcessing()"
+                class="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-black transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+                <span *ngIf="isProcessing()" class="pi pi-spin pi-spinner"></span>
+                {{ isProcessing() ? 'Procesando...' : 'Finalizar Entrega' }}
+            </button>
+        </div>
+    </div>
+</div>

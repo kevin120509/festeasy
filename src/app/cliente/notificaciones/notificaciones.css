@@ -1,7 +1,95 @@
-.p-card-highlight { border-left: 4px solid var(--color-primary); background: #FFF8F8; }
-.p-card { cursor: pointer; }
+.p-card-highlight {
+	border-left: 4px solid var(--color-primary);
+	background: #FFF8F8;
+}
+
+.p-card {
+	cursor: pointer;
+}
 
 .empty-state-box {
 	max-width: 700px;
 	margin: 24px auto;
+}
+
+/* Interacciones de Swipe */
+.notificacion-container {
+	position: relative;
+	overflow: hidden;
+	border-radius: 8px;
+}
+
+.swipe-reveal {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	border-radius: 8px;
+	z-index: 0;
+}
+
+.reveal-delete {
+	background-color: #ef4444;
+	justify-content: flex-start;
+	padding-left: 1.5rem;
+	color: white;
+}
+
+.reveal-unread {
+	background-color: #3b82f6;
+	justify-content: flex-end;
+	padding-right: 1.5rem;
+	color: white;
+}
+
+.notificacion-card-item {
+	position: relative;
+	z-index: 10;
+	transition: transform 0.2s ease-out;
+	background: white;
+	will-change: transform;
+}
+
+/* Menú Contextual */
+.context-menu {
+	position: absolute;
+	right: 10px;
+	top: 40px;
+	background: white;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+	z-index: 50;
+	min-width: 170px;
+	overflow: hidden;
+}
+
+.menu-item {
+	padding: 10px 16px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 14px;
+	color: #475569;
+	transition: background 0.2s;
+	cursor: pointer;
+	width: 100%;
+	text-align: left;
+	border: none;
+	background: transparent;
+}
+
+.menu-item:hover {
+	background: #f8fafc;
+}
+
+.menu-item.delete {
+	color: #ef4444;
+}
+
+.material-icons {
+	font-size: 18px;
 }

@@ -44,13 +44,17 @@ export class PagoComponent implements OnInit, AfterViewInit {
         const sol = this.solicitud();
         if (!sol) return 0;
         const montoTotal = sol.monto_total || 0;
+        // Obtener el porcentaje del proveedor o usar 30 por defecto
+        const porcentajeAnticipo = sol.provider?.porcentaje_anticipo ?? 30;
+        const factorAnticipo = porcentajeAnticipo / 100;
+        const factorLiquidacion = 1 - factorAnticipo;
 
         if (this.tipoPago() === 'liquidacion') {
-            // El 70% restante (liquidación)
-            return sol.monto_liquidacion || Math.round(montoTotal * 0.7);
+            // Liquidación dinámica
+            return sol.monto_liquidacion || Math.round(montoTotal * factorLiquidacion);
         } else {
-            // El 30% de anticipo
-            return sol.monto_anticipo || Math.round(montoTotal * 0.3);
+            // Anticipo dinámico
+            return sol.monto_anticipo || Math.round(montoTotal * factorAnticipo);
         }
     });
 

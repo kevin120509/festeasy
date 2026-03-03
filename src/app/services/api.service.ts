@@ -314,6 +314,11 @@ export class ApiService {
                     mensaje: `Tu solicitud para "${req.titulo_evento}" ha cambiado a estado: ${status}`,
                     data: { solicitud_id: req.id }
                 }).subscribe();
+
+                // Si el estado es 'reservado', enviar las políticas del proveedor al correo del cliente
+                if (status === 'reservado') {
+                    this.notificationService.sendProviderPolicies(req);
+                }
             })
         );
     }

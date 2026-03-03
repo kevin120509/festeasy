@@ -6,28 +6,67 @@
   </div>
 
   <div class="grid">
-    <ng-container *ngIf="pendingSolicitudesCount > 0; else emptyState">
-      <div *ngFor="let notif of notificaciones()" class="col-12 mb-3">
-        <p-card [styleClass]="notif.leida ? '' : 'p-card-highlight'" (click)="marcarLeida(notif.id)">
-          <ng-template pCardHeader>
-            <i [class]="getIcono(notif.tipo)"></i>
-            <span class="ml-2 font-semibold">{{ notif.titulo }}</span>
-            <span class="ml-auto text-sm text-500">{{ formatTime(notif.creado_en) }}</span>
-          </ng-template>
-          <ng-template pCardContent>
-            <p class="text-sm text-600">{{ notif.mensaje }}</p>
-          </ng-template>
-        </p-card>
-      </div>
-    </ng-container>
+    @if (notificaciones().length > 0) {
+    @for (notif of notificaciones(); track notif.id) {
+    <div class="col-12 mb-3">
+      <div class="notificacion-container shadow-sm">
+        <!-- Capas de Revelación -->
+        <div class="swipe-reveal reveal-delete">
+          <span class="material-icons">delete</span>
+        </div>
+        <div class="swipe-reveal reveal-unread">
+          <span class="material-icons">mark_chat_unread</span>
+        </div>
 
-    <ng-template #emptyState>
-      <div class="col-12">
-        <div class="empty-state-box p-6 rounded-lg shadow-sm bg-white text-center">
-          <h3 class="text-lg font-semibold">Por el momento no cuentas con solicitudes pendientes</h3>
-          <p class="text-sm text-500 mt-2">Revisa más tarde para ver nuevas solicitudes o notificaciones.</p>
+        <!-- Tarjeta Principal (Usando div en lugar de p-card para control total del estilo) -->
+        <div class="notificacion-card-item p-4 border rounded-lg flex flex-col gap-2 cursor-pointer transition-all"
+          [class.border-l-4]="!notif.leida" [class.border-primary]="!notif.leida" [class.bg-blue-50]="!notif.leida"
+          [ngStyle]="notificationStyles()[notif.id] || {}" (touchstart)="onTouchStart($event, notif.id)"
+          (touchmove)="onTouchMove($event, notif.id)" (touchend)="onTouchEnd($event, notif.id)"
+          (contextmenu)="$event.preventDefault(); toggleMenu(notif.id, $event)" (click)="marcarLeida(notif.id)">
+
+          <div class="flex justify-between items-center w-full">
+            <div class="flex items-center gap-2">
+              <i [class]="getIcono(notif.tipo)" class="text-xl text-primary"></i>
+              <span class="font-semibold text-slate-800">{{ notif.titulo }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">{{ formatTime(notif.creado_en) }}</span>
+              <button (click)="toggleMenu(notif.id, $event)"
+                class="p-1 hover:bg-slate-100 rounded-full transition-colors">
+                <span class="material-icons text-slate-400 text-sm">more_vert</span>
+              </button>
+            </div>
+          </div>
+
+          <p class="text-sm text-slate-600">{{ notif.mensaje }}</p>
+
+          <!-- Menú Contextual -->
+          @if (showMenuId() === notif.id) {
+          <div class="context-menu shadow-lg border" (click)="$event.stopPropagation()">
+            <button (click)="marcarNoLeida(notif.id, $event)" class="menu-item transition-colors hover:bg-slate-50">
+              <span class="material-icons text-sm">mark_chat_unread</span>
+              Marcar como no leído
+            </button>
+            <button (click)="borrarNotificacion(notif.id, $event)"
+              class="menu-item delete transition-colors hover:bg-red-50">
+              <span class="material-icons text-sm">delete</span>
+              Borrar notificación
+            </button>
+          </div>
+          }
         </div>
       </div>
-    </ng-template>
+    </div>
+    }
+    } @else {
+    <div class="col-12">
+      <div class="empty-state-box p-8 rounded-2xl shadow-sm bg-white text-center border">
+        <div class="text-4xl mb-4">📭</div>
+        <h3 class="text-xl font-bold text-slate-800">No hay notificaciones</h3>
+        <p class="text-sm text-slate-500 mt-2">Te avisaremos cuando pase algo importante.</p>
+      </div>
+    </div>
+    }
   </div>
 </div>

@@ -37,6 +37,7 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
     loading = signal(false);
     saving = signal(false);
     uploadingAvatar = signal(false);
+    uploadingPolicies = signal(false);
     detectingLocation = signal(false);
     upgradingPlan = signal(false);
     successMessage = signal('');
@@ -68,6 +69,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
         longitud: 0,
         radio_cobertura_km: 10,
         avatar_url: '',
+        politicas_url: '',
+        porcentaje_anticipo: 30,
         // Datos bancarios
         banco: '',
         titular: '',
@@ -112,6 +115,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                     longitud: profile.longitud || 0,
                     radio_cobertura_km: profile.radio_cobertura_km || 10,
                     avatar_url: profile.avatar_url || '',
+                    politicas_url: profile.politicas_url || '',
+                    porcentaje_anticipo: profile.porcentaje_anticipo || 30,
                     banco: bankData.banco || '',
                     titular: bankData.titular || '',
                     clabe: bankData.clabe || ''
@@ -184,6 +189,54 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
         }
     }
 
+    async onPolicyChange(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) {
+            return;
+        }
+
+        const file = input.files[0];
+        const userId = this.auth.currentUser()?.id;
+
+        if (!userId) {
+            this.errorMessage.set('No se pudo obtener el usuario actual');
+            return;
+        }
+
+        // Validar tamaño (máximo 5MB para documentos)
+        if (file.size > 5 * 1024 * 1024) {
+            this.errorMessage.set('El documento no debe superar los 5MB');
+            return;
+        }
+
+        this.uploadingPolicies.set(true);
+        this.errorMessage.set('');
+
+        try {
+            // Generar nombre único para el archivo
+            const fileExt = file.name.split('.').pop();
+            const fileName = `politicas-${userId}-${Date.now()}.${fileExt}`;
+            const filePath = `${userId}/${fileName}`;
+
+            // Subir archivo al nuevo bucket 'politicas_contratos'
+            const publicUrl = await this.supabase.uploadFile('politicas_contratos', filePath, file);
+
+            // Actualizar el formData con la nueva URL
+            this.formData.update(data => ({
+                ...data,
+                politicas_url: publicUrl
+            }));
+
+            this.successMessage.set('Políticas subidas exitosamente. No olvides guardar los cambios.');
+            setTimeout(() => this.successMessage.set(''), 4000);
+        } catch (error) {
+            console.error('Error uploading policies', error);
+            this.errorMessage.set('Error al subir el documento. Por favor intenta de nuevo.');
+        } finally {
+            this.uploadingPolicies.set(false);
+        }
+    }
+
     saveProfile() {
         if (!this.profile()) {
             this.errorMessage.set('Perfil no encontrado. Contacte al administrador.');
@@ -217,6 +270,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
             longitud: formData.longitud,
             radio_cobertura_km: formData.radio_cobertura_km,
             avatar_url: formData.avatar_url,
+            politicas_url: formData.politicas_url,
+            porcentaje_anticipo: formData.porcentaje_anticipo,
             // Guardamos el correo de contacto y datos bancarios en el JSON para evitar conflictos de schema
             datos_bancarios_json: {
                 banco: formData.banco,

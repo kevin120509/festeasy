@@ -409,20 +409,43 @@
 
                 <!-- 🚫 Botón de Cancelación - SOLO visible cuando el servicio está ACEPTADO (reservado) -->
                 @if (solicitud()?.estado === SolicitudEstado.RESERVADO) {
-                <div class="bg-red-50 rounded-3xl p-6 border border-red-200">
-                    <p class="text-red-800 text-sm font-bold mb-4 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-lg">cancel</span>
-                        Cancelar Servicio
+                ...
+                }
+
+                <!-- ✅ Acciones de Aprobación - SOLO visible cuando el servicio está PENDIENTE -->
+                @if (solicitud()?.estado === SolicitudEstado.PENDIENTE_APROBACION) {
+                <div class="bg-blue-50 rounded-3xl p-8 border border-blue-200">
+                    <p class="text-blue-800 text-sm font-bold mb-6 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">pending_actions</span>
+                        Acciones de Solicitud
                     </p>
 
-                    <button (click)="confirmarCancelacion()"
-                        class="w-full py-4 bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all">
-                        <span class="material-symbols-outlined">close</span>
-                        <span>Cancelar Servicio</span>
-                    </button>
+                    <div class="space-y-3">
+                        <button (click)="aceptarSolicitud()" [disabled]="procesando()"
+                            class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50">
+                            @if (procesando()) {
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent">
+                            </div>
+                            } @else {
+                            <span class="material-symbols-outlined">check_circle</span>
+                            <span>Aceptar Solicitud</span>
+                            }
+                        </button>
 
-                    <p class="text-red-700 text-[10px] leading-relaxed text-center font-bold mt-4">
-                        Esta acción notificará al cliente sobre la cancelación del servicio.
+                        <button (click)="rechazarSolicitud()" [disabled]="procesando()"
+                            class="w-full py-4 bg-white hover:bg-red-50 text-red-600 border border-red-200 font-bold rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50">
+                            @if (procesando()) {
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-red-500 border-t-transparent">
+                            </div>
+                            } @else {
+                            <span class="material-symbols-outlined">cancel</span>
+                            <span>Rechazar Solicitud</span>
+                            }
+                        </button>
+                    </div>
+
+                    <p class="text-blue-700 text-[10px] leading-relaxed text-center font-bold mt-6">
+                        Al aceptar, el cliente será notificado para proceder con el pago del anticipo.
                     </p>
                 </div>
                 }
@@ -431,9 +454,9 @@
         }
     </main>
 
-    <!-- Modal de Validación de PIN -->
+    <!-- Modal de Conclusión de Servicio (Evidencias + PIN) -->
     @if (mostrarModalPin()) {
-    <app-validar-pin [solicitudId]="solicitudSeleccionadaId()" [isOpen]="mostrarModalPin()"
-        (closeModal)="cerrarModalPin()" (pinValidado)="onPinValidado($event)"></app-validar-pin>
+    <app-concluir-servicio [solicitud]="solicitud()" [isOpen]="mostrarModalPin()" (closeModal)="cerrarModalPin()"
+        (servicioConcluido)="onServicioConcluido($event)"></app-concluir-servicio>
     }
 </div>

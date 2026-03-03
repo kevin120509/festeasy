@@ -52,6 +52,8 @@ export interface ProviderProfile {
     precio_base?: number; // Added property
     addons?: string[]; // Added property for active addons
     suscripcion_activa?: boolean; // simple indicator of paid status
+    politicas_url?: string;
+    porcentaje_anticipo?: number;
     // contrasena is not included in the frontend model
 }
 
@@ -141,6 +143,12 @@ export interface ServiceRequest {
     pin_validado_en?: string;
     pin_validacion?: string;
     fecha_validacion_pin?: string | Date;
+    // Campos de evidencia
+    evidencia_foto_url?: string;
+    evidencia_firma_url?: string;
+    evidencia_latitud?: number;
+    evidencia_longitud?: number;
+    finalizado_en?: string | Date;
     // Campos para cancelaciones
     cancelado_por_id?: string;
     motivo_cancelacion?: string;

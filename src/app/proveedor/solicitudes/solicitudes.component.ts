@@ -164,7 +164,7 @@ export class SolicitudesComponent implements OnInit {
         if (this.procesando()) return;
 
         this.confirmationService.confirm({
-            message: '¿Estás seguro de rechazar esta solicitud? El cliente será notificado de la cancelación.',
+            message: '¿Estás seguro que deseas rechazar este evento? El cliente será notificado de la cancelación.',
             header: 'Confirmar Rechazo',
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Sí, rechazar',
