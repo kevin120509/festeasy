@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient, RealtimeChannel } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
 import { Observable, from, map, catchError, of, tap } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -29,9 +29,38 @@ export class NotificationService {
         this.supabase = inject(SupabaseService).getClient();
     }
 
+    private channel: RealtimeChannel | null = null;
+
+    private setupRealtimeListener(userId: string) {
+        if (this.channel) return;
+
+        console.log('📡 Iniciando suscripción en tiempo real para notificaciones:', userId);
+        this.channel = this.supabase
+            .channel(`notificaciones-${userId}`)
+            .on('postgres_changes', {
+                event: 'INSERT',
+                schema: 'public',
+                table: 'notificaciones',
+                filter: `usuario_id=eq.${userId}`
+            }, (payload) => {
+                console.log('🔔 Nueva notificación recibida en tiempo real:', payload.new);
+                const newNotif = payload.new as Notification;
+                this.notifications.update(prev => {
+                    if (prev.find(n => n.id === newNotif.id)) return prev;
+                    return [newNotif, ...prev];
+                });
+                if (!newNotif.leida) {
+                    this.unreadCount.update(c => c + 1);
+                }
+            })
+            .subscribe();
+    }
+
     getNotifications(): Observable<Notification[]> {
         const userId = this.auth.getUserId();
         if (!userId) return of([]);
+
+        this.setupRealtimeListener(userId);
 
         return from(this.supabase
             .from('notificaciones')

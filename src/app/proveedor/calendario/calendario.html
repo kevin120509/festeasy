@@ -1,0 +1,84 @@
+<div class="calendario-container p-4 md:p-6 lg:p-8 pt-24 lg:pt-8 bg-slate-50 min-h-screen">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-black text-slate-800 tracking-tight">Mi Calendario</h1>
+        <p class="text-slate-500 font-medium mt-1">Gestión centralizada de eventos y disponibilidad.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Calendar Column -->
+        <div class="lg:col-span-12 xl:col-span-8 space-y-6">
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden p-6 md:p-10">
+                <p-datepicker [(ngModel)]="selectedDate" [inline]="true" [showOtherMonths]="false"
+                    (onSelect)="onDateSelect($event)" styleClass="w-full custom-calendar">
+                    <ng-template pTemplate="date" let-date>
+                        <div class="date-cell relative flex flex-col items-center justify-center w-full h-full">
+                            <span class="z-10">{{date.day}}</span>
+                            @if (hasEvent(date)) {
+                            <div class="event-indicator"></div>
+                            }
+                        </div>
+                    </ng-template>
+                </p-datepicker>
+            </div>
+        </div>
+
+        <!-- Events List Column -->
+        <div class="lg:col-span-12 xl:col-span-4 space-y-6">
+            <div
+                class="bg-white/60 backdrop-blur-md rounded-[2rem] border border-white shadow-sm flex flex-col h-full overflow-hidden">
+                <div class="p-8 pb-4">
+                    <h3 class="text-xl font-black text-slate-800">Eventos del Día</h3>
+                    <p class="text-slate-500 text-sm font-medium mt-1">
+                        {{ selectedDate() | date:'fullDate':'':'es-MX' }}
+                    </p>
+                </div>
+
+                <div class="flex-1 overflow-y-auto px-6 pb-8 space-y-4 max-h-[600px]">
+                    @if (selectedDateEvents().length > 0) {
+                    @for (event of selectedDateEvents(); track event.id) {
+                    <div
+                        class="event-card bg-white p-5 rounded-2xl border border-slate-50 shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                <i class="pi pi-calendar text-xl"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start">
+                                    <span
+                                        class="text-[10px] font-black uppercase text-indigo-500 tracking-widest bg-indigo-50 px-2 py-0.5 rounded-full mb-1">
+                                        {{ event.estado }}
+                                    </span>
+                                    <span class="text-xs font-bold text-slate-400">
+                                        {{ event.hora_inicio || 'Horario pendiente' }}
+                                    </span>
+                                </div>
+                                <h4 class="font-black text-slate-800 truncate">{{ event.nombre_evento || 'Evento sin
+                                    nombre' }}</h4>
+                                <div class="flex items-center gap-2 mt-2">
+                                    <div class="w-6 h-6 rounded-full bg-slate-100 overflow-hidden">
+                                        <img [src]="event.cliente?.avatar_url || 'assets/default-avatar.png'"
+                                            alt="Client" class="w-full h-full object-cover">
+                                    </div>
+                                    <span class="text-xs font-bold text-slate-500">{{ event.cliente?.nombre_completo ||
+                                        'Cliente FestEasy' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                    } @else {
+                    <div class="flex flex-col items-center justify-center py-20 text-center">
+                        <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                            <i class="pi pi-calendar-minus text-2xl text-slate-200"></i>
+                        </div>
+                        <p class="text-slate-400 font-bold">Sin eventos programados</p>
+                        <p class="text-slate-300 text-xs mt-1">Selecciona otra fecha o gestiona tus bloqueos.</p>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

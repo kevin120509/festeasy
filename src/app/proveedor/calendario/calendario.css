@@ -1,0 +1,73 @@
+:host ::ng-deep .custom-calendar {
+    border: none;
+    background: transparent;
+}
+
+:host ::ng-deep .p-datepicker {
+    width: 100%;
+}
+
+:host ::ng-deep .p-datepicker table {
+    font-size: 1.1rem;
+    border-collapse: separate;
+    border-spacing: 8px;
+}
+
+:host ::ng-deep .p-datepicker table th {
+    padding: 1.5rem 0.5rem;
+    color: #94a3b8;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+}
+
+:host ::ng-deep .p-datepicker table td {
+    padding: 0;
+}
+
+:host ::ng-deep .p-datepicker table td>span {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    font-weight: 800;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid transparent;
+}
+
+:host ::ng-deep .p-datepicker table td>span:hover {
+    background: #f1f5f9;
+    transform: scale(1.1);
+}
+
+:host ::ng-deep .p-datepicker table td>span.p-highlight {
+    background: #ef4444 !important;
+    color: white !important;
+    box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
+    transform: scale(1.1);
+}
+
+.event-indicator {
+    position: absolute;
+    bottom: 8px;
+    width: 4px;
+    height: 4px;
+    background: #ef4444;
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+:host ::ng-deep .p-datepicker table td>span.p-highlight .event-indicator {
+    background: white;
+}
+
+.event-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.event-card:hover {
+    transform: translateX(10px);
+}

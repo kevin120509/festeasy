@@ -48,6 +48,11 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
         routerLink: '/proveedor/inventario'
       },
       {
+        label: 'Calendario',
+        icon: 'pi pi-calendar',
+        routerLink: '/proveedor/calendario'
+      },
+      {
         label: 'Paquetes',
         icon: 'pi pi-tags',
         routerLink: '/proveedor/paquetes'
@@ -58,9 +63,9 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
         routerLink: '/proveedor/solicitudes'
       },
       {
-        label: 'Notificaciones',
-        icon: 'pi pi-bell',
-        routerLink: '/proveedor/notificaciones'
+        label: 'Mis Finanzas',
+        icon: 'pi pi-money-bill',
+        routerLink: '/proveedor/finanzas'
       }
     ];
 
@@ -80,41 +85,6 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
       console.log('❌ Web Builder not active, menu item not added');
     }
 
-    baseItems.push(
-      {
-        label: 'Configuración',
-        icon: 'pi pi-cog',
-        routerLink: '/proveedor/configuracion'
-      },
-      {
-        separator: true
-      },
-      {
-        label: 'Cerrar Sesión',
-        icon: 'pi pi-power-off',
-        command: () => {
-          this.confirmationService.confirm({
-            message: '¿Estás seguro de que quieres cerrar tu sesión?',
-            header: 'Cerrar Sesión',
-            icon: 'pi pi-exclamation-triangle',
-            rejectLabel: 'Cancelar',
-            rejectButtonProps: {
-              label: 'Cancelar',
-              severity: 'secondary',
-              outlined: true
-            },
-            acceptLabel: 'Sí, Salir',
-            acceptButtonProps: {
-              label: 'Sí, Salir',
-              severity: 'danger'
-            },
-            accept: () => {
-              this.auth.logout();
-            }
-          });
-        }
-      }
-    );
     return baseItems;
   });
 
@@ -149,6 +119,36 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
 
   toggleSidebar() {
     this.isSidebarExpanded.set(!this.isSidebarExpanded());
+  }
+
+  logout() {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que quieres cerrar tu sesión?',
+      header: 'Cerrar Sesión',
+      icon: 'pi pi-exclamation-triangle',
+      rejectLabel: 'Cancelar',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptLabel: 'Sí, Salir',
+      acceptButtonProps: {
+        label: 'Sí, Salir',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.auth.logout();
+      }
+    });
+  }
+
+  goToSettings() {
+    this.router.navigate(['/proveedor/configuracion']);
+  }
+
+  goToNotifications() {
+    this.router.navigate(['/proveedor/notificaciones']);
   }
 
   navigateToItem(item: any) {

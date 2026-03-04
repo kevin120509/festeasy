@@ -226,7 +226,7 @@ export class ApiService {
         return this.fromSupabase(
             this.supabase
                 .from('perfil_proveedor')
-                .select('id, nombre_negocio, latitud, longitud, categoria_principal_id, avatar_url, descripcion, direccion_formato, usuario_id, tipo_suscripcion_actual')
+                .select('id, nombre_negocio, latitud, longitud, categoria_principal_id, avatar_url, descripcion, direccion_formato, usuario_id, tipo_suscripcion_actual, porcentaje_anticipo')
         );
     }
 
@@ -690,13 +690,13 @@ export class ApiService {
             .from('solicitudes')
             .select(`
                         *,
-                        cliente: perfil_cliente!solicitudes_cliente_perfil_fkey(
+                        cliente: perfil_cliente(
                             id,
                             nombre_completo,
                             telefono,
                             avatar_url
                         ),
-                        perfil_proveedor: perfil_proveedor!solicitudes_proveedor_perfil_fkey(
+                        provider: perfil_proveedor(
                             id,
                             usuario_id,
                             nombre_negocio,
@@ -705,7 +705,8 @@ export class ApiService {
                             avatar_url,
                             direccion_formato,
                             rating,
-                            tipo_suscripcion_actual
+                            tipo_suscripcion_actual,
+                            porcentaje_anticipo
                         )
                         `)
             .eq('id', id)
@@ -727,7 +728,7 @@ export class ApiService {
                 const rawCliente = request.cliente;
                 const clienteExistente = Array.isArray(rawCliente) ? rawCliente[0] : rawCliente;
 
-                const rawProveedor = request.perfil_proveedor;
+                const rawProveedor = request.provider;
                 const proveedorExistente = Array.isArray(rawProveedor) ? rawProveedor[0] : rawProveedor;
 
                 // Si ya tenemos los datos del proveedor del JOIN, no necesitamos hacer otra consulta
@@ -751,7 +752,7 @@ export class ApiService {
 
                             return {
                                 ...request,
-                                perfil_proveedor: proveedorExistente,
+                                provider: proveedorExistente,
                                 cliente: clienteData
                             };
                         })
@@ -779,7 +780,7 @@ export class ApiService {
 
                         return {
                             ...request,
-                            perfil_proveedor: provider.data,
+                            provider: provider.data,
                             cliente: clienteData
                         };
                     })
@@ -799,6 +800,86 @@ export class ApiService {
                 return data || [];
             })
         );
+    }
+
+    // --- MÓDULO DE FINANZAS ---
+
+    getExpenses(filters: any = {}): Observable<any[]> {
+        let query = this.supabase.from('gastos_proveedor').select('*');
+        if (filters.startDate) query = query.gte('fecha', filters.startDate);
+        if (filters.endDate) query = query.lte('fecha', filters.endDate);
+        if (filters.categoria) query = query.eq('categoria', filters.categoria);
+        return from(query.order('fecha', { ascending: false })).pipe(
+            map(({ data, error }) => {
+                if (error) throw error;
+                return data || [];
+            })
+        );
+    }
+
+    upsertExpense(expense: any): Observable<any> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap((u: any) => {
+                const data = { ...expense, proveedor_id: u.data.user?.id };
+                return from(this.supabase.from('gastos_proveedor').upsert(data).select().single());
+            }),
+            map(({ data, error }) => {
+                if (error) throw error;
+                return data;
+            })
+        );
+    }
+
+    deleteExpense(id: string): Observable<any> {
+        return from(this.supabase.from('gastos_proveedor').delete().eq('id', id));
+    }
+
+    getFinancialSummary(startDate: string, endDate: string): Observable<any> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap((u: any) => {
+                const userId = u.data.user?.id;
+                const incomeQuery = this.supabase
+                    .from('solicitudes')
+                    .select('total, costo_ejecucion')
+                    .eq('proveedor_usuario_id', userId)
+                    .in('estado', ['finalizado', 'entregado_liquidado', 'entregado_pendiente_liq'])
+                    .gte('fecha_servicio', startDate)
+                    .lte('fecha_servicio', endDate);
+
+                const expensesQuery = this.supabase
+                    .from('gastos_proveedor')
+                    .select('monto, categoria')
+                    .eq('proveedor_id', userId)
+                    .gte('fecha', startDate)
+                    .lte('fecha', endDate);
+
+                return forkJoin({
+                    solicitudes: from(incomeQuery),
+                    gastos: from(expensesQuery)
+                });
+            }),
+            map(({ solicitudes, gastos }: any) => {
+                const totalIncome = solicitudes.data?.reduce((acc: number, s: any) => acc + (s.total || 0), 0) || 0;
+                const totalExecutionCost = solicitudes.data?.reduce((acc: number, s: any) => acc + (s.costo_ejecucion || 0), 0) || 0;
+                const totalManualExpenses = gastos.data?.reduce((acc: number, g: any) => acc + (g.monto || 0), 0) || 0;
+                const eventCount = solicitudes.data?.length || 0;
+                return {
+                    totalIncome,
+                    totalExpenses: totalExecutionCost + totalManualExpenses,
+                    netProfit: totalIncome - (totalExecutionCost + totalManualExpenses),
+                    eventCount,
+                    avgTicket: eventCount > 0 ? totalIncome / eventCount : 0,
+                    byCategory: this.groupExpensesByCategory(gastos.data || [])
+                };
+            })
+        );
+    }
+
+    private groupExpensesByCategory(expenses: any[]) {
+        return expenses.reduce((acc: any, g: any) => {
+            acc[g.categoria] = (acc[g.categoria] || 0) + g.monto;
+            return acc;
+        }, {});
     }
 
     // Reviews

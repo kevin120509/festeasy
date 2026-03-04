@@ -335,10 +335,12 @@
 
                     <div class="space-y-6">
                         <div class="flex justify-between items-center">
-                            <span class="text-slate-500 text-sm font-medium">Anticipo (30%)</span>
+                            <span class="text-slate-500 text-sm font-medium">Anticipo ({{
+                                solicitud()?.provider?.porcentaje_anticipo ?? 30 }}%)</span>
                             <div class="text-right">
                                 <p class="font-bold text-slate-900">{{ (solicitud()?.monto_anticipo ||
-                                    (solicitud()?.monto_total || 0) * 0.3) |
+                                    (solicitud()?.monto_total || 0) * ((solicitud()?.provider?.porcentaje_anticipo ??
+                                    30) / 100)) |
                                     currency:'MXN' }}</p>
                                 @if (solicitud()?.estado === SolicitudEstado.RESERVADO ||
                                 solicitud()?.estado === SolicitudEstado.EN_PROGRESO ||
@@ -354,10 +356,12 @@
                         </div>
 
                         <div class="flex justify-between items-center pt-6 border-t border-slate-100">
-                            <span class="text-slate-500 text-sm font-medium">Liquidación (70%)</span>
+                            <span class="text-slate-500 text-sm font-medium">Liquidación ({{ 100 -
+                                (solicitud()?.provider?.porcentaje_anticipo ?? 30) }}%)</span>
                             <div class="text-right">
                                 <p class="font-bold text-slate-900">{{ (solicitud()?.monto_liquidacion ||
-                                    (solicitud()?.monto_total || 0) * 0.7) |
+                                    (solicitud()?.monto_total || 0) * ((100 -
+                                    (solicitud()?.provider?.porcentaje_anticipo ?? 30)) / 100)) |
                                     currency:'MXN' }}</p>
                                 @if (solicitud()?.estado === SolicitudEstado.FINALIZADO) {
                                 <span

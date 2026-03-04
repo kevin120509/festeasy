@@ -88,22 +88,17 @@ export class SubscriptionService {
     public addonsInfo = computed(() => {
         const active = this.allActiveAddons();
         return this.plansConfig()
-            .filter(c => c.tipo === 'addon')
-            // Filtrar el addon de redes sociales que ya no se usará
-            .filter(c => c.id !== 'redes' && c.id !== 'SOCIAL_SHARE')
+            // Filtrar addons que ya no se usarán
+            .filter(c => c.id !== 'redes' && c.id !== 'SOCIAL_SHARE' && c.id !== 'ia' && c.id !== 'IA_ASSISTANT')
             .map(c => {
                 let icon = 'share';
                 let desc = `Complemento de ${c.nombre} para tu negocio.`;
 
                 // Normalización de IDs para la UI
                 const normalizedId = (c.id === 'website') ? 'WEB_BUILDER' :
-                    (c.id === 'ia') ? 'IA_ASSISTANT' :
-                        (c.id === 'redes') ? 'SOCIAL_SHARE' : c.id;
+                    (c.id === 'redes') ? 'SOCIAL_SHARE' : c.id;
 
-                if (normalizedId === 'IA_ASSISTANT') {
-                    icon = 'psychology';
-                    desc = 'Optimiza tus respuestas y gestión con ayuda de IA.';
-                } else if (normalizedId === 'WEB_BUILDER') {
+                if (normalizedId === 'WEB_BUILDER') {
                     icon = 'language';
                     desc = 'Crea tu propia página web profesional personalizada.';
                 } else if (normalizedId === 'SOCIAL_SHARE') {

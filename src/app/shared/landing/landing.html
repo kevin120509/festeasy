@@ -7,22 +7,10 @@
 </div>
 
 <!-- Navbar -->
-<header
-  class="navbar-custom"
-  id="mainHeader"
-  [class.scrolled]="isScrolled"
-  [class.hidden-nav]="!isNavbarVisible"
->
+<header class="navbar-custom" id="mainHeader" [class.scrolled]="isScrolled" [class.hidden-nav]="!isNavbarVisible">
   <div class="logo-container">
-    <video
-      src="assets/festeasy.mp4"
-      class="navbar-logo-custom cursor-pointer"
-      (click)="toggleVideo($event)"
-      loop
-      muted
-      playsinline
-      title="Click para reproducir con sonido"
-    ></video>
+    <video src="assets/festeasy.mp4" class="navbar-logo-custom cursor-pointer" (click)="toggleVideo($event)" loop muted
+      playsinline title="Click para reproducir con sonido"></video>
   </div>
 
   <nav class="nav-links-custom" [class.open]="isMobileMenuOpen">
@@ -30,18 +18,10 @@
     <button class="md:hidden absolute top-8 right-8 text-3xl text-gray-800" (click)="toggleMobileMenu()">
       <i class="pi pi-times"></i>
     </button>
-    <a (click)="scrollToSection('beneficios'); isMobileMenuOpen = false" class="nav-link-custom"
-      >Beneficios</a
-    >
-    <a (click)="scrollToSection('como-funciona'); isMobileMenuOpen = false" class="nav-link-custom"
-      >Cómo funciona</a
-    >
-    <a (click)="scrollToSection('precios'); isMobileMenuOpen = false" class="nav-link-custom"
-      >Servicios</a
-    >
-    <a routerLink="/login" class="nav-link-custom md:hidden" (click)="isMobileMenuOpen = false"
-      >Login</a
-    >
+    <a (click)="scrollToSection('beneficios'); isMobileMenuOpen = false" class="nav-link-custom">Beneficios</a>
+    <a (click)="scrollToSection('como-funciona'); isMobileMenuOpen = false" class="nav-link-custom">Cómo funciona</a>
+    <a (click)="scrollToSection('precios'); isMobileMenuOpen = false" class="nav-link-custom">Servicios</a>
+    <a routerLink="/login" class="nav-link-custom md:hidden" (click)="isMobileMenuOpen = false">Login</a>
   </nav>
 
   <div class="navbar-cta-desktop">
@@ -58,12 +38,8 @@
   <!-- Hero Section -->
   <section class="hero-section">
     <div class="hero-background">
-      <div
-        *ngFor="let slide of slides; let i = index"
-        class="hero-slide"
-        [class.active]="i === currentSlide"
-        [style.backgroundImage]="'url(' + slide + ')'"
-      ></div>
+      <div *ngFor="let slide of slides; let i = index" class="hero-slide" [class.active]="i === currentSlide"
+        [style.backgroundImage]="'url(' + slide + ')'"></div>
       <div class="hero-overlay"></div>
     </div>
 
@@ -83,10 +59,8 @@
         <a routerLink="/proveedor/registro" class="btn btn-primary text-lg px-8 py-3">
           Quiero ser proveedor
         </a>
-        <a
-          routerLink="/cliente/registro"
-          class="btn btn-outline text-white border-white hover:bg-white hover:text-red-600 text-lg px-8 py-3"
-        >
+        <a routerLink="/cliente/registro"
+          class="btn btn-outline text-white border-white hover:bg-white hover:text-red-600 text-lg px-8 py-3">
           Quiero ser usuario
         </a>
       </div>
@@ -112,12 +86,8 @@
     </div>
 
     <div class="problem-grid">
-      <div
-        *ngFor="let problem of problems; let i = index"
-        class="problem-item animado"
-        data-anim="fadeRight"
-        [attr.data-delay]="i * 150"
-      >
+      <div *ngFor="let problem of problems; let i = index" class="problem-item animado" data-anim="fadeRight"
+        [attr.data-delay]="i * 150">
         <span class="problem-number">{{ problem.number }}</span>
         <div class="problem-content">
           <h3>{{ problem.title }}</h3>
@@ -219,11 +189,7 @@
   </section>
 
   <!-- How It Works -->
-  <section
-    id="como-funciona"
-    class="section-padding"
-    style="background-color: var(--background-alt)"
-  >
+  <section id="como-funciona" class="section-padding" style="background-color: var(--background-alt)">
     <div class="text-center mb-16">
       <div class="section-divider animado" data-anim="fadeUp">
         <i class="pi pi-star-fill"></i>
@@ -236,12 +202,8 @@
     </div>
 
     <div class="hiw-grid">
-      <div
-        *ngFor="let step of steps; let i = index"
-        class="hiw-card animado"
-        data-anim="fadeUp"
-        [attr.data-delay]="i * 200"
-      >
+      <div *ngFor="let step of steps; let i = index" class="hiw-card animado" data-anim="fadeUp"
+        [attr.data-delay]="i * 200">
         <div class="hiw-icon-container">
           <span class="material-symbols-outlined hiw-icon">{{ step.icon }}</span>
         </div>
@@ -268,34 +230,32 @@
       </h2>
     </div>
 
-    <div class="pricing-grid max-w-4xl mx-auto">
-      <div
-        *ngFor="let plan of plans; let i = index"
-        class="service-card-light animado"
-        [class.featured]="plan.featured"
-        data-anim="fadeUp"
-        [attr.data-delay]="i * 200"
-      >
+    <div class="pricing-grid max-w-5xl mx-auto flex flex-wrap justify-center gap-8 px-4">
+      <div *ngFor="let plan of plans; let i = index"
+        class="service-card-light animado min-w-[320px] max-w-[400px] flex-1" [class.featured]="plan.featured"
+        data-anim="fadeUp" [attr.data-delay]="i * 200">
         <div *ngIf="plan.tag" class="popular-tag">{{ plan.tag }}</div>
 
-        <h3 class="text-2xl font-bold mb-2">{{ plan.name }}</h3>
-        <div class="price-amount">
-          {{ plan.price }}
-          <span class="text-base font-normal text-gray-500">{{ plan.period }}</span>
+        <div class="card-header pb-6">
+          <h3 class="text-2xl font-black mb-2 text-gray-900">{{ plan.name }}</h3>
+          <div class="price-amount flex items-baseline gap-1">
+            <span class="text-4xl font-black text-gray-900">{{ plan.price }}</span>
+            <span class="text-sm font-medium text-gray-500 uppercase tracking-wider">{{ plan.period }}</span>
+          </div>
         </div>
+
+        <div class="h-px bg-gray-100 my-4"></div>
 
         <ul class="space-y-4 my-8">
           <li *ngFor="let feature of plan.features" class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-red-600">check_circle</span>
-            <span>{{ feature }}</span>
+            <span class="material-symbols-outlined text-red-600 scale-90">check_circle</span>
+            <span class="text-gray-600 text-[15px] font-medium">{{ feature }}</span>
           </li>
         </ul>
 
-        <a
-          routerLink="/proveedor/registro"
-          class="btn w-full text-center"
-          [ngClass]="plan.featured ? 'btn-primary' : 'btn-outline'"
-        >
+        <a routerLink="/proveedor/registro"
+          class="btn w-full text-center py-4 rounded-2xl font-bold transition-all transform active:scale-95"
+          [ngClass]="plan.featured ? 'btn-primary shadow-xl shadow-red-200' : 'btn-outline border-2'">
           Activar ahora
         </a>
       </div>
@@ -312,33 +272,24 @@
 <footer class="footer-custom">
   <div class="footer-grid">
     <div class="animado" data-anim="fadeUp">
-      <img
-        src="assets/logo-festeasy.png"
-        alt="FestEasy"
-        style="height: 30px; margin-bottom: 1.5rem; filter: grayscale(100%); opacity: 0.7"
-      />
+      <img src="assets/logo-festeasy.png" alt="FestEasy"
+        style="height: 30px; margin-bottom: 1.5rem; filter: grayscale(100%); opacity: 0.7" />
       <p class="text-gray-500 mb-6 max-w-sm">
         Transformando la industria de eventos en Latinoamérica con tecnología y confianza.
       </p>
       <div class="flex gap-4">
-        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"
-          ><i class="pi pi-facebook text-xl"></i
-        ></a>
-        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"
-          ><i class="pi pi-instagram text-xl"></i
-        ></a>
-        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"
-          ><i class="pi pi-twitter text-xl"></i
-        ></a>
+        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i
+            class="pi pi-facebook text-xl"></i></a>
+        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i
+            class="pi pi-instagram text-xl"></i></a>
+        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i class="pi pi-twitter text-xl"></i></a>
       </div>
     </div>
 
     <div class="animado" data-anim="fadeUp" data-delay="100">
       <h4 class="font-bold mb-6 text-gray-900">Plataforma</h4>
       <a (click)="scrollToSection('beneficios')" class="footer-link cursor-pointer">Beneficios</a>
-      <a (click)="scrollToSection('como-funciona')" class="footer-link cursor-pointer"
-        >Cómo funciona</a
-      >
+      <a (click)="scrollToSection('como-funciona')" class="footer-link cursor-pointer">Cómo funciona</a>
       <a (click)="scrollToSection('precios')" class="footer-link cursor-pointer">Precios</a>
     </div>
 

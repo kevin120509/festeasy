@@ -1,0 +1,101 @@
+:host {
+    display: block;
+    width: 100%;
+}
+
+.kpi-card {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.kpi-card:hover {
+    transform: translateY(-8px);
+}
+
+.custom-calendar-input ::ng-deep .p-inputtext {
+    border: none !important;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #475569;
+    padding: 10px 14px;
+    width: 200px;
+    background: transparent;
+}
+
+.custom-calendar-input ::ng-deep .p-inputtext:focus {
+    box-shadow: none !important;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+::ng-deep .p-datatable .p-datatable-header {
+    background: transparent;
+    border: none;
+}
+
+::ng-deep .p-datatable .p-datatable-thead>tr>th {
+    background: transparent;
+    border-bottom: 2px solid #f1f5f9;
+}
+
+::ng-deep .p-datatable .p-paginator {
+    border: none;
+    padding-top: 2rem;
+    background: transparent;
+}
+
+::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
+    background: #fdf2f2;
+    color: #ef4444;
+}
+
+::ng-deep .finance-dialog .p-dialog-header {
+    padding: 2rem 2rem 0;
+    border: none;
+}
+
+::ng-deep .finance-dialog .p-dialog-content {
+    padding: 0 2rem;
+}
+
+::ng-deep .finance-dialog .p-dialog-footer {
+    padding: 0 2rem 2rem;
+    border: none;
+}
+
+::ng-deep .p-inputnumber-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    font-weight: 700;
+}
+
+::ng-deep .p-inputnumber-input:focus {
+    border-color: #ef4444 !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .p-select {
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 4px;
+}
+
+::ng-deep .p-select:not(.p-disabled).p-focus {
+    border-color: #ef4444 !important;
+    box-shadow: none !important;
+}
+
+::ng-deep .p-datepicker .p-inputtext {
+    border-radius: 16px;
+}
+
+@media (max-width: 1024px) {
+    .pt-24 {
+        padding-top: 6rem;
+    }
+}

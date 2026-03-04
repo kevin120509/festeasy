@@ -81,44 +81,31 @@ export class LandingComponent implements OnInit, AfterViewInit, OnDestroy {
   // Pricing Data
   plans = [
     {
-      name: 'Sitio Web Profesional',
-      price: '$399',
+      name: 'Membresía FestEasy Plus',
+      price: '$499',
       period: 'MXN / mes',
       features: [
-        'URL personalizada para tu negocio',
-        'Diseño optimizado para móviles',
-        'Edición en tiempo real',
-        'Estadísticas de visitas',
+        'Publicación de paquetes ilimitada',
+        'Prioridad máxima en búsquedas',
+        'Distintivo de Proveedor Verificado',
+        'Soporte prioritario 24/7',
       ],
       featured: false,
-      tag: 'BÁSICO',
+      tag: 'PLAN BASE',
     },
     {
-      name: 'Sitio Web Profesional',
-      price: '$399',
+      name: 'FestEasy Todo Incluido',
+      price: '$898',
       period: 'MXN / mes',
       features: [
-        'URL personalizada para tu negocio',
+        'Todos los beneficios de Plus',
+        'Sitio Web Profesional (.festeasy.com)',
         'Diseño optimizado para móviles',
-        'Edición en tiempo real',
-        'Estadísticas de visitas',
-      ],
-      featured: false,
-      tag: 'POPULAR',
-    },
-    {
-      name: 'Asistente de IA Experto',
-      price: '$599',
-      period: 'MXN / mes',
-      features: [
-        'Automatización de solicitudes',
-        'Asistente experto en tu negocio',
-        'Solicitudes disponibles para tu agenda',
-        'Respuestas inteligentes',
+        'Estadísticas de visitas diarias',
       ],
       featured: true,
-      tag: 'NUEVO',
-    },
+      tag: 'RECOMENDADO',
+    }
   ];
 
   constructor(

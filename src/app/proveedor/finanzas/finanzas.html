@@ -1,0 +1,214 @@
+<p-toast></p-toast>
+
+<div class="finanzas-container p-4 md:p-6 lg:p-8 pt-24 lg:pt-8 bg-slate-50 min-h-screen">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+        <div>
+            <h1 class="text-3xl font-black text-slate-800 tracking-tight">Mis Finanzas</h1>
+            <p class="text-slate-500 font-medium mt-1">Gestión integral de ingresos y gastos operativos.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+            <div class="range-picker bg-white border border-slate-200 rounded-2xl p-1 flex items-center shadow-sm">
+                <p-datepicker [(ngModel)]="dateRange" selectionMode="range" [readonlyInput]="true"
+                    (onSelect)="loadData()" placeholder="Rango de fechas" styleClass="custom-calendar-input"
+                    [showIcon]="true">
+                </p-datepicker>
+            </div>
+
+            <p-button label="Registrar Gasto" icon="pi pi-plus" rounded="true" (onClick)="openNewExpense()"
+                styleClass="p-button-danger shadow-lg shadow-red-100 font-bold transition-all hover:scale-105 active:scale-95">
+            </p-button>
+        </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="kpi-card bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+            <div class="flex justify-between items-start mb-4">
+                <div class="bg-indigo-50 p-3 rounded-2xl">
+                    <i class="pi pi-wallet text-xl text-indigo-600"></i>
+                </div>
+                <span
+                    class="badge flex items-center gap-1 text-[10px] font-black uppercase text-indigo-600 bg-indigo-50 px-2 py-1 rounded-full">Ingresos</span>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Cobrado</p>
+            <h3 class="text-2xl font-black text-slate-800">{{formatCurrency(summary().totalIncome)}}</h3>
+        </div>
+
+        <div class="kpi-card bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+            <div class="flex justify-between items-start mb-4">
+                <div class="bg-red-50 p-3 rounded-2xl">
+                    <i class="pi pi-arrow-down-right text-xl text-red-600"></i>
+                </div>
+                <span
+                    class="badge flex items-center gap-1 text-[10px] font-black uppercase text-red-600 bg-red-50 px-2 py-1 rounded-full">Gastos</span>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Egresos</p>
+            <h3 class="text-2xl font-black text-slate-800">{{formatCurrency(summary().totalExpenses)}}</h3>
+        </div>
+
+        <div
+            class="kpi-card bg-emerald-500 p-6 rounded-3xl shadow-lg shadow-emerald-100 transition-all hover:shadow-xl group">
+            <div class="flex justify-between items-start mb-4">
+                <div class="bg-white/20 p-3 rounded-2xl">
+                    <i class="pi pi-chart-line text-xl text-white"></i>
+                </div>
+                <span
+                    class="badge flex items-center gap-1 text-[10px] font-black uppercase text-white bg-white/20 px-2 py-1 rounded-full">Neto</span>
+            </div>
+            <p class="text-white/80 text-xs font-bold uppercase tracking-widest mb-1">Ganancia Neta</p>
+            <h3 class="text-2xl font-black text-white">{{formatCurrency(summary().netProfit)}}</h3>
+        </div>
+
+        <div class="kpi-card bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
+            <div class="flex justify-between items-start mb-4">
+                <div class="bg-amber-50 p-3 rounded-2xl">
+                    <i class="pi pi-ticket text-xl text-amber-600"></i>
+                </div>
+                <span
+                    class="badge flex items-center gap-1 text-[10px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Tickets</span>
+            </div>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Ticket Promedio</p>
+            <h3 class="text-2xl font-black text-slate-800">{{formatCurrency(summary().avgTicket)}}</h3>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Chart Section -->
+        <div class="lg:col-span-1 bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col h-full">
+            <h3 class="text-lg font-black text-slate-800 mb-2">Gastos por Categoría</h3>
+            <p class="text-slate-500 text-sm mb-8">Distribución porcentual de tus egresos operativos.</p>
+
+            <div class="flex-1 flex items-center justify-center min-h-[300px]">
+                @if (chartData && chartData.datasets[0].data.length > 0) {
+                <p-chart type="doughnut" [data]="chartData" [options]="chartOptions" height="300px"></p-chart>
+                } @else {
+                <div class="text-center">
+                    <i class="pi pi-info-circle text-4xl text-slate-200 mb-3"></i>
+                    <p class="text-slate-400 font-bold">Sin datos para graficar</p>
+                </div>
+                }
+            </div>
+        </div>
+
+        <!-- Expenses Table -->
+        <div
+            class="lg:col-span-2 bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full">
+            <div class="p-8 pb-0">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800">Listado de Gastos</h3>
+                        <p class="text-slate-500 text-sm">Control detallado de tus compras y servicios.</p>
+                    </div>
+                </div>
+            </div>
+
+            <p-table [value]="expenses()" [loading]="loading()" [paginator]="true" [rows]="5"
+                styleClass="p-datatable-sm" [responsiveLayout]="'scroll'">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th
+                            class="bg-transparent border-0 text-slate-400 font-bold uppercase text-[10px] py-4 px-8 tracking-widest">
+                            Fecha</th>
+                        <th
+                            class="bg-transparent border-0 text-slate-400 font-bold uppercase text-[10px] py-4 px-8 tracking-widest">
+                            Categoría</th>
+                        <th
+                            class="bg-transparent border-0 text-slate-400 font-bold uppercase text-[10px] py-4 px-8 tracking-widest">
+                            Concepto</th>
+                        <th
+                            class="bg-transparent border-0 text-slate-400 font-bold uppercase text-[10px] py-4 px-8 tracking-widest text-right">
+                            Monto</th>
+                        <th
+                            class="bg-transparent border-0 text-slate-400 font-bold uppercase text-[10px] py-4 px-8 tracking-widest text-center">
+                            Acciones</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-expense>
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-50 last:border-0">
+                        <td class="py-4 px-8 text-sm font-bold text-slate-600">{{expense.fecha | date:'dd/MM/yyyy'}}
+                        </td>
+                        <td class="py-4 px-8">
+                            <span
+                                class="badge px-3 py-1 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-black uppercase tracking-wider">
+                                {{expense.categoria}}
+                            </span>
+                        </td>
+                        <td class="py-4 px-8 text-sm text-slate-500">{{expense.nota || 'No especificado'}}</td>
+                        <td class="py-4 px-8 text-sm font-black text-slate-800 text-right">
+                            {{formatCurrency(expense.monto)}}</td>
+                        <td class="py-4 px-8 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <button pButton icon="pi pi-pencil"
+                                    class="p-button-text p-button-rounded p-button-secondary p-1"
+                                    (click)="editExpense(expense)"></button>
+                                <button pButton icon="pi pi-trash"
+                                    class="p-button-text p-button-rounded p-button-danger p-1"
+                                    (click)="deleteExpense(expense.id)"></button>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td colspan="5" class="text-center py-20">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                    <i class="pi pi-filter-slash text-2xl text-slate-300"></i>
+                                </div>
+                                <p class="text-slate-400 font-bold">No se encontraron gastos registrados</p>
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+</div>
+
+<!-- Expense Dialog -->
+<p-dialog [(visible)]="showExpenseDialog" [header]="editingExpense() ? 'Editar Gasto' : 'Nuevo Gasto'" [modal]="true"
+    [style]="{width: '100%', maxWidth: '450px'}" [draggable]="false" [resizable]="false" styleClass="finance-dialog">
+
+    <div class="grid grid-cols-1 gap-6 p-2 pt-6">
+        <div class="field flex flex-col gap-2">
+            <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Monto del Gasto</label>
+            <p-inputnumber [(ngModel)]="expenseForm.monto" mode="currency" currency="MXN" locale="es-MX"
+                placeholder="$ 0.00" styleClass="w-full">
+            </p-inputnumber>
+        </div>
+
+        <div class="field flex flex-col gap-2">
+            <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Fecha</label>
+            <p-datepicker [(ngModel)]="expenseForm.fecha" [showIcon]="true" styleClass="w-full">
+            </p-datepicker>
+        </div>
+
+        <div class="field flex flex-col gap-2">
+            <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Categoría</label>
+            <p-select [options]="categorias" [(ngModel)]="expenseForm.categoria" placeholder="Seleccionar categoría"
+                styleClass="w-full">
+            </p-select>
+        </div>
+
+        <div class="field flex flex-col gap-2">
+            <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Nota / Observaciones</label>
+            <textarea pTextarea [(ngModel)]="expenseForm.nota" rows="3"
+                placeholder="Ej: Material de decoración para evento..."
+                class="w-full p-3 border border-slate-200 rounded-2xl focus:border-red-500 focus:ring-0 transition-all">
+      </textarea>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <div class="flex gap-3 pt-6">
+            <p-button label="Cancelar" (onClick)="showExpenseDialog.set(false)"
+                styleClass="p-button-text p-button-secondary flex-1 font-bold">
+            </p-button>
+            <p-button label="Guardar Gasto" (onClick)="saveExpense()"
+                styleClass="p-button-danger flex-1 font-bold shadow-lg shadow-red-100">
+            </p-button>
+        </div>
+    </ng-template>
+</p-dialog>

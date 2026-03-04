@@ -41,6 +41,8 @@ import { ProveedorConfiguracionComponent } from './proveedor/configuracion/confi
 import { ProveedorLayoutComponent } from './proveedor/layout/proveedor-layout.component';
 import { ResenasRecibidasComponent } from './proveedor/resenas/resenas-recibidas.component';
 import { InventarioComponent } from './proveedor/inventario/inventario.component';
+import { CalendarioComponent } from './proveedor/calendario/calendario.component';
+import { FinanzasComponent } from './proveedor/finanzas/finanzas.component';
 
 // Admin
 import { AdminDashboardComponent } from './admin/dashboard/admin-dashboard.component';
@@ -122,6 +124,8 @@ export const routes: Routes = [
             { path: 'inventario', component: InventarioComponent },
             { path: 'paquete/:id', component: PaqueteDetalleComponent, data: { hideSidebar: true } },
             { path: 'resenas', component: ResenasRecibidasComponent },
+            { path: 'calendario', component: CalendarioComponent },
+            { path: 'finanzas', component: FinanzasComponent },
             { path: 'configuracion', component: ProveedorConfiguracionComponent },
             { path: 'web-builder', component: WebBuilderComponent, canActivate: [webBuilderGuard] },
         ]

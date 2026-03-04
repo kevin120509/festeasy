@@ -25,6 +25,7 @@ export class ConcluirServicioComponent implements AfterViewInit {
 
     // Evidence states
     fotoImg = signal<string | null>(null);
+    firmaImg = signal<string | null>(null);
     latitud = signal<number | null>(null);
     longitud = signal<number | null>(null);
 
@@ -86,6 +87,13 @@ export class ConcluirServicioComponent implements AfterViewInit {
             return;
         }
 
+        if (this.paso() === 2) {
+            // Capturar firma antes de que el canvas desaparezca del DOM
+            if (this.canvas) {
+                this.firmaImg.set(this.canvas.nativeElement.toDataURL('image/png'));
+            }
+        }
+
         this.paso.update(p => p + 1);
         if (this.paso() === 2) {
             setTimeout(() => this.initCanvas(), 100);
@@ -115,7 +123,10 @@ export class ConcluirServicioComponent implements AfterViewInit {
     }
 
     clearSignature() {
-        this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        if (this.canvas) {
+            this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        }
+        this.firmaImg.set(null);
     }
 
     private getPos(event: MouseEvent | TouchEvent) {
@@ -176,10 +187,12 @@ export class ConcluirServicioComponent implements AfterViewInit {
             }
 
             // 3. Subir Firma
-            const firmaData = this.canvas.nativeElement.toDataURL('image/png');
-            const firmaBlob = await fetch(firmaData).then(r => r.blob());
-            const firmaPath = `${this.solicitud.id}/evidencia_firma_${timestamp}.png`;
-            const firmaUrl = await this.supabase.uploadFile('festeasy', firmaPath, new File([firmaBlob], 'firma.png', { type: 'image/png' }));
+            let firmaUrl = null;
+            if (this.firmaImg()) {
+                const firmaBlob = await fetch(this.firmaImg()!).then(r => r.blob());
+                const firmaPath = `${this.solicitud.id}/evidencia_firma_${timestamp}.png`;
+                firmaUrl = await this.supabase.uploadFile('festeasy', firmaPath, new File([firmaBlob], 'firma.png', { type: 'image/png' }));
+            }
 
             // 4. Actualizar Solicitud
             const { data, error } = await client
