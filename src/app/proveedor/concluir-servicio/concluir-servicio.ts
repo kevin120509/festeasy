@@ -19,13 +19,17 @@ export class ConcluirServicioComponent implements AfterViewInit {
 
     private supabase = inject(SupabaseService);
 
-    paso = signal(1); // 1: Foto, 2: Firma, 3: PIN
+    // Dynamic steps management
+    pasoActualIndex = signal(0);
+    steps = signal<string[]>([]); // 'foto', 'firma_prov', 'firma_clie', 'pin'
+
     isProcessing = signal(false);
     errorMessage = signal('');
 
     // Evidence states
     fotoImg = signal<string | null>(null);
-    firmaImg = signal<string | null>(null);
+    firmaProvImg = signal<string | null>(null);
+    firmaClieImg = signal<string | null>(null);
     latitud = signal<number | null>(null);
     longitud = signal<number | null>(null);
 
@@ -38,33 +42,61 @@ export class ConcluirServicioComponent implements AfterViewInit {
     pinDigits = signal<string[]>(['', '', '', '']);
 
     ngAfterViewInit() {
-        // Canvas initialization happens when step 2 is active
+        this.initSteps();
+    }
+
+    ngOnChanges() {
+        if (this.isOpen) {
+            this.initSteps();
+        }
+    }
+
+    initSteps() {
+        if (!this.solicitud?.provider) return;
+
+        const config = this.solicitud.provider.ajustes_entrega_json;
+        const newSteps: string[] = [];
+
+        if (config?.requiere_foto ?? true) newSteps.push('foto');
+        if (config?.requiere_firma_proveedor ?? false) newSteps.push('firma_prov');
+        if (config?.requiere_firma_cliente ?? true) newSteps.push('firma_clie');
+        if (config?.requiere_pin ?? true) newSteps.push('pin');
+
+        // Si no hay nada seleccionado, al menos PIN por defecto para seguridad? 
+        // No, respetamos la elección o ponemos un fallback mínimo
+        if (newSteps.length === 0) newSteps.push('pin');
+
+        this.steps.set(newSteps);
+    }
+
+    getPasoActual() {
+        return this.steps()[this.pasoActualIndex()];
     }
 
     initCanvas() {
-        if (!this.canvas) return;
-        const canvasEl = this.canvas.nativeElement;
-        this.ctx = canvasEl.getContext('2d')!;
-        this.ctx.strokeStyle = '#000';
-        this.ctx.lineWidth = 2;
-        this.ctx.lineCap = 'round';
+        setTimeout(() => {
+            if (!this.canvas) return;
+            const canvasEl = this.canvas.nativeElement;
+            this.ctx = canvasEl.getContext('2d')!;
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = 2;
+            this.ctx.lineCap = 'round';
 
-        // Resize for high DPI
-        const rect = canvasEl.getBoundingClientRect();
-        canvasEl.width = rect.width * devicePixelRatio;
-        canvasEl.height = rect.height * devicePixelRatio;
-        this.ctx.scale(devicePixelRatio, devicePixelRatio);
+            // Resize for high DPI
+            const rect = canvasEl.getBoundingClientRect();
+            canvasEl.width = rect.width * devicePixelRatio;
+            canvasEl.height = rect.height * devicePixelRatio;
+            this.ctx.scale(devicePixelRatio, devicePixelRatio);
+        }, 100);
     }
 
-    // --- STEP 1: PHOTO & GPS ---
+    // --- PHOTO ---
     async capturarFoto(event: any) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e: any) => this.fotoImg.set(e.target.result);
             reader.readAsDataURL(file);
-
-            // Get Location automatically
             this.obtenerUbicacion();
         }
     }
@@ -82,26 +114,43 @@ export class ConcluirServicioComponent implements AfterViewInit {
     }
 
     siguientePaso() {
-        if (this.paso() === 1 && !this.fotoImg()) {
+        const actual = this.getPasoActual();
+
+        // Validaciones por paso
+        if (actual === 'foto' && !this.fotoImg()) {
             this.errorMessage.set('Debes tomar una foto de evidencia');
             return;
         }
 
-        if (this.paso() === 2) {
-            // Capturar firma antes de que el canvas desaparezca del DOM
+        if (actual === 'firma_prov' || actual === 'firma_clie') {
             if (this.canvas) {
-                this.firmaImg.set(this.canvas.nativeElement.toDataURL('image/png'));
+                const imgData = this.canvas.nativeElement.toDataURL('image/png');
+                if (actual === 'firma_prov') this.firmaProvImg.set(imgData);
+                else this.firmaClieImg.set(imgData);
             }
         }
 
-        this.paso.update(p => p + 1);
-        if (this.paso() === 2) {
-            setTimeout(() => this.initCanvas(), 100);
+        if (this.pasoActualIndex() < this.steps().length - 1) {
+            this.pasoActualIndex.update(i => i + 1);
+            const nuevoPaso = this.getPasoActual();
+            if (nuevoPaso === 'firma_prov' || nuevoPaso === 'firma_clie') {
+                this.initCanvas();
+            }
+            this.errorMessage.set('');
         }
-        this.errorMessage.set('');
     }
 
-    // --- STEP 2: SIGNATURE ---
+    anteriorPaso() {
+        if (this.pasoActualIndex() > 0) {
+            this.pasoActualIndex.update(i => i - 1);
+            const actual = this.getPasoActual();
+            if (actual === 'firma_prov' || actual === 'firma_clie') {
+                this.initCanvas();
+            }
+        }
+    }
+
+    // --- CANVAS ACTIONS ---
     startDrawing(event: MouseEvent | TouchEvent) {
         this.isDrawing = true;
         const pos = this.getPos(event);
@@ -126,7 +175,8 @@ export class ConcluirServicioComponent implements AfterViewInit {
         if (this.canvas) {
             this.ctx.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
         }
-        this.firmaImg.set(null);
+        if (this.getPasoActual() === 'firma_prov') this.firmaProvImg.set(null);
+        else this.firmaClieImg.set(null);
     }
 
     private getPos(event: MouseEvent | TouchEvent) {
@@ -139,7 +189,7 @@ export class ConcluirServicioComponent implements AfterViewInit {
         };
     }
 
-    // --- STEP 3: PIN ---
+    // --- PIN ---
     onPinInput(event: any, index: number) {
         const val = event.target.value;
         if (val && !/^\d$/.test(val)) {
@@ -158,7 +208,8 @@ export class ConcluirServicioComponent implements AfterViewInit {
 
     // --- FINALIZATION ---
     async finalizar() {
-        if (this.pinDigits().some(d => d === '')) {
+        const actual = this.getPasoActual();
+        if (actual === 'pin' && this.pinDigits().some(d => d === '')) {
             this.errorMessage.set('Ingresa el PIN de 4 dígitos');
             return;
         }
@@ -168,46 +219,61 @@ export class ConcluirServicioComponent implements AfterViewInit {
 
         try {
             const client = this.supabase.getClient();
-            const pinStr = this.pinDigits().join('');
 
-            // 1. Validar PIN
-            if (this.solicitud?.pin_validacion !== pinStr) {
-                throw new Error('PIN de validación incorrecto');
+            // 1. Validar PIN solo si se requiere
+            if (this.steps().includes('pin')) {
+                const pinStr = this.pinDigits().join('');
+                if (this.solicitud?.pin_validacion !== pinStr) {
+                    throw new Error('PIN de validación incorrecto');
+                }
             }
 
-            const userId = this.solicitud.proveedor_usuario_id;
             const timestamp = Date.now();
 
-            // 2. Subir Foto
-            let fotoUrl = null;
+            // 2. Subidas en paralelo
+            const uploadPromises = [];
+
             if (this.fotoImg()) {
-                const blob = await fetch(this.fotoImg()!).then(r => r.blob());
-                const filePath = `${this.solicitud.id}/evidencia_foto_${timestamp}.jpg`;
-                fotoUrl = await this.supabase.uploadFile('festeasy', filePath, new File([blob], 'foto.jpg', { type: 'image/jpeg' }));
+                uploadPromises.push((async () => {
+                    const blob = await fetch(this.fotoImg()!).then(r => r.blob());
+                    const path = `${this.solicitud?.id}/evidencia_foto_${timestamp}.jpg`;
+                    return { key: 'evidencia_foto_url', url: await this.supabase.uploadFile('festeasy', path, new File([blob], 'foto.jpg', { type: 'image/jpeg' })) };
+                })());
             }
 
-            // 3. Subir Firma
-            let firmaUrl = null;
-            if (this.firmaImg()) {
-                const firmaBlob = await fetch(this.firmaImg()!).then(r => r.blob());
-                const firmaPath = `${this.solicitud.id}/evidencia_firma_${timestamp}.png`;
-                firmaUrl = await this.supabase.uploadFile('festeasy', firmaPath, new File([firmaBlob], 'firma.png', { type: 'image/png' }));
+            if (this.firmaClieImg()) {
+                uploadPromises.push((async () => {
+                    const blob = await fetch(this.firmaClieImg()!).then(r => r.blob());
+                    const path = `${this.solicitud?.id}/evidencia_firma_cliente_${timestamp}.png`;
+                    return { key: 'evidencia_firma_url', url: await this.supabase.uploadFile('festeasy', path, new File([blob], 'firma_cliente.png', { type: 'image/png' })) };
+                })());
             }
+
+            if (this.firmaProvImg()) {
+                uploadPromises.push((async () => {
+                    const blob = await fetch(this.firmaProvImg()!).then(r => r.blob());
+                    const path = `${this.solicitud?.id}/evidencia_firma_proveedor_${timestamp}.png`;
+                    return { key: 'evidencia_firma_proveedor_url', url: await this.supabase.uploadFile('festeasy', path, new File([blob], 'firma_proveedor.png', { type: 'image/png' })) };
+                })());
+            }
+
+            const results = await Promise.all(uploadPromises);
+            const updateData: any = {
+                estado: 'entregado_pendiente_liq',
+                evidencia_latitud: this.latitud(),
+                evidencia_longitud: this.longitud(),
+                finalizado_en: new Date().toISOString(),
+                actualizado_en: new Date().toISOString()
+            };
+
+            results.forEach(res => updateData[res.key] = res.url);
+            if (this.steps().includes('pin')) updateData.fecha_validacion_pin = new Date().toISOString();
 
             // 4. Actualizar Solicitud
             const { data, error } = await client
                 .from('solicitudes')
-                .update({
-                    estado: 'entregado_pendiente_liq',
-                    evidencia_foto_url: fotoUrl,
-                    evidencia_firma_url: firmaUrl,
-                    evidencia_latitud: this.latitud(),
-                    evidencia_longitud: this.longitud(),
-                    finalizado_en: new Date().toISOString(),
-                    fecha_validacion_pin: new Date().toISOString(),
-                    actualizado_en: new Date().toISOString()
-                })
-                .eq('id', this.solicitud.id)
+                .update(updateData)
+                .eq('id', this.solicitud?.id)
                 .select()
                 .single();
 
@@ -224,8 +290,10 @@ export class ConcluirServicioComponent implements AfterViewInit {
     }
 
     close() {
-        this.paso.set(1);
+        this.pasoActualIndex.set(0);
         this.fotoImg.set(null);
+        this.firmaProvImg.set(null);
+        this.firmaClieImg.set(null);
         this.pinDigits.set(['', '', '', '']);
         this.closeModal.emit();
     }

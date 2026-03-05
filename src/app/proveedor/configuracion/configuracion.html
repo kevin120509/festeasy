@@ -191,7 +191,8 @@
                         <span class="material-icons-outlined text-primary">gavel</span>
                         Políticas y Pagos
                     </h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configura tus condiciones de servicio y porcentaje de anticipo</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configura tus condiciones de servicio y
+                        porcentaje de anticipo</p>
                 </div>
                 <div class="p-6 space-y-6">
                     <!-- Porcentaje de Anticipo -->
@@ -200,14 +201,15 @@
                             <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Porcentaje de Anticipo Requerido
                             </label>
-                            <span class="px-3 py-1 bg-primary/10 text-primary font-bold rounded-lg">{{ formData().porcentaje_anticipo }}%</span>
+                            <span class="px-3 py-1 bg-primary/10 text-primary font-bold rounded-lg">{{
+                                formData().porcentaje_anticipo }}%</span>
                         </div>
-                        <input type="range" min="0" max="100" step="5"
-                            [value]="formData().porcentaje_anticipo"
+                        <input type="range" min="0" max="100" step="5" [value]="formData().porcentaje_anticipo"
                             (input)="updateField('porcentaje_anticipo', +$any($event.target).value)"
                             class="w-full h-2 bg-slate-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary" />
                         <p class="text-[11px] text-slate-500 dark:text-slate-400 italic">
-                            Este es el monto que el cliente deberá pagar para reservar tu servicio. El resto se liquidará al finalizar.
+                            Este es el monto que el cliente deberá pagar para reservar tu servicio. El resto se
+                            liquidará al finalizar.
                         </p>
                     </div>
 
@@ -218,14 +220,18 @@
                         <label class="text-sm font-semibold text-slate-700 dark:text-slate-300">
                             Políticas de Privacidad y Cancelación
                         </label>
-                        
+
                         <!-- Si ya hay un archivo subido -->
-                        <div *ngIf="formData().politicas_url" class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-gray-700/50 rounded-xl border border-slate-200 dark:border-gray-600">
+                        <div *ngIf="formData().politicas_url"
+                            class="flex items-center gap-3 p-4 bg-slate-50 dark:bg-gray-700/50 rounded-xl border border-slate-200 dark:border-gray-600">
                             <span class="material-icons-outlined text-primary">description</span>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-medium text-slate-800 dark:text-white truncate">Documento de políticas actual</p>
-                                <a [href]="formData().politicas_url" target="_blank" class="text-xs text-primary hover:underline flex items-center gap-1">
-                                    Ver documento actual <span class="material-icons-outlined text-[14px]">open_in_new</span>
+                                <p class="text-sm font-medium text-slate-800 dark:text-white truncate">Documento de
+                                    políticas actual</p>
+                                <a [href]="formData().politicas_url" target="_blank"
+                                    class="text-xs text-primary hover:underline flex items-center gap-1">
+                                    Ver documento actual <span
+                                        class="material-icons-outlined text-[14px]">open_in_new</span>
                                 </a>
                             </div>
                         </div>
@@ -237,14 +243,120 @@
                                 <span class="material-icons-outlined" [class.animate-spin]="uploadingPolicies()">
                                     {{ uploadingPolicies() ? 'sync' : 'upload_file' }}
                                 </span>
-                                {{ uploadingPolicies() ? 'Subiendo documento...' : (formData().politicas_url ? 'Reemplazar Políticas' : 'Subir Políticas (PDF/Word)') }}
+                                {{ uploadingPolicies() ? 'Subiendo documento...' : (formData().politicas_url ?
+                                'Reemplazar Políticas' : 'Subir Políticas (PDF/Word)') }}
                             </label>
-                            <input id="policy-upload" type="file" accept=".pdf,.doc,.docx" (change)="onPolicyChange($event)"
-                                class="hidden" [disabled]="uploadingPolicies()" />
+                            <input id="policy-upload" type="file" accept=".pdf,.doc,.docx"
+                                (change)="onPolicyChange($event)" class="hidden" [disabled]="uploadingPolicies()" />
                         </div>
                         <p class="text-[10px] text-slate-500 dark:text-slate-400 text-center">
-                            Se enviará este documento automáticamente al cliente cuando se confirme una reserva. Máximo 5MB.
+                            Se enviará este documento automáticamente al cliente cuando se confirme una reserva. Máximo
+                            5MB.
                         </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Configuración de Entrega -->
+            <div
+                class="bg-white dark:bg-gray-800 rounded-2xl border border-slate-100 dark:border-gray-700 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-slate-100 dark:border-gray-700">
+                    <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                        <span class="material-icons-outlined text-primary">task_alt</span>
+                        Configuración de Finalización de Servicio
+                    </h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Selecciona los pasos requeridos para
+                        concluir un servicio</p>
+                </div>
+                <div class="p-6 space-y-4">
+                    <!-- Toggle: Foto -->
+                    <div
+                        class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-slate-100 dark:border-gray-600">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <span class="material-icons-outlined">photo_camera</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Foto de Evidencia</p>
+                                <p class="text-[10px] text-slate-500">Requerir una foto al finalizar el servicio</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" [checked]="formData().req_foto"
+                                (change)="updateField('req_foto', !formData().req_foto)" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Toggle: Firma Proveedor -->
+                    <div
+                        class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-slate-100 dark:border-gray-600">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <span class="material-icons-outlined">draw</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Tu Firma (Proveedor)</p>
+                                <p class="text-[10px] text-slate-500">Debes firmar tú al entregar el servicio</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" [checked]="formData().req_firma_prov"
+                                (change)="updateField('req_firma_prov', !formData().req_firma_prov)"
+                                class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Toggle: Firma Cliente -->
+                    <div
+                        class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-slate-100 dark:border-gray-600">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <span class="material-icons-outlined">border_color</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Firma del Cliente</p>
+                                <p class="text-[10px] text-slate-500">El cliente debe firmar de conformidad</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" [checked]="formData().req_firma_clie"
+                                (change)="updateField('req_firma_clie', !formData().req_firma_clie)"
+                                class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Toggle: PIN -->
+                    <div
+                        class="flex items-center justify-between p-4 bg-slate-50 dark:bg-gray-700/50 rounded-2xl border border-slate-100 dark:border-gray-600">
+                        <div class="flex items-center gap-3">
+                            <div
+                                class="w-10 h-10 bg-primary/10 text-primary rounded-xl flex items-center justify-center">
+                                <span class="material-icons-outlined">pin</span>
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-slate-800 dark:text-white">Validación por PIN</p>
+                                <p class="text-[10px] text-slate-500">Ingresar el código PIN que tiene el cliente</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" [checked]="formData().req_pin"
+                                (change)="updateField('req_pin', !formData().req_pin)" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
+                            </div>
+                        </label>
                     </div>
                 </div>
             </div>

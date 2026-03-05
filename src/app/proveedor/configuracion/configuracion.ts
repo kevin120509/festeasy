@@ -74,7 +74,12 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
         // Datos bancarios
         banco: '',
         titular: '',
-        clabe: ''
+        clabe: '',
+        // Ajustes de entrega
+        req_foto: true,
+        req_firma_prov: false,
+        req_firma_clie: true,
+        req_pin: true
     });
 
     ngOnInit() {
@@ -119,7 +124,11 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                     porcentaje_anticipo: profile.porcentaje_anticipo || 30,
                     banco: bankData.banco || '',
                     titular: bankData.titular || '',
-                    clabe: bankData.clabe || ''
+                    clabe: bankData.clabe || '',
+                    req_foto: profile.ajustes_entrega_json?.requiere_foto ?? true,
+                    req_firma_prov: profile.ajustes_entrega_json?.requiere_firma_proveedor ?? false,
+                    req_firma_clie: profile.ajustes_entrega_json?.requiere_firma_cliente ?? true,
+                    req_pin: profile.ajustes_entrega_json?.requiere_pin ?? true
                 });
 
                 // Addons are now handled reactively by checking the activeAddonsCodes in SubscriptionService. 
@@ -278,6 +287,12 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
                 titular: formData.titular,
                 clabe: formData.clabe,
                 email_contacto_publico: formData.correo_contacto // Usamos un nombre más explícito para el JSON
+            },
+            ajustes_entrega_json: {
+                requiere_foto: formData.req_foto,
+                requiere_firma_proveedor: formData.req_firma_prov,
+                requiere_firma_cliente: formData.req_firma_clie,
+                requiere_pin: formData.req_pin
             }
         };
         this.api.updateProviderProfile(this.profile()!.id, data).subscribe({

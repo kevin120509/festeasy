@@ -7,14 +7,16 @@
         class="relative bg-white dark:bg-gray-900 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-300">
         <!-- Progress Bar -->
         <div class="h-1.5 w-full bg-slate-100 dark:bg-gray-800 flex">
-            <div class="h-full bg-primary transition-all duration-500" [style.width.%]="(paso() / 3) * 100"></div>
+            <div class="h-full bg-primary transition-all duration-500"
+                [style.width.%]="((pasoActualIndex() + 1) / steps().length) * 100"></div>
         </div>
 
         <!-- Header -->
         <div class="p-6 border-b border-slate-100 dark:border-gray-800 flex justify-between items-center">
             <div>
                 <h3 class="text-xl font-black text-slate-800 dark:text-white">Concluir Servicio</h3>
-                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Paso {{ paso() }} de 3</p>
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest mt-1">Paso {{ pasoActualIndex() + 1
+                    }} de {{ steps().length }}</p>
             </div>
             <button (click)="close()"
                 class="p-2 hover:bg-slate-100 dark:hover:bg-gray-800 rounded-full transition-colors">
@@ -24,8 +26,8 @@
 
         <!-- Body -->
         <div class="p-8">
-            <!-- STEP 1: EVIDENCIA FOTO -->
-            <div *ngIf="paso() === 1" class="space-y-6 animate-in slide-in-from-right duration-300">
+            <!-- STEP: EVIDENCIA FOTO -->
+            <div *ngIf="getPasoActual() === 'foto'" class="space-y-6 animate-in slide-in-from-right duration-300">
                 <div class="text-center">
                     <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
                         <span class="material-icons-outlined text-4xl text-primary">photo_camera</span>
@@ -63,11 +65,35 @@
                 </div>
             </div>
 
-            <!-- STEP 2: FIRMA DEL CLIENTE -->
-            <div *ngIf="paso() === 2" class="space-y-6 animate-in slide-in-from-right duration-300">
+            <!-- STEP: FIRMA DEL PROVEEDOR (TÚ) -->
+            <div *ngIf="getPasoActual() === 'firma_prov'" class="space-y-6 animate-in slide-in-from-right duration-300">
                 <div class="text-center">
                     <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
                         <span class="material-icons-outlined text-4xl text-primary">draw</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-800 dark:text-white">Tu Firma (Proveedor)</h4>
+                    <p class="text-sm text-slate-500 mt-2">Firma aquí para validar que has entregado el servicio
+                        profesionalmente.</p>
+                </div>
+
+                <div
+                    class="relative bg-slate-50 dark:bg-gray-800 rounded-2xl border-2 border-slate-200 dark:border-gray-700 overflow-hidden">
+                    <canvas #signatureCanvas class="w-full h-48 cursor-crosshair touch-none"
+                        (mousedown)="startDrawing($event)" (mousemove)="draw($event)" (mouseup)="stopDrawing()"
+                        (touchstart)="startDrawing($event)" (touchmove)="draw($event)" (touchend)="stopDrawing()">
+                    </canvas>
+                    <button (click)="clearSignature()"
+                        class="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-red-500 transition-colors">
+                        Limpiar Firma
+                    </button>
+                </div>
+            </div>
+
+            <!-- STEP: FIRMA DEL CLIENTE -->
+            <div *ngIf="getPasoActual() === 'firma_clie'" class="space-y-6 animate-in slide-in-from-right duration-300">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons-outlined text-4xl text-primary">border_color</span>
                     </div>
                     <h4 class="text-lg font-bold text-slate-800 dark:text-white">Firma de Conformidad</h4>
                     <p class="text-sm text-slate-500 mt-2">Pide al cliente que firme aquí para confirmar la recepción.
@@ -87,8 +113,8 @@
                 </div>
             </div>
 
-            <!-- STEP 3: VALIDACIÓN PIN -->
-            <div *ngIf="paso() === 3" class="space-y-6 animate-in slide-in-from-right duration-300">
+            <!-- STEP: VALIDACIÓN PIN -->
+            <div *ngIf="getPasoActual() === 'pin'" class="space-y-6 animate-in slide-in-from-right duration-300">
                 <div class="text-center">
                     <div class="w-20 h-20 bg-primary/10 rounded-3xl flex items-center justify-center mx-auto mb-4">
                         <span class="material-icons-outlined text-4xl text-primary">key</span>
@@ -115,17 +141,17 @@
 
         <!-- Footer -->
         <div class="p-8 pt-0 flex gap-3">
-            <button *ngIf="paso() > 1" (click)="paso.set(paso() - 1)"
+            <button *ngIf="pasoActualIndex() > 0" (click)="anteriorPaso()"
                 class="flex-1 py-4 text-slate-500 font-bold hover:bg-slate-50 dark:hover:bg-gray-800 rounded-2xl transition-all">
                 Anterior
             </button>
 
-            <button *ngIf="paso() < 3" (click)="siguientePaso()"
+            <button *ngIf="pasoActualIndex() < steps().length - 1" (click)="siguientePaso()"
                 class="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-black transition-all transform hover:-translate-y-0.5 active:translate-y-0">
                 Siguiente Paso
             </button>
 
-            <button *ngIf="paso() === 3" (click)="finalizar()" [disabled]="isProcessing()"
+            <button *ngIf="pasoActualIndex() === steps().length - 1" (click)="finalizar()" [disabled]="isProcessing()"
                 class="flex-[2] py-4 bg-primary text-white font-black rounded-2xl shadow-xl shadow-primary/20 hover:bg-black transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
                 <span *ngIf="isProcessing()" class="pi pi-spin pi-spinner"></span>
                 {{ isProcessing() ? 'Procesando...' : 'Finalizar Entrega' }}

@@ -54,7 +54,15 @@ export interface ProviderProfile {
     suscripcion_activa?: boolean; // simple indicator of paid status
     politicas_url?: string;
     porcentaje_anticipo?: number;
+    ajustes_entrega_json?: DeliverySettings;
     // contrasena is not included in the frontend model
+}
+
+export interface DeliverySettings {
+    requiere_foto?: boolean;
+    requiere_firma_proveedor?: boolean;
+    requiere_firma_cliente?: boolean;
+    requiere_pin?: boolean;
 }
 
 // Categories
