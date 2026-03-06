@@ -1,6 +1,8 @@
 // Enumeraciones
 export enum SolicitudEstado {
     PENDIENTE_APROBACION = 'pendiente_aprobacion',
+    EN_NEGOCIACION = 'en_negociacion',
+    ESPERANDO_CONFIRMACION_CLIENTE = 'esperando_confirmacion_cliente',
     RECHAZADA = 'rechazada',
     ESPERANDO_ANTICIPO = 'esperando_anticipo',
     RESERVADO = 'reservado',
@@ -139,7 +141,7 @@ export interface ServiceRequest {
     latitud_servicio?: number;
     longitud_servicio?: number;
     titulo_evento?: string;
-    estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
+    estado: 'pendiente_aprobacion' | 'en_negociacion' | 'esperando_confirmacion_cliente' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
     creado_en: string;
     actualizado_en: string;
     monto_total?: number;
@@ -157,6 +159,9 @@ export interface ServiceRequest {
     evidencia_latitud?: number;
     evidencia_longitud?: number;
     finalizado_en?: string | Date;
+    // Campos de negociación y cotización
+    expiracion_negociacion?: string;
+    cotizacion_borrador?: CotizacionBorrador;
     // Campos para cancelaciones
     cancelado_por_id?: string;
     motivo_cancelacion?: string;
@@ -286,6 +291,66 @@ export interface ProviderPublicPage {
 export interface AuthResponse {
     token: string;
     user: User;
+}
+
+// Package Variants (qualitative options defined by provider)
+export interface PackageVariantOption {
+    label: string;          // e.g. "Azul", "Rock", "Round"
+    precio_extra: number;   // Additional cost for this option (0 if no extra cost)
+}
+
+export interface PackageVariant {
+    nombre: string;                    // e.g. "Color de silla", "Género musical"
+    tipo: 'seleccion_unica' | 'seleccion_multiple' | 'texto_libre';
+    requerida: boolean;                // Must the client choose?
+    opciones: PackageVariantOption[];  // Available options (empty if tipo = 'texto_libre')
+}
+
+// Chat Messages
+export interface MensajeSolicitud {
+    id: string;
+    solicitud_id: string;
+    emisor_usuario_id: string;
+    mensaje: string;
+    leido: boolean;
+    creado_en: string;
+}
+
+// Cotización Borrador (stored in solicitudes.cotizacion_borrador jsonb)
+export interface DesglosePaqueteBase {
+    paquete_id: string;
+    nombre: string;
+    precio_base: number;
+    cantidad: number;
+    variantes_seleccionadas?: { nombre: string; opcion: string; precio_extra: number }[];
+}
+
+export interface DesgloseProducto {
+    producto_id?: string;       // null if manually added
+    nombre: string;
+    precio_unitario: number;
+    cantidad: number;
+    subtotal: number;
+}
+
+export interface DesgloseAjuste {
+    concepto: string;
+    tipo: 'cargo' | 'descuento';
+    monto: number;
+}
+
+export interface CotizacionBorrador {
+    paquete_base: DesglosePaqueteBase;
+    productos_extra: DesgloseProducto[];
+    ajustes_proveedor: DesgloseAjuste[];
+    subtotal: number;
+    descuento_total: number;
+    monto_total: number;
+    anticipo_tipo: 'porcentaje' | 'monto_fijo';
+    anticipo_valor: number;
+    monto_anticipo: number;
+    monto_liquidacion: number;
+    notas_proveedor?: string;
 }
 
 // Inventory
