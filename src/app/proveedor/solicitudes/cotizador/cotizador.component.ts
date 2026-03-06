@@ -17,7 +17,7 @@ import {
     standalone: true,
     imports: [CommonModule, FormsModule],
     templateUrl: './cotizador.component.html',
-    styleUrl: './cotizador.component.css'
+    styleUrls: ['./cotizador.component.css']
 })
 export class CotizadorComponent implements OnInit {
     private cotizacionService = inject(CotizacionService);

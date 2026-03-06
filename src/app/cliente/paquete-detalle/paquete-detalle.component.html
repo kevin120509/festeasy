@@ -1,4 +1,5 @@
-<div class="sticky top-0 z-50 bg-white/90 dark:bg-[#1a1a1a]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
+<div
+    class="sticky top-0 z-50 bg-white/90 dark:bg-[#1a1a1a]/90 backdrop-blur-md border-b border-gray-100 dark:border-gray-800">
     <div class="max-w-[1280px] mx-auto px-4 md:px-10 flex items-center gap-4 py-4">
         <button (click)="goBack()" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <span class="material-symbols-outlined text-gray-600 dark:text-gray-300">arrow_back</span>
@@ -8,7 +9,8 @@
 </div>
 
 <!-- Loading State -->
-<div *ngIf="!package()" class="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
+<div *ngIf="!package()"
+    class="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark">
     <div class="text-center">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
         <p class="text-gray-500">Cargando paquete...</p>
@@ -25,45 +27,41 @@
                 <div class="mb-8">
                     <!-- Main Image -->
                     <div class="h-80 rounded-2xl overflow-hidden shadow-lg mb-4 relative group">
-                        <img [src]="currentImageUrl()" 
-                             alt="Imagen del paquete {{package().nombre}}" 
-                             class="w-full h-full object-cover transition-transform duration-300">
+                        <img [src]="currentImageUrl()" alt="Imagen del paquete {{package().nombre}}"
+                            class="w-full h-full object-cover transition-transform duration-300">
                         <div class="absolute inset-0 bg-gradient-to-t from-black/50"></div>
                         <div class="absolute bottom-6 left-6 z-10">
                             <h1 class="text-4xl font-extrabold text-white tracking-tight">{{ package().nombre }}</h1>
-                            <p class="text-lg text-white/80 mt-1">Ofrecido por: {{ package().perfil_proveedor.nombre_negocio }}</p>
+                            <p class="text-lg text-white/80 mt-1">Ofrecido por: {{
+                                package().perfil_proveedor.nombre_negocio }}</p>
                         </div>
-                        
+
                         <!-- Navigation Buttons (only if more than 1 image) -->
                         <div *ngIf="allImages().length > 1">
-                            <button (click)="prevImage()" 
+                            <button (click)="prevImage()"
                                 class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 text-gray-800 dark:text-white rounded-full p-3 shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
                                 <span class="material-symbols-outlined">chevron_left</span>
                             </button>
-                            <button (click)="nextImage()" 
+                            <button (click)="nextImage()"
                                 class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 dark:bg-gray-800/90 hover:bg-white dark:hover:bg-gray-800 text-gray-800 dark:text-white rounded-full p-3 shadow-lg transition-all opacity-0 group-hover:opacity-100 z-10">
                                 <span class="material-symbols-outlined">chevron_right</span>
                             </button>
                         </div>
 
                         <!-- Image Counter -->
-                        <div *ngIf="allImages().length > 1" 
-                             class="absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-semibold z-10">
+                        <div *ngIf="allImages().length > 1"
+                            class="absolute top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm font-semibold z-10">
                             {{ currentImageIndex() + 1 }} / {{ allImages().length }}
                         </div>
                     </div>
 
                     <!-- Thumbnails -->
-                    <div *ngIf="allImages().length > 1" 
-                         class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
-                        <button *ngFor="let img of allImages(); let i = index"
-                                (click)="selectImage(i)"
-                                [class]="i === currentImageIndex() 
+                    <div *ngIf="allImages().length > 1" class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                        <button *ngFor="let img of allImages(); let i = index" (click)="selectImage(i)"
+                            [class]="i === currentImageIndex() 
                                     ? 'w-20 h-20 rounded-lg overflow-hidden border-3 border-primary shadow-md flex-shrink-0 transition-all' 
                                     : 'w-20 h-20 rounded-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 opacity-60 hover:opacity-100 flex-shrink-0 transition-all'">
-                            <img [src]="img.url" 
-                                 [alt]="'Imagen ' + (i + 1)" 
-                                 class="w-full h-full object-cover">
+                            <img [src]="img.url" [alt]="'Imagen ' + (i + 1)" class="w-full h-full object-cover">
                         </button>
                     </div>
                 </div>
@@ -77,50 +75,162 @@
                 </div>
 
                 <!-- Items Incluidos en el Paquete -->
-                <div *ngIf="package()?.items_paquete && package()!.items_paquete.length > 0" 
-                     class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8">
+                <div *ngIf="package()?.items_paquete && package()!.items_paquete.length > 0"
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mb-8">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
                         <span class="material-symbols-outlined text-primary">inventory_2</span>
                         Incluye
                     </h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div *ngFor="let item of package()?.items_paquete" 
-                             class="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
-                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+                        <div *ngFor="let item of package()?.items_paquete"
+                            class="flex flex-col p-4 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <!-- Main Item Row -->
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                    <span class="material-symbols-outlined text-primary text-xl">check_circle</span>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="font-semibold text-gray-800 dark:text-white">{{ item.nombre_item }}</p>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                                        {{ item.cantidad }} {{ item.unidad || 'unidad(es)' }}
+                                    </p>
+                                </div>
+                                <!-- Botón Personalizar si tiene variantes -->
+                                <button *ngIf="getVariantsForItem(item.nombre_item).length > 0"
+                                    (click)="toggleItemExpanded(item.nombre_item)"
+                                    class="ml-auto flex items-center gap-1 text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-lg transition-colors">
+                                    <span class="material-symbols-outlined text-sm">palette</span>
+                                    <span>Personalizar</span>
+                                    <span class="material-symbols-outlined text-sm transition-transform duration-200"
+                                        [class.rotate-180]="expandedItems()[item.nombre_item]">
+                                        expand_more
+                                    </span>
+                                </button>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="font-semibold text-gray-800 dark:text-white">{{ item.nombre_item }}</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    {{ item.cantidad }} {{ item.unidad || 'unidad(es)' }}
-                                </p>
+
+                            <!-- Variants Accordion -->
+                            <div *ngIf="expandedItems()[item.nombre_item] && getVariantsForItem(item.nombre_item).length > 0"
+                                class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700 space-y-5">
+                                <div *ngFor="let variante of getVariantsForItem(item.nombre_item)">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <h4 class="font-bold text-gray-800 dark:text-white text-sm">{{ variante.nombre
+                                            }}</h4>
+                                        <span *ngIf="variante.requerida"
+                                            class="text-[9px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full uppercase">
+                                            Requerida
+                                        </span>
+                                        <span class="text-xs text-indigo-500 dark:text-indigo-400 font-medium ml-auto">
+                                            {{ variante.tipo === 'seleccion_unica' ? 'Selección única' :
+                                            variante.tipo === 'seleccion_multiple' ? 'Selección múltiple' : 'Texto
+                                            libre' }}
+                                        </span>
+                                    </div>
+                                    <div *ngIf="variante.tipo !== 'texto_libre' && variante.opciones?.length > 0"
+                                        class="flex flex-wrap gap-2">
+                                        <div *ngFor="let opcion of variante.opciones"
+                                            class="px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group">
+                                            <span
+                                                class="text-xs font-medium text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{
+                                                opcion.label }}</span>
+                                            <span *ngIf="opcion.precio_extra > 0"
+                                                class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-1">+${{
+                                                opcion.precio_extra }}</span>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="variante.tipo === 'texto_libre'"
+                                        class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-400 italic">
+                                        Escribe tu preferencia aquí...
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Incluidos -->
-                <div *ngIf="package()?.extra_charges && package()!.extra_charges.length > 0" class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8">
+                <div *ngIf="package()?.extra_charges && package()!.extra_charges.length > 0"
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8">
                     <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6">Extras</h2>
                     <ul class="space-y-4">
-                        <li *ngFor="let item of package()?.extra_charges" class="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl">
+                        <li *ngFor="let item of package()?.extra_charges"
+                            class="flex justify-between items-center p-4 border border-gray-100 dark:border-gray-700 rounded-xl">
                             <div>
                                 <p class="font-semibold text-gray-800 dark:text-white">{{ item.nombre }}</p>
-                                <p *ngIf="item.descripcion" class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ item.descripcion }}</p>
-                                <p class="text-sm text-primary dark:text-primary-light font-medium">+${{ item.precio | number:'1.2-2' }}</p>
+                                <p *ngIf="item.descripcion" class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{
+                                    item.descripcion }}</p>
+                                <p class="text-sm text-primary dark:text-primary-light font-medium">+${{ item.precio |
+                                    number:'1.2-2' }}</p>
                             </div>
                             <!-- Contador solo para clientes -->
-                            <div *ngIf="!isOwner()" class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
-                                <button (click)="updateIncludedQuantity(item.nombre, -1)" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
+                            <div *ngIf="!isOwner()"
+                                class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
+                                <button (click)="updateIncludedQuantity(item.nombre, -1)"
+                                    class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
                                     <span class="material-symbols-outlined">remove</span>
                                 </button>
-                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{ getIncludedQuantity(item.nombre) }}</span>
-                                <button (click)="updateIncludedQuantity(item.nombre, 1)" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
+                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{
+                                    getIncludedQuantity(item.nombre) }}</span>
+                                <button (click)="updateIncludedQuantity(item.nombre, 1)"
+                                    class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
                                     <span class="material-symbols-outlined">add</span>
                                 </button>
                             </div>
                         </li>
                     </ul>
+                </div>
+
+                <!-- Opciones Personalizables (Variantes Generales) -->
+                <div *ngIf="generalVariants().length > 0"
+                    class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 mt-8">
+                    <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-indigo-500">tune</span>
+                        Opciones del Paquete
+                    </h2>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Elige tus preferencias generales al
+                        solicitar este
+                        paquete</p>
+
+                    <div class="space-y-5">
+                        <div *ngFor="let variante of generalVariants()"
+                            class="p-5 bg-gray-50 dark:bg-gray-900 rounded-xl border border-gray-100 dark:border-gray-700">
+                            <div class="flex items-center gap-2 mb-3">
+                                <h3 class="font-bold text-gray-800 dark:text-white">{{ variante.nombre }}</h3>
+                                <span *ngIf="variante.requerida"
+                                    class="text-[10px] font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 px-2 py-0.5 rounded-full uppercase">
+                                    Requerida
+                                </span>
+                                <span *ngIf="!variante.requerida"
+                                    class="text-[10px] font-bold text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded-full uppercase">
+                                    Opcional
+                                </span>
+                                <span class="text-xs text-indigo-500 dark:text-indigo-400 font-medium ml-auto">
+                                    {{ variante.tipo === 'seleccion_unica' ? 'Selección única' :
+                                    variante.tipo === 'seleccion_multiple' ? 'Selección múltiple' : 'Texto libre' }}
+                                </span>
+                            </div>
+
+                            <!-- Opciones como chips seleccionables (visual only for preview) -->
+                            <div *ngIf="variante.tipo !== 'texto_libre' && variante.opciones?.length > 0"
+                                class="flex flex-wrap gap-2">
+                                <div *ngFor="let opcion of variante.opciones"
+                                    class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group">
+                                    <span
+                                        class="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{
+                                        opcion.label }}</span>
+                                    <span *ngIf="opcion.precio_extra > 0"
+                                        class="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-1.5">+${{
+                                        opcion.precio_extra }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Texto libre placeholder -->
+                            <div *ngIf="variante.tipo === 'texto_libre'"
+                                class="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-400 italic">
+                                Escribe tu preferencia aquí...
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -128,49 +238,57 @@
             <div class="lg:col-span-1">
                 <div class="sticky top-24">
                     <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
-                        <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
+                        <h2
+                            class="text-2xl font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-100 dark:border-gray-700 pb-4">
                             {{ isOwner() ? 'Vista de Cliente' : 'Resumen del Pedido' }}
                         </h2>
-                        
+
                         <!-- Botones de Editar/Eliminar (solo para el dueño) -->
                         <div *ngIf="isOwner()" class="mb-6 space-y-3">
                             <!-- Precio Base del Paquete -->
                             <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 mb-4">
                                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">Precio Base</p>
-                                <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ package().precio_base | number:'1.2-2' }}</p>
+                                <p class="text-2xl font-bold text-gray-900 dark:text-white">${{ package().precio_base |
+                                    number:'1.2-2' }}</p>
                                 <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">por unidad</p>
                             </div>
-                            
-                            <button (click)="editarPaquete()" 
+
+                            <button (click)="editarPaquete()"
                                 class="w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
                                 <span class="material-symbols-outlined">edit</span>
                                 Editar Paquete
                             </button>
-                            <button (click)="eliminarPaquete()" 
+                            <button (click)="eliminarPaquete()"
                                 class="w-full bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2">
                                 <span class="material-symbols-outlined">delete</span>
                                 Eliminar Paquete
                             </button>
-                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3">
+                            <div
+                                class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/50 rounded-lg p-3">
                                 <p class="text-xs text-blue-800 dark:text-blue-200 flex items-start gap-2">
                                     <span class="material-symbols-outlined text-sm flex-shrink-0">info</span>
-                                    <span>Estás viendo tu paquete como lo ven los clientes. Usa los botones de arriba para editarlo o eliminarlo.</span>
+                                    <span>Estás viendo tu paquete como lo ven los clientes. Usa los botones de arriba
+                                        para editarlo o eliminarlo.</span>
                                 </p>
                             </div>
                         </div>
-                        
+
                         <!-- Base Package -->
                         <div *ngIf="!isOwner()" class="flex justify-between items-center mb-6">
                             <div>
                                 <p class="font-semibold text-gray-800 dark:text-white">Paquete Principal</p>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">${{ package().precio_base | number:'1.2-2' }} / c.u.</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${{ package().precio_base |
+                                    number:'1.2-2' }} / c.u.</p>
                             </div>
                             <div class="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 rounded-full p-1">
-                                <button (click)="decrementarCantidad()" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
+                                <button (click)="decrementarCantidad()"
+                                    class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-gray-600 dark:text-gray-300 transition-colors">
                                     <span class="material-symbols-outlined">remove</span>
                                 </button>
-                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{ cantidadSeleccionada() }}</span>
-                                <button (click)="incrementarCantidad()" class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
+                                <span class="w-8 text-center font-bold text-gray-900 dark:text-white">{{
+                                    cantidadSeleccionada() }}</span>
+                                <button (click)="incrementarCantidad()"
+                                    class="w-8 h-8 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 flex items-center justify-center text-primary transition-colors">
                                     <span class="material-symbols-outlined">add</span>
                                 </button>
                             </div>
@@ -178,10 +296,11 @@
 
                         <!-- Extras Seleccionados -->
                         <div *ngIf="!isOwner() && objectKeys(selectedIncluded()).length > 0" class="mb-6">
-                            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Extras agregados:</h3>
+                            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Extras agregados:
+                            </h3>
                             <div class="space-y-2">
-                                <div *ngFor="let key of objectKeys(selectedIncluded())" 
-                                     class="flex justify-between items-center text-sm p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                                <div *ngFor="let key of objectKeys(selectedIncluded())"
+                                    class="flex justify-between items-center text-sm p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
                                     <div class="flex-1">
                                         <p class="font-medium text-gray-800 dark:text-white">{{ key }}</p>
                                         <p class="text-xs text-gray-500 dark:text-gray-400">
@@ -201,8 +320,10 @@
                                 <p class="font-semibold text-gray-800 dark:text-white">Subtotal</p>
                                 <p class="font-bold text-gray-900 dark:text-white">${{ total() | number:'1.2-2' }}</p>
                             </div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">El precio final puede variar y se confirmará con el proveedor.</p>
-                            <button (click)="goToCheckout()" class="w-full bg-primary hover:bg-red-700 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">El precio final puede variar
+                                y se confirmará con el proveedor.</p>
+                            <button (click)="goToCheckout()"
+                                class="w-full bg-primary hover:bg-red-700 text-white px-6 py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
                                 Continuar
                                 <span class="material-symbols-outlined">arrow_forward</span>
                             </button>

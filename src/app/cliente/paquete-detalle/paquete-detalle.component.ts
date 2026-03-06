@@ -29,6 +29,7 @@ export class PaqueteDetalleComponent implements OnInit {
 
   cantidadSeleccionada = signal(1);
   selectedIncluded = signal<Record<string, number>>({});
+  expandedItems = signal<Record<string, boolean>>({});
 
   // Galería de imágenes
   currentImageIndex = signal(0);
@@ -110,6 +111,25 @@ export class PaqueteDetalleComponent implements OnInit {
     const item = pkg.extra_charges.find((i: any) => i.nombre === name);
     return item?.precio || 0;
   }
+
+  toggleItemExpanded(itemName: string) {
+    this.expandedItems.update(curr => ({
+      ...curr,
+      [itemName]: !curr[itemName]
+    }));
+  }
+
+  getVariantsForItem(itemName: string): any[] {
+    const pkg = this.package();
+    if (!pkg || !pkg.detalles_json || !pkg.detalles_json.variantes) return [];
+    return pkg.detalles_json.variantes.filter((v: any) => v.item_asociado === itemName);
+  }
+
+  generalVariants = computed(() => {
+    const pkg = this.package();
+    if (!pkg || !pkg.detalles_json || !pkg.detalles_json.variantes) return [];
+    return pkg.detalles_json.variantes.filter((v: any) => !v.item_asociado);
+  });
 
   // Navegación de galería
   nextImage() {

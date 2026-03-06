@@ -303,6 +303,7 @@ export interface PackageVariant {
     nombre: string;                    // e.g. "Color de silla", "Género musical"
     tipo: 'seleccion_unica' | 'seleccion_multiple' | 'texto_libre';
     requerida: boolean;                // Must the client choose?
+    item_asociado?: string;            // nombre_item del PackageItem (undefined = variante general)
     opciones: PackageVariantOption[];  // Available options (empty if tipo = 'texto_libre')
 }
 

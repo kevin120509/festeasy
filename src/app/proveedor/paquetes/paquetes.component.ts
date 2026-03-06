@@ -1,4 +1,5 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { PackageVariant, PackageVariantOption } from '../../models';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
@@ -140,6 +141,13 @@ export class PaquetesComponent implements OnInit {
 
   // Imágenes
   images = signal<PackageImage[]>([]);
+
+  // Variantes del paquete
+  variantes = signal<PackageVariant[]>([]);
+  newVariantName = signal('');
+  newVariantType = signal<'seleccion_unica' | 'seleccion_multiple' | 'texto_libre'>('seleccion_unica');
+  newVariantRequired = signal(false);
+  newVariantItemAsociado = signal<string>('');
 
   async ngOnInit() {
     await this.cargarPerfil();
@@ -293,6 +301,69 @@ export class PaquetesComponent implements OnInit {
     });
   }
 
+  // ========================================
+  // Variantes CRUD
+  // ========================================
+  addVariant() {
+    const nombre = this.newVariantName().trim();
+    if (!nombre) return;
+    const itemAso = this.newVariantItemAsociado() === '' ? undefined : this.newVariantItemAsociado();
+    const newVariant: PackageVariant = {
+      nombre,
+      tipo: this.newVariantType(),
+      requerida: this.newVariantRequired(),
+      item_asociado: itemAso,
+      opciones: []
+    };
+    this.variantes.update(v => [...v, newVariant]);
+    this.newVariantName.set('');
+    this.newVariantType.set('seleccion_unica');
+    this.newVariantRequired.set(false);
+    this.newVariantItemAsociado.set('');
+  }
+
+  removeVariant(index: number) {
+    this.variantes.update(v => v.filter((_, i) => i !== index));
+  }
+
+  addVariantOption(variantIndex: number, label: string, precioExtra: number) {
+    if (!label.trim()) return;
+    this.variantes.update(variants => {
+      const updated = [...variants];
+      const variant = { ...updated[variantIndex] };
+      variant.opciones = [...variant.opciones, { label: label.trim(), precio_extra: precioExtra || 0 }];
+      updated[variantIndex] = variant;
+      return updated;
+    });
+  }
+
+  removeVariantOption(variantIndex: number, optionIndex: number) {
+    this.variantes.update(variants => {
+      const updated = [...variants];
+      const variant = { ...updated[variantIndex] };
+      variant.opciones = variant.opciones.filter((_, i) => i !== optionIndex);
+      updated[variantIndex] = variant;
+      return updated;
+    });
+  }
+
+  toggleVariantRequired(index: number) {
+    this.variantes.update(variants => {
+      const updated = [...variants];
+      updated[index] = { ...updated[index], requerida: !updated[index].requerida };
+      return updated;
+    });
+  }
+
+  getVariantTypeLabel(tipo: string): string {
+    const labels: Record<string, string> = {
+      'seleccion_unica': 'Selección única',
+      'seleccion_multiple': 'Selección múltiple',
+      'texto_libre': 'Texto libre'
+    };
+    return labels[tipo] || tipo;
+  }
+
   // Editar paquete
   editarPaquete(paquete: Paquete) {
     this.paqueteEditando.set(paquete);
@@ -316,6 +387,11 @@ export class PaquetesComponent implements OnInit {
           url: img.url,
           isPortada: img.isPortada
         })));
+      }
+
+      // Cargar variantes
+      if (paquete.detalles_json.variantes) {
+        this.variantes.set(paquete.detalles_json.variantes);
       }
     }
 
@@ -570,6 +646,7 @@ export class PaquetesComponent implements OnInit {
             url: img.url,
             isPortada: img.isPortada
           })),
+          variantes: this.variantes(),
           total_estimado: this.totalEstimado
         }
       };
@@ -645,6 +722,11 @@ export class PaquetesComponent implements OnInit {
     this.packageItems.set([]);
     this.extraCharges.set([]);
     this.images.set([]);
+    this.variantes.set([]);
+    this.newVariantName.set('');
+    this.newVariantType.set('seleccion_unica');
+    this.newVariantRequired.set(false);
+    this.newVariantItemAsociado.set('');
     this.currentStep.set(1);
     this.successMessage.set('');
     this.errorMessage.set('');
