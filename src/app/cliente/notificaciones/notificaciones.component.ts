@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { ListboxModule } from 'primeng/listbox';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { NotificationService } from '../../services/notification.service';
+import { NotificationService, Notification } from '../../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-cliente-notificaciones',
@@ -14,6 +15,7 @@ import { NotificationService } from '../../services/notification.service';
 })
 export class ClienteNotificacionesComponent implements OnInit {
   private notificationService = inject(NotificationService);
+  private router = inject(Router);
   notificaciones = this.notificationService.notifications;
   unreadCount = this.notificationService.unreadCount;
 
@@ -32,9 +34,14 @@ export class ClienteNotificacionesComponent implements OnInit {
     return this.notificaciones().filter(n => !n.leida).length;
   }
 
-  marcarLeida(id: string) {
-    this.notificationService.markAsRead(id).subscribe();
+  marcarLeida(notif: Notification) {
+    this.notificationService.markAsRead(notif.id).subscribe();
     this.showMenuId.set(null);
+
+    // Redirigir si la notificación tiene un ID de solicitud asociado
+    if (notif.data?.solicitud_id) {
+        this.router.navigate(['/cliente/solicitudes', notif.data.solicitud_id]);
+    }
   }
 
   marcarNoLeida(id: string, event?: Event) {

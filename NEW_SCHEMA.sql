@@ -1,14 +1,13 @@
 -- WARNING: This schema is for context only and is not meant to be run.
 -- Table order and constraints may not be valid for execution.
 
-CREATE TABLE public.bloqueos_calendario (
+CREATE TABLE public.addons (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  proveedor_usuario_id uuid NOT NULL,
-  fecha_bloqueada date NOT NULL,
-  motivo character varying DEFAULT 'Ocupado'::character varying,
-  creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT bloqueos_calendario_pkey PRIMARY KEY (id),
-  CONSTRAINT fk_bloqueos_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id)
+  name text NOT NULL,
+  price numeric NOT NULL,
+  code text NOT NULL UNIQUE,
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT addons_pkey PRIMARY KEY (id)
 );
 CREATE TABLE public.carrito (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -23,12 +22,6 @@ CREATE TABLE public.carrito (
   CONSTRAINT carrito_pkey PRIMARY KEY (id),
   CONSTRAINT fk_carrito_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id)
 );
-CREATE TABLE public.categorias_evento (
-  id uuid NOT NULL DEFAULT gen_random_uuid(),
-  nombre character varying NOT NULL,
-  icono character varying,
-  CONSTRAINT categorias_evento_pkey PRIMARY KEY (id)
-);
 CREATE TABLE public.categorias_servicio (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   nombre character varying NOT NULL,
@@ -37,23 +30,27 @@ CREATE TABLE public.categorias_servicio (
   activa boolean NOT NULL DEFAULT true,
   CONSTRAINT categorias_servicio_pkey PRIMARY KEY (id)
 );
-CREATE TABLE public.cotizaciones (
+CREATE TABLE public.configuracion_planes (
+  id text NOT NULL,
+  nombre text NOT NULL,
+  precio numeric NOT NULL DEFAULT 0,
+  tipo text NOT NULL,
+  max_paquetes integer DEFAULT 0,
+  CONSTRAINT configuracion_planes_pkey PRIMARY KEY (id)
+);
+CREATE TABLE public.disponibilidad_bloqueada (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  solicitud_id uuid NOT NULL,
-  proveedor_usuario_id uuid NOT NULL,
-  precio_total_propuesto numeric NOT NULL,
-  desglose_json jsonb,
-  notas text,
-  estado text NOT NULL DEFAULT 'pendiente'::text CHECK (estado = ANY (ARRAY['pendiente'::text, 'aceptada_cliente'::text, 'rechazada_cliente'::text])),
-  creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  fecha_expiracion date,
-  CONSTRAINT cotizaciones_pkey PRIMARY KEY (id),
-  CONSTRAINT cotizaciones_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id)
+  created_at timestamp with time zone DEFAULT now(),
+  fecha_bloqueada date NOT NULL,
+  motivo text,
+  proveedor_usuario_id uuid,
+  CONSTRAINT disponibilidad_bloqueada_pkey PRIMARY KEY (id),
+  CONSTRAINT disponibilidad_bloqueada_provider_id_fkey FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.historial_suscripciones (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   proveedor_usuario_id uuid NOT NULL,
-  plan text NOT NULL CHECK (plan = ANY (ARRAY['basico'::text, 'plus'::text])),
+  plan text NOT NULL,
   monto_pagado numeric NOT NULL,
   fecha_inicio timestamp with time zone NOT NULL,
   fecha_fin timestamp with time zone NOT NULL,
@@ -80,7 +77,6 @@ CREATE TABLE public.items_paquete (
   paquete_id uuid NOT NULL,
   nombre_item character varying NOT NULL,
   cantidad integer NOT NULL,
-  unidad character varying,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT items_paquete_pkey PRIMARY KEY (id),
   CONSTRAINT items_paquete_paquete_id_fkey FOREIGN KEY (paquete_id) REFERENCES public.paquetes_proveedor(id)
@@ -96,9 +92,20 @@ CREATE TABLE public.items_solicitud (
   CONSTRAINT items_solicitud_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id),
   CONSTRAINT items_solicitud_paquete_id_fkey FOREIGN KEY (paquete_id) REFERENCES public.paquetes_proveedor(id)
 );
+CREATE TABLE public.notificaciones (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  usuario_id uuid NOT NULL,
+  tipo text NOT NULL,
+  titulo text NOT NULL,
+  mensaje text NOT NULL,
+  leida boolean NOT NULL DEFAULT false,
+  data jsonb,
+  creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT notificaciones_pkey PRIMARY KEY (id),
+  CONSTRAINT fk_notificaciones_usuario FOREIGN KEY (usuario_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.pagos (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  cotizacion_id uuid,
   cliente_usuario_id uuid NOT NULL,
   proveedor_usuario_id uuid NOT NULL,
   monto numeric NOT NULL,
@@ -114,7 +121,6 @@ CREATE TABLE public.pagos (
   CONSTRAINT pagos_pkey PRIMARY KEY (id),
   CONSTRAINT fk_pagos_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_pagos_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),
-  CONSTRAINT pagos_cotizacion_id_fkey FOREIGN KEY (cotizacion_id) REFERENCES public.cotizaciones(id),
   CONSTRAINT pagos_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id)
 );
 CREATE TABLE public.paquetes_proveedor (
@@ -129,7 +135,16 @@ CREATE TABLE public.paquetes_proveedor (
   actualizado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   detalles_json jsonb,
   CONSTRAINT paquetes_proveedor_pkey PRIMARY KEY (id),
-  CONSTRAINT paquetes_proveedor_categoria_servicio_id_fkey FOREIGN KEY (categoria_servicio_id) REFERENCES public.categorias_servicio(id)
+  CONSTRAINT paquetes_proveedor_categoria_servicio_id_fkey FOREIGN KEY (categoria_servicio_id) REFERENCES public.categorias_servicio(id),
+  CONSTRAINT paquetes_proveedor_proveedor_usuario_id_fkey FOREIGN KEY (proveedor_usuario_id) REFERENCES public.perfil_proveedor(usuario_id)
+);
+CREATE TABLE public.perfil_admin (
+  id uuid NOT NULL DEFAULT uuid_generate_v4(),
+  usuario_id uuid NOT NULL UNIQUE,
+  nombre_completo text,
+  creado_en timestamp with time zone DEFAULT now(),
+  CONSTRAINT perfil_admin_pkey PRIMARY KEY (id),
+  CONSTRAINT perfil_admin_usuario_id_fkey FOREIGN KEY (usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.perfil_cliente (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -138,12 +153,13 @@ CREATE TABLE public.perfil_cliente (
   telefono character varying,
   avatar_url character varying,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  estado text DEFAULT 'active'::text CHECK (estado = ANY (ARRAY['active'::text, 'blocked'::text])),
   CONSTRAINT perfil_cliente_pkey PRIMARY KEY (id),
   CONSTRAINT fk_perfil_cliente_auth FOREIGN KEY (usuario_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.perfil_proveedor (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  usuario_id uuid,
+  usuario_id uuid UNIQUE,
   nombre_negocio character varying NOT NULL,
   descripcion text,
   telefono character varying,
@@ -152,7 +168,7 @@ CREATE TABLE public.perfil_proveedor (
   latitud numeric,
   longitud numeric,
   radio_cobertura_km integer DEFAULT 20,
-  tipo_suscripcion_actual text NOT NULL DEFAULT 'basico'::text CHECK (tipo_suscripcion_actual = ANY (ARRAY['basico'::text, 'plus'::text])),
+  tipo_suscripcion_actual text NOT NULL DEFAULT 'festeasy'::text,
   categoria_principal_id uuid,
   creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
   actualizado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -160,22 +176,78 @@ CREATE TABLE public.perfil_proveedor (
   contrasena character varying,
   estado text DEFAULT 'active'::text CHECK (estado = ANY (ARRAY['active'::text, 'blocked'::text])),
   datos_bancarios_json jsonb,
+  addons jsonb DEFAULT '[]'::jsonb,
+  suscripcion_activa boolean DEFAULT true,
+  politicas_url text,
+  porcentaje_anticipo numeric DEFAULT 30,
   CONSTRAINT perfil_proveedor_pkey PRIMARY KEY (id),
   CONSTRAINT fk_perfil_proveedor_auth FOREIGN KEY (usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_perfil_proveedor_categoria FOREIGN KEY (categoria_principal_id) REFERENCES public.categorias_servicio(id)
 );
+CREATE TABLE public.productos (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  proveedor_id uuid NOT NULL,
+  nombre text NOT NULL,
+  categoria text,
+  descripcion text,
+  precio_unitario numeric NOT NULL DEFAULT 0,
+  stock integer NOT NULL DEFAULT 0,
+  imagen_url text,
+  destacado boolean DEFAULT false,
+  creado_en timestamp with time zone DEFAULT now(),
+  actualizado_en timestamp with time zone DEFAULT now(),
+  CONSTRAINT productos_pkey PRIMARY KEY (id),
+  CONSTRAINT productos_proveedor_id_fkey FOREIGN KEY (proveedor_id) REFERENCES auth.users(id)
+);
+CREATE TABLE public.provider_addons (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  provider_id uuid,
+  addon_code text NOT NULL,
+  status text DEFAULT 'active'::text CHECK (status = ANY (ARRAY['active'::text, 'inactive'::text, 'pending'::text])),
+  created_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT provider_addons_pkey PRIMARY KEY (id),
+  CONSTRAINT provider_addons_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES auth.users(id),
+  CONSTRAINT provider_addons_addon_code_fkey FOREIGN KEY (addon_code) REFERENCES public.addons(code)
+);
+CREATE TABLE public.provider_public_page (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  provider_id uuid,
+  slug text NOT NULL UNIQUE,
+  slogan text,
+  description text,
+  hero_image text,
+  hero_alignment text DEFAULT 'center'::text CHECK (hero_alignment = ANY (ARRAY['left'::text, 'center'::text, 'right'::text])),
+  contact_phone text,
+  contact_email text,
+  contact_whatsapp text,
+  gallery jsonb DEFAULT '[]'::jsonb,
+  is_active boolean DEFAULT true,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  instagram_url text,
+  facebook_url text,
+  tiktok_url text,
+  twitter_url text,
+  primary_color text DEFAULT '#ef4444'::text,
+  accent_color text DEFAULT '#22c55e'::text,
+  hero_overlay_color text DEFAULT '#000000'::text,
+  hero_overlay_opacity integer DEFAULT 40,
+  theme text DEFAULT 'modern'::text,
+  CONSTRAINT provider_public_page_pkey PRIMARY KEY (id),
+  CONSTRAINT provider_public_page_provider_id_fkey FOREIGN KEY (provider_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.resenas (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
-  solicitud_id uuid NOT NULL,
-  autor_id uuid NOT NULL,
+  solicitud_id uuid UNIQUE,
+  cliente_id uuid NOT NULL,
   destinatario_id uuid NOT NULL,
-  calificacion smallint NOT NULL CHECK (calificacion >= 1 AND calificacion <= 5),
+  calificacion integer CHECK (calificacion >= 1 AND calificacion <= 5),
   comentario text,
-  creado_en timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  fecha_creacion timestamp with time zone DEFAULT now(),
+  autor_id uuid,
   CONSTRAINT resenas_pkey PRIMARY KEY (id),
   CONSTRAINT resenas_solicitud_id_fkey FOREIGN KEY (solicitud_id) REFERENCES public.solicitudes(id),
-  CONSTRAINT fk_resenas_autor_auth FOREIGN KEY (autor_id) REFERENCES auth.users(id),
-  CONSTRAINT fk_resenas_destinatario_auth FOREIGN KEY (destinatario_id) REFERENCES auth.users(id)
+  CONSTRAINT resenas_autor_id_fkey FOREIGN KEY (autor_id) REFERENCES auth.users(id)
 );
 CREATE TABLE public.solicitudes (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -200,8 +272,17 @@ CREATE TABLE public.solicitudes (
   pin_validado_en timestamp with time zone,
   pin_validacion text,
   fecha_validacion_pin timestamp with time zone,
+  cancelado_por_id uuid,
+  motivo_cancelacion text,
+  fecha_cancelacion timestamp with time zone DEFAULT now(),
+  evidencia_foto_url text,
+  evidencia_firma_url text,
+  evidencia_latitud numeric,
+  evidencia_longitud numeric,
+  finalizado_en timestamp with time zone,
   CONSTRAINT solicitudes_pkey PRIMARY KEY (id),
   CONSTRAINT fk_solicitud_cliente_auth FOREIGN KEY (cliente_usuario_id) REFERENCES auth.users(id),
   CONSTRAINT fk_solicitud_proveedor_auth FOREIGN KEY (proveedor_usuario_id) REFERENCES auth.users(id),
-  CONSTRAINT solicitudes_cliente_perfil_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.perfil_cliente(usuario_id)
+  CONSTRAINT solicitudes_cliente_perfil_fkey FOREIGN KEY (cliente_usuario_id) REFERENCES public.perfil_cliente(usuario_id),
+  CONSTRAINT solicitudes_cancelado_por_id_fkey FOREIGN KEY (cancelado_por_id) REFERENCES auth.users(id)
 );

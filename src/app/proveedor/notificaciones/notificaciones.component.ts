@@ -1,6 +1,7 @@
 import { Component, signal, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../services/notification.service';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-notificaciones',
@@ -10,6 +11,7 @@ import { NotificationService, Notification } from '../../services/notification.s
 })
 export class NotificacionesComponent implements OnInit {
     private notificationService = inject(NotificationService);
+    private router = inject(Router);
     notificaciones = this.notificationService.notifications;
 
     // Estados interactivos
@@ -22,9 +24,13 @@ export class NotificacionesComponent implements OnInit {
         this.notificationService.getNotifications().subscribe();
     }
 
-    marcarLeida(id: string) {
-        this.notificationService.markAsRead(id).subscribe();
+    marcarLeida(notif: Notification) {
+        this.notificationService.markAsRead(notif.id).subscribe();
         this.showMenuId.set(null);
+
+        if (notif.data?.solicitud_id) {
+            this.router.navigate(['/proveedor/solicitudes', notif.data.solicitud_id]);
+        }
     }
 
     marcarNoLeida(id: string, event?: Event) {

@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuestionario de Investigación para Proveedores — FestEasy</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        :root {
+            --primary: #e53935;
+            --primary-dark: #c62828;
+            --primary-light: #ffcdd2;
+            --bg: #ffffff;
+            --text: #1a1a2e;
+            --text-light: #555;
+            --border: #e0e0e0;
+            --section-bg: #fafafa;
+            --accent-blue: #1565c0;
+            --accent-green: #2e7d32;
+            --accent-orange: #ef6c00;
+            --accent-purple: #6a1b9a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text);
+            line-height: 1.6;
+            background: var(--bg);
+        }
+
+        /* ---- Print styles ---- */
+        @media print {
+            body { font-size: 10pt; }
+            .page-break { page-break-before: always; }
+            .no-break { page-break-inside: avoid; }
+            .cover-page { page-break-after: always; }
+            table { font-size: 9pt; }
+            h2 { font-size: 14pt; }
+            h3 { font-size: 12pt; }
+            .print-btn { display: none !important; }
+        }
+
+        @page {
+            size: A4;
+            margin: 1.5cm 1.8cm;
+        }
+
+        /* ---- Cover ---- */
+        .cover-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #fff;
+            padding: 3rem;
+        }
+
+        .cover-logo {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .cover-logo span { color: var(--primary); }
+
+        .cover-subtitle {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.7;
+            margin-bottom: 3rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .cover-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1.3;
+            max-width: 700px;
+            margin-bottom: 1.5rem;
+        }
+
+        .cover-desc {
+            font-size: 1.05rem;
+            font-weight: 300;
+            max-width: 600px;
+            opacity: 0.8;
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .cover-meta {
+            display: flex;
+            gap: 2rem;
+            font-size: 0.85rem;
+            opacity: 0.5;
+        }
+
+        .cover-divider {
+            width: 60px;
+            height: 3px;
+            background: var(--primary);
+            margin: 2rem auto;
+            border-radius: 2px;
+        }
+
+        /* ---- Content ---- */
+        .content { max-width: 900px; margin: 0 auto; padding: 2rem; }
+
+        /* ---- Section ---- */
+        .section {
+            margin-bottom: 2.5rem;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .section-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        .section-icon.red { background: var(--primary-light); }
+        .section-icon.blue { background: #bbdefb; }
+        .section-icon.green { background: #c8e6c9; }
+        .section-icon.orange { background: #ffe0b2; }
+        .section-icon.purple { background: #e1bee7; }
+        .section-icon.teal { background: #b2dfdb; }
+        .section-icon.pink { background: #f8bbd0; }
+        .section-icon.indigo { background: #c5cae9; }
+        .section-icon.amber { background: #fff9c4; }
+        .section-icon.grey { background: #e0e0e0; }
+
+        h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .section-objective {
+            background: var(--section-bg);
+            border-left: 3px solid var(--primary);
+            padding: 0.65rem 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.88rem;
+            color: var(--text-light);
+            border-radius: 0 6px 6px 0;
+        }
+
+        /* ---- Tables ---- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            font-size: 0.88rem;
+        }
+
+        thead th {
+            background: var(--text);
+            color: #fff;
+            text-align: left;
+            padding: 0.6rem 0.75rem;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        thead th:first-child {
+            border-radius: 6px 0 0 0;
+            width: 45px;
+            text-align: center;
+        }
+
+        thead th:last-child { border-radius: 0 6px 0 0; }
+
+        tbody tr { border-bottom: 1px solid var(--border); }
+        tbody tr:nth-child(even) { background: #fafafa; }
+        tbody tr:hover { background: #fff3f3; }
+
+        tbody td {
+            padding: 0.55rem 0.75rem;
+            vertical-align: top;
+        }
+
+        tbody td:first-child {
+            font-weight: 600;
+            color: var(--primary);
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        .col-relation {
+            color: var(--text-light);
+            font-size: 0.82rem;
+            font-style: italic;
+        }
+
+        /* ---- Sub-category tables ---- */
+        .sub-category {
+            margin-bottom: 1.5rem;
+        }
+
+        .sub-category h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            padding-left: 0.25rem;
+            border-left: 3px solid var(--primary);
+            padding: 0.2rem 0.6rem;
+        }
+
+        .sub-category table thead th {
+            background: #37474f;
+        }
+
+        /* ---- Gap table ---- */
+        .gap-table thead th { background: var(--primary-dark); }
+        .gap-table td:first-child { 
+            font-weight: 700; 
+            color: var(--text);
+            text-align: left;
+        }
+
+        /* ---- Tips ---- */
+        .tip-box {
+            border: 1px solid #81c784;
+            background: #e8f5e9;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.88rem;
+        }
+
+        .tip-box strong { color: var(--accent-green); }
+
+        .important-box {
+            border: 1px solid #ffb74d;
+            background: #fff3e0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.88rem;
+        }
+
+        .important-box strong { color: var(--accent-orange); }
+
+        /* ---- Print button ---- */
+        .print-btn {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.9rem 1.8rem;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(229, 57, 53, 0.4);
+            transition: all 0.3s;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .print-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229, 57, 53, 0.5);
+        }
+
+        /* ---- TOC ---- */
+        .toc {
+            margin-bottom: 2rem;
+        }
+
+        .toc h2 {
+            margin-bottom: 1rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+
+        .toc-list li {
+            counter-increment: toc-counter;
+            padding: 0.5rem 0;
+            border-bottom: 1px dotted var(--border);
+            font-size: 0.95rem;
+        }
+
+        .toc-list li::before {
+            content: "Sección " counter(toc-counter) " — ";
+            font-weight: 600;
+            color: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Cover Page -->
+<div class="cover-page">
+    <div class="cover-logo">Fest<span>Easy</span></div>
+    <div class="cover-subtitle">Plataforma de Eventos</div>
+    <div class="cover-divider"></div>
+    <h1 class="cover-title">Cuestionario de Investigación para Proveedores</h1>
+    <p class="cover-desc">
+        Documento diseñado para recopilar información clave de los proveedores de servicios para eventos.
+        Cada sección está alineada con los módulos del sistema para identificar brechas, optimizar procesos
+        y garantizar que la app resuelva las problemáticas reales de cada tipo de negocio.
+    </p>
+    <div class="cover-meta">
+        <span>📄 75+ preguntas</span>
+        <span>📋 10 secciones</span>
+        <span>🏷️ 8 tipos de negocio</span>
+        <span>📅 Febrero 2026</span>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="content">
+
+    <!-- TOC -->
+    <div class="toc no-break">
+        <h2>📑 Contenido</h2>
+        <ul class="toc-list">
+            <li>Perfil del Negocio y Contexto General</li>
+            <li>Servicios y Paquetes</li>
+            <li>Proceso de Atención al Cliente</li>
+            <li>Pagos y Finanzas</li>
+            <li>Agenda y Disponibilidad</li>
+            <li>Comunicación y Seguimiento</li>
+            <li>Presencia Digital y Marketing</li>
+            <li>Problemáticas y Fricción</li>
+            <li>Expectativas de la App</li>
+            <li>Preguntas Específicas por Tipo de Negocio</li>
+        </ul>
+    </div>
+
+    <!-- ================ SECTION 1 ================ -->
+    <div class="section no-break">
+        <div class="section-header">
+            <div class="section-icon red">🔖</div>
+            <h2>Sección 1 — Perfil del Negocio y Contexto General</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Entender el tipo de negocio, su tamaño, alcance y contexto operativo para adaptar la experiencia dentro de la app.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Relación con FestEasy</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>1.1</td><td>¿Cuál es el nombre de tu negocio y qué tipo de servicio para eventos ofreces? <em>(ej. banquetes, DJ, decoración, renta de mobiliario, fotografía, organización integral, etc.)</em></td><td class="col-relation">Alimenta perfil_proveedor.nombre_negocio y categorias_servicio</td></tr>
+                <tr><td>1.2</td><td>¿Cuánto tiempo llevas operando en este rubro?</td><td class="col-relation">Establece nivel de experiencia y expectativas</td></tr>
+                <tr><td>1.3</td><td>¿Cuántas personas trabajan contigo (equipo de trabajo / empleados)?</td><td class="col-relation">Determina si la plataforma necesita soportar multi-usuario por proveedor</td></tr>
+                <tr><td>1.4</td><td>¿Cuántos eventos o servicios atiendes en promedio al mes?</td><td class="col-relation">Valida la capacidad de la agenda y el dashboard</td></tr>
+                <tr><td>1.5</td><td>¿Cuál es tu radio de cobertura geográfica? <em>(ej. solo mi ciudad, ciudades cercanas, todo el estado)</em></td><td class="col-relation">Valida radio_cobertura_km y la lógica de filtrado en el marketplace</td></tr>
+                <tr><td>1.6</td><td>¿Tienes un local fijo, trabajas desde casa, o te desplazas al lugar del evento?</td><td class="col-relation">Impacta la dirección del perfil y geolocalización</td></tr>
+                <tr><td>1.7</td><td>¿Manejas tu negocio de manera formal (con facturación) o informal?</td><td class="col-relation">Determina si se necesitan funciones de facturación o recibos digitales</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 2 ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon blue">📦</div>
+            <h2>Sección 2 — Servicios y Paquetes</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Entender cómo estructuran sus servicios para validar y mejorar el módulo de paquetes_proveedor.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Relación con FestEasy</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>2.1</td><td>¿Cómo describes normalmente tu servicio a un cliente nuevo? ¿Usas catálogos, fotos en redes sociales, boca a boca?</td><td class="col-relation">Valida la importancia de las imágenes y descripción en paquetes</td></tr>
+                <tr><td>2.2</td><td>¿Manejas paquetes predefinidos con precios fijos, o personalizas cada cotización según el evento?</td><td class="col-relation">Determina si el modelo actual de precio_base es suficiente o necesita más flexibilidad</td></tr>
+                <tr><td>2.3</td><td>Si manejas paquetes, ¿cuántos diferentes ofreces normalmente?</td><td class="col-relation">Valida los límites de paquetes por plan de suscripción</td></tr>
+                <tr><td>2.4</td><td>¿Ofreces cargos extra o complementos adicionales a tus paquetes básicos? <em>(ej. hora extra, transporte, platillo especial)</em></td><td class="col-relation">Valida el modelo de ExtraCharge en detalles_json</td></tr>
+                <tr><td>2.5</td><td>¿Tu precio varía según la cantidad de invitados, la fecha (temporada alta vs. baja), o la distancia al evento?</td><td class="col-relation">Identifica si se necesitan reglas de precios dinámicos</td></tr>
+                <tr><td>2.6</td><td>¿Tienes un precio mínimo para aceptar un servicio?</td><td class="col-relation">Posible nuevo campo: monto_minimo en perfil o paquete</td></tr>
+                <tr><td>2.7</td><td>¿Ofreces descuentos por paquetes combinados o clientes frecuentes?</td><td class="col-relation">Evalúa la necesidad de un sistema de descuentos/fidelización</td></tr>
+                <tr><td>2.8</td><td>¿Cambias tus precios con frecuencia? Si sí, ¿cada cuánto tiempo aproximadamente?</td><td class="col-relation">Impacta la gestión de versiones de paquetes</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 3 ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon green">🔄</div>
+            <h2>Sección 3 — Proceso de Atención al Cliente</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Mapear el proceso real desde que un cliente contacta al proveedor hasta que finaliza el servicio, comparándolo con el flujo de estados de FestEasy.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Estado FestEasy relacionado</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>3.1</td><td>Cuando un cliente te contacta, ¿cuál es la información mínima que necesitas para decidir si puedes atenderlo? <em>(fecha, lugar, tipo de evento, cantidad de invitados, presupuesto…)</em></td><td class="col-relation">Valida los campos del formulario CrearEvento</td></tr>
+                <tr><td>3.2</td><td>¿Cuánto tiempo tardas normalmente en responder una solicitud de servicio?</td><td class="col-relation">Valida la regla de SLA de 3h/24h existente</td></tr>
+                <tr><td>3.3</td><td>¿Cuáles son los motivos más comunes por los que rechazas una solicitud?</td><td class="col-relation">Podría alimentar un campo de motivo_rechazo estandarizado</td></tr>
+                <tr><td>3.4</td><td>¿Normalmente envías una cotización formal antes de que el cliente confirme? ¿Cómo la presentas?</td><td class="col-relation">Valida el módulo de cotizaciones</td></tr>
+                <tr><td>3.5</td><td>¿Qué porcentaje de anticipo pides normalmente para confirmar un evento? <em>(FestEasy usa 30%)</em></td><td class="col-relation">Valida o ajusta el porcentaje de anticipo</td></tr>
+                <tr><td>3.6</td><td>¿Cuánto tiempo das al cliente para pagar el anticipo antes de cancelar la reserva?</td><td class="col-relation">Valida expiracion_anticipo en solicitudes</td></tr>
+                <tr><td>3.7</td><td>Una vez confirmado el anticipo, ¿qué pasos sigues antes del día del evento? <em>(reunión previa, visita al lugar, envío de menú…)</em></td><td class="col-relation">Identifica pasos intermedios que faltan en el flujo</td></tr>
+                <tr><td>3.8</td><td>¿Cómo confirmas con el cliente que llegaste / que el servicio comenzó? <em>(llamada, WhatsApp, foto)</em></td><td class="col-relation">Valida la utilidad del sistema de PIN</td></tr>
+                <tr><td>3.9</td><td>¿Cuándo y cómo cobras el resto del pago (liquidación)?</td><td class="col-relation">Valida flujo entregado_pendiente_liq → finalizado</td></tr>
+                <tr><td>3.10</td><td>¿Has tenido problemas de impagos o clientes que cancelan a última hora? ¿Cómo los manejas?</td><td class="col-relation">Justifica el sistema de escrow y pagos garantizados</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 4 ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon orange">💰</div>
+            <h2>Sección 4 — Pagos y Finanzas</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Entender cómo manejan sus finanzas para validar los métodos de pago soportados y detectar necesidades.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Relación con FestEasy</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>4.1</td><td>¿Qué métodos de pago aceptas actualmente? <em>(transferencia, efectivo, depósito OXXO, tarjeta, PayPal)</em></td><td class="col-relation">Valida los métodos en pagos.metodo_pago</td></tr>
+                <tr><td>4.2</td><td>¿Cuál es el método de pago más utilizado por tus clientes?</td><td class="col-relation">Prioriza la UX del módulo de pagos</td></tr>
+                <tr><td>4.3</td><td>¿Emites comprobante de pago o factura? Si sí, ¿de qué tipo?</td><td class="col-relation">Evalúa la necesidad de integración con facturación</td></tr>
+                <tr><td>4.4</td><td>¿Manejas una cuenta bancaria exclusiva para el negocio o usas una personal?</td><td class="col-relation">Valida datos_bancarios_json en perfil</td></tr>
+                <tr><td>4.5</td><td>¿Te resultaría útil tener un reporte automatizado de tus ingresos por periodo?</td><td class="col-relation">Valida la necesidad de reportes financieros en el dashboard</td></tr>
+                <tr><td>4.6</td><td>¿Estarías dispuesto a que la plataforma retenga temporalmente el pago como garantía (escrow) y te lo libere al completar el servicio?</td><td class="col-relation">Valida la viabilidad del modelo de escrow</td></tr>
+                <tr><td>4.7</td><td>¿Has tenido problemas con comprobantes de pago falsos?</td><td class="col-relation">Justifica la verificación en_revision → aprobado</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 5 ================ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon purple">📅</div>
+            <h2>Sección 5 — Agenda y Disponibilidad</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Verificar si el módulo de agenda/bloqueo de calendario cubre las necesidades reales.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Relación con FestEasy</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>5.1</td><td>¿Cómo gestionas tu agenda actualmente? <em>(agenda física, Google Calendar, Excel, memoria…)</em></td><td class="col-relation">Valida la importancia del módulo de bloqueos_calendario</td></tr>
+                <tr><td>5.2</td><td>¿Puedes atender más de un evento el mismo día? Si sí, ¿cuántos?</td><td class="col-relation">Actualmente un bloqueo = día completo. Podría necesitar bloques por horario</td></tr>
+                <tr><td>5.3</td><td>¿Tienes días u horarios fijos en los que NO trabajas?</td><td class="col-relation">Podría necesitar configuración de disponibilidad recurrente</td></tr>
+                <tr><td>5.4</td><td>¿Qué tan anticipado suelen contratarte los clientes? <em>(días, semanas, meses antes)</em></td><td class="col-relation">Impacta la validación de fecha mínima en solicitudes</td></tr>
+                <tr><td>5.5</td><td>¿Te ha pasado que dos clientes quieren la misma fecha? ¿Cómo lo resuelves?</td><td class="col-relation">Valida urgencia del bloqueo automático al confirmar reserva</td></tr>
+                <tr><td>5.6</td><td>¿Necesitas tiempo de preparación/desmontaje antes y después de un evento?</td><td class="col-relation">Podría necesitar "buffer time" entre eventos</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 6 ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon teal">📱</div>
+            <h2>Sección 6 — Comunicación y Seguimiento</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Entender los canales actuales de comunicación para evaluar la necesidad de chat integrado y notificaciones.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Relación con FestEasy</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>6.1</td><td>¿Por qué medio te contactan normalmente los clientes? <em>(WhatsApp, llamada, redes sociales, email)</em></td><td class="col-relation">Evalúa la prioridad del chat integrado</td></tr>
+                <tr><td>6.2</td><td>¿Qué tipo de preguntas te hacen los clientes con más frecuencia antes de contratar?</td><td class="col-relation">Podría alimentar un FAQ automatizado por categoría</td></tr>
+                <tr><td>6.3</td><td>¿Envías recordatorios al cliente antes del evento? Si sí, ¿cuándo y cómo?</td><td class="col-relation">Valida la necesidad de notificaciones automáticas</td></tr>
+                <tr><td>6.4</td><td>¿Qué información necesitas del cliente que frecuentemente te falta o llega tarde?</td><td class="col-relation">Mejora los campos requeridos en la solicitud</td></tr>
+                <tr><td>6.5</td><td>¿Cómo manejas los cambios de último momento? <em>(cambio de hora, ubicación, invitados)</em></td><td class="col-relation">Evalúa la necesidad de modificación de solicitudes</td></tr>
+                <tr><td>6.6</td><td>Después del evento, ¿haces seguimiento con el cliente? <em>(para reseñas, feedback, venta futura)</em></td><td class="col-relation">Valida y mejora el módulo de reseñas</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 7 ================ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon pink">🌐</div>
+            <h2>Sección 7 — Presencia Digital y Marketing</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Evaluar la utilidad del Web Builder y la página pública del proveedor.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Relación con FestEasy</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>7.1</td><td>¿Tienes actualmente una página web o perfil profesional en línea?</td><td class="col-relation">Valida la utilidad del Web Builder</td></tr>
+                <tr><td>7.2</td><td>¿Qué redes sociales usas para promocionar tu negocio?</td><td class="col-relation">Valida los campos instagram_url, facebook_url, etc.</td></tr>
+                <tr><td>7.3</td><td>¿Usas fotos o videos de eventos pasados para atraer clientes?</td><td class="col-relation">Valida la importancia de la galería de imágenes</td></tr>
+                <tr><td>7.4</td><td>¿Las reseñas o testimonios de clientes te ayudan a conseguir más trabajo?</td><td class="col-relation">Justifica el sistema de reseñas y calificaciones</td></tr>
+                <tr><td>7.5</td><td>¿Te interesaría tener una página web propia con tu portafolio, generada automáticamente?</td><td class="col-relation">Valida la demanda del feature web-builder</td></tr>
+                <tr><td>7.6</td><td>¿Pagarías por mayor visibilidad o posicionamiento dentro de una plataforma de eventos?</td><td class="col-relation">Valida el modelo de suscripción y addons</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 8 ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon amber">⚠️</div>
+            <h2>Sección 8 — Problemáticas y Fricción</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Identificar los "pain points" más críticos para priorizar el desarrollo.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Impacto en la app</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>8.1</td><td>¿Cuál es tu mayor frustración al gestionar tu negocio de eventos actualmente?</td><td class="col-relation">Define la propuesta de valor #1 de FestEasy</td></tr>
+                <tr><td>8.2</td><td>¿Has perdido clientes por no responder a tiempo?</td><td class="col-relation">Refuerza la importancia de notificaciones push y SLA</td></tr>
+                <tr><td>8.3</td><td>¿Has tenido problemas de seguridad o desconfianza con clientes nuevos?</td><td class="col-relation">Justifica la verificación de identidad y pagos garantizados</td></tr>
+                <tr><td>8.4</td><td>¿Tus clientes suelen comparar precios con otros proveedores? ¿Cómo compites?</td><td class="col-relation">Evalúa si el marketplace necesita herramientas de diferenciación</td></tr>
+                <tr><td>8.5</td><td>¿Alguna vez un evento salió mal por falta de información o malentendidos con el cliente?</td><td class="col-relation">Justifica formularios detallados y confirmación</td></tr>
+                <tr><td>8.6</td><td>¿Qué proceso manual te gustaría automatizar o simplificar?</td><td class="col-relation">Prioriza features de automatización</td></tr>
+                <tr><td>8.7</td><td>¿Has usado otra plataforma o app para gestionar tu negocio de eventos? Si sí, ¿qué te gustó y qué no?</td><td class="col-relation">Benchmarking competitivo directo</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 9 ================ -->
+    <div class="section">
+        <div class="section-header">
+            <div class="section-icon indigo">📊</div>
+            <h2>Sección 9 — Expectativas de la App</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Alinear el desarrollo con lo que realmente esperan los proveedores.
+        </div>
+        <table>
+            <thead>
+                <tr><th>#</th><th>Pregunta</th><th>Uso</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>9.1</td><td>¿Qué funcionalidad consideras IMPRESCINDIBLE en una app de gestión de eventos?</td><td class="col-relation">Priorización del roadmap</td></tr>
+                <tr><td>9.2</td><td>¿Preferirías una app móvil, una web, o ambas?</td><td class="col-relation">Valida la prioridad de la app móvil nativa</td></tr>
+                <tr><td>9.3</td><td>¿Qué tan cómodo te sientes usando tecnología en tu trabajo diario? <em>(1 al 5)</em></td><td class="col-relation">Guía la complejidad de la UX</td></tr>
+                <tr><td>9.4</td><td>¿Cuánto estarías dispuesto a pagar mensualmente por una plataforma que te garantice clientes reales y pagos seguros?</td><td class="col-relation">Valida el pricing actual de los planes</td></tr>
+                <tr><td>9.5</td><td>¿Qué información te gustaría ver en un dashboard al entrar a la app?</td><td class="col-relation">Mejora el ProveedorDashboardComponent</td></tr>
+                <tr><td>9.6</td><td>¿Te sería útil tener estadísticas de rendimiento como solicitudes recibidas, tasa de aceptación, calificación promedio?</td><td class="col-relation">Evalúa métricas a incluir en el dashboard</td></tr>
+                <tr><td>9.7</td><td>¿Sería importante para ti poder gestionar tu negocio desde el celular mientras estás en un evento?</td><td class="col-relation">Refuerza la prioridad de diseño responsive / app móvil</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ SECTION 10 ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon grey">🏷️</div>
+            <h2>Sección 10 — Preguntas Específicas por Tipo de Negocio</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Capturar información específica de cada rubro para personalizar la experiencia en la plataforma.
+        </div>
+
+        <!-- 10.A Banquetes -->
+        <div class="sub-category no-break">
+            <h3>🍽️ Banquetes / Catering</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.1</td><td>¿Manejas menú fijo o el cliente puede personalizar platillos?</td></tr>
+                    <tr><td>10.2</td><td>¿Cobras por persona, por mesa, o por evento?</td></tr>
+                    <tr><td>10.3</td><td>¿Necesitas saber restricciones alimentarias de los invitados?</td></tr>
+                    <tr><td>10.4</td><td>¿Incluyes vajilla, cristalería, meseros en tu servicio o son extras?</td></tr>
+                    <tr><td>10.5</td><td>¿Con cuántos días de anticipación necesitas el número final de invitados?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.B DJ -->
+        <div class="sub-category no-break">
+            <h3>🎵 DJ / Sonido / Iluminación</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.6</td><td>¿Tu precio varía según el tipo de equipo necesario (tamaño del venue)?</td></tr>
+                    <tr><td>10.7</td><td>¿Cobras por hora o por evento completo?</td></tr>
+                    <tr><td>10.8</td><td>¿Necesitas visitar el lugar antes del evento para preparar el montaje?</td></tr>
+                    <tr><td>10.9</td><td>¿Incluyes transporte del equipo en tu precio?</td></tr>
+                    <tr><td>10.10</td><td>¿Ofreces prueba o demo previo al evento?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.C Decoración -->
+        <div class="sub-category no-break">
+            <h3>🌸 Decoración / Ambientación</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.11</td><td>¿Trabajas con temas/estilos predefinidos o diseños personalizados?</td></tr>
+                    <tr><td>10.12</td><td>¿El montaje y desmontaje están incluidos en tu precio?</td></tr>
+                    <tr><td>10.13</td><td>¿Cuánto tiempo antes del evento necesitas llegar al lugar?</td></tr>
+                    <tr><td>10.14</td><td>¿Reusas materiales o siempre usas nuevos? ¿Cómo afecta tu precio?</td></tr>
+                    <tr><td>10.15</td><td>¿Manejas inventario de materiales que el cliente puede consultar?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.D Fotografía -->
+        <div class="sub-category no-break">
+            <h3>📸 Fotografía / Video</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.16</td><td>¿Cuánto tiempo tardas en entregar las fotos/videos editados?</td></tr>
+                    <tr><td>10.17</td><td>¿Cobras por horas de cobertura, por paquete de fotos, o por evento?</td></tr>
+                    <tr><td>10.18</td><td>¿Ofreces galería digital o entrega física?</td></tr>
+                    <tr><td>10.19</td><td>¿Trabajas solo o con un equipo (segundo fotógrafo, asistente)?</td></tr>
+                    <tr><td>10.20</td><td>¿Necesitas permiso especial para usar las fotos en tu portafolio?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.E Mobiliario -->
+        <div class="sub-category no-break page-break">
+            <h3>🎪 Renta de Mobiliario / Carpas / Inflables</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.21</td><td>¿Manejas inventario con stock limitado? <em>(ej. solo tienes 10 mesas)</em></td></tr>
+                    <tr><td>10.22</td><td>¿El precio incluye entrega, montaje y recolección?</td></tr>
+                    <tr><td>10.23</td><td>¿Cobras recargo por distancia de entrega?</td></tr>
+                    <tr><td>10.24</td><td>¿Tienes políticas de daño o depósito de garantía?</td></tr>
+                    <tr><td>10.25</td><td>¿Puedes rentar el mismo artículo a otro cliente el mismo día si devuelven temprano?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.F Pastelería -->
+        <div class="sub-category no-break">
+            <h3>🎂 Pastelería / Dulces / Mesa de Postres</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.26</td><td>¿Necesitas degustación previa con el cliente?</td></tr>
+                    <tr><td>10.27</td><td>¿Cuántos días antes necesitas confirmación del pedido?</td></tr>
+                    <tr><td>10.28</td><td>¿Tu precio varía por diseño, tamaño, o número de porciones?</td></tr>
+                    <tr><td>10.29</td><td>¿Ofreces entrega o el cliente recoge?</td></tr>
+                    <tr><td>10.30</td><td>¿Manejas restricciones (sin gluten, vegano, etc.)?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.G Entretenimiento -->
+        <div class="sub-category no-break">
+            <h3>🎤 Entretenimiento (Shows, Payasos, Magos, Animadores)</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.31</td><td>¿Cuánto dura tu show estándar? ¿Ofreces diferentes duraciones?</td></tr>
+                    <tr><td>10.32</td><td>¿Necesitas espacio específico o equipo especial?</td></tr>
+                    <tr><td>10.33</td><td>¿Tu show se adapta al tipo de evento (infantil, corporativo, boda)?</td></tr>
+                    <tr><td>10.34</td><td>¿Incluyes transporte y vestuario en tu precio?</td></tr>
+                    <tr><td>10.35</td><td>¿Tienes restricciones de horario (ej. no trabajo después de las 10 PM)?</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 10.H Salones -->
+        <div class="sub-category no-break">
+            <h3>🏫 Salones / Venues / Espacios para Eventos</h3>
+            <table>
+                <thead><tr><th>#</th><th>Pregunta</th></tr></thead>
+                <tbody>
+                    <tr><td>10.36</td><td>¿Tienes capacidad máxima y mínima de asistentes?</td></tr>
+                    <tr><td>10.37</td><td>¿Qué está incluido en la renta del espacio? <em>(mesas, sillas, cocina, estacionamiento)</em></td></tr>
+                    <tr><td>10.38</td><td>¿Tienes horarios de entrada y salida definidos?</td></tr>
+                    <tr><td>10.39</td><td>¿Permites proveedores externos (ej. el cliente trae su propio DJ)?</td></tr>
+                    <tr><td>10.40</td><td>¿Manejas depósito de garantía por daños?</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- ================ GAP TABLE ================ -->
+    <div class="section page-break">
+        <div class="section-header">
+            <div class="section-icon red">📌</div>
+            <h2>Brechas Identificadas: FestEasy Actual vs. Necesidades Reales</h2>
+        </div>
+        <div class="section-objective">
+            <strong>Objetivo:</strong> Áreas donde las respuestas de los proveedores podrían revelar la necesidad de cambios o nuevas funcionalidades.
+        </div>
+        <table class="gap-table">
+            <thead>
+                <tr><th style="width:auto; text-align:left">Área</th><th>Estado Actual</th><th>Posible Mejora</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Precios dinámicos</strong></td><td>Solo precio_base fijo</td><td>Reglas por invitados, distancia, temporada</td></tr>
+                <tr><td><strong>Múltiples eventos/día</strong></td><td>Bloqueo = día completo</td><td>Bloques por horario</td></tr>
+                <tr><td><strong>Comunicación</strong></td><td>Sin chat integrado</td><td>Chat o enlace a WhatsApp</td></tr>
+                <tr><td><strong>Buffer time</strong></td><td>No existe</td><td>Tiempo preparación/desmontaje</td></tr>
+                <tr><td><strong>Inventario / stock</strong></td><td>No existe</td><td>Control stock para mobiliario</td></tr>
+                <tr><td><strong>Cotización personalizada</strong></td><td>Tabla existe, UI no</td><td>Flujo completo de cotizaciones</td></tr>
+                <tr><td><strong>Modificar solicitudes</strong></td><td>No se permite</td><td>Cambios post-solicitud</td></tr>
+                <tr><td><strong>Notificaciones push</strong></td><td>Módulo básico</td><td>Recordatorios automáticos</td></tr>
+                <tr><td><strong>Reportes financieros</strong></td><td>Dashboard básico</td><td>Reportes por periodo, facturas</td></tr>
+                <tr><td><strong>Multi-usuario</strong></td><td>1 usuario = 1 proveedor</td><td>Sub-cuentas para equipo</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ================ RECOMMENDATIONS ================ -->
+    <div class="section no-break">
+        <div class="tip-box">
+            <strong>💡 Recomendación de uso:</strong> Aplica este cuestionario a <strong>al menos 3-5 proveedores de cada categoría principal</strong> antes de priorizar el desarrollo. Las respuestas te darán datos concretos para tomar decisiones de producto.
+        </div>
+        <div class="important-box">
+            <strong>⚡ Formato de aplicación:</strong> Se recomienda realizarlas como <strong>entrevista personal o videollamada</strong> (15-20 min) en lugar de un formulario en línea para capturar respuestas más ricas y detalles no anticipados.
+        </div>
+    </div>
+
+</div>
+
+<!-- Print Button -->
+<button class="print-btn" onclick="window.print()">
+    🖨️ Guardar como PDF
+</button>
+
+</body>
+</html>

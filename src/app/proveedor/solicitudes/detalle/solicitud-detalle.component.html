@@ -109,11 +109,15 @@
                     'bg-blue-100 text-blue-700': solicitud()?.estado === SolicitudEstado.EN_PROGRESO,
                     'bg-purple-100 text-purple-700': solicitud()?.estado === SolicitudEstado.ENTREGADO_PENDIENTE_LIQ,
                     'bg-emerald-100 text-emerald-700': solicitud()?.estado === SolicitudEstado.FINALIZADO,
+                    'bg-slate-100 text-slate-700': solicitud()?.estado === 'en_negociacion',
+                    'bg-indigo-100 text-indigo-700': solicitud()?.estado === 'esperando_confirmacion_cliente',
                     'bg-red-100 text-red-700': solicitud()?.estado === SolicitudEstado.RECHAZADA || solicitud()?.estado === SolicitudEstado.CANCELADA,
-                    'bg-slate-100 text-slate-700': solicitud()?.estado !== SolicitudEstado.PENDIENTE_APROBACION && solicitud()?.estado !== SolicitudEstado.ESPERANDO_ANTICIPO && solicitud()?.estado !== SolicitudEstado.RESERVADO && solicitud()?.estado !== SolicitudEstado.EN_PROGRESO && solicitud()?.estado !== SolicitudEstado.ENTREGADO_PENDIENTE_LIQ && solicitud()?.estado !== SolicitudEstado.FINALIZADO && solicitud()?.estado !== SolicitudEstado.RECHAZADA && solicitud()?.estado !== SolicitudEstado.CANCELADA
+                    'bg-gray-100 text-gray-700': solicitud()?.estado !== SolicitudEstado.PENDIENTE_APROBACION && solicitud()?.estado !== SolicitudEstado.ESPERANDO_ANTICIPO && solicitud()?.estado !== SolicitudEstado.RESERVADO && solicitud()?.estado !== SolicitudEstado.EN_PROGRESO && solicitud()?.estado !== SolicitudEstado.ENTREGADO_PENDIENTE_LIQ && solicitud()?.estado !== SolicitudEstado.FINALIZADO && solicitud()?.estado !== SolicitudEstado.RECHAZADA &&  solicitud()?.estado !== SolicitudEstado.CANCELADA && solicitud()?.estado !== 'en_negociacion' && solicitud()?.estado !== 'esperando_confirmacion_cliente'
                 }">
                     @switch (solicitud()?.estado) {
                     @case (SolicitudEstado.PENDIENTE_APROBACION) { Pendiente }
+                    @case ('en_negociacion') { Negociando }
+                    @case ('esperando_confirmacion_cliente') { Esperando Respuesta }
                     @case (SolicitudEstado.ESPERANDO_ANTICIPO) { Esperando Pago }
                     @case (SolicitudEstado.RESERVADO) { Reservado }
                     @case (SolicitudEstado.EN_PROGRESO) { En Progreso }
@@ -256,50 +260,104 @@
                     </div>
                 </section>
 
-                <!-- Desglose de Servicios -->
-                <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-8 border-b border-slate-100">
-                        <h2 class="text-xl font-bold text-slate-800">Servicios Contratados</h2>
-                    </div>
-                    <div class="p-0">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead
-                                    class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest text-left">
-                                    <tr>
-                                        <th class="px-8 py-4">Paquete / Servicio</th>
-                                        <th class="px-8 py-4 text-center">Cant.</th>
-                                        <th class="px-8 py-4 text-right">Precio Unit.</th>
-                                        <th class="px-8 py-4 text-right">Subtotal</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100">
-                                    @for (item of items(); track item.id) {
-                                    <tr class="hover:bg-slate-50 transition-colors">
-                                        <td class="px-8 py-5">
-                                            <p class="text-slate-800 font-bold">{{ item.nombre_paquete_snapshot }}</p>
-                                        </td>
-                                        <td class="px-8 py-5 text-center text-slate-600 font-semibold">
-                                            {{ item.cantidad }}
-                                        </td>
-                                        <td class="px-8 py-5 text-right text-slate-600">
-                                            {{ item.precio_unitario | currency:'MXN' }}
-                                        </td>
-                                        <td class="px-8 py-5 text-right text-slate-900 font-bold">
-                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN' }}
-                                        </td>
-                                    </tr>
-                                    }
-                                </tbody>
-                            </table>
+                    <!-- Sección de Cotización y Chat (Si está en negociación o posterior) -->
+                    @if (solicitud()?.estado === 'en_negociacion' || solicitud()?.estado === 'esperando_confirmacion_cliente' || solicitud()?.estado === SolicitudEstado.ESPERANDO_ANTICIPO || solicitud()?.estado === SolicitudEstado.RESERVADO || solicitud()?.estado === SolicitudEstado.EN_PROGRESO) {
+                        
+                        <!-- Alert de Negociación Activa -->
+                        @if (solicitud()?.estado === 'en_negociacion') {
+                            <div class="mt-8 bg-indigo-50 border border-indigo-200 rounded-2xl p-6 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                                <div class="flex gap-4">
+                                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 shrink-0">
+                                        <span class="material-symbols-outlined text-2xl">forum</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-indigo-900 font-bold text-lg">Negociación Activa</h3>
+                                        <p class="text-indigo-700 mt-1 font-medium">
+                                            Has iniciado una negociación con el cliente. Puedes usar el chat para aclarar detalles y modificar 
+                                            la propuesta en el panel inferior. Cuando termines, envía la propuesta oficial.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                @if (getTiempoRestanteNegociacion()) {
+                                    <div class="bg-white px-4 py-3 rounded-xl border border-indigo-100 shadow-sm flex flex-col items-center min-w-[140px]">
+                                        <span class="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1">Tiempo Restante</span>
+                                        <div class="flex items-center gap-2" [ngClass]="getTiempoRestanteNegociacion() === 'Expirado' ? 'text-red-500' : 'text-indigo-600'">
+                                            <span class="material-symbols-outlined text-[20px]">timer</span>
+                                            <span class="text-xl font-bold">{{ getTiempoRestanteNegociacion() }}</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <div class="mt-8">
+                            <!-- Panel de Cotización (Ahora con 100% de ancho) -->
+                            <div class="w-full">
+                                <app-panel-cotizacion 
+                                    [itemsOriginales]="items()"
+                                    [porcentajeAnticipo]="solicitud()?.provider?.porcentaje_anticipo || 30"
+                                    [solicitudId]="solicitud()!.id"
+                                    [estadoSolicitud]="solicitud()!.estado"
+                                    [modo]="solicitud()?.estado === 'en_negociacion' ? 'edicion' : 'vista'"
+                                    (enviarPropuesta)="enviarPropuestaOficial($event)"
+                                ></app-panel-cotizacion>
+                            </div>
+                            
+                            <!-- Chat Component Flotante -->
+                            <app-chat-negociacion
+                                [solicitudId]="solicitud()!.id"
+                                [tituloEvento]="getTituloReal()"
+                                [estadoSolicitud]="solicitud()!.estado"
+                                [receptorNombre]="solicitud()?.cliente?.nombre_completo || 'Cliente'"
+                                [receptorAvatar]="solicitud()?.cliente?.avatar_url"
+                                [esProveedor]="true"
+                            ></app-chat-negociacion>
                         </div>
-                    </div>
-                    <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
-                        <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total del Evento</span>
-                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN'
-                            }}</span>
-                    </div>
-                </section>
+                    } @else {
+                        <!-- Desglose Original de Servicios -->
+                        <section class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-8 border-b border-slate-100">
+                                <h2 class="text-xl font-bold text-slate-800">Servicios Solicitados Inicialmente</h2>
+                            </div>
+                            <div class="p-0">
+                                <div class="overflow-x-auto">
+                                    <table class="w-full">
+                                        <thead class="bg-slate-50 text-slate-400 text-[10px] font-black uppercase tracking-widest text-left">
+                                            <tr>
+                                                <th class="px-8 py-4">Paquete / Servicio</th>
+                                                <th class="px-8 py-4 text-center">Cant.</th>
+                                                <th class="px-8 py-4 text-right">Precio Unit.</th>
+                                                <th class="px-8 py-4 text-right">Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-slate-100">
+                                            @for (item of items(); track item.id) {
+                                            <tr class="hover:bg-slate-50 transition-colors">
+                                                <td class="px-8 py-5">
+                                                    <p class="text-slate-800 font-bold">{{ item.nombre_paquete_snapshot }}</p>
+                                                </td>
+                                                <td class="px-8 py-5 text-center text-slate-600 font-semibold">
+                                                    {{ item.cantidad }}
+                                                </td>
+                                                <td class="px-8 py-5 text-right text-slate-600">
+                                                    {{ item.precio_unitario | currency:'MXN' }}
+                                                </td>
+                                                <td class="px-8 py-5 text-right text-slate-900 font-bold">
+                                                    {{ (item.cantidad * item.precio_unitario) | currency:'MXN' }}
+                                                </td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
+                                <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total Estimado</span>
+                                <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN' }}</span>
+                            </div>
+                        </section>
+                    }
             </div>
 
             <!-- Columna Derecha: Cliente y Pagos -->
@@ -421,10 +479,26 @@
                 <div class="bg-blue-50 rounded-3xl p-8 border border-blue-200">
                     <p class="text-blue-800 text-sm font-bold mb-6 flex items-center gap-2">
                         <span class="material-symbols-outlined text-lg">pending_actions</span>
-                        Acciones de Solicitud
+                        Acciones de Solicitud Inicial
                     </p>
 
                     <div class="space-y-3">
+                        <button (click)="iniciarNegociacion()" [disabled]="procesando()"
+                            class="w-full py-4 bg-indigo-600 hover:bg-indigo-700 shadow-lg shadow-indigo-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50">
+                            @if (procesando()) {
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                            } @else {
+                            <span class="material-symbols-outlined">forum</span>
+                            <span>Negociar / Chatear con Cliente</span>
+                            }
+                        </button>
+                        
+                        <div class="relative py-3 flex items-center">
+                            <div class="flex-grow border-t border-blue-200"></div>
+                            <span class="flex-shrink-0 mx-4 text-blue-500 text-xs font-bold uppercase tracking-wider">O</span>
+                            <div class="flex-grow border-t border-blue-200"></div>
+                        </div>
+
                         <button (click)="aceptarSolicitud()" [disabled]="procesando()"
                             class="w-full py-4 bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all disabled:opacity-50">
                             @if (procesando()) {
@@ -432,7 +506,7 @@
                             </div>
                             } @else {
                             <span class="material-symbols-outlined">check_circle</span>
-                            <span>Aceptar Solicitud</span>
+                            <span>Aceptar Directamente</span>
                             }
                         </button>
 
@@ -449,7 +523,21 @@
                     </div>
 
                     <p class="text-blue-700 text-[10px] leading-relaxed text-center font-bold mt-6">
-                        Al aceptar, el cliente será notificado para proceder con el pago del anticipo.
+                        Puedes negociar si necesitas ajustar precios o detalles. Si aceptas directamente, el cliente procederá con el pago.
+                    </p>
+                </div>
+                }
+                
+                <!-- Info de Negociación: cuando está esperando respuesta del cliente -->
+                @if (solicitud()?.estado === 'esperando_confirmacion_cliente') {
+                <div class="bg-indigo-50 rounded-3xl p-6 border border-indigo-200">
+                    <p class="text-indigo-800 text-sm font-bold mb-2 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-lg">hourglass_top</span>
+                        Esperando Respuesta
+                    </p>
+                    <p class="text-indigo-700 text-xs leading-relaxed font-medium">
+                        Has enviado una propuesta oficial modificada. El cliente tiene 24 horas para aceptarla o rechazarla. 
+                        Puedes seguir usando el chat para resolver sus dudas.
                     </p>
                 </div>
                 }

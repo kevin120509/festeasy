@@ -131,7 +131,7 @@ export interface ServiceRequest {
     latitud_servicio?: number;
     longitud_servicio?: number;
     titulo_evento?: string;
-    estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
+    estado: 'pendiente_aprobacion' | 'en_negociacion' | 'esperando_confirmacion_cliente' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
     creado_en: string;
     actualizado_en: string;
     monto_total?: number;
@@ -139,6 +139,7 @@ export interface ServiceRequest {
     monto_liquidacion?: number;
     link_pago_anticipo?: string;
     link_pago_liquidacion?: string;
+    expiracion_negociacion?: string;
     expiracion_anticipo?: string;
     pin_validado_en?: string;
     pin_validacion?: string;

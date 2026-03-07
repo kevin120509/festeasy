@@ -501,11 +501,11 @@ export class ApiService {
         );
     }
     // Actualizar estado de solicitud (para proveedor aceptar/rechazar)
-    updateSolicitudEstado(id: string, estado: string): Observable<any> {
+    updateSolicitudEstado(id: string, estado: string, extraData: any = {}): Observable<any> {
         return this.fromSupabase(
             this.supabase
                 .from('solicitudes')
-                .update({ estado })
+                .update({ estado, ...extraData })
                 .eq('id', id)
                 .select()
                 .single()
@@ -802,8 +802,135 @@ export class ApiService {
         );
     }
 
-    // --- MÓDULO DE FINANZAS ---
+    // --- MÓDULO DE NEGOCIACIÓN Y CHAT ---
+    
+    getMensajesChat(solicitudId: string): Observable<any[]> {
+        return from(this.supabase
+            .from('mensajes_solicitud')
+            .select('*')
+            .eq('solicitud_id', solicitudId)
+            .order('creado_en', { ascending: true })
+        ).pipe(
+            map(({ data, error }) => {
+                if (error) throw error;
+                return data || [];
+            })
+        );
+    }
 
+    enviarMensajeChat(solicitudId: string, mensaje: string): Observable<any> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap(({ data: { user }, error }) => {
+                if (error || !user) throw error || new Error('No user logged in');
+                
+                // Fetch request info to know the recipient
+                return from(this.supabase
+                    .from('solicitudes')
+                    .select('cliente_usuario_id, proveedor_usuario_id')
+                    .eq('id', solicitudId)
+                    .single()
+                ).pipe(
+                    switchMap(({ data: solData, error: solErr }) => {
+                        if (solErr || !solData) throw solErr || new Error('Error fetching request for chat');
+                        
+                        const isClient = user.id === solData.cliente_usuario_id;
+                        const receptorId = isClient ? solData.proveedor_usuario_id : solData.cliente_usuario_id;
+                        
+                        const emisorNameDb = isClient ? 'perfil_cliente' : 'perfil_proveedor';
+                        const emisorFieldName = isClient ? 'nombre_completo' : 'nombre_negocio';
+
+                        // First obtain sender name, then insert message
+                        return from(this.supabase
+                            .from(emisorNameDb)
+                            .select(emisorFieldName)
+                            .eq('usuario_id', user.id)
+                            .single()
+                        ).pipe(
+                            switchMap(({ data: profileData }) => {
+                                const profileRecord = profileData as Record<string, any>;
+                                const emisorName = profileRecord ? profileRecord[emisorFieldName] : (isClient ? 'Cliente' : 'Proveedor');
+
+                                const payload = {
+                                    solicitud_id: solicitudId,
+                                    emisor_usuario_id: user.id,
+                                    mensaje: mensaje,
+                                    leido: false,
+                                    creado_en: new Date().toISOString()
+                                };
+
+                                return from(this.supabase.from('mensajes_solicitud').insert(payload).select().single()).pipe(
+                                    tap(({ data: msgData }) => {
+                                        if (msgData) {
+                                            // Notificar al receptor
+                                            this.notificationService.createNotification({
+                                                usuario_id: receptorId,
+                                                tipo: 'solicitud',
+                                                titulo: `Nuevo mensaje de ${emisorName}`,
+                                                mensaje: mensaje,
+                                                data: { solicitud_id: solicitudId, action: 'chat' }
+                                            }).subscribe();
+                                        }
+                                    }),
+                                    map(({ data, error: insertError }) => {
+                                        if (insertError) throw insertError;
+                                        return data;
+                                    })
+                                );
+                            })
+                        );
+                    })
+                );
+            })
+        );
+    }
+
+    marcarMensajesComoLeidos(solicitudId: string): Observable<any> {
+        return from(this.supabase.auth.getUser()).pipe(
+            switchMap(({ data: { user }, error }) => {
+                if (error || !user) throw error || new Error('No user logged in');
+                
+                return from(this.supabase
+                    .from('mensajes_solicitud')
+                    .update({ leido: true })
+                    .eq('solicitud_id', solicitudId)
+                    .neq('emisor_usuario_id', user.id)
+                );
+            }),
+            map(({ data, error }: any) => {
+                if (error) throw error;
+                return data;
+            })
+        );
+    }
+
+    suscribirseAChat(solicitudId: string, callback: (payload: any) => void): RealtimeChannel {
+        const channel = this.supabase
+            .channel(`chat_${solicitudId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'mensajes_solicitud',
+                    filter: `solicitud_id=eq.${solicitudId}`
+                },
+                (payload) => callback(payload.new)
+            )
+            .subscribe((status, err) => {
+                console.log(`💬 Suscripción a chat [${solicitudId}] status:`, status);
+                if (err) console.error('Error suscribiéndose al chat:', err);
+            });
+            
+        return channel;
+    }
+
+    desuscribirseDeChat(channel: RealtimeChannel | null) {
+        if (channel) {
+            this.supabase.removeChannel(channel);
+        }
+    }
+
+    // --- MÓDULO DE FINANZAS ---
     getExpenses(filters: any = {}): Observable<any[]> {
         let query = this.supabase.from('gastos_proveedor').select('*');
         if (filters.startDate) query = query.gte('fecha', filters.startDate);

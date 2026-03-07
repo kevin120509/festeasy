@@ -23,7 +23,7 @@
           [class.border-l-4]="!notif.leida" [class.border-primary]="!notif.leida" [class.bg-blue-50]="!notif.leida"
           [ngStyle]="notificationStyles()[notif.id] || {}" (touchstart)="onTouchStart($event, notif.id)"
           (touchmove)="onTouchMove($event, notif.id)" (touchend)="onTouchEnd($event, notif.id)"
-          (contextmenu)="$event.preventDefault(); toggleMenu(notif.id, $event)" (click)="marcarLeida(notif.id)">
+          (contextmenu)="$event.preventDefault(); toggleMenu(notif.id, $event)" (click)="marcarLeida(notif)">
 
           <div class="flex justify-between items-center w-full">
             <div class="flex items-center gap-2">

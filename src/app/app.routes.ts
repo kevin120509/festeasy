@@ -29,6 +29,7 @@ import { PagoComponent } from './cliente/pago/pago.component';
 import { ResenasSummaryComponent } from './cliente/resenas/resenas-summary/resenas-summary.component';
 import { ResenaFormComponent } from './cliente/resenas/resena-form/resena-form.component';
 import { ResenaExitoComponent } from './cliente/resenas/resena-exito/resena-exito.component';
+import { DetalleComponent } from './cliente/solicitudes/detalle/detalle';
 
 // Proveedor
 import { ProveedorRegistroComponent } from './proveedor/registro/registro.component';
@@ -93,7 +94,7 @@ export const routes: Routes = [
             { path: 'seguimiento/:id', component: SeguimientoEventoComponent },
             { path: 'carrito', component: CarritoComponent },
             { path: 'solicitudes', component: MisSolicitudesComponent },
-            { path: 'solicitudes/:id', component: SolicitudEnviadaComponent },
+            { path: 'solicitudes/:id', component: DetalleComponent },
             { path: 'pago/:id', component: PagoComponent },
             { path: 'configuracion', component: ClienteConfiguracionComponent },
             { path: 'notificaciones', component: ClienteNotificacionesComponent },
