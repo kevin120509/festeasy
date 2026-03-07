@@ -99,7 +99,34 @@
                                 </div>
                                 <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-1">{{ pkg.descripcion }}
                                 </p>
-                                <div class="mt-2 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+
+                                <!-- Variantes Configuradas -->
+                                @if (pkg.variantes_seleccionadas && objectKeys(pkg.variantes_seleccionadas).length > 0)
+                                {
+                                <div
+                                    class="mt-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 border border-gray-100 dark:border-gray-700">
+                                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">
+                                        Opciones Configuradas</p>
+                                    <div class="space-y-1.5">
+                                        @for (vKey of objectKeys(pkg.variantes_seleccionadas); track vKey) {
+                                        <div class="flex items-start justify-between text-xs">
+                                            <div class="flex gap-2">
+                                                <span class="font-semibold text-gray-700 dark:text-gray-300">{{ vKey
+                                                    }}:</span>
+                                                <span class="text-gray-600 dark:text-gray-400">{{
+                                                    pkg.variantes_seleccionadas[vKey]?.valores?.join(', ') }}</span>
+                                            </div>
+                                            @if (pkg.variantes_seleccionadas[vKey]?.extra > 0) {
+                                            <span class="text-emerald-600 font-semibold whitespace-nowrap">+${{
+                                                pkg.variantes_seleccionadas[vKey].extra }} c.u.</span>
+                                            }
+                                        </div>
+                                        }
+                                    </div>
+                                </div>
+                                }
+
+                                <div class="mt-3 flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
                                     <span
                                         class="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded text-xs font-medium">Cant:
                                         {{ pkg.cantidad }}</span>

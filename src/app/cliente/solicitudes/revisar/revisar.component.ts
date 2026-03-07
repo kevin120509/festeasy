@@ -25,6 +25,8 @@ export class RevisarSolicitudComponent implements OnInit {
     isLoading = signal<boolean>(false);
     notification = signal<{ message: string, type: 'success' | 'error' } | null>(null);
 
+    objectKeys = Object.keys;
+
     ngOnInit() {
         // Cargar datos desde el servicio
         const ev = this.solicitudDataService.getEventoActual();
@@ -148,10 +150,31 @@ export class RevisarSolicitudComponent implements OnInit {
             // 2. Crear los items de la solicitud
             const itemsPayload = this.paquetes().map(pkg => {
                 const incluidosTotal = (pkg.incluidos || []).reduce((acc: number, incl: any) => acc + (incl.subtotal || 0), 0);
-                const precioTotalUnitario = pkg.precio_base + (incluidosTotal / pkg.cantidad);
+
+                // Extra variant price logic is already added to pkg.subtotal in client side
+                let totalVariantesExtra = 0;
+                if (pkg.variantes_seleccionadas) {
+                    Object.keys(pkg.variantes_seleccionadas).forEach(k => {
+                        if (pkg.variantes_seleccionadas[k].extra) {
+                            totalVariantesExtra += pkg.variantes_seleccionadas[k].extra;
+                        }
+                    });
+                }
+                const precioTotalUnitario = pkg.precio_base + totalVariantesExtra + (incluidosTotal / pkg.cantidad);
 
                 const incluidosSnapshot = (pkg.incluidos || []).map((incl: any) => `\n- ${incl.nombre} (x${incl.cantidad})`).join('');
-                const nombreSnapshot = pkg.nombre + (incluidosSnapshot ? `\nIncluye:${incluidosSnapshot}` : '');
+
+                // Add variants to snapshot string
+                let variantesSnapshot = '';
+                if (pkg.variantes_seleccionadas && Object.keys(pkg.variantes_seleccionadas).length > 0) {
+                    variantesSnapshot = '\nOpciones:';
+                    Object.keys(pkg.variantes_seleccionadas).forEach(k => {
+                        const vals = pkg.variantes_seleccionadas[k].valores.join(', ');
+                        variantesSnapshot += `\n- ${k}: ${vals}`;
+                    });
+                }
+
+                const nombreSnapshot = pkg.nombre + (incluidosSnapshot ? `\nIncluye:${incluidosSnapshot}` : '') + variantesSnapshot;
 
                 return {
                     solicitud_id: solicitud.id,

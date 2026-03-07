@@ -10,14 +10,14 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { ChatNegociacionComponent } from '../../../shared/chat-negociacion/chat-negociacion.component';
-import { PanelCotizacionComponent } from '../../../proveedor/solicitudes/panel-cotizacion/panel-cotizacion.component';
+import { CotizacionBorrador } from '../../../models';
 
 @Component({
-  selector: 'app-detalle',
-  standalone: true,
-  imports: [CommonModule, RouterModule, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule, ChatNegociacionComponent, PanelCotizacionComponent],
-  providers: [ConfirmationService],
-  templateUrl: './detalle.html'
+    selector: 'app-detalle',
+    standalone: true,
+    imports: [CommonModule, RouterModule, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule, ChatNegociacionComponent],
+    providers: [ConfirmationService],
+    templateUrl: './detalle.html'
 })
 export class DetalleComponent implements OnInit {
     private route = inject(ActivatedRoute);
@@ -28,6 +28,7 @@ export class DetalleComponent implements OnInit {
 
     solicitud = signal<any>(null);
     items = signal<any[]>([]);
+    cotizacionBorrador = signal<CotizacionBorrador | null>(null);
     isLoading = signal(true);
     mensajeError = signal('');
     mensajeExito = signal('');
@@ -50,12 +51,11 @@ export class DetalleComponent implements OnInit {
                 this.solicitud.set(data);
 
                 // Check if there is a custom package JSON saved
-                if (data.cotizacion_borrador && data.cotizacion_borrador.items) {
-                    this.items.set(data.cotizacion_borrador.items);
-                    this.isLoading.set(false);
-                } else {
-                    this.cargarItems(id);
+                if (data.cotizacion_borrador && typeof data.cotizacion_borrador === 'object') {
+                    this.cotizacionBorrador.set(data.cotizacion_borrador);
                 }
+
+                this.cargarItems(id);
             },
             error: (err: any) => {
                 console.error('Error cargando detalle:', err);

@@ -13,12 +13,12 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { ChatNegociacionComponent } from '../../../shared/chat-negociacion/chat-negociacion.component';
-import { PanelCotizacionComponent } from '../panel-cotizacion/panel-cotizacion.component';
+import { CotizadorComponent } from '../cotizador/cotizador.component';
 
 @Component({
     selector: 'app-solicitud-detalle',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule, ConcluirServicioComponent, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule, ChatNegociacionComponent, PanelCotizacionComponent],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ConcluirServicioComponent, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule, ChatNegociacionComponent, CotizadorComponent],
     providers: [ConfirmationService],
     templateUrl: './solicitud-detalle.component.html'
 })
@@ -42,6 +42,9 @@ export class SolicitudDetalleComponent implements OnInit {
     mostrarModalPin = signal(false);
     solicitudSeleccionadaId = signal<string>('');
     procesando = signal(false);
+
+    // Control del Modal del Cotizador
+    mostrarCotizador = signal(false);
 
     // 🚫 Control del diálogo de cancelación
     displayCancelDialog: boolean = false;
@@ -85,6 +88,16 @@ export class SolicitudDetalleComponent implements OnInit {
         this.api.getRequestItems(id).subscribe({
             next: (data) => {
                 this.items.set(data);
+
+                // Vincular items a la solicitud para que componentes hijos (ej: Cotizador) puedan leerlos
+                const currentSol = this.solicitud();
+                if (currentSol) {
+                    this.solicitud.set({
+                        ...currentSol,
+                        items: data
+                    });
+                }
+
                 this.isLoading.set(false);
             },
             error: (err) => {
@@ -225,7 +238,7 @@ export class SolicitudDetalleComponent implements OnInit {
         expirationDate.setHours(expirationDate.getHours() + 24);
 
         this.api.updateSolicitudEstado(id, 'en_negociacion', {
-             expiracion_negociacion: expirationDate.toISOString()
+            expiracion_negociacion: expirationDate.toISOString()
         }).subscribe({
             next: () => {
                 this.mensajeExito.set('Negociación iniciada. Ahora puedes chatear y modificar la propuesta.');
@@ -246,31 +259,31 @@ export class SolicitudDetalleComponent implements OnInit {
      * 📤 Enviar Propuesta Finalizada
      */
     enviarPropuestaOficial(propuesta: any): void {
-         const id = this.solicitud()?.id;
-         if (!id || this.procesando()) return;
-         
-         this.procesando.set(true);
-         
-         // Limpiamos el tiempo de expiración ya que la negociación concluyó por parte del proveedor
-         console.log('Datos de la propuesta a guardar:', propuesta);
-         
-         this.api.updateSolicitudEstado(id, 'esperando_confirmacion_cliente', {
-             expiracion_negociacion: null,
-             cotizacion_borrador: propuesta
-         }).subscribe({
-             next: () => {
-                 this.mensajeExito.set('¡Propuesta enviada al cliente!');
-                 setTimeout(() => this.mensajeExito.set(''), 3000);
-                 this.procesando.set(false);
-                 this.cargarDetalle(id);
-             },
-             error: (err) => {
-                 console.error('Error enviando propuesta:', err);
-                 this.mensajeError.set('No se pudo enviar la propuesta');
-                 setTimeout(() => this.mensajeError.set(''), 3000);
-                 this.procesando.set(false);
-             }
-         });
+        const id = this.solicitud()?.id;
+        if (!id || this.procesando()) return;
+
+        this.procesando.set(true);
+
+        // Limpiamos el tiempo de expiración ya que la negociación concluyó por parte del proveedor
+        console.log('Datos de la propuesta a guardar:', propuesta);
+
+        this.api.updateSolicitudEstado(id, 'esperando_confirmacion_cliente', {
+            expiracion_negociacion: null,
+            cotizacion_borrador: propuesta
+        }).subscribe({
+            next: () => {
+                this.mensajeExito.set('¡Propuesta enviada al cliente!');
+                setTimeout(() => this.mensajeExito.set(''), 3000);
+                this.procesando.set(false);
+                this.cargarDetalle(id);
+            },
+            error: (err) => {
+                console.error('Error enviando propuesta:', err);
+                this.mensajeError.set('No se pudo enviar la propuesta');
+                setTimeout(() => this.mensajeError.set(''), 3000);
+                this.procesando.set(false);
+            }
+        });
     }
 
     /**
@@ -319,6 +332,31 @@ export class SolicitudDetalleComponent implements OnInit {
             setTimeout(() => this.mensajeExito.set(''), 2000);
         }
     }
+
+    /**
+     * 📝 Cotizador
+     */
+    abrirCotizador() {
+        this.mostrarCotizador.set(true);
+    }
+
+    cerrarCotizador() {
+        this.mostrarCotizador.set(false);
+    }
+
+    onCotizacionEnviada() {
+        this.mensajeExito.set('Cotización enviada exitosamente');
+        setTimeout(() => this.mensajeExito.set(''), 3000);
+        this.cerrarCotizador();
+        this.refrescarDatos();
+    }
+
+    onBorradorGuardado() {
+        this.mensajeExito.set('Borrador guardado');
+        setTimeout(() => this.mensajeExito.set(''), 3000);
+        this.refrescarDatos();
+    }
+
 
     /**
      * 🚫 Abrir diálogo de cancelación

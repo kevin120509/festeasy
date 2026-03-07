@@ -84,7 +84,9 @@ export class CotizadorComponent implements OnInit {
         this.loading.set(true);
         try {
             const existing = await this.cotizacionService.getBorrador(this.solicitud.id);
-            if (existing) {
+
+            // Check if existing really has the required valid structure, else fallback
+            if (existing && existing.paquete_base && existing.paquete_base.nombre) {
                 this.loadBorrador(existing);
             } else {
                 this.initFromSolicitud();
@@ -104,10 +106,10 @@ export class CotizadorComponent implements OnInit {
 
     private loadBorrador(borrador: CotizacionBorrador) {
         this.paqueteBase.set(borrador.paquete_base);
-        this.productosExtra.set(borrador.productos_extra);
-        this.ajustes.set(borrador.ajustes_proveedor);
-        this.anticipoTipo.set(borrador.anticipo_tipo);
-        this.anticipoValor.set(borrador.anticipo_valor);
+        this.productosExtra.set(borrador.productos_extra || []);
+        this.ajustes.set(borrador.ajustes_proveedor || []);
+        this.anticipoTipo.set(borrador.anticipo_tipo || 'porcentaje');
+        this.anticipoValor.set(borrador.anticipo_valor || 30);
         this.notasProveedor.set(borrador.notas_proveedor || '');
     }
 
@@ -120,6 +122,18 @@ export class CotizadorComponent implements OnInit {
                 precio_base: firstItem.precio_unitario,
                 cantidad: firstItem.cantidad
             });
+
+            // Si hay más de un paquete en la solicitud original, los siguientes se agregan como "productos extra"
+            if (this.solicitud.items.length > 1) {
+                const extrasDesdePaquetes: DesgloseProducto[] = this.solicitud.items.slice(1).map(item => ({
+                    producto_id: item.paquete_id || '', // Usamos ID del paquete como referencia
+                    nombre: item.nombre_paquete_snapshot,
+                    precio_unitario: item.precio_unitario,
+                    cantidad: item.cantidad || 1,
+                    subtotal: item.precio_unitario * (item.cantidad || 1)
+                }));
+                this.productosExtra.set(extrasDesdePaquetes);
+            }
         }
     }
 

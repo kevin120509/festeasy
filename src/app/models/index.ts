@@ -161,7 +161,6 @@ export interface ServiceRequest {
     evidencia_longitud?: number;
     finalizado_en?: string | Date;
     // Campos de negociación y cotización
-    expiracion_negociacion?: string;
     cotizacion_borrador?: CotizacionBorrador;
     // Campos para cancelaciones
     cancelado_por_id?: string;

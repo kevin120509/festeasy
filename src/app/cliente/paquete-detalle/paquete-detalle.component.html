@@ -129,18 +129,23 @@
                                     <div *ngIf="variante.tipo !== 'texto_libre' && variante.opciones?.length > 0"
                                         class="flex flex-wrap gap-2">
                                         <div *ngFor="let opcion of variante.opciones"
-                                            class="px-3 py-1.5 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group">
+                                            (click)="toggleVariant(variante, opcion)"
+                                            [ngClass]="{'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30': isVariantSelected(variante, opcion.label), 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800': !isVariantSelected(variante, opcion.label)}"
+                                            class="px-3 py-1.5 border-2 rounded-full cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group">
                                             <span
-                                                class="text-xs font-medium text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{
+                                                [ngClass]="{'text-indigo-700 dark:text-indigo-300': isVariantSelected(variante, opcion.label), 'text-gray-700 dark:text-gray-200': !isVariantSelected(variante, opcion.label)}"
+                                                class="text-xs font-medium group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{
                                                 opcion.label }}</span>
                                             <span *ngIf="opcion.precio_extra > 0"
                                                 class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 ml-1">+${{
                                                 opcion.precio_extra }}</span>
                                         </div>
                                     </div>
-                                    <div *ngIf="variante.tipo === 'texto_libre'"
-                                        class="px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-xs text-gray-400 italic">
-                                        Escribe tu preferencia aquí...
+                                    <div *ngIf="variante.tipo === 'texto_libre'" class="w-full">
+                                        <input type="text"
+                                            (input)="updateVariantText(variante, $any($event.target).value)"
+                                            placeholder="Escribe tu preferencia aquí..."
+                                            class="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none rounded-lg text-xs text-gray-800 dark:text-white transition-all">
                                     </div>
                                 </div>
                             </div>
@@ -210,13 +215,15 @@
                                 </span>
                             </div>
 
-                            <!-- Opciones como chips seleccionables (visual only for preview) -->
+                            <!-- Opciones como chips seleccionables -->
                             <div *ngIf="variante.tipo !== 'texto_libre' && variante.opciones?.length > 0"
                                 class="flex flex-wrap gap-2">
-                                <div *ngFor="let opcion of variante.opciones"
-                                    class="px-4 py-2 bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-600 rounded-full cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group">
+                                <div *ngFor="let opcion of variante.opciones" (click)="toggleVariant(variante, opcion)"
+                                    [ngClass]="{'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30': isVariantSelected(variante, opcion.label), 'border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800': !isVariantSelected(variante, opcion.label)}"
+                                    class="px-4 py-2 border-2 rounded-full cursor-pointer hover:border-indigo-400 dark:hover:border-indigo-500 transition-all group">
                                     <span
-                                        class="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{
+                                        [ngClass]="{'text-indigo-700 dark:text-indigo-300': isVariantSelected(variante, opcion.label), 'text-gray-700 dark:text-gray-200': !isVariantSelected(variante, opcion.label)}"
+                                        class="text-sm font-medium group-hover:text-indigo-600 dark:group-hover:text-indigo-400">{{
                                         opcion.label }}</span>
                                     <span *ngIf="opcion.precio_extra > 0"
                                         class="text-xs font-bold text-emerald-600 dark:text-emerald-400 ml-1.5">+${{
@@ -224,10 +231,11 @@
                                 </div>
                             </div>
 
-                            <!-- Texto libre placeholder -->
-                            <div *ngIf="variante.tipo === 'texto_libre'"
-                                class="px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg text-sm text-gray-400 italic">
-                                Escribe tu preferencia aquí...
+                            <!-- Texto libre input -->
+                            <div *ngIf="variante.tipo === 'texto_libre'" class="w-full">
+                                <input type="text" (input)="updateVariantText(variante, $any($event.target).value)"
+                                    placeholder="Escribe tu preferencia aquí..."
+                                    class="w-full px-4 py-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none rounded-lg text-sm text-gray-800 dark:text-white transition-all">
                             </div>
                         </div>
                     </div>
@@ -310,6 +318,30 @@
                                     <p class="font-semibold text-gray-900 dark:text-white">
                                         ${{ selectedIncluded()[key] * getExtraPrice(key) | number:'1.2-2' }}
                                     </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Variantes Seleccionadas -->
+                        <div *ngIf="!isOwner() && objectKeys(selectedVariants()).length > 0" class="mb-6">
+                            <h3 class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-3">Opciones
+                                configuradas:
+                            </h3>
+                            <div class="space-y-2">
+                                <div *ngFor="let vKey of objectKeys(selectedVariants())"
+                                    class="flex flex-col text-sm border-b border-gray-50 dark:border-gray-700/50 pb-2 last:border-0 last:pb-0">
+                                    <span class="text-[10px] text-gray-500 uppercase font-bold tracking-widest">{{ vKey
+                                        }}</span>
+                                    <div class="flex justify-between items-start mt-1">
+                                        <span class="text-gray-800 dark:text-gray-300 font-medium line-clamp-2">
+                                            {{ selectedVariants()[vKey].valores.join(', ') }}
+                                        </span>
+                                        <span *ngIf="selectedVariants()[vKey].extra > 0"
+                                            class="font-semibold text-gray-900 dark:text-white whitespace-nowrap ml-2">
+                                            +${{ (selectedVariants()[vKey].extra * cantidadSeleccionada()) |
+                                            number:'1.2-2' }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>

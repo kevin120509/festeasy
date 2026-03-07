@@ -31,6 +31,9 @@ export class PaqueteDetalleComponent implements OnInit {
   selectedIncluded = signal<Record<string, number>>({});
   expandedItems = signal<Record<string, boolean>>({});
 
+  // Guardará { "Color de Silla": { tipo: "seleccion_unica", valores: ["Azul"], extra: 0 } }
+  selectedVariants = signal<Record<string, any>>({});
+
   // Galería de imágenes
   currentImageIndex = signal(0);
 
@@ -79,7 +82,17 @@ export class PaqueteDetalleComponent implements OnInit {
       return acc + (item.precio * quantity);
     }, 0);
 
-    return basePrice + includedTotal;
+    // Sumar el precio extra de las variantes seleccionadas (por unidad del paquete)
+    const variantsState = this.selectedVariants();
+    let variantTotal = 0;
+    Object.keys(variantsState).forEach(varName => {
+      const v = variantsState[varName];
+      if (v.extra > 0) {
+        variantTotal += v.extra;
+      }
+    });
+
+    return basePrice + includedTotal + (variantTotal * this.cantidadSeleccionada());
   });
 
   incrementarCantidad() {
@@ -130,6 +143,70 @@ export class PaqueteDetalleComponent implements OnInit {
     if (!pkg || !pkg.detalles_json || !pkg.detalles_json.variantes) return [];
     return pkg.detalles_json.variantes.filter((v: any) => !v.item_asociado);
   });
+
+  // ========== METODOS PARA VARIANTES ========== //
+  getVariantKey(variante: any): string {
+    return variante.item_asociado ? `${variante.item_asociado} - ${variante.nombre}` : variante.nombre;
+  }
+
+  toggleVariant(variante: any, opcion: any) {
+    this.selectedVariants.update(curr => {
+      const newState = { ...curr };
+      const varName = this.getVariantKey(variante);
+
+      if (!newState[varName]) {
+        newState[varName] = { tipo: variante.tipo, valores: [], extra: 0 };
+      }
+
+      if (variante.tipo === 'seleccion_unica') {
+        const isSame = newState[varName].valores.includes(opcion.label);
+        // Si ya está seleccionada y no es requerida, la des-seleccionamos
+        if (isSame && !variante.requerida) {
+          delete newState[varName];
+        } else {
+          // Reemplaza por el nuevo valor
+          newState[varName].valores = [opcion.label];
+          newState[varName].extra = opcion.precio_extra || 0;
+        }
+      } else if (variante.tipo === 'seleccion_multiple') {
+        // Toggle dentro del array
+        const idx = newState[varName].valores.indexOf(opcion.label);
+        if (idx !== -1) {
+          newState[varName].valores.splice(idx, 1);
+          newState[varName].extra -= (opcion.precio_extra || 0);
+          if (newState[varName].valores.length === 0 && !variante.requerida) {
+            delete newState[varName];
+          }
+        } else {
+          newState[varName].valores.push(opcion.label);
+          newState[varName].extra += (opcion.precio_extra || 0);
+        }
+      }
+      return newState;
+    });
+  }
+
+  updateVariantText(variante: any, text: string) {
+    this.selectedVariants.update(curr => {
+      const newState = { ...curr };
+      const varName = this.getVariantKey(variante);
+      if (!text || text.trim() === '') {
+        if (!variante.requerida) delete newState[varName];
+        else newState[varName] = { tipo: 'texto_libre', valores: [''], extra: 0 };
+      } else {
+        newState[varName] = { tipo: 'texto_libre', valores: [text], extra: 0 };
+      }
+      return newState;
+    });
+  }
+
+  isVariantSelected(variante: any, opcionLabel: string): boolean {
+    const varName = this.getVariantKey(variante);
+    const sv = this.selectedVariants()[varName];
+    if (!sv || !sv.valores) return false;
+    return sv.valores.includes(opcionLabel);
+  }
+  // ============================================ //
 
   // Navegación de galería
   nextImage() {
@@ -207,7 +284,8 @@ export class PaqueteDetalleComponent implements OnInit {
       const paqueteSeleccionado = {
         ...pkg,
         cantidad: this.cantidadSeleccionada(),
-        subtotal: pkg.precio_base * this.cantidadSeleccionada(),
+        subtotal: this.total(), // use total computed property directly to pick up variants + extras
+        variantes_seleccionadas: this.selectedVariants(),
         incluidos: Object.keys(selection).map(key => {
           const incluido = pkg.extra_charges.find((i: any) => i.nombre === key);
           return {
