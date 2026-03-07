@@ -149,6 +149,7 @@ export interface ServiceRequest {
     monto_liquidacion?: number;
     link_pago_anticipo?: string;
     link_pago_liquidacion?: string;
+    expiracion_negociacion?: string;
     expiracion_anticipo?: string;
     pin_validado_en?: string;
     pin_validacion?: string;

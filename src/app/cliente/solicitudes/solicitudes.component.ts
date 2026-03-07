@@ -33,8 +33,8 @@ export class MisSolicitudesComponent implements OnInit {
         if (tab === 'todas') return requests;
 
         return requests.filter(req => {
-            if (tab === 'activas') return ['pendiente_aprobacion', 'pendiente', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
-            if (tab === 'cotizando') return ['pendiente_aprobacion', 'pendiente'].includes(req.estado);
+            if (tab === 'activas') return ['pendiente_aprobacion', 'pendiente', 'en_negociacion', 'esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
+            if (tab === 'cotizando') return ['pendiente_aprobacion', 'pendiente', 'en_negociacion'].includes(req.estado);
             if (tab === 'contratadas') return ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(req.estado);
             if (tab === 'finalizadas') return req.estado === 'finalizado';
             return true;
@@ -83,6 +83,7 @@ export class MisSolicitudesComponent implements OnInit {
     getStatusBadgeClass(estado: string): string {
         switch (estado) {
             case 'pendiente_aprobacion': return 'bg-amber-50 text-amber-600';
+            case 'en_negociacion': return 'bg-blue-50 text-primary border border-primary/20';
             case 'esperando_anticipo': return 'bg-blue-50 text-blue-600';
             case 'reservado': return 'bg-indigo-50 text-indigo-600';
             case 'en_progreso': return 'bg-orange-50 text-orange-600';

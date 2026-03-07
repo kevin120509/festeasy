@@ -27,6 +27,30 @@ export class NotificationService {
 
     constructor() {
         this.supabase = inject(SupabaseService).getClient();
+        this.requestNotificationPermission();
+    }
+
+    private requestNotificationPermission() {
+        if ('Notification' in window && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+    }
+
+    private showDesktopNotification(notif: Notification) {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const iconMap: Record<string, string> = {
+                'solicitud': '📥',
+                'pago': '💳',
+                'recordatorio': '🔔',
+                'cancelacion': '❌'
+            };
+            
+            new Notification(notif.titulo, {
+                body: notif.mensaje,
+                icon: '/favicon.ico', // You can setup custom icon logic if desired
+                tag: notif.id
+            });
+        }
     }
 
     private channel: RealtimeChannel | null = null;
@@ -45,13 +69,16 @@ export class NotificationService {
             }, (payload) => {
                 console.log('🔔 Nueva notificación recibida en tiempo real:', payload.new);
                 const newNotif = payload.new as Notification;
+                
+                // Evitamos duplicados si la petición la hicimos nosotros mismos localmente
                 this.notifications.update(prev => {
                     if (prev.find(n => n.id === newNotif.id)) return prev;
+                    if (!newNotif.leida) {
+                        this.unreadCount.update(c => c + 1);
+                        this.showDesktopNotification(newNotif);
+                    }
                     return [newNotif, ...prev];
                 });
-                if (!newNotif.leida) {
-                    this.unreadCount.update(c => c + 1);
-                }
             })
             .subscribe();
     }

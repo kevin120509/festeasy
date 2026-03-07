@@ -12,11 +12,13 @@ import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
+import { ChatNegociacionComponent } from '../../../shared/chat-negociacion/chat-negociacion.component';
+import { PanelCotizacionComponent } from '../panel-cotizacion/panel-cotizacion.component';
 
 @Component({
     selector: 'app-solicitud-detalle',
     standalone: true,
-    imports: [CommonModule, CurrencyPipe, RouterModule, ConcluirServicioComponent, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule],
+    imports: [CommonModule, CurrencyPipe, RouterModule, ConcluirServicioComponent, ConfirmDialogModule, DialogModule, ButtonModule, RippleModule, FormsModule, ChatNegociacionComponent, PanelCotizacionComponent],
     providers: [ConfirmationService],
     templateUrl: './solicitud-detalle.component.html'
 })
@@ -62,7 +64,14 @@ export class SolicitudDetalleComponent implements OnInit {
             next: (data) => {
                 console.log('📌 Detalle de solicitud cargado:', data);
                 this.solicitud.set(data);
-                this.cargarItems(id);
+
+                // Check if there is a custom package JSON saved
+                if (data.cotizacion_borrador && data.cotizacion_borrador.items) {
+                    this.items.set(data.cotizacion_borrador.items);
+                    this.isLoading.set(false);
+                } else {
+                    this.cargarItems(id);
+                }
             },
             error: (err) => {
                 console.error('Error cargando detalle:', err);
@@ -124,6 +133,25 @@ export class SolicitudDetalleComponent implements OnInit {
         return titulo.trim();
     }
 
+    getTiempoRestanteNegociacion(): string | null {
+        const expiracionStr = this.solicitud()?.expiracion_negociacion;
+        if (!expiracionStr || this.solicitud()?.estado !== 'en_negociacion') return null;
+
+        const expiracion = new Date(expiracionStr);
+        const ahora = new Date();
+        const diffMs = expiracion.getTime() - ahora.getTime();
+
+        if (diffMs <= 0) return 'Expirado';
+
+        const horas = Math.floor(diffMs / (1000 * 60 * 60));
+        const minutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+        if (horas > 0) {
+            return `${horas}h ${minutos}m`;
+        } else {
+            return `${minutos}m`;
+        }
+    }
 
 
     /**
@@ -160,7 +188,7 @@ export class SolicitudDetalleComponent implements OnInit {
     }
 
     /**
-     * ✅ Aceptar solicitud
+     * ✅ Aceptar solicitud directamente (sin negociar)
      */
     aceptarSolicitud(): void {
         const id = this.solicitud()?.id;
@@ -181,6 +209,68 @@ export class SolicitudDetalleComponent implements OnInit {
                 this.procesando.set(false);
             }
         });
+    }
+
+    /**
+     * 💬 Iniciar Negociación
+     */
+    iniciarNegociacion(): void {
+        const id = this.solicitud()?.id;
+        if (!id || this.procesando()) return;
+
+        this.procesando.set(true);
+
+        // Se calcula la expiración: 24 horas a partir de ahora.
+        const expirationDate = new Date();
+        expirationDate.setHours(expirationDate.getHours() + 24);
+
+        this.api.updateSolicitudEstado(id, 'en_negociacion', {
+             expiracion_negociacion: expirationDate.toISOString()
+        }).subscribe({
+            next: () => {
+                this.mensajeExito.set('Negociación iniciada. Ahora puedes chatear y modificar la propuesta.');
+                setTimeout(() => this.mensajeExito.set(''), 3000);
+                this.procesando.set(false);
+                this.cargarDetalle(id);
+            },
+            error: (err) => {
+                console.error('Error iniciando negociación:', err);
+                this.mensajeError.set('No se pudo iniciar la negociación');
+                setTimeout(() => this.mensajeError.set(''), 3000);
+                this.procesando.set(false);
+            }
+        });
+    }
+
+    /**
+     * 📤 Enviar Propuesta Finalizada
+     */
+    enviarPropuestaOficial(propuesta: any): void {
+         const id = this.solicitud()?.id;
+         if (!id || this.procesando()) return;
+         
+         this.procesando.set(true);
+         
+         // Limpiamos el tiempo de expiración ya que la negociación concluyó por parte del proveedor
+         console.log('Datos de la propuesta a guardar:', propuesta);
+         
+         this.api.updateSolicitudEstado(id, 'esperando_confirmacion_cliente', {
+             expiracion_negociacion: null,
+             cotizacion_borrador: propuesta
+         }).subscribe({
+             next: () => {
+                 this.mensajeExito.set('¡Propuesta enviada al cliente!');
+                 setTimeout(() => this.mensajeExito.set(''), 3000);
+                 this.procesando.set(false);
+                 this.cargarDetalle(id);
+             },
+             error: (err) => {
+                 console.error('Error enviando propuesta:', err);
+                 this.mensajeError.set('No se pudo enviar la propuesta');
+                 setTimeout(() => this.mensajeError.set(''), 3000);
+                 this.procesando.set(false);
+             }
+         });
     }
 
     /**

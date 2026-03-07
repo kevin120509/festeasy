@@ -24,7 +24,8 @@ export class ClienteDashboardComponent implements OnInit {
     // Métricas
     metricas = signal({
         solicitudesTotales: 0,
-        cotizacionesPendientes: 0
+        cotizacionesPendientes: 0,
+        enNegociacion: 0
     });
 
 
@@ -55,10 +56,11 @@ export class ClienteDashboardComponent implements OnInit {
     reservadas = computed(() => this.actividadesMapped().filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)));
     pendientesPago = computed(() => this.actividadesMapped().filter(r => ['esperando_anticipo', 'entregado_pendiente_liq'].includes(r.estado)));
     pendientesRespuesta = computed(() => this.actividadesMapped().filter(r => r.estado === 'pendiente_aprobacion'));
+    enNegociacion = computed(() => this.actividadesMapped().filter(r => r.estado === 'en_negociacion'));
     historial = computed(() => this.actividadesMapped().filter(r => ['rechazada', 'cancelada', 'abandonada', 'finalizado'].includes(r.estado)));
 
     // Tab activo
-    activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes' | 'historial'>('reservadas');
+    activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes' | 'en_negociacion' | 'historial'>('reservadas');
 
     loading = signal(true);
     showQuickRequestModal = signal(true);
@@ -118,15 +120,18 @@ export class ClienteDashboardComponent implements OnInit {
 
                 // Calcular Métricas
                 const pendientes = requests.filter(r => r.estado === 'pendiente_aprobacion').length;
+                const enNegoc = requests.filter(r => r.estado === 'en_negociacion').length;
                 const reservadasCount = requests.filter(r => ['reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(r.estado)).length;
 
                 this.metricas.set({
                     solicitudesTotales: reservadasCount,
-                    cotizacionesPendientes: pendientes
+                    cotizacionesPendientes: pendientes,
+                    enNegociacion: enNegoc
                 });
 
                 // Set initial tab based on content priority
                 if (this.reservadas().length > 0) this.activeTab.set('reservadas');
+                else if (this.enNegociacion().length > 0) this.activeTab.set('en_negociacion');
                 else if (this.pendientesPago().length > 0) this.activeTab.set('por_pagar');
                 else if (this.pendientesRespuesta().length > 0) this.activeTab.set('pendientes');
                 else if (this.historial().length > 0) this.activeTab.set('historial');
@@ -141,13 +146,14 @@ export class ClienteDashboardComponent implements OnInit {
         });
     }
 
-    setActiveTab(tab: 'reservadas' | 'por_pagar' | 'pendientes' | 'historial') {
+    setActiveTab(tab: 'reservadas' | 'por_pagar' | 'pendientes' | 'en_negociacion' | 'historial') {
         this.activeTab.set(tab);
     }
 
     formatEstado(estado: string): string {
         const estados: Record<string, string> = {
             'pendiente_aprobacion': 'Pendiente',
+            'en_negociacion': 'En Negociación',
             'esperando_anticipo': 'Esperando anticipo',
             'reservado': 'Reservado',
             'en_progreso': 'En progreso',
@@ -161,6 +167,7 @@ export class ClienteDashboardComponent implements OnInit {
     getEstadoClass(estado: string): string {
         const clases: Record<string, string> = {
             'pendiente_aprobacion': 'estado-pendiente',
+            'en_negociacion': 'estado-negociacion',
             'esperando_anticipo': 'estado-reservado',
             'reservado': 'estado-reservado',
             'en_progreso': 'estado-progreso',

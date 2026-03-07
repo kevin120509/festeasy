@@ -113,8 +113,7 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
   }
 
   get isCompact(): boolean {
-    if (!this.isSidebarExpanded()) return true;
-    return window.innerWidth > 1024 && window.innerWidth <= 1440;
+    return !this.isSidebarExpanded();
   }
 
   toggleSidebar() {

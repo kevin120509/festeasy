@@ -264,7 +264,7 @@
                     (touchstart)="onTouchStart($event, notif.id)" (touchmove)="onTouchMove($event, notif.id)"
                     (touchend)="onTouchEnd($event, notif.id)"
                     (contextmenu)="$event.preventDefault(); toggleMenu(notif.id, $event)"
-                    (click)="marcarLeida(notif.id)">
+                    (click)="marcarLeida(notif)">
 
                     <div
                         class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-2xl flex-shrink-0">
