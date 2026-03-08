@@ -246,6 +246,10 @@ export class AuthService {
     return this.currentUser()?.rol === 'provider';
   }
 
+  isAdmin(): boolean {
+    return this.currentUser()?.rol === 'admin';
+  }
+
   getUserRole(): string | null {
     return this.currentUser()?.rol || null;
   }

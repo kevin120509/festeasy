@@ -45,7 +45,7 @@ export class ChatNegociacionComponent implements OnInit, OnDestroy {
 
   userId = signal<string>('');
   private realtimeChannel: RealtimeChannel | null = null;
-  private sound = new Audio('assets/sounds/message.mp3'); // Optional sound
+  // private sound = new Audio('assets/sounds/message.mp3'); // Optional sound - commented out to fix 404 error
 
   constructor() {
     effect(() => {

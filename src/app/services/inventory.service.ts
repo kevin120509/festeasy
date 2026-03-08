@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
-import { Observable, from, map, catchError, of } from 'rxjs';
+import { Observable, from, map, catchError, of, shareReplay } from 'rxjs';
 import { Producto } from '../models';
 import { AuthService } from './auth.service';
 
@@ -11,33 +11,38 @@ import { AuthService } from './auth.service';
 export class InventoryService {
     private supabase: SupabaseClient;
     private auth = inject(AuthService);
+    private productosCache$?: Observable<Producto[]>;
 
     constructor() {
         this.supabase = inject(SupabaseService).getClient();
     }
 
     /**
-     * Obtiene los productos del proveedor logueado
+     * Obtiene los productos del proveedor logueado con caché y selects específicos
      */
-    getProductos(): Observable<Producto[]> {
+    getProductos(forceRefresh = false): Observable<Producto[]> {
         const userId = this.auth.getUserId();
         if (!userId) return of([]);
 
-        return from(this.supabase
-            .from('productos')
-            .select('*')
-            .eq('proveedor_id', userId)
-            .order('creado_en', { ascending: false })
-        ).pipe(
-            map(({ data, error }) => {
-                if (error) throw error;
-                return (data || []) as Producto[];
-            }),
-            catchError(error => {
-                console.error('Error fetching inventory:', error);
-                return of([]);
-            })
-        );
+        if (!this.productosCache$ || forceRefresh) {
+            this.productosCache$ = from(this.supabase
+                .from('productos')
+                .select('id, nombre, descripcion, precio_unitario, stock, imagen_url, categoria, creado_en')
+                .eq('proveedor_id', userId)
+                .order('creado_en', { ascending: false })
+            ).pipe(
+                map(({ data, error }) => {
+                    if (error) throw error;
+                    return (data || []) as any as Producto[];
+                }),
+                catchError(error => {
+                    console.error('Error fetching inventory:', error);
+                    return of([]);
+                }),
+                shareReplay(1)
+            );
+        }
+        return this.productosCache$;
     }
 
     /**

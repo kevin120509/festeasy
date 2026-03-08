@@ -285,45 +285,36 @@
                     </div>
                 </section>
 
-                <!-- Sección de Cotización y Chat (Si está en negociación o posterior) -->
-                @if (solicitud()?.estado === 'en_negociacion' || solicitud()?.estado ===
-                'esperando_confirmacion_cliente' || solicitud()?.estado === SolicitudEstado.ESPERANDO_ANTICIPO ||
-                solicitud()?.estado === SolicitudEstado.RESERVADO || solicitud()?.estado ===
-                SolicitudEstado.EN_PROGRESO) {
-
-                <!-- Alert de Negociación Activa -->
-                @if (solicitud()?.estado === 'en_negociacion') {
-                <div
-                    class="mt-8 bg-indigo-50 border border-indigo-200 rounded-2xl p-6 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-                    <div class="flex gap-4">
-                        <div
-                            class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 shrink-0">
-                            <span class="material-symbols-outlined text-2xl">forum</span>
-                        </div>
-                        <div>
-                            <h3 class="text-indigo-900 font-bold text-lg">Negociación Activa</h3>
-                            <p class="text-indigo-700 mt-1 font-medium">
-                                Has iniciado una negociación con el cliente. Puedes usar el chat para aclarar detalles y
-                                modificar
-                                la propuesta en el panel inferior. Cuando termines, envía la propuesta oficial.
-                            </p>
-                        </div>
-                    </div>
-
-                    @if (getTiempoRestanteNegociacion()) {
-                    <div
-                        class="bg-white px-4 py-3 rounded-xl border border-indigo-100 shadow-sm flex flex-col items-center min-w-[140px]">
-                        <span class="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1">Tiempo
-                            Restante</span>
-                        <div class="flex items-center gap-2"
-                            [ngClass]="getTiempoRestanteNegociacion() === 'Expirado' ? 'text-red-500' : 'text-indigo-600'">
-                            <span class="material-symbols-outlined text-[20px]">timer</span>
-                            <span class="text-xl font-bold">{{ getTiempoRestanteNegociacion() }}</span>
-                        </div>
-                    </div>
-                    }
-                </div>
-                }
+                    <!-- Sección de Cotización y Chat (Si está en negociación o posterior) -->
+                    @if (solicitud()?.estado === 'en_negociacion' || solicitud()?.estado === 'esperando_confirmacion_cliente' || solicitud()?.estado === SolicitudEstado.ESPERANDO_ANTICIPO || solicitud()?.estado === SolicitudEstado.RESERVADO || solicitud()?.estado === SolicitudEstado.EN_PROGRESO) {
+                        
+                        <!-- Alert de Negociación Activa -->
+                        @if (solicitud()?.estado === 'en_negociacion') {
+                            <div class="mt-8 bg-indigo-50 border border-indigo-200 rounded-2xl p-6 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+                                <div class="flex gap-4">
+                                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 shrink-0">
+                                        <span class="material-symbols-outlined text-2xl">forum</span>
+                                    </div>
+                                    <div>
+                                        <h3 class="text-indigo-900 font-bold text-lg">Negociación Activa</h3>
+                                        <p class="text-indigo-700 mt-1 font-medium">
+                                            Has iniciado una negociación con el cliente. Puedes usar el chat para aclarar detalles y modificar 
+                                            la propuesta en el panel inferior. Cuando termines, envía la propuesta oficial.
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                @if (tiempoRestanteNegociacion()) {
+                                    <div class="bg-white px-4 py-3 rounded-xl border border-indigo-100 shadow-sm flex flex-col items-center min-w-[140px]">
+                                        <span class="text-[10px] uppercase font-black tracking-widest text-slate-400 mb-1">Tiempo Restante</span>
+                                        <div class="flex items-center gap-2" [ngClass]="tiempoRestanteNegociacion() === 'Expirado' ? 'text-red-500' : 'text-indigo-600'">
+                                            <span class="material-symbols-outlined text-[20px]">timer</span>
+                                            <span class="text-xl font-bold">{{ tiempoRestanteNegociacion() }}</span>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
 
                 <div class="mt-8">
                     <!-- Botón para abrir el Cotizador -->

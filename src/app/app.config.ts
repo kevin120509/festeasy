@@ -10,6 +10,7 @@ import localeEs from '@angular/common/locales/es';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
 
+
 import { routes } from './app.routes';
 
 registerLocaleData(localeEs);
@@ -41,6 +42,7 @@ export const appConfig: ApplicationConfig = {
         provideAnimationsAsync(),
         ConfirmationService,
         MessageService,
+
         providePrimeNG({
             theme: {
                 preset: MyPreset,

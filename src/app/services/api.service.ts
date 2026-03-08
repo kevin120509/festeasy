@@ -11,6 +11,7 @@ import {
     ServiceRequest, Quote, Payment, ProviderPackage
 } from '../models';
 import { NotificationService } from './notification.service';
+import { PushNotificationService } from './push-notification.service';
 
 @Injectable({
     providedIn: 'root'
@@ -24,6 +25,7 @@ export class ApiService {
     private solicitudesChannel: RealtimeChannel | null = null;
     private solicitudFinalizadaSubject = new Subject<{ solicitud_id: string; destinatario_id: string; autor_id: string }>();
     private notificationService = inject(NotificationService);
+    private pushNotificationService = inject(PushNotificationService);
 
     constructor() {
         this.supabase = this.supabaseService.getClient();
@@ -689,25 +691,7 @@ export class ApiService {
         return from(this.supabase
             .from('solicitudes')
             .select(`
-                        *,
-                        cliente: perfil_cliente(
-                            id,
-                            nombre_completo,
-                            telefono,
-                            avatar_url
-                        ),
-                        provider: perfil_proveedor(
-                            id,
-                            usuario_id,
-                            nombre_negocio,
-                            descripcion,
-                            telefono,
-                            avatar_url,
-                            direccion_formato,
-                            rating,
-                            tipo_suscripcion_actual,
-                            porcentaje_anticipo
-                        )
+                        *
                         `)
             .eq('id', id)
             .single()
@@ -861,14 +845,33 @@ export class ApiService {
                                 return from(this.supabase.from('mensajes_solicitud').insert(payload).select().single()).pipe(
                                     tap(({ data: msgData }) => {
                                         if (msgData) {
-                                            // Notificar al receptor
-                                            this.notificationService.createNotification({
+                                            // Notificar al receptor (In-App) sin select
+                                            this.notificationService.sendNotificationToUser({
                                                 usuario_id: receptorId,
                                                 tipo: 'solicitud',
                                                 titulo: `Nuevo mensaje de ${emisorName}`,
                                                 mensaje: mensaje,
                                                 data: { solicitud_id: solicitudId, action: 'chat' }
                                             }).subscribe();
+
+                                            // Notificar al receptor (Push)
+                                            const receptorProfileTable = isClient ? 'perfil_proveedor' : 'perfil_cliente';
+                                            console.log(`Buscando onesignal_id en la tabla: ${receptorProfileTable} para el usuario: ${receptorId}`);
+                                            
+                                            this.supabase.from(receptorProfileTable).select('onesignal_id').eq('usuario_id', receptorId).single().then(({ data: recData, error: recError }) => {
+                                                if (recError) {
+                                                    console.error(`Error buscando onesignal_id del receptor:`, recError);
+                                                } else if (recData && recData.onesignal_id) {
+                                                    console.log(`Encontrado onesignal_id del receptor: ${recData.onesignal_id}. Enviando Push...`);
+                                                    this.pushNotificationService.sendPushNotification(
+                                                        [recData.onesignal_id], 
+                                                        `Nuevo mensaje de ${emisorName}`, 
+                                                        mensaje
+                                                    );
+                                                } else {
+                                                    console.warn(`El receptor no tiene guardado un onesignal_id en la base de datos. No se puede enviar Push.`);
+                                                }
+                                            });
                                         }
                                     }),
                                     map(({ data, error: insertError }) => {

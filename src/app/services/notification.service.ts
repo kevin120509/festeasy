@@ -137,6 +137,29 @@ export class NotificationService {
         );
     }
 
+    /**
+     * Envía una notificación a otro usuario sin agregarla al listado local actual
+     * ni intentar seleccionarla (evita error 403 de RLS)
+     */
+    sendNotificationToUser(notification: Partial<Notification>): Observable<boolean> {
+        return from(this.supabase
+            .from('notificaciones')
+            .insert(notification)
+        ).pipe(
+            map(({ error }) => {
+                if (error) {
+                    console.error('Error enviando notificación a usuario:', error);
+                    return false;
+                }
+                return true;
+            }),
+            catchError(error => {
+                console.error('Catch error enviando notificación a usuario:', error);
+                return of(false);
+            })
+        );
+    }
+
     markAsRead(id: string): Observable<boolean> {
         return from(this.supabase
             .from('notificaciones')

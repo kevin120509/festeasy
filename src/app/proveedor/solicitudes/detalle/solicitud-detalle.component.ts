@@ -50,6 +50,9 @@ export class SolicitudDetalleComponent implements OnInit {
     displayCancelDialog: boolean = false;
     motivoTemporal: string = '';
     solicitudACancelar: ServiceRequest | null = null;
+    
+    tiempoRestanteNegociacion = signal<string | null>(null);
+    private timerInterval: any;
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');
@@ -58,6 +61,17 @@ export class SolicitudDetalleComponent implements OnInit {
         } else {
             this.mensajeError.set('No se encontró el ID de la solicitud');
             this.isLoading.set(false);
+        }
+
+        this.actualizarTiempoRestante();
+        this.timerInterval = setInterval(() => {
+            this.actualizarTiempoRestante();
+        }, 60000); // 1 minuto
+    }
+
+    ngOnDestroy(): void {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
         }
     }
 
@@ -146,23 +160,29 @@ export class SolicitudDetalleComponent implements OnInit {
         return titulo.trim();
     }
 
-    getTiempoRestanteNegociacion(): string | null {
+    actualizarTiempoRestante(): void {
         const expiracionStr = this.solicitud()?.expiracion_negociacion;
-        if (!expiracionStr || this.solicitud()?.estado !== 'en_negociacion') return null;
+        if (!expiracionStr || this.solicitud()?.estado !== 'en_negociacion') {
+            this.tiempoRestanteNegociacion.set(null);
+            return;
+        }
 
         const expiracion = new Date(expiracionStr);
         const ahora = new Date();
         const diffMs = expiracion.getTime() - ahora.getTime();
 
-        if (diffMs <= 0) return 'Expirado';
+        if (diffMs <= 0) {
+            this.tiempoRestanteNegociacion.set('Expirado');
+            return;
+        }
 
         const horas = Math.floor(diffMs / (1000 * 60 * 60));
         const minutos = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
         if (horas > 0) {
-            return `${horas}h ${minutos}m`;
+            this.tiempoRestanteNegociacion.set(`${horas}h ${minutos}m`);
         } else {
-            return `${minutos}m`;
+            this.tiempoRestanteNegociacion.set(`${minutos}m`);
         }
     }
 
