@@ -1,21 +1,21 @@
 import { Component, inject, OnInit, OnDestroy, HostListener, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, ConfirmationService } from 'primeng/api';
 import { MenuComponent } from '../../shared/menu/menu.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AuthService } from '../../services/auth.service';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, Subscription, map } from 'rxjs';
-import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-cliente-layout',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MenuComponent, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, MenuComponent, RouterLink, RouterLinkActive, ConfirmDialogModule],
+  providers: [ConfirmationService],
   templateUrl: './cliente-layout.component.html',
 })
-export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDestroy
+export class ClienteLayoutComponent implements OnInit, OnDestroy {
   auth = inject(AuthService);
   public router = inject(Router);
   private activatedRoute = inject(ActivatedRoute);
@@ -24,7 +24,7 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
   showSidebar = true;
   isSidebarExpanded = signal(true);
   private sub: Subscription | null = null;
-  private routerSubscription: Subscription | null = null; // New subscription for router events
+  private routerSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.items = [
@@ -32,11 +32,6 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
         label: 'Dashboard',
         icon: 'pi pi-chart-bar',
         routerLink: '/cliente/dashboard'
-      },
-      {
-        label: 'Notificaciones',
-        icon: 'pi pi-bell',
-        routerLink: '/cliente/notificaciones'
       },
       {
         label: 'Mis Solicitudes',
@@ -52,34 +47,6 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
         label: 'Configuración',
         icon: 'pi pi-cog',
         routerLink: '/cliente/configuracion'
-      },
-      {
-        separator: true
-      },
-      {
-        label: 'Cerrar Sesión',
-        icon: 'pi pi-power-off',
-        command: () => {
-          this.confirmationService.confirm({
-            message: '¿Estás seguro de que quieres cerrar tu sesión?',
-            header: 'Cerrar Sesión',
-            icon: 'pi pi-exclamation-triangle',
-            rejectLabel: 'Cancelar',
-            rejectButtonProps: {
-              label: 'Cancelar',
-              severity: 'secondary',
-              outlined: true
-            },
-            acceptLabel: 'Sí, Salir',
-            acceptButtonProps: {
-              label: 'Sí, Salir',
-              severity: 'danger'
-            },
-            accept: () => {
-              this.auth.logout();
-            }
-          });
-        }
       }
     ];
 
@@ -95,6 +62,32 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
       })
     ).subscribe((hideSidebar: boolean) => {
       this.showSidebar = !hideSidebar;
+    });
+  }
+
+  goToNotifications() {
+    this.router.navigate(['/cliente/notificaciones']);
+  }
+
+  logout() {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que quieres cerrar tu sesión?',
+      header: 'Cerrar Sesión',
+      icon: 'pi pi-exclamation-triangle',
+      rejectLabel: 'Cancelar',
+      rejectButtonProps: {
+        label: 'Cancelar',
+        severity: 'secondary',
+        outlined: true
+      },
+      acceptLabel: 'Sí, Salir',
+      acceptButtonProps: {
+        label: 'Sí, Salir',
+        severity: 'danger'
+      },
+      accept: () => {
+        this.auth.logout();
+      }
     });
   }
 
@@ -123,7 +116,7 @@ export class ClienteLayoutComponent implements OnInit, OnDestroy { // Added OnDe
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
-    this.routerSubscription?.unsubscribe(); // Unsubscribe from router events
+    this.routerSubscription?.unsubscribe();
   }
 }
 

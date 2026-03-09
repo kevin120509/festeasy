@@ -9,7 +9,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
-import { FileUploadModule } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -24,8 +23,8 @@ import { MessageService } from 'primeng/api';
         InputTextModule,
         InputNumberModule,
         TextareaModule,
-        CheckboxModule,
-        FileUploadModule
+        TextareaModule,
+        CheckboxModule
     ],
     templateUrl: './producto-form.component.html'
 })
@@ -39,10 +38,8 @@ export class ProductoFormComponent {
         this._producto = p;
         if (p) {
             this.form.patchValue(p);
-            this.previewUrl.set(p.imagen_url || null);
         } else {
             this.form.reset({ stock: 0, precio_unitario: 0, destacado: false });
-            this.previewUrl.set(null);
         }
     }
     @Output() onSave = new EventEmitter<Producto>();
@@ -50,7 +47,6 @@ export class ProductoFormComponent {
 
     public _producto: Producto | null = null;
     isLoading = signal(false);
-    previewUrl = signal<string | null>(null);
 
     form = this.fb.group({
         nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -61,28 +57,14 @@ export class ProductoFormComponent {
         destacado: [false]
     });
 
-    async onFileSelect(event: any) {
-        const file = event.files[0];
-        if (file) {
-            this.isLoading.set(true);
-            const url = await this.inventoryService.uploadProductImage(file);
-            if (url) {
-                this.previewUrl.set(url);
-                this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Imagen subida correctamente' });
-            } else {
-                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo subir la imagen' });
-            }
-            this.isLoading.set(false);
-        }
-    }
+
 
     save() {
         if (this.form.invalid) return;
 
         this.isLoading.set(true);
         const data = {
-            ...this.form.value,
-            imagen_url: this.previewUrl()
+            ...this.form.value
         } as Partial<Producto>;
 
         const obs = this._producto

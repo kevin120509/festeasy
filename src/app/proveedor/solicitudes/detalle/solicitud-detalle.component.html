@@ -360,10 +360,10 @@
                                             {{ item.cantidad }}
                                         </td>
                                         <td class="px-8 py-5 text-right text-slate-600">
-                                            {{ item.precio_unitario | currency:'MXN' }}
+                                            {{ item.precio_unitario | currency:'MXN':'symbol-narrow':'1.0-0' }}
                                         </td>
                                         <td class="px-8 py-5 text-right text-slate-900 font-bold">
-                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN' }}
+                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN':'symbol-narrow':'1.0-0' }}
                                         </td>
                                     </tr>
                                     }
@@ -373,7 +373,7 @@
                     </div>
                     <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
                         <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total Estimado</span>
-                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN'
+                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN':'symbol-narrow':'1.0-0'
                             }}</span>
                     </div>
                 </section>

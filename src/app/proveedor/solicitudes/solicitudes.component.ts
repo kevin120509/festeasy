@@ -10,7 +10,7 @@ import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
 import { AvatarModule } from 'primeng/avatar';
-
+import { TooltipModule } from 'primeng/tooltip';
 
 
 interface SolicitudProveedor {
@@ -33,7 +33,7 @@ type TabType = 'pendientes' | 'confirmadas' | 'rechazado' | 'todo';
 @Component({
     selector: 'app-solicitudes',
     standalone: true,
-    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin, AvatarModule, ConfirmDialogModule],
+    imports: [CommonModule, DatePipe, CurrencyPipe, ValidarPin, AvatarModule, ConfirmDialogModule, TooltipModule],
     providers: [ConfirmationService],
     templateUrl: './solicitudes.html'
 })

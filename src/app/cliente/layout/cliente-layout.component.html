@@ -290,7 +290,94 @@
         height: 80px;
         object-fit: contain;
     }
+
+    /* Top Bar */
+    .top-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 260px;
+        height: 64px;
+        background: rgba(255, 255, 255, 0.82);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
+        z-index: 45;
+        transition: all 0.3s ease;
+    }
+
+    .top-bar.mini-sidebar {
+        left: 80px;
+    }
+
+    .top-bar-actions {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .top-bar-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .float-btn {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #64748b;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .float-btn:hover {
+        transform: translateY(-2px);
+        background: white;
+        color: #ef4444;
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.1);
+    }
+
+    .float-btn i {
+        font-size: 1.1rem;
+    }
+
+    .float-btn.btn-logout:hover {
+        background: #fdf2f2;
+        color: #ef4444;
+    }
+
+    .router-container {
+        width: 100%;
+        max-width: none !important;
+        overflow-x: hidden;
+    }
+
+    @media (min-width: 1101px) {
+        .router-container {
+            padding-top: 64px;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        .top-bar {
+            display: none !important;
+        }
+    }
 </style>
+
+<p-confirmDialog></p-confirmDialog>
 
 <div class="dashboard-layout">
     <!-- Mobile Header (Logo only, no hamburger) -->
@@ -340,13 +427,36 @@
     <!-- Main Content -->
     <main class="main-content" [class.full-width]="!showSidebar"
         [class.mini-sidebar]="showSidebar && (!isSidebarExpanded() || isCompact)">
-        <router-outlet></router-outlet>
+
+        <!-- Top Bar (Desktop Only) -->
+        <header class="top-bar" [class.mini-sidebar]="showSidebar && (!isSidebarExpanded() || isCompact)">
+            <div class="top-bar-title">
+                <div class="flex items-center gap-2 px-3 py-1.5 bg-slate-100 rounded-full">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-[10px] font-black uppercase text-slate-500 tracking-wider">Panel de Cliente</span>
+                </div>
+            </div>
+
+            <div class="top-bar-actions">
+                <button class="float-btn" (click)="goToNotifications()" title="Notificaciones">
+                    <i class="pi pi-bell"></i>
+                </button>
+                <div class="w-px h-6 bg-slate-100 mx-2"></div>
+                <button class="float-btn btn-logout" (click)="logout()" title="Cerrar Sesión">
+                    <i class="pi pi-power-off"></i>
+                </button>
+            </div>
+        </header>
+
+        <div class="router-container">
+            <router-outlet></router-outlet>
+        </div>
     </main>
 
     <!-- Nav de Tareas Inferior (Móvil) -->
     <nav *ngIf="showSidebar" class="bottom-nav">
         <ng-container *ngFor="let item of items">
-            <a *ngIf="!item.separator" (click)="$event.preventDefault(); navigateToItem(item)"
+            <a *ngIf="!item.separator && item.label !== 'Cerrar Sesión'" (click)="$event.preventDefault(); navigateToItem(item)"
                 [routerLink]="item.routerLink" routerLinkActive="active" class="nav-item">
                 <i [class]="item.icon"></i>
                 <span>{{ item.label }}</span>

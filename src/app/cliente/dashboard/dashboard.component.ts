@@ -43,6 +43,8 @@ export class ClienteDashboardComponent implements OnInit {
                 proveedor: provData?.nombre_negocio || 'Proveedor',
                 servicio: req.titulo_evento || 'Evento Especial',
                 fecha: new Date(req.fecha_servicio).toLocaleDateString('es-MX', { day: '2-digit', month: 'short' }),
+                fechaRaw: req.fecha_servicio,
+                creadoEn: req.created_at || req.creado_en || req.fecha_servicio,
                 estado: req.estado,
                 estadoLabel: this.formatEstado(req.estado),
                 monto: req.monto_total || 0,
@@ -63,7 +65,20 @@ export class ClienteDashboardComponent implements OnInit {
     activeTab = signal<'reservadas' | 'por_pagar' | 'pendientes' | 'en_negociacion' | 'historial'>('reservadas');
 
     loading = signal(true);
-    showQuickRequestModal = signal(true);
+    showQuickRequestModal = signal(!localStorage.getItem('festeasy_hide_quick_modal'));
+
+    // Helper para agrupar items por fecha de servicio
+    groupByDay(items: any[]): { label: string; items: any[] }[] {
+        const groups = new Map<string, any[]>();
+        const sorted = [...items].sort((a, b) => new Date(a.fechaRaw || a.creadoEn).getTime() - new Date(b.fechaRaw || b.creadoEn).getTime());
+        for (const item of sorted) {
+            const d = new Date(item.fechaRaw || item.creadoEn);
+            const key = d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key)!.push(item);
+        }
+        return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
+    }
 
     ngOnInit(): void {
         this.items = [
@@ -95,9 +110,27 @@ export class ClienteDashboardComponent implements OnInit {
         this.showQuickRequestModal.set(false);
     }
 
+    dismissModalPermanently() {
+        localStorage.setItem('festeasy_hide_quick_modal', 'true');
+        this.showQuickRequestModal.set(false);
+    }
+
     navigateToCreateRequest() {
         this.closeQuickRequestModal();
         this.router.navigate(['/cliente/solicitudes/crear']);
+    }
+
+    // Helper para calcular tiempo transcurrido desde la creación
+    tiempoTranscurrido(creadoEn: string): string {
+        const now = new Date().getTime();
+        const created = new Date(creadoEn).getTime();
+        const diff = now - created;
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(hours / 24);
+        if (days > 0) return `hace ${days}d`;
+        if (hours > 0) return `hace ${hours}h`;
+        const mins = Math.floor(diff / (1000 * 60));
+        return `hace ${mins}m`;
     }
 
     async cargarDatos(): Promise<void> {
@@ -152,16 +185,20 @@ export class ClienteDashboardComponent implements OnInit {
 
     formatEstado(estado: string): string {
         const estados: Record<string, string> = {
-            'pendiente_aprobacion': 'Pendiente',
+            'pendiente_aprobacion': 'Pendiente de Aprobación',
             'en_negociacion': 'En Negociación',
-            'esperando_anticipo': 'Esperando anticipo',
+            'esperando_anticipo': 'Esperando Anticipo',
             'reservado': 'Reservado',
-            'en_progreso': 'En progreso',
+            'en_progreso': 'En Progreso',
+            'entregado_pendiente_liq': 'Por Liquidar',
             'rechazada': 'Rechazado',
-            'finalizado': 'Completado',
-            'cancelada': 'Cancelado'
+            'finalizado': '✓ Completado',
+            'cancelada': 'Cancelado',
+            'aprobado': 'Aprobado'
         };
-        return estados[estado] || estado;
+        if (estados[estado]) return estados[estado];
+        if (!estado) return 'Desconocido';
+        return estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 
     getEstadoClass(estado: string): string {

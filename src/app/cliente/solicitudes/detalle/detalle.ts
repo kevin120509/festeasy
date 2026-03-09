@@ -114,4 +114,27 @@ export class DetalleComponent implements OnInit {
             }
         });
     }
+
+    /**
+     * ✅ Aprobar solicitud pendiente (cambia a esperando_anticipo)
+     */
+    aprobarSolicitud(): void {
+        const id = this.solicitud()?.id;
+        if (!id || this.procesando()) return;
+
+        this.procesando.set(true);
+        this.api.updateSolicitudEstado(id, 'esperando_anticipo').subscribe({
+            next: () => {
+                this.mensajeExito.set('¡Solicitud aprobada! Ya puedes proceder al pago.');
+                this.solicitud.update(s => ({ ...s, estado: 'esperando_anticipo' }));
+                this.procesando.set(false);
+            },
+            error: (err) => {
+                console.error('Error aprobando solicitud:', err);
+                this.mensajeError.set('No se pudo aprobar la solicitud');
+                setTimeout(() => this.mensajeError.set(''), 3000);
+                this.procesando.set(false);
+            }
+        });
+    }
 }

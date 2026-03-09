@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit } from '@angular/core';
+import { Component, signal, inject, OnInit, computed } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
@@ -62,6 +62,37 @@ export class ProveedorDashboardComponent implements OnInit {
     // Control del modal de validación de PIN
     mostrarModalPin = signal(false);
     solicitudSeleccionada = signal<string>('');
+
+    // Tab activo para filtrar solicitudes
+    tabActivo = signal<string>('todos');
+
+    // Solicitudes agrupadas por categoría de estado
+    solicitudesAgrupadas = computed(() => {
+        const all = this.solicitudesRecientes();
+        const groups: { key: string; label: string; icon: string; color: string; items: RequestRow[] }[] = [];
+
+        const pendientes = all.filter(s => s.estado === 'pendiente_aprobacion' || s.estado === 'pendiente');
+        const negociacion = all.filter(s => s.estado === 'en_negociacion');
+        const reservados = all.filter(s => ['reservado', 'esperando_anticipo'].includes(s.estado));
+        const activos = all.filter(s => ['en_progreso', 'entregado_pendiente_liq', 'esperando_confirmacion_cliente'].includes(s.estado));
+        const historial = all.filter(s => ['finalizado', 'rechazada', 'cancelada', 'abandonada'].includes(s.estado));
+
+        if (pendientes.length > 0) groups.push({ key: 'pendientes', label: 'Pendientes', icon: 'schedule', color: 'amber', items: pendientes });
+        if (negociacion.length > 0) groups.push({ key: 'negociacion', label: 'En Negociación', icon: 'forum', color: 'cyan', items: negociacion });
+        if (reservados.length > 0) groups.push({ key: 'reservados', label: 'Reservados', icon: 'event_available', color: 'green', items: reservados });
+        if (activos.length > 0) groups.push({ key: 'activos', label: 'Activos', icon: 'play_circle', color: 'emerald', items: activos });
+        if (historial.length > 0) groups.push({ key: 'historial', label: 'Historial', icon: 'history', color: 'slate', items: historial });
+
+        return groups;
+    });
+
+    // Grupos filtrados según el tab activo
+    gruposFiltrados = computed(() => {
+        const tab = this.tabActivo();
+        const all = this.solicitudesAgrupadas();
+        if (tab === 'todos') return all;
+        return all.filter(g => g.key === tab);
+    });
 
     async ngOnInit() {
         await this.cargarDatosDashboard();
@@ -174,10 +205,29 @@ export class ProveedorDashboardComponent implements OnInit {
 
     /**
      * Procesar solicitudes para mostrar en la tabla
+     * Ordenar por estado (pendientes primero, luego activos, luego historial)
+     * y dentro de cada grupo, los más recientes arriba
      */
     private procesarSolicitudesTabla(solicitudes: any[]) {
+        const getEstadoPrioridad = (estado: string): number => {
+            switch (estado) {
+                case 'pendiente_aprobacion':
+                case 'pendiente':
+                    return 0;
+                case 'en_negociacion':
+                    return 1;
+                case 'esperando_anticipo':
+                    return 2;
+                case 'reservado':
+                case 'en_progreso':
+                case 'entregado_pendiente_liq':
+                    return 3;
+                default:
+                    return 4;
+            }
+        };
+
         const solicitudesFormateadas: RequestRow[] = solicitudes
-            .slice(0, 5) // Últimas 5 solicitudes
             .map(req => ({
                 id: req.id || '',
                 evento: req.titulo_evento || 'Evento General',
@@ -186,7 +236,14 @@ export class ProveedorDashboardComponent implements OnInit {
                 estado: this.mapEstado(req.estado),
                 monto: req.monto_total || req.monto,
                 cliente_nombre: req.perfil_cliente?.nombre_completo || 'Cliente'
-            }));
+            }))
+            .sort((a, b) => {
+                const prioA = getEstadoPrioridad(a.estado);
+                const prioB = getEstadoPrioridad(b.estado);
+                if (prioA !== prioB) return prioA - prioB;
+                return b.fechaServicio.getTime() - a.fechaServicio.getTime();
+            })
+            .slice(0, 10);
 
         this.solicitudesRecientes.set(solicitudesFormateadas);
         console.log('📋 Solicitudes para tabla:', solicitudesFormateadas.length);
@@ -330,6 +387,7 @@ export class ProveedorDashboardComponent implements OnInit {
     getEstadoClasses(estado: string): string {
         const clases: Record<string, string> = {
             'pendiente_aprobacion': 'bg-amber-50 text-amber-600 border border-amber-100',
+            'en_negociacion': 'bg-cyan-50 text-cyan-600 border border-cyan-100',
             'esperando_anticipo': 'bg-orange-50 text-orange-600 border border-orange-100',
             'reservado': 'bg-green-50 text-green-600 border border-green-100',
             'en_progreso': 'bg-blue-50 text-blue-600 border border-blue-100',
@@ -337,7 +395,8 @@ export class ProveedorDashboardComponent implements OnInit {
             'finalizado': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
             'rechazada': 'bg-red-50 text-red-600 border border-red-100',
             'cancelada': 'bg-slate-100 text-slate-600 border border-slate-200',
-            'pendiente': 'bg-yellow-50 text-yellow-600 border border-yellow-100'
+            'pendiente': 'bg-yellow-50 text-yellow-600 border border-yellow-100',
+            'aprobado': 'bg-teal-50 text-teal-600 border border-teal-100'
         };
         return clases[estado] || clases['pendiente'];
     }
@@ -347,7 +406,8 @@ export class ProveedorDashboardComponent implements OnInit {
      */
     getEstadoTexto(estado: string): string {
         const textos: Record<string, string> = {
-            'pendiente_aprobacion': 'Pendiente',
+            'pendiente_aprobacion': 'Pendiente de Aprobación',
+            'en_negociacion': 'En Negociación',
             'esperando_anticipo': 'Esperando Anticipo',
             'reservado': 'Reservado',
             'en_progreso': 'En Progreso',
@@ -355,9 +415,12 @@ export class ProveedorDashboardComponent implements OnInit {
             'finalizado': '✓ Finalizado',
             'rechazada': 'Rechazada',
             'cancelada': 'Cancelada',
-            'pendiente': 'Pendiente'
+            'pendiente': 'Pendiente',
+            'aprobado': 'Aprobado'
         };
-        return textos[estado] || estado;
+        if (textos[estado]) return textos[estado];
+        if (!estado) return 'Desconocido';
+        return estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
 
     /**

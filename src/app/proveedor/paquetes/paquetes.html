@@ -55,34 +55,12 @@
             <!-- Filter Tabs -->
             <div class="mb-8 border-b border-gray-200 dark:border-gray-800">
                 <div class="flex gap-10">
-                    <button (click)="cambiarTab('publicado')"
-                        [class]="tabActivo() === 'publicado' ? 'relative pb-4 text-sm font-bold text-primary' : 'pb-4 text-sm font-bold text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors'">
-                        Activos
-                        <span *ngIf="tabActivo() === 'publicado'"
-                            class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
-                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
-                            [class]="tabActivo() === 'publicado' ? 'bg-primary/10' : 'bg-gray-100 dark:bg-gray-800'">
+                    <button
+                        class="relative pb-4 text-sm font-bold text-primary">
+                        Mis Paquetes
+                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-primary/10">
                             {{ paquetesActivos().length }}
-                        </span>
-                    </button>
-                    <button (click)="cambiarTab('borrador')"
-                        [class]="tabActivo() === 'borrador' ? 'relative pb-4 text-sm font-bold text-primary' : 'pb-4 text-sm font-bold text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors'">
-                        Borradores
-                        <span *ngIf="tabActivo() === 'borrador'"
-                            class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
-                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
-                            [class]="tabActivo() === 'borrador' ? 'bg-primary/10' : 'bg-gray-100 dark:bg-gray-800'">
-                            {{ paquetesBorradores().length }}
-                        </span>
-                    </button>
-                    <button (click)="cambiarTab('archivado')"
-                        [class]="tabActivo() === 'archivado' ? 'relative pb-4 text-sm font-bold text-primary' : 'pb-4 text-sm font-bold text-gray-400 hover:text-jet-black dark:hover:text-white transition-colors'">
-                        Archivados
-                        <span *ngIf="tabActivo() === 'archivado'"
-                            class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
-                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
-                            [class]="tabActivo() === 'archivado' ? 'bg-primary/10' : 'bg-gray-100 dark:bg-gray-800'">
-                            {{ paquetesArchivados().length }}
                         </span>
                     </button>
                 </div>
@@ -144,23 +122,6 @@
 
                         <!-- Info -->
                         <div class="flex flex-col gap-1 min-w-0">
-                            <div class="flex items-center gap-3">
-                                <span *ngIf="paquete.estado === 'publicado'"
-                                    class="flex items-center text-green-500 text-[10px] font-bold uppercase tracking-wider">
-                                    <span class="size-1.5 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
-                                    Online
-                                </span>
-                                <span *ngIf="paquete.estado === 'borrador'"
-                                    class="flex items-center text-yellow-500 text-[10px] font-bold uppercase tracking-wider">
-                                    <span class="size-1.5 bg-yellow-500 rounded-full mr-1.5"></span>
-                                    Borrador
-                                </span>
-                                <span *ngIf="paquete.estado === 'archivado'"
-                                    class="flex items-center text-gray-400 text-[10px] font-bold uppercase tracking-wider">
-                                    <span class="size-1.5 bg-gray-400 rounded-full mr-1.5"></span>
-                                    Archivado
-                                </span>
-                            </div>
                             <div class="flex items-center gap-2">
                                 <div
                                     class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center overflow-hidden border border-slate-200">
@@ -193,18 +154,6 @@
 
                     <!-- Actions -->
                     <div class="flex items-center gap-6 px-4 border-l border-gray-100 dark:border-gray-800 sm:h-20">
-                        <!-- Toggle Estado -->
-                        <div class="flex flex-col items-center gap-1" *ngIf="paquete.estado !== 'borrador'">
-                            <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" [checked]="paquete.estado === 'publicado'"
-                                    (change)="toggleEstado(paquete)" class="sr-only peer" />
-                                <div
-                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary">
-                                </div>
-                            </label>
-                            <span class="text-[10px] font-bold text-gray-400 uppercase">Estado</span>
-                        </div>
-
                         <!-- Menu -->
                         <div class="relative">
                             <button (click)="toggleMenu(paquete.id)"

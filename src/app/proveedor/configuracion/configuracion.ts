@@ -19,7 +19,8 @@ declare var Stripe: any;
 @Component({
     selector: 'app-proveedor-configuracion',
     standalone: true,
-    imports: [CommonModule, FormsModule, ConfirmDialogModule, ToastModule],
+    imports: [CommonModule, FormsModule, RouterLink, ConfirmDialogModule, ToastModule],
+    providers: [ConfirmationService, MessageService],
     templateUrl: './configuracion.html',
     styleUrl: './configuracion.css'
 })
@@ -305,7 +306,8 @@ export class ProveedorConfiguracionComponent implements OnInit, OnDestroy, After
             },
             error: (err) => {
                 console.error('Error updating profile', err);
-                this.errorMessage.set('Error al actualizar el perfil');
+                const msg = err?.message || err?.details || 'Error desconocido al guardar';
+                this.errorMessage.set(`Error al actualizar el perfil: ${msg}`);
                 this.saving.set(false);
             }
         });

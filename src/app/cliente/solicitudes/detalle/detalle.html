@@ -109,6 +109,33 @@
         </div>
         }
 
+        <!-- Alert de Pendiente de Aprobación -->
+        @if (solicitud()?.estado === 'pendiente_aprobacion') {
+        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div class="flex gap-4">
+                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
+                    <span class="material-symbols-outlined text-2xl">pending_actions</span>
+                </div>
+                <div>
+                    <h3 class="text-amber-900 font-bold text-lg">Solicitud pendiente de aprobación</h3>
+                    <p class="text-amber-700 mt-1 font-medium">
+                        Revisa los detalles de tu solicitud. Si todo es correcto, apruébala para proceder al pago.
+                    </p>
+                </div>
+            </div>
+            <button (click)="aprobarSolicitud()" [disabled]="procesando()"
+                class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 flex items-center gap-2 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed shrink-0">
+                @if (procesando()) {
+                <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                Procesando...
+                } @else {
+                <span class="material-symbols-outlined">check_circle</span>
+                Aprobar Solicitud
+                }
+            </button>
+        </div>
+        }
+
         <div class="space-y-8">
             <!-- Tarjeta de Detalles del Evento -->
             <section class="bg-white rounded-3xl shadow-sm border border-slate-200 p-8">
@@ -170,7 +197,7 @@
                                         cotizacionBorrador()!.paquete_base.cantidad }})</p>
                                 </div>
                                 <p class="font-medium text-slate-700">{{ (cotizacionBorrador()!.paquete_base.precio_base
-                                    * cotizacionBorrador()!.paquete_base.cantidad) | currency:'MXN' }}</p>
+                                    * cotizacionBorrador()!.paquete_base.cantidad) | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
                             </div>
 
                             <!-- Extras -->
@@ -179,9 +206,9 @@
                                 <div>
                                     <p class="font-medium text-slate-700">{{ extra.nombre }}</p>
                                     <p class="text-sm text-slate-500">Extra (x{{ extra.cantidad }} a {{
-                                        extra.precio_unitario | currency:'MXN' }})</p>
+                                        extra.precio_unitario | currency:'MXN':'symbol-narrow':'1.0-0' }})</p>
                                 </div>
-                                <p class="font-medium text-slate-700">{{ extra.subtotal | currency:'MXN' }}</p>
+                                <p class="font-medium text-slate-700">{{ extra.subtotal | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
                             </div>
                             }
                         </div>
@@ -204,7 +231,7 @@
                                 </span>
                                 <span class="font-medium"
                                     [ngClass]="ajuste.tipo === 'cargo' ? 'text-slate-700' : 'text-emerald-600'">
-                                    {{ ajuste.tipo === 'cargo' ? '+' : '-' }}{{ ajuste.monto | currency:'MXN' }}
+                                    {{ ajuste.tipo === 'cargo' ? '+' : '-' }}{{ ajuste.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}
                                 </span>
                             </div>
                             }
@@ -215,19 +242,19 @@
                         <div class="bg-slate-50 p-6 rounded-2xl mb-8 space-y-3">
                             <div class="flex justify-between text-sm text-slate-600">
                                 <span>Subtotal de Servicios:</span>
-                                <span class="font-medium">{{ cotizacionBorrador()!.subtotal | currency:'MXN' }}</span>
+                                <span class="font-medium">{{ cotizacionBorrador()!.subtotal | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
                             </div>
                             @if (cotizacionBorrador()!.descuento_total > 0) {
                             <div class="flex justify-between text-sm text-emerald-600">
                                 <span>Descuentos Totales:</span>
-                                <span class="font-medium">-{{ cotizacionBorrador()!.descuento_total | currency:'MXN'
+                                <span class="font-medium">-{{ cotizacionBorrador()!.descuento_total | currency:'MXN':'symbol-narrow':'1.0-0'
                                     }}</span>
                             </div>
                             }
                             <div
                                 class="flex justify-between text-lg font-black text-slate-900 pt-3 border-t border-slate-200">
                                 <span>Total Oficial:</span>
-                                <span class="text-primary">{{ cotizacionBorrador()!.monto_total | currency:'MXN'
+                                <span class="text-primary">{{ cotizacionBorrador()!.monto_total | currency:'MXN':'symbol-narrow':'1.0-0'
                                     }}</span>
                             </div>
                         </div>
@@ -256,7 +283,7 @@
                                 <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Liquidación
                                     (Restante)</p>
                                 <p class="text-3xl font-black text-slate-700">{{ cotizacionBorrador()!.monto_liquidacion
-                                    | currency:'MXN' }}</p>
+                                    | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
                                 <p class="text-sm text-slate-500 mt-2 font-medium">Se paga antes de concluir el evento
                                 </p>
                             </div>
@@ -288,7 +315,7 @@
                         <button
                             class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all">
                             <span class="material-symbols-outlined">credit_card</span>
-                            Pagar {{ cotizacionBorrador()!.monto_anticipo | currency:'MXN' }}
+                            Pagar {{ cotizacionBorrador()!.monto_anticipo | currency:'MXN':'symbol-narrow':'1.0-0' }}
                         </button>
                     </div>
                     }
@@ -321,10 +348,10 @@
                                             {{ item.cantidad }}
                                         </td>
                                         <td class="px-8 py-5 text-right text-slate-600">
-                                            {{ item.precio_unitario | currency:'MXN' }}
+                                            {{ item.precio_unitario | currency:'MXN':'symbol-narrow':'1.0-0' }}
                                         </td>
                                         <td class="px-8 py-5 text-right text-slate-900 font-bold">
-                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN' }}
+                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN':'symbol-narrow':'1.0-0' }}
                                         </td>
                                     </tr>
                                     }
@@ -334,9 +361,29 @@
                     </div>
                     <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
                         <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total Estimado</span>
-                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN'
+                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN':'symbol-narrow':'1.0-0'
                             }}</span>
                     </div>
+
+                    <!-- Botón de aprobar en la vista de items originales -->
+                    @if (solicitud()?.estado === 'pendiente_aprobacion') {
+                    <div class="p-8 bg-emerald-50 border-t border-emerald-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-slate-800">¿Todo luce bien?</h4>
+                            <p class="text-sm text-slate-600">Aprueba la solicitud para proceder al pago del anticipo.</p>
+                        </div>
+                        <button (click)="aprobarSolicitud()" [disabled]="procesando()"
+                            class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 flex items-center gap-2 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                            @if (procesando()) {
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                            Procesando...
+                            } @else {
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Aprobar Solicitud
+                            }
+                        </button>
+                    </div>
+                    }
                 </section>
                 }
             </div>

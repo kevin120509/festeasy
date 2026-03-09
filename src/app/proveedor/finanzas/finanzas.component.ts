@@ -75,7 +75,7 @@ export class FinanzasComponent implements OnInit {
     ];
 
     // Filters
-    dateRange: Date[] = [new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date()];
+    dateRange: Date[] = [new Date(), new Date()];
 
     ngOnInit() {
         this.loadData();

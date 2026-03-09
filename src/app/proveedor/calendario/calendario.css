@@ -53,11 +53,11 @@
 .event-indicator {
     position: absolute;
     bottom: 8px;
-    width: 4px;
-    height: 4px;
-    background: #ef4444;
+    width: 6px;
+    height: 6px;
+    background: #94a3b8; /* slate-400 */
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 5px rgba(148, 163, 184, 0.4);
 }
 
 :host ::ng-deep .p-datepicker table td>span.p-highlight .event-indicator {

@@ -2,7 +2,7 @@
 <div class="min-h-screen bg-slate-50" style="width: 100% !important; display: block;">
     <main class="p-4 sm:p-8" style="width: 100% !important; max-width: none !important; margin: 0 !important;">
         <!-- Grid de Tarjetas de Estadísticas (4 columnas) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             <!-- Nuevas Solicitudes -->
             <div [routerLink]="['/proveedor/solicitudes']" [queryParams]="{tab: 'pendientes'}"
                 class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-all cursor-pointer group">
@@ -54,18 +54,6 @@
                     </div>
                 </div>
             </div>
-
-            <!-- Ganancias Totales -->
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
-                <div class="flex items-start justify-between mb-4">
-                    <div class="h-12 w-12 bg-purple-50 rounded-full flex items-center justify-center">
-                        <span class="material-icons-outlined text-purple-500 text-[24px]">account_balance_wallet</span>
-                    </div>
-                </div>
-                <p class="text-sm text-slate-500 font-medium mb-1">Ganancias Totales</p>
-                <h3 class="text-3xl font-bold text-slate-800">{{ stats().gananciasTotales |
-                    currency:'MXN':'symbol-narrow':'1.0-0' }}</h3>
-            </div>
         </div>
 
         <!-- Layout: Tabla + Panel Derecho -->
@@ -73,77 +61,87 @@
             <!-- Tabla de Solicitudes Recientes (2/3) -->
             <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div class="p-6 border-b border-slate-100">
-                    <h3 class="text-lg font-bold text-slate-800">Solicitudes Recientes</h3>
+                    <h3 class="text-lg font-bold text-slate-800 mb-3">Solicitudes Recientes</h3>
+                    <!-- Tab Menu -->
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                        <button (click)="tabActivo.set('todos')"
+                            [class]="tabActivo() === 'todos' ? 'bg-slate-800 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'"
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all">
+                            Todos
+                            <span class="ml-1 opacity-70">{{ solicitudesRecientes().length }}</span>
+                        </button>
+                        @for (grupo of solicitudesAgrupadas(); track grupo.key) {
+                        <button (click)="tabActivo.set(grupo.key)"
+                            [class]="tabActivo() === grupo.key ? 'bg-slate-800 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'"
+                            class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1">
+                            <span class="material-icons-outlined text-[14px]">{{ grupo.icon }}</span>
+                            {{ grupo.label }}
+                            <span class="opacity-70">{{ grupo.items.length }}</span>
+                        </button>
+                        }
+                    </div>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full">
-                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider font-semibold">
-                            <tr>
-                                <th class="px-6 py-4 text-left">Evento</th>
-                                <th class="px-6 py-4 text-left">Fecha Servicio</th>
-                                <th class="px-6 py-4 text-left">Estado</th>
-                                <th class="px-6 py-4 text-right">Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100">
-                            @for (solicitud of solicitudesRecientes(); track solicitud.id) {
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-6 py-4">
-                                    <div>
-                                        <p class="text-sm font-semibold text-slate-800">{{ solicitud.evento }}</p>
-                                        <p class="text-xs text-slate-500">{{ solicitud.ubicacion }}</p>
+                <div class="p-4 space-y-4">
+                    @for (grupo of gruposFiltrados(); track grupo.key) {
+                    <!-- Encabezado de grupo -->
+                    <div>
+                        @if (tabActivo() === 'todos') {
+                        <div class="flex items-center gap-2 mb-2 px-2">
+                            <span class="material-icons-outlined text-[18px]"
+                                [class]="'text-' + grupo.color + '-500'">{{ grupo.icon }}</span>
+                            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">{{ grupo.label }}</span>
+                            <span
+                                class="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                                [class]="'bg-' + grupo.color + '-50 text-' + grupo.color + '-600'">{{ grupo.items.length }}</span>
+                        </div>
+                        }
+
+                        <!-- Lista de solicitudes del grupo -->
+                        <div class="space-y-1.5">
+                            @for (solicitud of grupo.items; track solicitud.id) {
+                            <div (click)="verDetalles(solicitud.id)"
+                                class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors border border-transparent hover:border-slate-100 group">
+                                <div class="flex items-center gap-3 min-w-0 flex-1">
+                                    <div class="min-w-0 flex-1">
+                                        <p class="text-sm font-semibold text-slate-800 truncate">{{ solicitud.evento }}</p>
+                                        <div class="flex items-center gap-2 mt-0.5">
+                                            <span class="text-[11px] text-slate-400">{{ solicitud.fechaServicio | date:'d MMM y' }}</span>
+                                            <span class="text-slate-200">·</span>
+                                            <span class="text-[11px] text-slate-400 truncate">{{ solicitud.ubicacion }}</span>
+                                        </div>
                                     </div>
-                                </td>
-                                <td class="px-6 py-4 text-sm text-slate-600">
-                                    {{ solicitud.fechaServicio | date:'d MMM y':'es-MX' }}
-                                </td>
-                                <td class="px-6 py-4">
-                                    <!-- Badges redondeados con colores específicos -->
+                                </div>
+                                <div class="flex items-center gap-2 shrink-0 ml-2">
                                     <span [class]="getEstadoClasses(solicitud.estado)"
-                                        class="inline-flex px-3 py-1.5 rounded-full text-xs font-semibold">
+                                        class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap">
                                         {{ getEstadoTexto(solicitud.estado) }}
                                     </span>
-                                </td>
-                                <td class="px-6 py-4 text-right relative">
-                                    <!-- Botón tres puntos -->
-                                    <button (click)="toggleMenu(solicitud.id)"
-                                        class="p-2 hover:bg-slate-100 rounded-lg transition-colors">
-                                        <span
-                                            class="material-icons-outlined text-slate-400 text-[20px]">more_vert</span>
-                                    </button>
-
-                                    <!-- Menú desplegable -->
-                                    @if (menuAbierto() === solicitud.id) {
-                                    <div
-                                        class="absolute right-6 top-12 bg-white border border-slate-200 rounded-xl shadow-lg py-1 w-44 z-10">
-                                        <button (click)="verDetalles(solicitud.id)"
-                                            class="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 transition-colors">
-                                            <span class="material-icons-outlined text-[18px]">visibility</span>
-                                            <span>Ver detalles</span>
-                                        </button>
-
-                                        <div class="border-t border-slate-100 my-1"></div>
-                                        <button (click)="rechazarSolicitud(solicitud.id)"
-                                            class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
-                                            <span class="material-icons-outlined text-[18px]">close</span>
-                                            <span>Rechazar</span>
-                                        </button>
-                                    </div>
-                                    }
-                                </td>
-                            </tr>
+                                    <span class="material-icons-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                                </div>
+                            </div>
                             }
-                            @if (solicitudesRecientes().length === 0) {
-                            <tr>
-                                <td colspan="4" class="px-6 py-12 text-center">
-                                    <span
-                                        class="material-icons-outlined text-slate-300 text-[48px] mb-2 block">inbox</span>
-                                    <p class="text-slate-500 text-sm">No hay solicitudes pendientes</p>
-                                </td>
-                            </tr>
-                            }
-                        </tbody>
-                    </table>
+                        </div>
+                    </div>
+
+                    <!-- Separador entre grupos (solo en vista Todos) -->
+                    @if (tabActivo() === 'todos' && !$last) {
+                    <div class="border-t border-slate-100 mx-2"></div>
+                    }
+                    }
+
+                    @if (solicitudesRecientes().length === 0) {
+                    <div class="py-12 text-center">
+                        <span class="material-icons-outlined text-slate-300 text-[48px] mb-2 block">inbox</span>
+                        <p class="text-slate-500 text-sm">No hay solicitudes pendientes</p>
+                    </div>
+                    }
+
+                    @if (solicitudesRecientes().length > 0 && gruposFiltrados().length === 0) {
+                    <div class="py-8 text-center">
+                        <span class="material-icons-outlined text-slate-300 text-[36px] mb-2 block">filter_list_off</span>
+                        <p class="text-slate-500 text-sm">No hay solicitudes en esta categoría</p>
+                    </div>
+                    }
                 </div>
             </div>
 

@@ -40,6 +40,10 @@ export class CrearEventoComponent implements OnInit {
     isLocating = false;
     error = '';
 
+    // Direcciones guardadas
+    savedAddresses = signal<string[]>([]);
+    showAddressList = signal(false);
+
     private saveSubject = new Subject<void>();
 
     ngOnInit() {
@@ -75,6 +79,41 @@ export class CrearEventoComponent implements OnInit {
         ).subscribe(() => {
             this.executeSave();
         });
+
+        // Cargar direcciones guardadas
+        this.loadSavedAddresses();
+    }
+
+    loadSavedAddresses() {
+        const stored = localStorage.getItem('festeasy_saved_addresses');
+        if (stored) {
+            try {
+                this.savedAddresses.set(JSON.parse(stored));
+            } catch { }
+        }
+    }
+
+    selectAddress(addr: string) {
+        this.ubicacion = addr;
+        this.showAddressList.set(false);
+        this.saveToStorage();
+    }
+
+    removeAddress(addr: string, event: Event) {
+        event.stopPropagation();
+        const updated = this.savedAddresses().filter(a => a !== addr);
+        this.savedAddresses.set(updated);
+        localStorage.setItem('festeasy_saved_addresses', JSON.stringify(updated));
+    }
+
+    private saveAddressToList(address: string) {
+        if (!address || address.trim().length < 5) return;
+        const current = this.savedAddresses();
+        if (!current.includes(address.trim())) {
+            const updated = [address.trim(), ...current].slice(0, 10); // Max 10
+            this.savedAddresses.set(updated);
+            localStorage.setItem('festeasy_saved_addresses', JSON.stringify(updated));
+        }
     }
 
     saveToStorage() {
@@ -138,6 +177,9 @@ export class CrearEventoComponent implements OnInit {
 
         if (this.isLoading) return;
         this.isLoading = true;
+
+        // Guardar la dirección para uso futuro
+        this.saveAddressToList(this.ubicacion);
 
         this.saveToStorage();
 

@@ -230,6 +230,17 @@ export class PagoComponent implements OnInit, AfterViewInit {
             const nuevoEstado = esLiquidacion ? 'finalizado' : 'reservado';
 
             console.log(`Confirmando pago (${metodo}) para solicitud ${id}...`);
+            await firstValueFrom(this.api.createPago({
+                cliente_usuario_id: this.solicitud().cliente_usuario_id,
+                proveedor_usuario_id: this.solicitud().proveedor_usuario_id,
+                monto: this.montoPagar(),
+                metodo_pago: 'transferencia', // Assuming all online payments are electronic transfers
+                estado: 'aprobado',
+                solicitud_id: id,
+                id_transaccion_externa: referencia,
+                tipo_pago: this.tipoPago()
+            }));
+
             await firstValueFrom(this.api.updateRequestStatus(id, nuevoEstado));
 
             console.log('✅ Estado actualizado exitosamente');

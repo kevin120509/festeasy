@@ -111,107 +111,57 @@
             </div>
         </div>
 
-        <!-- List Grid -->
-        <div *ngIf="!loading() && filteredRequests().length > 0"
-            class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div *ngFor="let sol of filteredRequests()" [routerLink]="['/cliente/solicitudes', sol.id]"
-                class="group bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden border border-gray-100 flex flex-col cursor-pointer">
-
-                <!-- Card Image & Badge -->
-                <div class="relative h-48 bg-gray-200 overflow-hidden">
-                    <!-- Placeholder or mock image based on category -->
-                    <img [src]="sol.imagen_url" alt="Evento"
-                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
-
-                    <!-- Status Badge -->
-                    <div class="absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-md"
-                        [ngClass]="getStatusBadgeClass(sol.estado)">
-                        {{ sol.estado | titlecase }}
-                    </div>
-
-                    <!-- Date Badge -->
-                    <div
-                        class="absolute bottom-4 left-4 flex items-center bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg text-sm text-gray-700 shadow-sm">
-                        <svg class="mr-1.5 h-4 w-4 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <span class="font-medium">{{ sol.fecha_evento | date:'d MMM' }}</span>
-                    </div>
-                </div>
-
-                <!-- Card Content -->
-                <div class="p-5 flex-1 flex flex-col">
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-xs font-medium text-red-600 mb-1 tracking-wide uppercase">{{
-                                    sol.categoria }}</p>
-                                <h3 class="text-lg font-bold text-gray-900 line-clamp-1 mb-2">{{ sol.titulo_evento }}
-                                </h3>
+        <!-- List grouped by day -->
+        <div *ngIf="!loading() && filteredRequests().length > 0" class="space-y-6">
+            <div *ngFor="let group of groupedRequests()">
+                <!-- Day header -->
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 px-1 mb-2">📅 {{ group.label }}</p>
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 divide-y divide-gray-50">
+                    <div *ngFor="let sol of group.items" [routerLink]="['/cliente/solicitudes', sol.id]"
+                        class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors group">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <p class="text-xs font-bold text-red-600 uppercase tracking-wide">{{ sol.categoria }}</p>
+                                <span class="text-gray-200">·</span>
+                                <span class="text-[10px] text-gray-400 font-mono">{{ sol.id.substring(0,6) | uppercase }}</span>
+                            </div>
+                            <p class="text-sm font-bold text-gray-900 truncate">{{ sol.titulo_evento }}</p>
+                            <div class="flex items-center gap-3 mt-1">
+                                <span class="text-[11px] text-gray-400 flex items-center gap-1">
+                                    <span class="material-symbols-outlined text-[13px]">calendar_today</span>
+                                    {{ sol.fecha_evento | date:'d MMM y' }}
+                                </span>
+                                <span class="text-[11px] text-gray-400">{{ getDaysRemaining(sol.fecha_evento) }}</span>
+                                <span *ngIf="sol.cotizaciones_count > 0" class="text-[11px] font-bold text-red-500">
+                                    {{ sol.cotizaciones_count }} cotizaciones
+                                </span>
                             </div>
                         </div>
+                        <div class="flex items-center gap-2 shrink-0 ml-3">
+                            <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
+                                [ngClass]="getStatusBadgeClass(sol.estado)">
+                                {{ sol.estado | titlecase }}
+                            </span>
 
-                        <div class="flex items-center text-sm text-gray-500 mb-4">
-                            <svg class="mr-1.5 h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span>{{ getDaysRemaining(sol.fecha_evento) }}</span>
-                        </div>
-
-                        <!-- Provider Info (if matched or in process) -->
-                        <div class="flex items-center space-x-2 mt-2 pt-4 border-t border-gray-50"
-                            *ngIf="sol.cotizaciones_count > 0">
-                            <div
-                                class="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-700 font-bold text-xs">
-                                {{ sol.cotizaciones_count }}
-                            </div>
-                            <span class="text-sm font-medium text-gray-700">Cotizaciones Recibidas</span>
-                        </div>
-                        <div class="mt-2 text-sm text-gray-400 italic"
-                            *ngIf="sol.cotizaciones_count === 0 && sol.estado === 'pendiente_aprobacion'">
-                            Esperando propuestas...
-                        </div>
-                    </div>
-
-                    <div class="mt-6 flex items-center justify-between">
-                        <div>
-                            <button *ngIf="sol.estado === 'finalizado'"
-                                class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
-                                <span class="material-symbols-outlined text-[16px]">delete</span>
-                                Eliminar
-                            </button>
+                            <!-- Action buttons -->
+                            <a *ngIf="sol.estado === 'esperando_anticipo'" [routerLink]="['/cliente/pago', sol.id]"
+                                (click)="$event.stopPropagation()"
+                                class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-500 text-white hover:bg-blue-600 transition-colors whitespace-nowrap">
+                                Pagar
+                            </a>
+                            <a *ngIf="sol.estado === 'entregado_pendiente_liq'" [routerLink]="['/cliente/pago', sol.id]"
+                                (click)="$event.stopPropagation()"
+                                class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500 text-white hover:bg-emerald-600 transition-colors whitespace-nowrap">
+                                Liquidar
+                            </a>
                             <a *ngIf="sol.estado === 'finalizado'" [routerLink]="['/cliente/resenas/crear', sol.id]"
                                 (click)="$event.stopPropagation()"
-                                class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
-                                <span class="material-symbols-outlined text-[16px]">star</span>
+                                class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-500 text-white hover:bg-green-600 transition-colors whitespace-nowrap">
                                 Calificar
                             </a>
+
+                            <span class="material-symbols-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
                         </div>
-                        <a *ngIf="['pendiente_aprobacion', 'en_negociacion', 'esperando_confirmacion_cliente', 'esperando_anticipo'].includes(sol.estado)"
-                            [routerLink]="['/cliente/solicitudes', sol.id]"
-                            (click)="$event.stopPropagation()"
-                            class="flex items-center gap-2 px-4 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
-                            <span class="material-symbols-outlined text-[16px]">visibility</span>
-                            Ver Detalles y Negociación
-                        </a>
-                        <!-- Botón de Pagar Anticipo -->
-                        <a *ngIf="sol.estado === 'esperando_anticipo'" [routerLink]="['/cliente/pago', sol.id]"
-                            (click)="$event.stopPropagation()"
-                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
-                            <span class="material-symbols-outlined text-[16px]">payments</span>
-                            Pagar Anticipo
-                        </a>
-                        <!-- Botón de Pagar Liquidación -->
-                        <a *ngIf="sol.estado === 'entregado_pendiente_liq'" [routerLink]="['/cliente/pago', sol.id]"
-                            (click)="$event.stopPropagation()"
-                            class="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg shadow-sm transition-all hover:shadow-md">
-                            <span class="material-symbols-outlined text-[16px]">payment</span>
-                            Pagar Liquidación
-                        </a>
                     </div>
                 </div>
             </div>

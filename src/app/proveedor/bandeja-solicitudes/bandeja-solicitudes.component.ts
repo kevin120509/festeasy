@@ -7,7 +7,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ValidarPin } from '../validar-pin/validar-pin';
 import { ServiceRequest } from '../../models';
 import { esDiaDelEvento, formatearFechaEvento } from '../../utils/date.utils';
-import { RouterModule, ActivatedRoute } from '@angular/router';
+import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
@@ -23,13 +23,13 @@ interface SolicitudBandeja {
     fecha_servicio: string;
     direccion_servicio: string;
     monto_total: number;
-    estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada';
+    estado: 'pendiente_aprobacion' | 'rechazada' | 'esperando_anticipo' | 'reservado' | 'en_progreso' | 'entregado_pendiente_liq' | 'finalizado' | 'cancelada' | 'abandonada' | 'en_negociacion';
     creado_en: string;
     horas_restantes?: number;
     es_critico?: boolean;
 }
 
-type TabType = 'pendientes' | 'aceptadas' | 'historial';
+type TabType = 'pendientes' | 'en_negociacion' | 'aceptadas' | 'historial';
 
 @Component({
     selector: 'app-bandeja-solicitudes',
@@ -52,6 +52,7 @@ export class BandejaSolicitudesComponent implements OnInit {
     private api = inject(ApiService);
     private confirmationService = inject(ConfirmationService);
     private route = inject(ActivatedRoute);
+    private router = inject(Router);
 
     tabActivo = signal<TabType>('pendientes');
     isLoading = signal(true);
@@ -69,17 +70,26 @@ export class BandejaSolicitudesComponent implements OnInit {
     solicitudesFiltradas = computed(() => {
         const tab = this.tabActivo();
         const all = this.solicitudes();
+        let filtered: SolicitudBandeja[];
 
         switch (tab) {
             case 'pendientes':
-                return all.filter(s => s.estado === 'pendiente_aprobacion');
+                filtered = all.filter(s => s.estado === 'pendiente_aprobacion');
+                break;
+            case 'en_negociacion':
+                filtered = all.filter(s => s.estado === 'en_negociacion');
+                break;
             case 'aceptadas':
-                return all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado));
+                filtered = all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado));
+                break;
             case 'historial':
-                return all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado));
+                filtered = all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado));
+                break;
             default:
-                return all;
+                filtered = all;
         }
+        // Ordenar: más recientes arriba
+        return filtered.sort((a, b) => new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime());
     });
 
     // Contadores para badges
@@ -87,6 +97,7 @@ export class BandejaSolicitudesComponent implements OnInit {
         const all = this.solicitudes();
         return {
             pendientes: all.filter(s => s.estado === 'pendiente_aprobacion').length,
+            en_negociacion: all.filter(s => s.estado === 'en_negociacion').length,
             aceptadas: all.filter(s => ['esperando_anticipo', 'reservado', 'en_progreso', 'entregado_pendiente_liq'].includes(s.estado)).length,
             historial: all.filter(s => ['rechazada', 'finalizado', 'cancelada', 'abandonada'].includes(s.estado)).length
         };
@@ -98,7 +109,7 @@ export class BandejaSolicitudesComponent implements OnInit {
         // Leer tab desde parámetros de consulta
         this.route.queryParams.subscribe(params => {
             const tab = params['tab'] as TabType;
-            if (tab && ['pendientes', 'aceptadas', 'historial'].includes(tab)) {
+            if (tab && ['pendientes', 'en_negociacion', 'aceptadas', 'historial'].includes(tab)) {
                 this.tabActivo.set(tab);
             }
         });
@@ -190,6 +201,27 @@ export class BandejaSolicitudesComponent implements OnInit {
             error: (err) => {
                 console.error('Error aceptando solicitud:', err);
                 this.mensajeError.set('Error al aceptar la solicitud');
+                setTimeout(() => this.mensajeError.set(''), 4000);
+                this.procesando.set(null);
+            }
+        });
+    }
+
+    negociarSolicitud(solicitud: SolicitudBandeja): void {
+        if (this.procesando()) return;
+        this.procesando.set(solicitud.id);
+
+        this.api.updateSolicitudEstado(solicitud.id, 'en_negociacion').subscribe({
+            next: () => {
+                this.solicitudes.update(list =>
+                    list.map(s => s.id === solicitud.id ? { ...s, estado: 'en_negociacion' as const } : s)
+                );
+                this.procesando.set(null);
+                this.router.navigate(['/proveedor/solicitudes', solicitud.id]);
+            },
+            error: (err) => {
+                console.error('Error al poner en negociación:', err);
+                this.mensajeError.set('Error al iniciar la negociación');
                 setTimeout(() => this.mensajeError.set(''), 4000);
                 this.procesando.set(null);
             }

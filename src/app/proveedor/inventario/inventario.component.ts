@@ -11,6 +11,7 @@ import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { TableModule } from 'primeng/table';
 import { ProductoFormComponent } from './form/producto-form.component';
 
 @Component({
@@ -26,6 +27,7 @@ import { ProductoFormComponent } from './form/producto-form.component';
         RippleModule,
         ToastModule,
         TooltipModule,
+        TableModule,
         ProductoFormComponent
     ],
     providers: [MessageService],

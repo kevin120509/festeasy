@@ -23,102 +23,99 @@
                 <span>✨</span>
                 Pedir servicio para mi fiesta
             </button>
+            <button (click)="dismissModalPermanently()"
+                class="mt-3 w-full text-center text-xs text-slate-400 hover:text-slate-600 cursor-pointer transition-colors py-2">
+                No mostrar de nuevo
+            </button>
         </div>
     </div>
     }
 
-    <div class="welcome-section">
-        <h1>¡Hola, {{ getUserName() }}! 👋</h1>
-        <p>Gestiona tus eventos y solicitudes desde aquí.</p>
+    <div class="welcome-section" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div>
+            <h1>¡Hola, {{ getUserName() }}! 👋</h1>
+            <p>Gestiona tus eventos y solicitudes desde aquí.</p>
+        </div>
+        <a routerLink="/cliente/solicitudes/crear"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-200 hover:shadow-red-300 transition-all hover:scale-105">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            Pedir Servicio
+        </a>
     </div>
 
-    <!-- Métricas -->
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <div class="metric-header">
-                <div class="metric-icon blue">📋</div>
+    <!-- Banner de Cuenta Regresiva (Ejemplo) -->
+    @if (pendientesRespuesta().length > 0) {
+    <div [routerLink]="['/cliente/solicitudes', pendientesRespuesta()[0].id]" class="bg-red-500 rounded-2xl text-white p-4 flex items-center justify-between shadow-lg shadow-red-200 mb-6 cursor-pointer hover:bg-red-600 transition-colors">
+        <div class="flex items-center gap-3 w-full">
+            <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-white">hourglass_empty</span>
             </div>
-            <p class="metric-label">Servicios Reservados</p>
-            <p class="metric-value">{{ reservadas().length }}</p>
-        </div>
-        <div class="metric-card">
-            <div class="metric-header">
-                <div class="metric-icon amber">⏳</div>
+            <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-lg leading-tight">Esperando respuesta</h3>
+                <p class="text-white/80 text-sm truncate">Evento - {{ pendientesRespuesta()[0].servicio }}</p>
             </div>
-            <p class="metric-label">Pendientes</p>
-            <p class="metric-value">{{ metricas().cotizacionesPendientes }}</p>
+            <div class="bg-white rounded-xl py-2 px-3 text-center shrink-0">
+                <span class="block text-red-600 font-bold text-lg leading-none">05:36:46</span>
+                <span class="block text-slate-400 text-[10px] mt-1">restante</span>
+            </div>
         </div>
     </div>
+    }
 
     <!-- Mis Solicitudes Categorizadas -->
     <div class="card">
-        <div class="tabs-header">
-            <button class="tab-btn" [class.active]="activeTab() === 'reservadas'" (click)="setActiveTab('reservadas')">
+        <div class="tabs-header" style="display: flex; gap: 8px; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; scrollbar-width: none;">
+            <button class="tab-btn" [class.active]="activeTab() === 'reservadas'" (click)="setActiveTab('reservadas')"
+                style="flex-shrink: 0;">
                 ✅ Reservadas ({{ reservadas().length }})
             </button>
-            <button class="tab-btn" [class.active]="activeTab() === 'pendientes'" (click)="setActiveTab('pendientes')">
-                ⏳ Pendientes por Responder ({{ pendientesRespuesta().length }})
+            <button class="tab-btn" [class.active]="activeTab() === 'en_negociacion'" (click)="setActiveTab('en_negociacion')"
+                style="flex-shrink: 0;">
+                💬 En Negociación ({{ enNegociacion().length }})
             </button>
-            <button class="tab-btn" [class.active]="activeTab() === 'por_pagar'" (click)="setActiveTab('por_pagar')">
-                💳 Pendiente por Pagar ({{ pendientesPago().length }})
+            <button class="tab-btn" [class.active]="activeTab() === 'pendientes'" (click)="setActiveTab('pendientes')"
+                style="flex-shrink: 0;">
+                ⏳ Pendientes ({{ pendientesRespuesta().length }})
             </button>
-            <button class="tab-btn" [class.active]="activeTab() === 'historial'" (click)="setActiveTab('historial')">
+            <button class="tab-btn" [class.active]="activeTab() === 'por_pagar'" (click)="setActiveTab('por_pagar')"
+                style="flex-shrink: 0;">
+                💳 Por Pagar ({{ pendientesPago().length }})
+            </button>
+            <button class="tab-btn" [class.active]="activeTab() === 'historial'" (click)="setActiveTab('historial')"
+                style="flex-shrink: 0;">
                 📜 Historial ({{ historial().length }})
             </button>
         </div>
 
-        <div class="card-body" style="padding: 0;">
+        <div class="card-body" style="padding: 12px;">
             <!-- RESERVADAS -->
             @if (activeTab() === 'reservadas') {
             @if (reservadas().length > 0) {
-            <div class="activity-table-wrapper">
-                <table class="activity-table">
-                    <thead>
-                        <tr>
-                            <th>Evento / Proveedor</th>
-                            <th>Fecha del Servicio</th>
-                            <th>Estado</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (act of reservadas(); track act.id) {
-                        <tr [class.finalizada]="act.estado === 'finalizado'"
-                            [routerLink]="act.estado !== 'finalizado' ? ['/cliente/seguimiento', act.id] : null"
-                            style="cursor: pointer;" class="hover:bg-gray-50 transition-colors">
-                            <td data-label="Evento / Proveedor">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="font-size: 20px;">🎉</div>
-                                    <div>
-                                        <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
-                                        <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td data-label="Fecha del Servicio">{{ act.fecha }}</td>
-                            <td data-label="Estado">
-                                <span *ngIf="act.estado === 'finalizado'"
-                                    class="estado-badge estado-completado">Finalizado</span>
-                                <span *ngIf="act.estado !== 'finalizado'"
-                                    class="estado-badge estado-reservado">Confirmado</span>
-                            </td>
-                            <td data-label="Acción">
-                                <ng-container *ngIf="act.estado === 'finalizado'; else seguimientoBtn">
-                                    <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;"
-                                        (click)="eliminarSolicitud(act.id); $event.stopPropagation();">Eliminar</button>
-                                </ng-container>
-                                <ng-template #seguimientoBtn>
-                                    <span
-                                        class="text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full flex items-center gap-1 w-fit">
-                                        <span>📍</span> Ver seguimiento
-                                    </span>
-                                </ng-template>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+            @for (group of groupByDay(reservadas()); track group.label) {
+            <div class="mb-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">📅 {{ group.label }}</p>
+                @for (act of group.items; track act.id) {
+                <div [routerLink]="act.estado !== 'finalizado' ? ['/cliente/seguimiento', act.id] : null"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ act.servicio }}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[11px] text-slate-400">{{ act.proveedor }}</span>
+                            <span class="text-slate-200">·</span>
+                            <span class="text-[11px] text-slate-400">{{ act.fecha }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 ml-2">
+                        <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
+                            [ngClass]="act.estado === 'finalizado' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'">
+                            {{ act.estado === 'finalizado' ? 'Finalizado' : 'Confirmado' }}
+                        </span>
+                        <span class="material-symbols-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </div>
+                </div>
+                }
             </div>
+            }
             } @else {
             <div style="padding: 48px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">🎫</div>
@@ -128,44 +125,68 @@
             }
             }
 
+            <!-- EN NEGOCIACIÓN -->
+            @if (activeTab() === 'en_negociacion') {
+            @if (enNegociacion().length > 0) {
+            @for (group of groupByDay(enNegociacion()); track group.label) {
+            <div class="mb-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">📅 {{ group.label }}</p>
+                @for (act of group.items; track act.id) {
+                <div [routerLink]="['/cliente/solicitudes', act.id]"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ act.servicio }}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[11px] text-slate-400">{{ act.proveedor }}</span>
+                            <span class="text-slate-200">·</span>
+                            <span class="text-[11px] text-slate-400">{{ act.fecha }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 ml-2">
+                        <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-cyan-50 text-cyan-600">En Negociación</span>
+                        <span class="material-symbols-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </div>
+                </div>
+                }
+            </div>
+            }
+            } @else {
+            <div style="padding: 48px; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 16px;">💬</div>
+                <h3>Sin negociaciones activas</h3>
+                <p>No tienes solicitudes en negociación.</p>
+            </div>
+            }
+            }
+
             <!-- PENDIENTES POR PAGAR -->
             @if (activeTab() === 'por_pagar') {
             @if (pendientesPago().length > 0) {
-            <div class="activity-table-wrapper">
-                <table class="activity-table">
-                    <thead>
-                        <tr>
-                            <th>Evento / Proveedor</th>
-                            <th>Monto a Pagar</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (act of pendientesPago(); track act.id) {
-                        <tr [routerLink]="['/cliente/solicitudes', act.id]" style="cursor: pointer;"
-                            class="hover:bg-gray-50 transition-colors">
-                            <td data-label="Evento / Proveedor">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="font-size: 20px;">💳</div>
-                                    <div>
-                                        <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
-                                        <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td data-label="Monto a Pagar" class="monto" style="color: #E91E63;">${{
-                                act.monto.toLocaleString() }}</td>
-                            <td data-label="Acción">
-                                <button [routerLink]="['/cliente/pago', act.id]" (click)="$event.stopPropagation()"
-                                    class="btn-primary" style="padding: 6px 12px; font-size: 12px;">
-                                    Pagar Ahora
-                                </button>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+            @for (group of groupByDay(pendientesPago()); track group.label) {
+            <div class="mb-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">📅 {{ group.label }}</p>
+                @for (act of group.items; track act.id) {
+                <div [routerLink]="['/cliente/solicitudes', act.id]"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ act.servicio }}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[11px] text-slate-400">{{ act.proveedor }}</span>
+                            <span class="text-slate-200">·</span>
+                            <span class="text-[11px] font-bold text-red-500">${{ act.monto.toLocaleString() }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 ml-2">
+                        <a [routerLink]="['/cliente/pago', act.id]" (click)="$event.stopPropagation()"
+                            class="inline-flex px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap bg-red-500 text-white hover:bg-red-600 transition-colors">
+                            Pagar
+                        </a>
+                        <span class="material-symbols-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </div>
+                </div>
+                }
             </div>
+            }
             } @else {
             <div style="padding: 48px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
@@ -178,36 +199,28 @@
             <!-- PENDIENTES POR RESPONDER -->
             @if (activeTab() === 'pendientes') {
             @if (pendientesRespuesta().length > 0) {
-            <div class="activity-table-wrapper">
-                <table class="activity-table">
-                    <thead>
-                        <tr>
-                            <th>Evento / Proveedor</th>
-                            <th>Fecha Solicitada</th>
-                            <th>Estado</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (act of pendientesRespuesta(); track act.id) {
-                        <tr [routerLink]="['/cliente/solicitudes', act.id]" style="cursor: pointer;"
-                            class="hover:bg-gray-50 transition-colors">
-                            <td data-label="Evento / Proveedor">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="font-size: 20px;">⏳</div>
-                                    <div>
-                                        <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
-                                        <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td data-label="Fecha Solicitada">{{ act.fecha }}</td>
-                            <td data-label="Estado"><span [class]="'estado-badge ' + getEstadoClass(act.estado)">{{
-                                    act.estadoLabel }}</span></td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+            @for (group of groupByDay(pendientesRespuesta()); track group.label) {
+            <div class="mb-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">📅 {{ group.label }}</p>
+                @for (act of group.items; track act.id) {
+                <div [routerLink]="['/cliente/solicitudes', act.id]"
+                    class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors group">
+                    <div class="min-w-0 flex-1">
+                        <p class="text-sm font-semibold text-slate-800 truncate">{{ act.servicio }}</p>
+                        <div class="flex items-center gap-2 mt-0.5">
+                            <span class="text-[11px] text-slate-400">{{ act.proveedor }}</span>
+                            <span class="text-slate-200">·</span>
+                            <span class="text-[11px] text-slate-400">{{ act.fecha }}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0 ml-2">
+                        <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap bg-amber-50 text-amber-600">{{ act.estadoLabel }}</span>
+                        <span class="material-symbols-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>
+                    </div>
+                </div>
+                }
             </div>
+            }
             } @else {
             <div style="padding: 48px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">📬</div>
@@ -217,58 +230,43 @@
             }
             }
 
-            <!-- HISTORIAL -->
+            <!-- HISTORIAL / CANCELADAS -->
             @if (activeTab() === 'historial') {
             @if (historial().length > 0) {
-            <div class="activity-table-wrapper">
-                <table class="activity-table">
-                    <thead>
-                        <tr>
-                            <th>Evento / Proveedor</th>
-                            <th>Fecha</th>
-                            <th>Estado</th>
-                            <th>Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (act of historial(); track act.id) {
-                        <tr class="hover:bg-gray-50 transition-colors">
-                            <td data-label="Evento / Proveedor">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    <div style="font-size: 20px;">📜</div>
-                                    <div>
-                                        <p style="font-weight: 600; font-size: 14px; margin: 0;">{{ act.servicio }}</p>
-                                        <p style="font-size: 12px; color: gray; margin: 0;">{{ act.proveedor }}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            <td data-label="Fecha">{{ act.fecha }}</td>
-                            <td data-label="Estado">
-                                <span [class]="'estado-badge ' + getEstadoClass(act.estado)">{{ act.estadoLabel
-                                    }}</span>
-                            </td>
-                            <td data-label="Acción">
-                                <div style="display: flex; gap: 8px;">
-                                    @if (act.estado === 'finalizado') {
-                                    <button [routerLink]="['/cliente/resenas/crear', act.id]" class="btn-primary"
-                                        style="padding: 6px 12px; font-size: 12px; background-color: #4CAF50;">
-                                        Calificar
-                                    </button>
-                                    }
-                                    <button class="btn-danger" style="padding: 6px 12px; font-size: 12px;"
-                                        (click)="eliminarSolicitud(act.id)">Eliminar</button>
-                                </div>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
+            @for (group of groupByDay(historial()); track group.label) {
+            <div class="mb-4">
+                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400 px-3 py-1.5">📅 {{ group.label }}</p>
+                @for (act of group.items; track act.id) {
+                <div class="flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-slate-50 border border-slate-100 mb-2 transition-colors">
+                    <div class="flex items-center gap-3 w-full">
+                        <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                            <span class="material-symbols-outlined text-slate-400">
+                                {{ act.estado === 'cancelada' || act.estado === 'rechazada' || act.estado === 'abandonada' ? 'cancel' : 'check_circle' }}
+                            </span>
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <p class="text-sm font-semibold text-slate-800 truncate">Evento - {{ act.servicio }}</p>
+                            <div class="flex items-center gap-2 mt-0.5">
+                                <span class="text-[11px] text-slate-500 capitalize">{{ act.estadoLabel }}</span>
+                                <span class="text-slate-200">·</span>
+                                <span class="text-[11px] text-slate-400">${{ act.monto.toLocaleString() }}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <button [routerLink]="['/cliente/solicitudes', act.id]" class="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-200 transition-colors text-slate-500">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">visibility</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                }
             </div>
+            }
             } @else {
             <div style="padding: 48px; text-align: center;">
                 <div style="font-size: 48px; margin-bottom: 16px;">📜</div>
-                <h3>Historial vacío</h3>
-                <p>No tienes solicitudes rechazadas, canceladas o abandonadas.</p>
+                <h3>Sin historial</h3>
+                <p>No tienes solicitudes canceladas o finalizadas.</p>
             </div>
             }
             }

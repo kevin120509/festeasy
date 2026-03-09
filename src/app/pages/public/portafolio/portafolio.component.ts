@@ -78,7 +78,7 @@ import { CurrencyPipe } from '@angular/common';
                   <div class="mt-4 flex justify-between items-end">
                     <div>
                       <p class="text-[10px] text-slate-400 font-bold uppercase">Desde</p>
-                      <p class="text-xl font-black text-primary">{{ pkg.precio_base | currency:'MXN' }}</p>
+                      <p class="text-xl font-black text-primary">{{ pkg.precio_base | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
                     </div>
                     <button class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-xs font-bold hover:bg-primary hover:text-white transition-all">
                       Ver detalle

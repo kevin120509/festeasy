@@ -104,22 +104,41 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           <!-- Columna Izquierda: Info del Cliente -->
           <div class="space-y-4">
-            <div class="flex items-center gap-3">
+            <div class="flex items-start md:items-center gap-3">
               <div
-                class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg overflow-hidden border border-slate-200">
+                class="h-12 w-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-lg overflow-hidden border border-slate-200 shrink-0">
                 @if (solicitud.cliente?.avatar_url) {
                 <img [src]="solicitud.cliente?.avatar_url" class="w-full h-full object-cover">
                 } @else {
                 {{ solicitud.cliente_nombre.charAt(0) }}
                 }
               </div>
-              <div class="flex-1">
-                <h3 class="text-base font-bold text-slate-800">{{ solicitud.cliente_nombre }}</h3>
+              <div class="flex-1 min-w-0">
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Cliente</p>
+                <h3 class="text-base font-bold text-slate-800 truncate" [pTooltip]="solicitud.cliente_nombre" tooltipPosition="top">{{ solicitud.cliente_nombre }}</h3>
                 @if (solicitud.cliente_telefono) {
-                <p class="text-sm text-slate-500">{{ solicitud.cliente_telefono }}</p>
+                <p class="text-sm text-slate-500 truncate">{{ solicitud.cliente_telefono }}</p>
                 }
               </div>
-              <!-- Badge de Estado -->
+            </div>
+
+            <!-- Fecha y Ubicacion -->
+            <div class="space-y-2 bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div class="flex items-center gap-2 text-sm text-slate-600">
+                <span class="material-icons-outlined text-slate-400 text-[18px]">event</span>
+                <span class="font-medium">{{ solicitud.fecha_servicio | date:'d MMMM y' }}</span>
+              </div>
+              <div class="flex items-start gap-2 text-sm text-slate-600">
+                <span class="material-icons-outlined text-slate-400 text-[18px] mt-0.5">place</span>
+                <span class="flex-1 line-clamp-2">{{ solicitud.direccion_servicio }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna Derecha: Info del Evento -->
+          <div class="space-y-4 lg:text-right flex flex-col justify-between">
+            <div class="flex flex-col lg:items-end gap-2">
+			  <!-- Badge de Estado -->
               <span [class]="{
                 'bg-amber-100 text-amber-700': solicitud.estado === 'pendiente_aprobacion',
                 'bg-orange-100 text-orange-700': solicitud.estado === 'esperando_anticipo',
@@ -128,7 +147,7 @@
                 'bg-purple-100 text-purple-700': solicitud.estado === 'entregado_pendiente_liq',
                 'bg-red-100 text-red-700': solicitud.estado === 'rechazada' || solicitud.estado === 'cancelada',
                 'bg-slate-100 text-slate-700': solicitud.estado === 'finalizado'
-              }" class="px-3 py-1 rounded-full text-xs font-semibold">
+              }" class="px-3 py-1 rounded-full text-xs font-semibold w-fit lg:w-auto">
                 @switch (solicitud.estado) {
                 @case ('pendiente_aprobacion') { Pendiente }
                 @case ('esperando_anticipo') { Esperando Pago }
@@ -142,30 +161,12 @@
                 }
               </span>
             </div>
-
-            <!-- Fecha y Ubicacion -->
-            <div class="space-y-2">
-              <div class="flex items-center gap-2 text-sm text-slate-600">
-                <span class="material-icons-outlined text-slate-400 text-[18px]">event</span>
-                <span>{{ solicitud.fecha_servicio | date:'d MMMM y' }}</span>
-              </div>
-              <div class="flex items-start gap-2 text-sm text-slate-600">
-                <span class="material-icons-outlined text-slate-400 text-[18px]">place</span>
-                <span class="flex-1">{{ solicitud.direccion_servicio }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Columna Derecha: Info del Evento -->
-          <div class="space-y-4 lg:text-right">
             <div>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Evento</p>
-              <p class="text-base font-bold text-slate-800">{{ solicitud.titulo_evento }}</p>
+              <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Servicio / Evento</p>
+              <p class="text-base font-bold text-slate-800 line-clamp-2">{{ solicitud.titulo_evento }}</p>
             </div>
             <div>
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Monto Total</p>
-              <p class="text-3xl font-bold text-slate-800">{{ solicitud.monto_total |
-                currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
+              <p class="text-3xl font-black text-slate-800 tracking-tight">{{ solicitud.monto_total | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
             </div>
           </div>
         </div>

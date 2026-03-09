@@ -348,6 +348,9 @@ export class ApiService {
         );
     }
 
+    createPago(data: any): Observable<any> {
+        return this.fromSupabase(this.supabase.from('pagos').insert(data).select().single());
+    }
 
     getClientRequests(): Observable<any[]> {
         return from(this.supabase.auth.getUser()).pipe(
@@ -935,7 +938,7 @@ export class ApiService {
 
     // --- MÓDULO DE FINANZAS ---
     getExpenses(filters: any = {}): Observable<any[]> {
-        let query = this.supabase.from('gastos_proveedor').select('*');
+        let query = this.supabase.from('gastos').select('*');
         if (filters.startDate) query = query.gte('fecha', filters.startDate);
         if (filters.endDate) query = query.lte('fecha', filters.endDate);
         if (filters.categoria) query = query.eq('categoria', filters.categoria);
@@ -950,8 +953,8 @@ export class ApiService {
     upsertExpense(expense: any): Observable<any> {
         return from(this.supabase.auth.getUser()).pipe(
             switchMap((u: any) => {
-                const data = { ...expense, proveedor_id: u.data.user?.id };
-                return from(this.supabase.from('gastos_proveedor').upsert(data).select().single());
+                const data = { ...expense, proveedor_usuario_id: u.data.user?.id };
+                return from(this.supabase.from('gastos').upsert(data).select().single());
             }),
             map(({ data, error }) => {
                 if (error) throw error;
@@ -961,44 +964,48 @@ export class ApiService {
     }
 
     deleteExpense(id: string): Observable<any> {
-        return from(this.supabase.from('gastos_proveedor').delete().eq('id', id));
+        return from(this.supabase.from('gastos').delete().eq('id', id));
     }
 
     getFinancialSummary(startDate: string, endDate: string): Observable<any> {
         return from(this.supabase.auth.getUser()).pipe(
             switchMap((u: any) => {
                 const userId = u.data.user?.id;
+                
+                // Adjust dates to cover full days in ISO format to match timestamp with time zone
+                const startIso = `${startDate}T00:00:00.000Z`;
+                const endIso = `${endDate}T23:59:59.999Z`;
+
                 const incomeQuery = this.supabase
-                    .from('solicitudes')
-                    .select('total, costo_ejecucion')
+                    .from('pagos')
+                    .select('monto')
                     .eq('proveedor_usuario_id', userId)
-                    .in('estado', ['finalizado', 'entregado_liquidado', 'entregado_pendiente_liq'])
-                    .gte('fecha_servicio', startDate)
-                    .lte('fecha_servicio', endDate);
+                    .in('estado', ['aprobado'])
+                    .gte('creado_en', startIso)
+                    .lte('creado_en', endIso);
 
                 const expensesQuery = this.supabase
-                    .from('gastos_proveedor')
+                    .from('gastos')
                     .select('monto, categoria')
-                    .eq('proveedor_id', userId)
+                    .eq('proveedor_usuario_id', userId)
                     .gte('fecha', startDate)
                     .lte('fecha', endDate);
 
                 return forkJoin({
-                    solicitudes: from(incomeQuery),
+                    pagos: from(incomeQuery),
                     gastos: from(expensesQuery)
                 });
             }),
-            map(({ solicitudes, gastos }: any) => {
-                const totalIncome = solicitudes.data?.reduce((acc: number, s: any) => acc + (s.total || 0), 0) || 0;
-                const totalExecutionCost = solicitudes.data?.reduce((acc: number, s: any) => acc + (s.costo_ejecucion || 0), 0) || 0;
-                const totalManualExpenses = gastos.data?.reduce((acc: number, g: any) => acc + (g.monto || 0), 0) || 0;
-                const eventCount = solicitudes.data?.length || 0;
+            map(({ pagos, gastos }: any) => {
+                const totalIncome = pagos.data?.reduce((acc: number, p: any) => acc + (Number(p.monto) || 0), 0) || 0;
+                const totalManualExpenses = gastos.data?.reduce((acc: number, g: any) => acc + (Number(g.monto) || 0), 0) || 0;
+                
                 return {
                     totalIncome,
-                    totalExpenses: totalExecutionCost + totalManualExpenses,
-                    netProfit: totalIncome - (totalExecutionCost + totalManualExpenses),
-                    eventCount,
-                    avgTicket: eventCount > 0 ? totalIncome / eventCount : 0,
+                    totalExpenses: totalManualExpenses,
+                    netProfit: totalIncome - totalManualExpenses,
+                    eventCount: 0,
+                    avgTicket: 0,
                     byCategory: this.groupExpensesByCategory(gastos.data || [])
                 };
             })

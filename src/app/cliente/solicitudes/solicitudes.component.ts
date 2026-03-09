@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { SolicitudesService, SolicitudCliente } from './solicitudes.service';
 import { AuthService } from '../../services/auth.service';
 import { ConfirmationService } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
     selector: 'app-mis-solicitudes',
     standalone: true,
-    imports: [CommonModule, RouterLink],
+    imports: [CommonModule, RouterLink, TooltipModule],
     providers: [ConfirmationService],
     templateUrl: './solicitudes.component.html',
     styles: [] // Usaremos Tailwind en el HTML
@@ -39,6 +40,20 @@ export class MisSolicitudesComponent implements OnInit {
             if (tab === 'finalizadas') return req.estado === 'finalizado';
             return true;
         });
+    });
+
+    // Solicitudes agrupadas por día
+    groupedRequests = computed(() => {
+        const items = this.filteredRequests();
+        const groups = new Map<string, SolicitudCliente[]>();
+        const sorted = [...items].sort((a, b) => new Date(b.creada_en).getTime() - new Date(a.creada_en).getTime());
+        for (const item of sorted) {
+            const d = new Date(item.creada_en);
+            const key = d.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key)!.push(item);
+        }
+        return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
     });
 
     async ngOnInit() {
