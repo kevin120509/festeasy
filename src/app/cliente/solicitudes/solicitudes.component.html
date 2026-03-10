@@ -31,44 +31,46 @@
             </div>
 
             <!-- Tabs -->
-            <div class="mt-8 border-b border-gray-100">
-                <nav class="-mb-px flex space-x-8">
-                    <button (click)="setTab('todas')" [class.border-red-500]="activeTab() === 'todas'"
-                        [class.text-red-600]="activeTab() === 'todas'"
-                        [class.border-transparent]="activeTab() !== 'todas'"
-                        [class.text-gray-500]="activeTab() !== 'todas'"
-                        class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
-                        Todas
-                    </button>
-                    <button (click)="setTab('activas')" [class.border-red-500]="activeTab() === 'activas'"
-                        [class.text-red-600]="activeTab() === 'activas'"
-                        [class.border-transparent]="activeTab() !== 'activas'"
-                        [class.text-gray-500]="activeTab() !== 'activas'"
-                        class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
-                        Activas
-                    </button>
-                    <button (click)="setTab('cotizando')" [class.border-red-500]="activeTab() === 'cotizando'"
-                        [class.text-red-600]="activeTab() === 'cotizando'"
-                        [class.border-transparent]="activeTab() !== 'cotizando'"
-                        [class.text-gray-500]="activeTab() !== 'cotizando'"
-                        class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
-                        Cotizando
-                    </button>
-                    <button (click)="setTab('contratadas')" [class.border-red-500]="activeTab() === 'contratadas'"
-                        [class.text-red-600]="activeTab() === 'contratadas'"
-                        [class.border-transparent]="activeTab() !== 'contratadas'"
-                        [class.text-gray-500]="activeTab() !== 'contratadas'"
-                        class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
-                        Contratadas
-                    </button>
-                    <button (click)="setTab('finalizadas')" [class.border-red-500]="activeTab() === 'finalizadas'"
-                        [class.text-red-600]="activeTab() === 'finalizadas'"
-                        [class.border-transparent]="activeTab() !== 'finalizadas'"
-                        [class.text-gray-500]="activeTab() !== 'finalizadas'"
-                        class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors">
-                        Finalizadas
-                    </button>
-                </nav>
+            <div class="mt-8 relative z-20 w-full">
+                <div class="border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
+                        <button type="button" (click)="setTab('todas')" [class.border-red-500]="activeTab() === 'todas'"
+                            [class.text-red-600]="activeTab() === 'todas'"
+                            [class.border-transparent]="activeTab() !== 'todas'"
+                            [class.text-gray-500]="activeTab() !== 'todas'"
+                            class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
+                            Todas
+                        </button>
+                        <button type="button" (click)="setTab('activas')" [class.border-red-500]="activeTab() === 'activas'"
+                            [class.text-red-600]="activeTab() === 'activas'"
+                            [class.border-transparent]="activeTab() !== 'activas'"
+                            [class.text-gray-500]="activeTab() !== 'activas'"
+                            class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
+                            Activas
+                        </button>
+                        <button type="button" (click)="setTab('cotizando')" [class.border-red-500]="activeTab() === 'cotizando'"
+                            [class.text-red-600]="activeTab() === 'cotizando'"
+                            [class.border-transparent]="activeTab() !== 'cotizando'"
+                            [class.text-gray-500]="activeTab() !== 'cotizando'"
+                            class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
+                            Cotizando
+                        </button>
+                        <button type="button" (click)="setTab('contratadas')" [class.border-red-500]="activeTab() === 'contratadas'"
+                            [class.text-red-600]="activeTab() === 'contratadas'"
+                            [class.border-transparent]="activeTab() !== 'contratadas'"
+                            [class.text-gray-500]="activeTab() !== 'contratadas'"
+                            class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
+                            Contratadas
+                        </button>
+                        <button type="button" (click)="setTab('finalizadas')" [class.border-red-500]="activeTab() === 'finalizadas'"
+                            [class.text-red-600]="activeTab() === 'finalizadas'"
+                            [class.border-transparent]="activeTab() !== 'finalizadas'"
+                            [class.text-gray-500]="activeTab() !== 'finalizadas'"
+                            class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
+                            Finalizadas
+                        </button>
+                    </nav>
+                </div>
             </div>
         </div>
     </div>

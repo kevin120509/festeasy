@@ -30,6 +30,7 @@
 
     .sidebar.mini-sidebar .sidebar-logo img {
         height: 40px;
+        margin-top: 20px;
     }
 
     .sidebar.mini-sidebar .profile-info {
@@ -41,16 +42,17 @@
     }
 
     .sidebar-logo {
-        padding: 24px;
+        padding: 16px 20px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: space-between;
         border-bottom: 1px solid var(--color-gray-border);
         overflow: hidden;
+        min-height: 80px;
     }
 
     .sidebar-logo img {
-        height: 150px;
+        height: 60px;
         object-fit: contain;
     }
 
@@ -131,35 +133,33 @@
     }
 
     .sidebar-toggle {
-        position: absolute;
-        top: 20px;
-        right: -15px;
-        /* Default position when sidebar is expanded */
-        width: 30px;
-        height: 30px;
-        background: white;
-        border: 1px solid var(--color-gray-border);
-        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
         cursor: pointer;
         z-index: 110;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        /* Change to all to transition right property */
-    }
-
-    /* Adjust toggle button position when sidebar is mini */
-    .sidebar.mini-sidebar .sidebar-toggle {
-        right: -15px;
-        /* Keep it at -15px from the now 50px wide sidebar */
-        transform: translateX(0);
-        /* Ensure it's not moved by the previous transform */
+        color: var(--color-dark);
+        transition: all 0.2s ease;
     }
 
     .sidebar-toggle:hover {
-        transform: scale(1.1);
+        background: var(--color-gray-border);
+    }
+
+    .sidebar.mini-sidebar .sidebar-logo {
+        flex-direction: column-reverse;
+        justify-content: center;
+        gap: 12px;
+    }
+
+    /* Adjust toggle button when sidebar is mini */
+    .sidebar.mini-sidebar .sidebar-toggle {
+        margin: 0 auto;
     }
 
     /* Responsive Logic */
@@ -186,9 +186,7 @@
     }
 
     @media (min-width: 1101px) and (max-width: 1400px) {
-        .sidebar-toggle {
-            display: none;
-        }
+        /* Sidebar is in mini mode by default, toggle button is still visible now */
     }
 
     /* Bottom Nav (Mobile Only) */
@@ -396,12 +394,11 @@
 
     <!-- Sidebar Desktop/Tablet -->
     <aside *ngIf="showSidebar" class="sidebar" [class.mini-sidebar]="!isSidebarExpanded() || isCompact">
-        <button (click)="toggleSidebar()" class="sidebar-toggle">
-            <span class="material-symbols-outlined">{{ isSidebarExpanded() ? 'chevron_left' : 'chevron_right' }}</span>
-        </button>
-
         <div class="sidebar-logo">
-            <img src="assets/festeasy.png" alt="FESTEASY">
+            <img src="assets/festeasy.png" alt="FESTEASY" [style.display]="(!isSidebarExpanded() || isCompact) ? 'none' : 'block'">
+            <button (click)="toggleSidebar()" class="sidebar-toggle" title="Expandir/Contraer Menú">
+                <span class="material-symbols-outlined">menu</span>
+            </button>
         </div>
 
         <div class="menu-wrapper">
