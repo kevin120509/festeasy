@@ -113,6 +113,7 @@ export class ClienteDashboardComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         if (this.countdownInterval) {
             clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
         }
     }
 
