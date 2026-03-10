@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
@@ -33,6 +33,40 @@ export class DetalleComponent implements OnInit {
     mensajeError = signal('');
     mensajeExito = signal('');
     procesando = signal(false);
+
+    // Parseo para la estructura limpia del paquete base (similar al proveedor)
+    parsedCotizacionBase = computed(() => {
+        const borrador = this.cotizacionBorrador();
+        if (!borrador || !borrador.paquete_base) return { nombre: '', incluye: [], opciones: [] };
+
+        const fullString = borrador.paquete_base.nombre || '';
+        const lines = fullString.split('\n').filter(l => l.trim().length > 0);
+        let nombre = '';
+        let incluye: string[] = [];
+        let opciones: string[] = [];
+
+        let currentState: 'nombre' | 'incluye' | 'opciones' = 'nombre';
+
+        for (const line of lines) {
+            if (line.trim().startsWith('Incluye:')) {
+                currentState = 'incluye';
+                continue;
+            } else if (line.trim().startsWith('Opciones:')) {
+                currentState = 'opciones';
+                continue;
+            }
+
+            if (currentState === 'nombre') {
+                nombre += (nombre ? ' ' : '') + line;
+            } else if (currentState === 'incluye') {
+                incluye.push(line.replace(/^- /, '').trim());
+            } else if (currentState === 'opciones') {
+                opciones.push(line.replace(/^- /, '').trim());
+            }
+        }
+
+        return { nombre, incluye, opciones };
+    });
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');

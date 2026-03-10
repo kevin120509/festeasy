@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, signal, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
 import { CotizacionService } from '../../../services/cotizacion.service';
 import {
     CotizacionBorrador,
@@ -15,7 +16,7 @@ import {
 @Component({
     selector: 'app-cotizador',
     standalone: true,
-    imports: [CommonModule, FormsModule],
+    imports: [CommonModule, FormsModule, ButtonModule],
     templateUrl: './cotizador.component.html',
     styleUrls: ['./cotizador.component.css']
 })
@@ -69,6 +70,40 @@ export class CotizadorComponent implements OnInit {
             this.anticipoTipo(),
             this.anticipoValor()
         );
+    });
+
+    // Nuevo estado para mostrar/ocultar los inputs de anticipo
+    mostrarEdicionAnticipo = signal<boolean>(false);
+
+    // Parseo para la estructura limpia del paquete base
+    parsedPaqueteBase = computed(() => {
+        const fullString = this.paqueteBase().nombre || '';
+        const lines = fullString.split('\n').filter(l => l.trim().length > 0);
+        let nombre = '';
+        let incluye: string[] = [];
+        let opciones: string[] = [];
+
+        let currentState: 'nombre' | 'incluye' | 'opciones' = 'nombre';
+
+        for (const line of lines) {
+            if (line.trim().startsWith('Incluye:')) {
+                currentState = 'incluye';
+                continue;
+            } else if (line.trim().startsWith('Opciones:')) {
+                currentState = 'opciones';
+                continue;
+            }
+
+            if (currentState === 'nombre') {
+                nombre += (nombre ? ' ' : '') + line;
+            } else if (currentState === 'incluye') {
+                incluye.push(line.replace(/^- /, '').trim());
+            } else if (currentState === 'opciones') {
+                opciones.push(line.replace(/^- /, '').trim());
+            }
+        }
+
+        return { nombre, incluye, opciones };
     });
 
     // Validation

@@ -111,9 +111,11 @@
 
         <!-- Alert de Pendiente de Aprobación -->
         @if (solicitud()?.estado === 'pendiente_aprobacion') {
-        <div class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+        <div
+            class="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-8 flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
             <div class="flex gap-4">
-                <div class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
+                <div
+                    class="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center text-amber-600 shrink-0">
                     <span class="material-symbols-outlined text-2xl">pending_actions</span>
                 </div>
                 <div>
@@ -183,109 +185,169 @@
                     </div>
 
                     <div class="p-8">
-                        <!-- Servicios Cotizados -->
-                        <h3
-                            class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 uppercase text-xs tracking-wider">
-                            Servicios y Productos</h3>
-                        <div class="space-y-4 mb-8">
-                            <!-- Paquete Base -->
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-bold text-slate-800">{{ cotizacionBorrador()!.paquete_base.nombre }}
-                                    </p>
-                                    <p class="text-sm text-slate-500">Paquete Base (x{{
-                                        cotizacionBorrador()!.paquete_base.cantidad }})</p>
-                                </div>
-                                <p class="font-medium text-slate-700">{{ (cotizacionBorrador()!.paquete_base.precio_base
-                                    * cotizacionBorrador()!.paquete_base.cantidad) | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
+                        <!-- Notas del proveedor (si existen) -->
+                        @if (cotizacionBorrador()!.notas_proveedor) {
+                        <div class="bg-blue-50 border-l-4 border-blue-500 rounded-r-xl p-4 mb-6 flex gap-3">
+                            <span class="material-symbols-outlined text-blue-500 mt-0.5">info</span>
+                            <div>
+                                <h4 class="text-sm font-bold text-blue-800 mb-1">Notas del Proveedor</h4>
+                                <p class="text-sm text-blue-900 whitespace-pre-line">{{
+                                    cotizacionBorrador()!.notas_proveedor }}</p>
                             </div>
+                        </div>
+                        }
 
-                            <!-- Extras -->
-                            @for (extra of cotizacionBorrador()!.productos_extra; track extra.producto_id) {
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <p class="font-medium text-slate-700">{{ extra.nombre }}</p>
-                                    <p class="text-sm text-slate-500">Extra (x{{ extra.cantidad }} a {{
-                                        extra.precio_unitario | currency:'MXN':'symbol-narrow':'1.0-0' }})</p>
-                                </div>
-                                <p class="font-medium text-slate-700">{{ extra.subtotal | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
+                        <!-- Servicios Cotizados -->
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                            <div class="bg-slate-50 p-4 border-b border-slate-100 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">receipt_long</span>
+                                <h3 class="font-bold text-slate-800 m-0">Servicios y Productos</h3>
                             </div>
-                            }
+                            <div class="p-5 space-y-4">
+                                <!-- Paquete Base -->
+                                <div
+                                    class="flex justify-between items-start p-4 bg-slate-50/50 border border-slate-100 rounded-xl">
+                                    <div class="flex-grow pr-4">
+                                        <p class="font-bold text-slate-800 text-lg">{{ parsedCotizacionBase().nombre }}
+                                        </p>
+
+                                        <!-- Incluye -->
+                                        @if (parsedCotizacionBase().incluye.length > 0) {
+                                        <div class="mt-2 text-sm text-slate-600">
+                                            <p class="font-bold text-xs uppercase text-slate-500 mb-1">Incluye:</p>
+                                            <ul class="space-y-1">
+                                                @for (incl of parsedCotizacionBase().incluye; track $index) {
+                                                <li class="flex items-start gap-1">
+                                                    <span
+                                                        class="material-symbols-outlined text-[14px] text-emerald-500 translate-y-0.5">check</span>
+                                                    {{ incl }}
+                                                </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        }
+
+                                        <!-- Opciones -->
+                                        @if (parsedCotizacionBase().opciones.length > 0) {
+                                        <div class="mt-3 text-sm text-slate-600">
+                                            <p class="font-bold text-xs uppercase text-slate-500 mb-1">Opciones
+                                                Personalizadas:</p>
+                                            <ul class="space-y-1">
+                                                @for (opc of parsedCotizacionBase().opciones; track $index) {
+                                                <li class="flex items-start gap-1">
+                                                    <span
+                                                        class="material-symbols-outlined text-[14px] text-primary translate-y-0.5">diamond</span>
+                                                    {{ opc }}
+                                                </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                        }
+                                    </div>
+                                    <p class="font-bold text-slate-700 whitespace-nowrap">${{
+                                        (cotizacionBorrador()!.paquete_base.precio_base *
+                                        cotizacionBorrador()!.paquete_base.cantidad) | number:'1.2-2' }}</p>
+                                </div>
+
+                                <!-- Extras -->
+                                @for (extra of cotizacionBorrador()!.productos_extra; track extra.producto_id) {
+                                <div
+                                    class="flex justify-between items-center p-3 border border-slate-100 bg-slate-50 hover:bg-slate-100 transition-colors rounded-xl">
+                                    <div>
+                                        <p class="font-medium text-slate-700">{{ extra.nombre }}</p>
+                                        <p class="text-sm text-slate-500">Extra (x{{ extra.cantidad }} a ${{
+                                            extra.precio_unitario | number:'1.2-2' }})</p>
+                                    </div>
+                                    <p class="font-bold text-slate-700 whitespace-nowrap">${{ extra.subtotal |
+                                        number:'1.2-2' }}</p>
+                                </div>
+                                }
+                            </div>
                         </div>
 
                         <!-- Ajustes (si existen) -->
                         @if (cotizacionBorrador()!.ajustes_proveedor && cotizacionBorrador()!.ajustes_proveedor.length >
                         0) {
-                        <h3
-                            class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 uppercase text-xs tracking-wider">
-                            Ajustes y Cargos Extra</h3>
-                        <div class="space-y-3 mb-8">
-                            @for (ajuste of cotizacionBorrador()!.ajustes_proveedor; track $index) {
-                            <div class="flex justify-between items-center text-sm">
-                                <span class="text-slate-600 flex items-center gap-2">
-                                    <span class="material-symbols-outlined text-[16px]"
-                                        [ngClass]="ajuste.tipo === 'cargo' ? 'text-amber-500' : 'text-emerald-500'">
-                                        {{ ajuste.tipo === 'cargo' ? 'add_circle' : 'remove_circle' }}
-                                    </span>
-                                    {{ ajuste.concepto }}
-                                </span>
-                                <span class="font-medium"
-                                    [ngClass]="ajuste.tipo === 'cargo' ? 'text-slate-700' : 'text-emerald-600'">
-                                    {{ ajuste.tipo === 'cargo' ? '+' : '-' }}{{ ajuste.monto | currency:'MXN':'symbol-narrow':'1.0-0' }}
-                                </span>
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                            <div class="bg-slate-50 p-4 border-b border-slate-100 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">tune</span>
+                                <h3 class="font-bold text-slate-800 m-0">Ajustes y Cargos Extra</h3>
                             </div>
-                            }
+                            <div class="p-5 space-y-3">
+                                @for (ajuste of cotizacionBorrador()!.ajustes_proveedor; track $index) {
+                                <div class="flex justify-between items-center text-sm bg-slate-50 p-3 rounded-xl">
+                                    <span class="text-slate-600 flex items-center gap-2">
+                                        <span class="material-symbols-outlined text-[16px]"
+                                            [ngClass]="ajuste.tipo === 'cargo' ? 'text-amber-500' : 'text-emerald-500'">
+                                            {{ ajuste.tipo === 'cargo' ? 'add_circle' : 'remove_circle' }}
+                                        </span>
+                                        <span class="font-medium">{{ ajuste.concepto }}</span>
+                                    </span>
+                                    <span class="font-bold"
+                                        [ngClass]="ajuste.tipo === 'cargo' ? 'text-slate-700' : 'text-emerald-600'">
+                                        {{ ajuste.tipo === 'cargo' ? '+' : '-' }}${{ ajuste.monto | number:'1.2-2' }}
+                                    </span>
+                                </div>
+                                }
+                            </div>
                         </div>
                         }
 
                         <!-- Subtotal y Descuentos Totales -->
-                        <div class="bg-slate-50 p-6 rounded-2xl mb-8 space-y-3">
+                        <div
+                            class="bg-gradient-to-br from-slate-50 to-white border border-slate-200 p-6 rounded-2xl mb-8 space-y-3 shadow-sm">
                             <div class="flex justify-between text-sm text-slate-600">
                                 <span>Subtotal de Servicios:</span>
-                                <span class="font-medium">{{ cotizacionBorrador()!.subtotal | currency:'MXN':'symbol-narrow':'1.0-0' }}</span>
+                                <span class="font-medium">${{ cotizacionBorrador()!.subtotal | number:'1.2-2' }}</span>
                             </div>
                             @if (cotizacionBorrador()!.descuento_total > 0) {
                             <div class="flex justify-between text-sm text-emerald-600">
                                 <span>Descuentos Totales:</span>
-                                <span class="font-medium">-{{ cotizacionBorrador()!.descuento_total | currency:'MXN':'symbol-narrow':'1.0-0'
+                                <span class="font-medium">-${{ cotizacionBorrador()!.descuento_total | number:'1.2-2'
                                     }}</span>
                             </div>
                             }
                             <div
                                 class="flex justify-between text-lg font-black text-slate-900 pt-3 border-t border-slate-200">
                                 <span>Total Oficial:</span>
-                                <span class="text-primary">{{ cotizacionBorrador()!.monto_total | currency:'MXN':'symbol-narrow':'1.0-0'
+                                <span class="text-primary">${{ cotizacionBorrador()!.monto_total | number:'1.2-2'
                                     }}</span>
                             </div>
                         </div>
 
                         <!-- Esquema de Pagos -->
-                        <h3
-                            class="font-bold text-slate-700 mb-4 pb-2 border-b border-slate-100 uppercase text-xs tracking-wider">
-                            Esquema de Pago Acordado</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="border border-blue-100 bg-blue-50/50 p-5 rounded-2xl relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-3 opacity-20">
-                                    <span class="material-symbols-outlined text-4xl text-blue-500">payments</span>
-                                </div>
-                                <p class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">Pago Inicial
-                                    (Anticipo)</p>
-                                <p class="text-3xl font-black text-blue-900">{{ cotizacionBorrador()!.monto_anticipo |
-                                    currency:'MXN' }}</p>
-                                <p class="text-sm text-blue-600 mt-2 font-medium">Requerido para reservar el evento</p>
+                        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                            <div class="bg-slate-50 p-4 border-b border-slate-100 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary">payments</span>
+                                <h3 class="font-bold text-slate-800 m-0">Esquema de Pago Acordado</h3>
                             </div>
-
-                            <div class="border border-slate-200 bg-slate-50 p-5 rounded-2xl relative overflow-hidden">
-                                <div class="absolute top-0 right-0 p-3 opacity-10">
-                                    <span
-                                        class="material-symbols-outlined text-4xl text-slate-500">account_balance_wallet</span>
+                            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div
+                                    class="border border-blue-100 bg-blue-50/50 p-5 rounded-2xl relative overflow-hidden transition-all hover:shadow-md">
+                                    <div class="absolute top-0 right-0 p-3 opacity-20">
+                                        <span class="material-symbols-outlined text-4xl text-blue-500">payments</span>
+                                    </div>
+                                    <p class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">Pago
+                                        Inicial (Anticipo)</p>
+                                    <p class="text-3xl font-black text-blue-900">${{
+                                        cotizacionBorrador()!.monto_anticipo | number:'1.2-2' }}</p>
+                                    <p class="text-sm text-blue-600 mt-2 font-medium">Requerido para reservar el evento
+                                    </p>
                                 </div>
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Liquidación
-                                    (Restante)</p>
-                                <p class="text-3xl font-black text-slate-700">{{ cotizacionBorrador()!.monto_liquidacion
-                                    | currency:'MXN':'symbol-narrow':'1.0-0' }}</p>
-                                <p class="text-sm text-slate-500 mt-2 font-medium">Se paga antes de concluir el evento
-                                </p>
+
+                                <div
+                                    class="border border-slate-200 bg-slate-50/50 p-5 rounded-2xl relative overflow-hidden transition-all hover:shadow-md">
+                                    <div class="absolute top-0 right-0 p-3 opacity-10">
+                                        <span
+                                            class="material-symbols-outlined text-4xl text-slate-500">account_balance_wallet</span>
+                                    </div>
+                                    <p class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">
+                                        Liquidación (Restante)</p>
+                                    <p class="text-3xl font-black text-slate-700">${{
+                                        cotizacionBorrador()!.monto_liquidacion | number:'1.2-2' }}</p>
+                                    <p class="text-sm text-slate-500 mt-2 font-medium">Se paga antes de concluir el
+                                        evento</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -312,7 +374,7 @@
                             <p class="text-sm text-slate-600">Procede a pagar el anticipo para confirmar tu reservación.
                             </p>
                         </div>
-                        <button
+                        <button [routerLink]="['/cliente/pago', solicitud()?.id]"
                             class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all">
                             <span class="material-symbols-outlined">credit_card</span>
                             Pagar {{ cotizacionBorrador()!.monto_anticipo | currency:'MXN':'symbol-narrow':'1.0-0' }}
@@ -351,7 +413,8 @@
                                             {{ item.precio_unitario | currency:'MXN':'symbol-narrow':'1.0-0' }}
                                         </td>
                                         <td class="px-8 py-5 text-right text-slate-900 font-bold">
-                                            {{ (item.cantidad * item.precio_unitario) | currency:'MXN':'symbol-narrow':'1.0-0' }}
+                                            {{ (item.cantidad * item.precio_unitario) |
+                                            currency:'MXN':'symbol-narrow':'1.0-0' }}
                                         </td>
                                     </tr>
                                     }
@@ -361,21 +424,25 @@
                     </div>
                     <div class="bg-slate-50 p-8 flex justify-between items-center border-t border-slate-100">
                         <span class="text-slate-500 font-bold uppercase text-xs tracking-widest">Total Estimado</span>
-                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total | currency:'MXN':'symbol-narrow':'1.0-0'
+                        <span class="text-primary text-3xl font-black">{{ solicitud()?.monto_total |
+                            currency:'MXN':'symbol-narrow':'1.0-0'
                             }}</span>
                     </div>
 
                     <!-- Botón de aprobar en la vista de items originales -->
                     @if (solicitud()?.estado === 'pendiente_aprobacion') {
-                    <div class="p-8 bg-emerald-50 border-t border-emerald-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+                    <div
+                        class="p-8 bg-emerald-50 border-t border-emerald-100 flex flex-col md:flex-row gap-4 justify-between items-center">
                         <div>
                             <h4 class="font-bold text-slate-800">¿Todo luce bien?</h4>
-                            <p class="text-sm text-slate-600">Aprueba la solicitud para proceder al pago del anticipo.</p>
+                            <p class="text-sm text-slate-600">Aprueba la solicitud para proceder al pago del anticipo.
+                            </p>
                         </div>
                         <button (click)="aprobarSolicitud()" [disabled]="procesando()"
                             class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-200 flex items-center gap-2 transition-all whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                             @if (procesando()) {
-                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"></div>
+                            <div class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent">
+                            </div>
                             Procesando...
                             } @else {
                             <span class="material-symbols-outlined">check_circle</span>
