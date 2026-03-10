@@ -24,12 +24,8 @@
         width: 80px;
     }
 
-    .sidebar.mini-sidebar .sidebar-logo {
-        padding: 12px 4px;
-    }
-
     .sidebar.mini-sidebar .sidebar-logo img {
-        height: 40px;
+        height: 35px;
     }
 
     .sidebar.mini-sidebar .profile-info {
@@ -41,17 +37,20 @@
     }
 
     .sidebar-logo {
-        padding: 24px;
+        height: 90px;
+        padding: 0 24px;
         display: flex;
         align-items: center;
         justify-content: center;
         border-bottom: 1px solid var(--color-gray-border);
         overflow: hidden;
+        transition: padding 0.3s ease;
     }
 
     .sidebar-logo img {
-        height: 150px;
+        height: 45px;
         object-fit: contain;
+        transition: all 0.3s ease;
     }
 
     .menu-wrapper {
@@ -132,34 +131,39 @@
 
     .sidebar-toggle {
         position: absolute;
-        top: 20px;
-        right: -15px;
-        /* Default position when sidebar is expanded */
-        width: 30px;
-        height: 30px;
+        top: 28px;
+        right: -14px;
+        width: 28px;
+        height: 28px;
         background: white;
-        border: 1px solid var(--color-gray-border);
+        border: 1.5px solid #e2e8f0;
         border-radius: 50%;
         display: flex;
-        align-items: center;
         justify-content: center;
+        align-items: center;
         cursor: pointer;
         z-index: 110;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        /* Change to all to transition right property */
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.25s ease;
+        color: #64748b;
     }
 
-    /* Adjust toggle button position when sidebar is mini */
     .sidebar.mini-sidebar .sidebar-toggle {
-        right: -15px;
-        /* Keep it at -15px from the now 50px wide sidebar */
+        right: -14px;
         transform: translateX(0);
-        /* Ensure it's not moved by the previous transform */
+        margin: 0;
     }
 
     .sidebar-toggle:hover {
-        transform: scale(1.1);
+        transform: scale(1.15);
+        background: #ef4444;
+        border-color: #ef4444;
+        color: white;
+        box-shadow: 0 3px 12px rgba(239, 68, 68, 0.3);
+    }
+    
+    .sidebar-toggle i {
+        font-size: 12px;
     }
 
     /* Responsive Logic */
@@ -186,9 +190,7 @@
     }
 
     @media (min-width: 1101px) and (max-width: 1400px) {
-        .sidebar-toggle {
-            display: none;
-        }
+        /* Sidebar is in mini mode by default, toggle button is still visible now */
     }
 
     /* Bottom Nav (Mobile Only) */
@@ -396,8 +398,9 @@
 
     <!-- Sidebar Desktop/Tablet -->
     <aside *ngIf="showSidebar" class="sidebar" [class.mini-sidebar]="!isSidebarExpanded() || isCompact">
-        <button (click)="toggleSidebar()" class="sidebar-toggle">
-            <span class="material-symbols-outlined">{{ isSidebarExpanded() ? 'chevron_left' : 'chevron_right' }}</span>
+        <!-- Botón para colapsar (Solo en Desktop) -->
+        <button (click)="toggleSidebar()" class="sidebar-toggle hidden lg:flex">
+            <i class="pi" [class.pi-chevron-left]="isSidebarExpanded() && !isCompact" [class.pi-chevron-right]="!isSidebarExpanded() || isCompact"></i>
         </button>
 
         <div class="sidebar-logo">

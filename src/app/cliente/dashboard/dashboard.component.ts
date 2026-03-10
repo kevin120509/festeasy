@@ -1,4 +1,4 @@
-import { Component, signal, inject, OnInit, computed } from '@angular/core';
+import { Component, signal, inject, OnInit, OnDestroy, computed } from '@angular/core';
 import { RouterLink, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
@@ -13,13 +13,16 @@ import { Observable } from 'rxjs';
     templateUrl: './dashboard.html',
     styleUrl: './dashboard.component.css'
 })
-export class ClienteDashboardComponent implements OnInit {
+export class ClienteDashboardComponent implements OnInit, OnDestroy {
     auth = inject(AuthService);
     supabaseData = inject(SupabaseDataService);
 
     router = inject(Router);
 
     items: MenuItem[] | undefined;
+
+    countdownString = signal<string>('00:00:00');
+    private countdownInterval: any;
 
     // Métricas
     metricas = signal({
@@ -104,6 +107,49 @@ export class ClienteDashboardComponent implements OnInit {
             }
         ];
         this.cargarDatos();
+        this.startCountdownTimer();
+    }
+
+    ngOnDestroy(): void {
+        if (this.countdownInterval) {
+            clearInterval(this.countdownInterval);
+            this.countdownInterval = null;
+        }
+    }
+
+    startCountdownTimer() {
+        this.updateCountdown(); // Llamada inicial
+        this.countdownInterval = setInterval(() => {
+            this.updateCountdown();
+        }, 1000);
+    }
+
+    updateCountdown() {
+        const pendientes = this.pendientesRespuesta();
+        if (!pendientes || pendientes.length === 0) {
+            this.countdownString.set('00:00:00');
+            return;
+        }
+
+        const firstRequest = pendientes[0];
+        const createdAt = new Date(firstRequest.creadoEn).getTime();
+        const expirationTime = createdAt + 24 * 60 * 60 * 1000;
+        const now = new Date().getTime();
+        const diff = Math.max(0, expirationTime - now);
+
+        if (diff === 0) {
+            this.countdownString.set('Expirado');
+        } else {
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const hh = hours.toString().padStart(2, '0');
+            const mm = minutes.toString().padStart(2, '0');
+            const ss = seconds.toString().padStart(2, '0');
+
+            this.countdownString.set(`${hh}:${mm}:${ss}`);
+        }
     }
 
     closeQuickRequestModal() {
