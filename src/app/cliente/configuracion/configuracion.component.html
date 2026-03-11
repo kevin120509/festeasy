@@ -91,6 +91,29 @@
           </div>
         </div>
 
+        <!-- IA Opcional -->
+        <div class="mb-8 p-6 bg-slate-50 rounded-2xl border border-slate-100">
+          <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+                <span class="material-symbols-outlined">auto_awesome</span>
+              </div>
+              <div>
+                <h3 class="font-black text-slate-800">FestEasy AI Assistant</h3>
+                <p class="text-xs text-slate-500 font-medium">Activa el asistente inteligente para ayudarte a planear
+                  tus eventos.</p>
+              </div>
+            </div>
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input type="checkbox" [checked]="formData().permitir_ia"
+                (change)="updateField('permitir_ia', $any($event.target).checked)" class="sr-only peer">
+              <div
+                class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500">
+              </div>
+            </label>
+          </div>
+        </div>
+
         <div class="flex justify-end">
           <button (click)="saveProfile()" [disabled]="saving()"
             class="bg-primary text-white px-8 py-4 rounded-2xl font-black shadow-lg shadow-red-200 hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center gap-2">

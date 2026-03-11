@@ -28,6 +28,7 @@ export interface ClientProfile {
     nombre_completo: string;
     telefono?: string;
     avatar_url?: string;
+    permitir_ia?: boolean;
     creado_en: string;
 }
 

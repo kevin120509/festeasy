@@ -1,6 +1,6 @@
 <div class="dashboard-content">
-    <!-- Modal de Solicitud Rápida -->
-    @if (showQuickRequestModal()) {
+    <!-- Modal de Solicitud Rápida (Solo si la IA está permitida en configuración) -->
+    @if (showQuickRequestModal() && auth.currentUser()?.permitir_ia) {
     <div class="modal-overlay">
         <div class="modal-card">
             <!-- Botón Cerrar (X) -->

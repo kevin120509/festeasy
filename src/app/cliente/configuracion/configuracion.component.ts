@@ -32,7 +32,8 @@ export class ClienteConfiguracionComponent implements OnInit {
     formData = signal({
         nombre_completo: '',
         telefono: '',
-        avatar_url: ''
+        avatar_url: '',
+        permitir_ia: false
     });
 
     ngOnInit() {
@@ -55,7 +56,8 @@ export class ClienteConfiguracionComponent implements OnInit {
                 this.formData.set({
                     nombre_completo: profile.nombre_completo || '',
                     telefono: profile.telefono || '',
-                    avatar_url: profile.avatar_url || ''
+                    avatar_url: profile.avatar_url || '',
+                    permitir_ia: profile.permitir_ia ?? false
                 });
                 this.loading.set(false);
             },
