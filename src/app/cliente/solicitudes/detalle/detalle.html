@@ -55,19 +55,7 @@
                     'bg-indigo-100 text-indigo-700': solicitud()?.estado === 'esperando_confirmacion_cliente',
                     'bg-red-100 text-red-700': solicitud()?.estado === 'rechazada' || solicitud()?.estado === 'cancelada'
                 }">
-                    @switch (solicitud()?.estado) {
-                    @case ('pendiente_aprobacion') { Pendiente de Aprobación }
-                    @case ('en_negociacion') { En Negociación }
-                    @case ('esperando_confirmacion_cliente') { Requiere tu Acción }
-                    @case ('esperando_anticipo') { Listo para Pagar }
-                    @case ('reservado') { Reservado }
-                    @case ('en_progreso') { En Progreso }
-                    @case ('entregado_pendiente_liq') { Por Liquidar }
-                    @case ('finalizado') { ✓ Finalizado }
-                    @case ('rechazada') { Rechazada }
-                    @case ('cancelada') { Cancelada }
-                    @default { {{ solicitud()?.estado }} }
-                    }
+                    {{ getStatusLabel(solicitud()?.estado) }}
                 </span>
                 }
             </div>
@@ -378,6 +366,20 @@
                             class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all">
                             <span class="material-symbols-outlined">credit_card</span>
                             Pagar {{ cotizacionBorrador()!.monto_anticipo | currency:'MXN':'symbol-narrow':'1.0-0' }}
+                        </button>
+                    </div>
+                    } @else if (solicitud()?.estado === 'entregado_pendiente_liq') {
+                    <div
+                        class="p-8 bg-gradient-to-r from-purple-50 to-blue-50 border-t border-purple-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+                        <div>
+                            <h4 class="font-bold text-slate-800">¡Servicio Entregado!</h4>
+                            <p class="text-sm text-slate-600">El proveedor ha finalizado el servicio. Por favor, realiza el pago de la liquidación final.
+                            </p>
+                        </div>
+                        <button [routerLink]="['/cliente/pago', solicitud()?.id]"
+                            class="px-6 py-3 bg-primary hover:bg-red-700 text-white font-bold rounded-xl shadow-lg flex items-center gap-2 transition-all">
+                            <span class="material-symbols-outlined">payments</span>
+                            Pagar Liquidación {{ (solicitud()?.monto_liquidacion || 0) | currency:'MXN':'symbol-narrow':'1.0-0' }}
                         </button>
                     </div>
                     }

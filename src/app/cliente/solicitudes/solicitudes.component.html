@@ -142,7 +142,7 @@
                         <div class="flex items-center gap-2 shrink-0 ml-3">
                             <span class="inline-flex px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap"
                                 [ngClass]="getStatusBadgeClass(sol.estado)">
-                                {{ sol.estado | titlecase }}
+                                {{ getStatusLabel(sol.estado) }}
                             </span>
 
                             <!-- Action buttons -->

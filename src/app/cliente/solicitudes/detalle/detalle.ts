@@ -112,6 +112,24 @@ export class DetalleComponent implements OnInit {
         });
     }
 
+    getStatusLabel(estado: string | undefined): string {
+        if (!estado) return '';
+        switch (estado) {
+            case 'pendiente_aprobacion': return 'Pendiente de aprobación';
+            case 'en_negociacion': return 'En negociación';
+            case 'esperando_confirmacion_cliente': return 'Esperando tu respuesta';
+            case 'esperando_anticipo': return 'Esperando anticipo';
+            case 'reservado': return 'Reservado';
+            case 'en_progreso': return 'En progreso';
+            case 'entregado_pendiente_liq': return 'Servicio entregado';
+            case 'finalizado': return 'Finalizado';
+            case 'rechazada': return 'Rechazada';
+            case 'cancelada': return 'Cancelada';
+            case 'abandonada': return 'Abandonada';
+            default: return estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+    }
+
     volver(): void {
         this.router.navigate(['/cliente/solicitudes']);
     }

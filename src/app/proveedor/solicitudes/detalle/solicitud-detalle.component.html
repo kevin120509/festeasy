@@ -139,19 +139,7 @@
                     'bg-red-100 text-red-700': solicitud()?.estado === SolicitudEstado.RECHAZADA || solicitud()?.estado === SolicitudEstado.CANCELADA,
                     'bg-gray-100 text-gray-700': solicitud()?.estado !== SolicitudEstado.PENDIENTE_APROBACION && solicitud()?.estado !== SolicitudEstado.ESPERANDO_ANTICIPO && solicitud()?.estado !== SolicitudEstado.RESERVADO && solicitud()?.estado !== SolicitudEstado.EN_PROGRESO && solicitud()?.estado !== SolicitudEstado.ENTREGADO_PENDIENTE_LIQ && solicitud()?.estado !== SolicitudEstado.FINALIZADO && solicitud()?.estado !== SolicitudEstado.RECHAZADA &&  solicitud()?.estado !== SolicitudEstado.CANCELADA && solicitud()?.estado !== 'en_negociacion' && solicitud()?.estado !== 'esperando_confirmacion_cliente'
                 }">
-                    @switch (solicitud()?.estado) {
-                    @case (SolicitudEstado.PENDIENTE_APROBACION) { Pendiente }
-                    @case ('en_negociacion') { Negociando }
-                    @case ('esperando_confirmacion_cliente') { Esperando Respuesta }
-                    @case (SolicitudEstado.ESPERANDO_ANTICIPO) { Esperando Pago }
-                    @case (SolicitudEstado.RESERVADO) { Reservado }
-                    @case (SolicitudEstado.EN_PROGRESO) { En Progreso }
-                    @case (SolicitudEstado.ENTREGADO_PENDIENTE_LIQ) { Por Liquidar }
-                    @case (SolicitudEstado.FINALIZADO) { ✓ Finalizado }
-                    @case (SolicitudEstado.RECHAZADA) { Rechazada }
-                    @case (SolicitudEstado.CANCELADA) { Cancelada }
-                    @default { {{ solicitud()?.estado }} }
-                    }
+                    {{ getStatusLabel(solicitud()?.estado) }}
                 </span>
                 }
             </div>
@@ -282,6 +270,17 @@
                                 <p class="text-slate-700 font-semibold">#{{ solicitud()?.numero_solicitud }}</p>
                             </div>
                         </div>
+                        
+                        <!-- Botón para Registrar Pago Manual (Solo si no está finalizado o rechazado/cancelado) -->
+                        @if (solicitud()?.estado !== SolicitudEstado.FINALIZADO && solicitud()?.estado !== SolicitudEstado.RECHAZADA && solicitud()?.estado !== SolicitudEstado.CANCELADA && solicitud()?.estado !== SolicitudEstado.PENDIENTE_APROBACION) {
+                        <div class="mt-6">
+                            <button (click)="abrirModalPagoManual()"
+                                class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg">
+                                <span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+                                <span>Registrar Pago Manual</span>
+                            </button>
+                        </div>
+                        }
                     </div>
                 </section>
 
@@ -575,4 +574,76 @@
     <app-concluir-servicio [solicitud]="solicitud()" [isOpen]="mostrarModalPin()" (closeModal)="cerrarModalPin()"
         (servicioConcluido)="onServicioConcluido($event)"></app-concluir-servicio>
     }
+
+    <!-- 💳 Modal de Pago Manual -->
+    <p-dialog [(visible)]="mostrarModalPagoManual" [modal]="true" [style]="{width: '450px'}" [draggable]="false"
+        [resizable]="false" [baseZIndex]="10001">
+        <ng-template pTemplate="header">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                    <span class="material-symbols-outlined">payments</span>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800">Registrar Pago Manual</h3>
+            </div>
+        </ng-template>
+
+        <div class="space-y-6 py-4">
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <p class="text-xs text-amber-800 font-medium flex items-start gap-2">
+                    <span class="material-symbols-outlined text-sm">info</span>
+                    <span>Usa esto para registrar pagos recibidos en <b>efectivo</b> o por <b>transferencia directa</b> fuera de la plataforma.</span>
+                </p>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700 uppercase tracking-wider">Tipo de Pago</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button (click)="pagoManual.tipo_pago = 'anticipo'"
+                        [class]="pagoManual.tipo_pago === 'anticipo' ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200'"
+                        class="py-3 px-4 rounded-xl border-2 font-bold text-sm transition-all text-center">
+                        Anticipo
+                    </button>
+                    <button (click)="pagoManual.tipo_pago = 'liquidacion'"
+                        [class]="pagoManual.tipo_pago === 'liquidacion' ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200'"
+                        class="py-3 px-4 rounded-xl border-2 font-bold text-sm transition-all text-center">
+                        Liquidación
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label class="block text-sm font-bold text-slate-700 uppercase tracking-wider">Método de Pago</label>
+                <div class="grid grid-cols-2 gap-3">
+                    <button (click)="pagoManual.metodo_pago = 'efectivo'"
+                        [class]="pagoManual.metodo_pago === 'efectivo' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'"
+                        class="py-3 px-4 rounded-xl border-2 font-bold text-sm transition-all text-center">
+                        Efectivo
+                    </button>
+                    <button (click)="pagoManual.metodo_pago = 'transferencia'"
+                        [class]="pagoManual.metodo_pago === 'transferencia' ? 'bg-slate-800 text-white border-slate-800' : 'bg-white text-slate-600 border-slate-200'"
+                        class="py-3 px-4 rounded-xl border-2 font-bold text-sm transition-all text-center">
+                        Transferencia
+                    </button>
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="montoManual" class="block text-sm font-bold text-slate-700 uppercase tracking-wider">Monto a Registrar (MXN)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
+                    <input id="montoManual" type="number" [(ngModel)]="pagoManual.monto"
+                        class="w-full pl-8 pr-4 py-4 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-primary focus:ring-0 font-bold text-lg text-slate-800 transition-all">
+                </div>
+            </div>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <div class="flex gap-3 justify-end pt-2">
+                <button pButton pRipple label="Cancelar" icon="pi pi-times" (click)="mostrarModalPagoManual.set(false)"
+                    class="p-button-text p-button-secondary"></button>
+                <button pButton pRipple label="Registrar Pago" icon="pi pi-check" (click)="registrarPagoManual()"
+                    class="p-button-primary font-bold px-6" [disabled]="procesando() || pagoManual.monto <= 0"></button>
+            </div>
+        </ng-template>
+    </p-dialog>
 </div>

@@ -194,7 +194,7 @@
             <p-button label="Cancelar" (onClick)="showExpenseDialog.set(false)"
                 styleClass="p-button-text p-button-secondary flex-1 font-bold">
             </p-button>
-            <p-button label="Guardar Gasto" (onClick)="saveExpense()"
+            <p-button label="Guardar Gasto" (onClick)="saveExpense()" [loading]="isSaving()" [disabled]="isSaving()"
                 styleClass="p-button-danger flex-1 font-bold shadow-lg shadow-red-100">
             </p-button>
         </div>

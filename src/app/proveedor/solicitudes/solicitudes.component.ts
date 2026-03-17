@@ -200,6 +200,22 @@ export class SolicitudesComponent implements OnInit {
         return fecha.toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
+    getStatusLabel(estado: string): string {
+        switch (estado) {
+            case 'pendiente_aprobacion': return 'Pendiente';
+            case 'en_negociacion': return 'En Negociación';
+            case 'esperando_anticipo': return 'Esperando Pago';
+            case 'reservado': return 'Reservado';
+            case 'en_progreso': return 'En Progreso';
+            case 'entregado_pendiente_liq': return 'Por Liquidar';
+            case 'finalizado': return 'Finalizado';
+            case 'rechazada': return 'Rechazada';
+            case 'cancelada': return 'Cancelada';
+            case 'abandonada': return 'Abandonada';
+            default: return estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+    }
+
     tiempoDesdeCreacion(fechaStr: string): string {
         if (!fechaStr) return '';
         const fecha = new Date(fechaStr);

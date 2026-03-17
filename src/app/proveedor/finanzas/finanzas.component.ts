@@ -51,6 +51,7 @@ export class FinanzasComponent implements OnInit {
     // Data
     expenses = signal<any[]>([]);
     loading = signal(false);
+    isSaving = signal(false);
 
     // Charts
     chartData: any;
@@ -148,17 +149,30 @@ export class FinanzasComponent implements OnInit {
             return;
         }
 
+        // Bloqueo manual infalible
+        if (this.isSaving()) return;
+        this.isSaving.set(true);
+
         const data = {
             ...this.expenseForm,
             id: this.editingExpense()?.id,
             fecha: this.expenseForm.fecha.toISOString().split('T')[0]
         };
 
+        console.log('📤 Guardando gasto...', data);
+
         this.api.upsertExpense(data).subscribe({
             next: () => {
                 this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Gasto guardado correctamente' });
                 this.showExpenseDialog.set(false);
                 this.loadData();
+                // Liberar bloqueo solo después de cerrar y recargar
+                setTimeout(() => this.isSaving.set(false), 500);
+            },
+            error: (err) => {
+                console.error('Error guardando gasto:', err);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo guardar el gasto' });
+                this.isSaving.set(false);
             }
         });
     }

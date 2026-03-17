@@ -234,7 +234,7 @@ export class PagoComponent implements OnInit, AfterViewInit {
                 cliente_usuario_id: this.solicitud().cliente_usuario_id,
                 proveedor_usuario_id: this.solicitud().proveedor_usuario_id,
                 monto: this.montoPagar(),
-                metodo_pago: 'transferencia', // Assuming all online payments are electronic transfers
+                metodo_pago: (metodo === 'paypal' || metodo === 'stripe') ? metodo : 'transferencia',
                 estado: 'aprobado',
                 solicitud_id: id,
                 id_transaccion_externa: referencia,
@@ -249,9 +249,11 @@ export class PagoComponent implements OnInit, AfterViewInit {
             this.showSuccessModal.set(true);
 
         } catch (error: any) {
-            console.error('Error finalizando pago:', error);
+            console.error('Error finalizando pago:');
+            console.dir(error);
             let errorMsg = 'Hubo un error al confirmar el pago en nuestro sistema.';
             if (error.message) errorMsg += `\nDetalle: ${error.message}`;
+            if (error.code) errorMsg += ` (Código: ${error.code})`;
             alert(errorMsg);
         } finally {
             this.procesando.set(false);

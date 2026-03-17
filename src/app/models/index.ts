@@ -202,7 +202,7 @@ export interface Payment {
     cliente_usuario_id: string;
     proveedor_usuario_id: string;
     monto: number;
-    metodo_pago: 'transferencia' | 'efectivo' | 'deposito_oxxo';
+    metodo_pago: 'transferencia' | 'efectivo' | 'deposito_oxxo' | 'paypal' | 'stripe';
     comprobante_url?: string;
     estado: 'esperando_comprobante' | 'en_revision' | 'aprobado' | 'rechazado';
     motivo_rechazo?: string;

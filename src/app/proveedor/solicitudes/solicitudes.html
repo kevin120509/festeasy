@@ -148,17 +148,7 @@
                 'bg-red-100 text-red-700': solicitud.estado === 'rechazada' || solicitud.estado === 'cancelada',
                 'bg-slate-100 text-slate-700': solicitud.estado === 'finalizado'
               }" class="px-3 py-1 rounded-full text-xs font-semibold w-fit lg:w-auto">
-                @switch (solicitud.estado) {
-                @case ('pendiente_aprobacion') { Pendiente }
-                @case ('esperando_anticipo') { Esperando Pago }
-                @case ('reservado') { Reservado }
-                @case ('en_progreso') { En Progreso }
-                @case ('entregado_pendiente_liq') { Por Liquidar }
-                @case ('rechazada') { Rechazada }
-                @case ('cancelada') { Cancelada }
-                @case ('finalizado') { Finalizado }
-                @default { {{ solicitud.estado }} }
-                }
+                {{ getStatusLabel(solicitud.estado) }}
               </span>
             </div>
             <div>

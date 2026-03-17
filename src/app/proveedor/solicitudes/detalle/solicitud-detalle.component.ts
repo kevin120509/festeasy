@@ -53,6 +53,14 @@ export class SolicitudDetalleComponent implements OnInit {
     
     tiempoRestanteNegociacion = signal<string | null>(null);
     private timerInterval: any;
+    
+    // 💳 Control del diálogo de Pago Manual
+    mostrarModalPagoManual = signal(false);
+    pagoManual = {
+        monto: 0,
+        metodo_pago: 'efectivo' as 'efectivo' | 'transferencia',
+        tipo_pago: 'anticipo' as 'anticipo' | 'liquidacion'
+    };
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');
@@ -137,6 +145,24 @@ export class SolicitudDetalleComponent implements OnInit {
             month: 'long',
             year: 'numeric'
         });
+    }
+
+    getStatusLabel(estado: string | undefined): string {
+        if (!estado) return '';
+        switch (estado) {
+            case 'pendiente_aprobacion': return 'Pendiente';
+            case 'en_negociacion': return 'En Negociación';
+            case 'esperando_confirmacion_cliente': return 'Esperando Respuesta';
+            case 'esperando_anticipo': return 'Esperando Pago';
+            case 'reservado': return 'Reservado';
+            case 'en_progreso': return 'En Progreso';
+            case 'entregado_pendiente_liq': return 'Por Liquidar';
+            case 'finalizado': return 'Finalizado';
+            case 'rechazada': return 'Rechazada';
+            case 'cancelada': return 'Cancelada';
+            case 'abandonada': return 'Abandonada';
+            default: return estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
     }
 
     getHora(): string {
@@ -449,5 +475,67 @@ export class SolicitudDetalleComponent implements OnInit {
         this.displayCancelDialog = false;
         this.motivoTemporal = '';
         this.solicitudACancelar = null;
+    }
+
+    /**
+     * 💳 PAGO MANUAL
+     */
+    abrirModalPagoManual(): void {
+        const sol = this.solicitud();
+        if (!sol) return;
+
+        // Pre-configurar según estado
+        if (sol.estado === 'entregado_pendiente_liq') {
+            this.pagoManual.tipo_pago = 'liquidacion';
+            this.pagoManual.monto = sol.monto_liquidacion || 0;
+        } else {
+            this.pagoManual.tipo_pago = 'anticipo';
+            this.pagoManual.monto = sol.monto_anticipo || 0;
+        }
+        
+        this.mostrarModalPagoManual.set(true);
+    }
+
+    registrarPagoManual(): void {
+        const sol = this.solicitud();
+        if (!sol || this.procesando()) return;
+
+        this.procesando.set(true);
+        const payload = {
+            cliente_usuario_id: sol.cliente_usuario_id,
+            proveedor_usuario_id: sol.proveedor_usuario_id,
+            monto: this.pagoManual.monto,
+            metodo_pago: this.pagoManual.metodo_pago,
+            estado: 'aprobado',
+            solicitud_id: sol.id,
+            tipo_pago: this.pagoManual.tipo_pago,
+            id_transaccion_externa: 'MANUAL-' + Date.now()
+        };
+
+        this.api.createPago(payload).subscribe({
+            next: () => {
+                // Actualizar estado de la solicitud
+                const nuevoEstado = this.pagoManual.tipo_pago === 'anticipo' ? 'reservado' : 'finalizado';
+                this.api.updateSolicitudEstado(sol.id, nuevoEstado).subscribe({
+                    next: () => {
+                        this.mensajeExito.set('Pago registrado y estado actualizado correctamente');
+                        setTimeout(() => this.mensajeExito.set(''), 3000);
+                        this.mostrarModalPagoManual.set(false);
+                        this.refrescarDatos();
+                        this.procesando.set(false);
+                    },
+                    error: (err) => {
+                        console.error('Error actualizando estado tras pago manual:', err);
+                        this.mensajeError.set('Pago registrado pero no se pudo actualizar el estado');
+                        this.procesando.set(false);
+                    }
+                });
+            },
+            error: (err) => {
+                console.error('Error registrando pago manual:', err);
+                this.mensajeError.set('No se pudo registrar el pago manual');
+                this.procesando.set(false);
+            }
+        });
     }
 }

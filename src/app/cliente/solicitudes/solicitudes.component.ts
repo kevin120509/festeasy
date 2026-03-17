@@ -111,6 +111,22 @@ export class MisSolicitudesComponent implements OnInit {
         }
     }
 
+    getStatusLabel(estado: string): string {
+        switch (estado) {
+            case 'pendiente_aprobacion': return 'Pendiente de aprobación';
+            case 'en_negociacion': return 'En negociación';
+            case 'esperando_anticipo': return 'Esperando anticipo';
+            case 'reservado': return 'Reservado';
+            case 'en_progreso': return 'En progreso';
+            case 'entregado_pendiente_liq': return 'Servicio entregado';
+            case 'finalizado': return 'Finalizado';
+            case 'rechazada': return 'Rechazada';
+            case 'cancelada': return 'Cancelada';
+            case 'abandonada': return 'Abandonada';
+            default: return estado.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        }
+    }
+
     async eliminarSolicitud(id: string) {
         this.confirmationService.confirm({
             message: '¿Estás seguro de que deseas eliminar esta solicitud permanentemente? Esta acción no se puede deshacer.',
