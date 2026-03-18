@@ -131,6 +131,17 @@
                 </div>
             </div>
 
+            <!-- STEP: CONFIRMACIÓN FINAL (FALLBACK) -->
+            <div *ngIf="getPasoActual() === 'confirmar'" class="space-y-6 animate-in slide-in-from-right duration-300">
+                <div class="text-center">
+                    <div class="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-4">
+                        <span class="material-icons-outlined text-4xl text-emerald-500">task_alt</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-slate-800 dark:text-white">Confirmar Entrega</h4>
+                    <p class="text-sm text-slate-500 mt-2">¿Estás listo para marcar este servicio como entregado? No se requiere evidencia adicional según tu configuración.</p>
+                </div>
+            </div>
+
             <!-- Error Message -->
             <p *ngIf="errorMessage()"
                 class="mt-4 text-xs font-bold text-red-500 text-center flex items-center justify-center gap-1">

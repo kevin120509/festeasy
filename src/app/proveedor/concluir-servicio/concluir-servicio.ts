@@ -55,18 +55,27 @@ export class ConcluirServicioComponent implements AfterViewInit {
         if (!this.solicitud?.provider) return;
 
         const config = this.solicitud.provider.ajustes_entrega_json;
-        const newSteps: string[] = [];
+        const pasos: string[] = [];
 
-        if (config?.requiere_foto ?? true) newSteps.push('foto');
-        if (config?.requiere_firma_proveedor ?? false) newSteps.push('firma_prov');
-        if (config?.requiere_firma_cliente ?? true) newSteps.push('firma_clie');
-        if (config?.requiere_pin ?? true) newSteps.push('pin');
+        const req_foto = config?.requiere_foto ?? true;
+        const req_firma_prov = config?.requiere_firma_proveedor ?? false;
+        const req_firma_clie = config?.requiere_firma_cliente ?? true;
+        const req_pin = config?.requiere_pin ?? true;
 
-        // Si no hay nada seleccionado, al menos PIN por defecto para seguridad? 
-        // No, respetamos la elección o ponemos un fallback mínimo
-        if (newSteps.length === 0) newSteps.push('pin');
+        if (req_foto) pasos.push('foto');
+        if (req_firma_prov) pasos.push('firma_prov');
+        if (req_firma_clie) pasos.push('firma_clie');
+        if (req_pin) pasos.push('pin');
 
-        this.steps.set(newSteps);
+        // Si no hay ningún paso técnico configurado, añadimos uno de confirmación simple
+        // para que el modal no esté vacío y permita finalizar.
+        if (pasos.length === 0) {
+            pasos.push('confirmar');
+        }
+
+        this.steps.set(pasos);
+        this.pasoActualIndex.set(0);
+        console.log('🏁 Pasos configurados para la entrega:', pasos);
     }
 
     getPasoActual() {

@@ -468,22 +468,24 @@
                     </div>
                 </section>
 
-                <!-- Acciones Especiales (PIN siempre activo) -->
-                @if (solicitud()?.estado === SolicitudEstado.RESERVADO) {
+                <!-- Acciones Especiales (Dinámico según configuración) -->
+                @if (solicitud()?.estado === SolicitudEstado.RESERVADO || solicitud()?.estado === SolicitudEstado.EN_PROGRESO) {
                 <div class="bg-amber-50 rounded-3xl p-6 border border-amber-200">
                     <p class="text-amber-800 text-sm font-bold mb-4 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-lg">key</span>
-                        Validación de Seguridad
+                        <span class="material-symbols-outlined text-lg">{{ getConcluirIcon() }}</span>
+                        {{ solicitud()?.provider?.ajustes_entrega_json?.requiere_pin ? 'Validación de Seguridad' : 'Finalización de Servicio' }}
                     </p>
-
+                    
                     <button (click)="abrirModalPin()"
                         class="w-full py-4 bg-red-600 hover:bg-red-700 shadow-lg shadow-red-100 text-white font-bold rounded-2xl flex items-center justify-center gap-2 transition-all mb-4">
-                        <span class="material-symbols-outlined">verified_user</span>
-                        <span>Validar PIN del Cliente</span>
+                        <span class="material-symbols-outlined">{{ getConcluirIcon() }}</span>
+                        <span>{{ getConcluirLabel() }}</span>
                     </button>
 
                     <p class="text-amber-700 text-[10px] leading-relaxed text-center font-bold">
-                        Solicita el PIN al cliente para confirmar la entrega del servicio.
+                        {{ solicitud()?.provider?.ajustes_entrega_json?.requiere_pin 
+                            ? 'Solicita el PIN al cliente para confirmar la entrega del servicio.' 
+                            : 'Registra la evidencia de entrega para finalizar este servicio.' }}
                     </p>
                 </div>
                 }

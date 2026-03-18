@@ -236,6 +236,20 @@ export class SolicitudDetalleComponent implements OnInit {
         this.cerrarModalPin();
     }
 
+    getConcluirIcon(): string {
+        const config = this.solicitud()?.provider?.ajustes_entrega_json;
+        if (config?.requiere_pin) return 'verified_user';
+        if (config?.requiere_foto) return 'photo_camera';
+        if (config?.requiere_firma_cliente || config?.requiere_firma_proveedor) return 'draw';
+        return 'task_alt';
+    }
+
+    getConcluirLabel(): string {
+        const config = this.solicitud()?.provider?.ajustes_entrega_json;
+        if (config?.requiere_pin) return 'Validar PIN del Cliente';
+        return 'Concluir Entrega';
+    }
+
     esDiaDelEvento(fecha: string | undefined): boolean {
         if (!fecha) return false;
         return esDiaDelEvento(fecha);
