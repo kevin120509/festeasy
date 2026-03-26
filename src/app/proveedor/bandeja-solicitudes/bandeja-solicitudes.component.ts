@@ -237,7 +237,7 @@ export class BandejaSolicitudesComponent implements OnInit {
             icon: 'pi pi-exclamation-circle',
             acceptLabel: 'Sí, rechazar',
             rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-danger p-button-sm px-4',
+            acceptButtonStyleClass: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 text-[10px] rounded-lg px-4',
             rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
             accept: () => {
                 this.procesando.set(solicitud.id);
@@ -269,7 +269,7 @@ export class BandejaSolicitudesComponent implements OnInit {
             icon: 'pi pi-trash',
             acceptLabel: 'Eliminar',
             rejectLabel: 'Conservar',
-            acceptButtonStyleClass: 'p-button-danger p-button-sm px-4',
+            acceptButtonStyleClass: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 text-[10px] rounded-lg px-4',
             rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
             accept: () => {
                 this.procesando.set(solicitud.id);

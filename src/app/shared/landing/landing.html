@@ -9,7 +9,7 @@
 <!-- Navbar -->
 <header class="navbar-custom" id="mainHeader" [class.scrolled]="isScrolled" [class.hidden-nav]="!isNavbarVisible">
   <div class="logo-container">
-    <video src="assets/festeasy.mp4" class="navbar-logo-custom cursor-pointer" (click)="toggleVideo($event)" loop muted
+    <video src="assets/festeasy_video.mp4" class="navbar-logo-custom cursor-pointer" (click)="toggleVideo($event)" loop muted
       playsinline title="Click para reproducir con sonido"></video>
   </div>
 
@@ -60,7 +60,7 @@
           Quiero ser proveedor
         </a>
         <a routerLink="/cliente/registro"
-          class="btn btn-outline text-white border-white hover:bg-white hover:text-red-600 text-lg px-8 py-3">
+          class="btn btn-outline text-white border-white hover:bg-white hover:text-[#523576] text-lg px-8 py-3">
           Quiero ser usuario
         </a>
       </div>
@@ -248,14 +248,14 @@
 
         <ul class="space-y-4 my-8">
           <li *ngFor="let feature of plan.features" class="flex items-center gap-3">
-            <span class="material-symbols-outlined text-red-600 scale-90">check_circle</span>
+            <span class="material-symbols-outlined text-[#523576] scale-90">check_circle</span>
             <span class="text-gray-600 text-[15px] font-medium">{{ feature }}</span>
           </li>
         </ul>
 
         <a routerLink="/proveedor/registro"
           class="btn w-full text-center py-4 rounded-2xl font-bold transition-all transform active:scale-95"
-          [ngClass]="plan.featured ? 'btn-primary shadow-xl shadow-red-200' : 'btn-outline border-2'">
+          [ngClass]="plan.featured ? 'btn-primary shadow-xl shadow-[#906BBD]/20' : 'btn-outline border-2'">
           Activar ahora
         </a>
       </div>
@@ -272,17 +272,17 @@
 <footer class="footer-custom">
   <div class="footer-grid">
     <div class="animado" data-anim="fadeUp">
-      <img src="assets/logo-festeasy.png" alt="FestEasy"
+      <img src="assets/fetseasy_logo_imagen.png" alt="FestEasy"
         style="height: 30px; margin-bottom: 1.5rem; filter: grayscale(100%); opacity: 0.7" />
       <p class="text-gray-500 mb-6 max-w-sm">
         Transformando la industria de eventos en Latinoamérica con tecnología y confianza.
       </p>
       <div class="flex gap-4">
-        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i
+        <a href="#" class="text-gray-400 hover:text-[#523576] transition-colors"><i
             class="pi pi-facebook text-xl"></i></a>
-        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i
+        <a href="#" class="text-gray-400 hover:text-[#523576] transition-colors"><i
             class="pi pi-instagram text-xl"></i></a>
-        <a href="#" class="text-gray-400 hover:text-red-600 transition-colors"><i class="pi pi-twitter text-xl"></i></a>
+        <a href="#" class="text-gray-400 hover:text-[#523576] transition-colors"><i class="pi pi-twitter text-xl"></i></a>
       </div>
     </div>
 

@@ -18,8 +18,8 @@
 }
 
 .sidebar-item-active {
-    background-color: rgba(255, 59, 48, 0.1);
-    color: #FF3B30;
+    background-color: rgba(82, 53, 118, 0.1);
+    color: #523576;
 }
 
 .avatar-preview {
@@ -62,7 +62,7 @@
 
 .btn-location {
     padding: 12px;
-    background: #FF3B30;
+    background: #523576;
     color: white;
     border: none;
     border-radius: 8px;

@@ -393,7 +393,7 @@ export class ProveedorDashboardComponent implements OnInit {
             'en_progreso': 'bg-blue-50 text-blue-600 border border-blue-100',
             'entregado_pendiente_liq': 'bg-purple-50 text-purple-600 border border-purple-100',
             'finalizado': 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-            'rechazada': 'bg-red-50 text-red-600 border border-red-100',
+            'rechazada': 'bg-[#523576] text-white border border-transparent',
             'cancelada': 'bg-slate-100 text-slate-600 border border-slate-200',
             'pendiente': 'bg-yellow-50 text-yellow-600 border border-yellow-100',
             'aprobado': 'bg-teal-50 text-teal-600 border border-teal-100'

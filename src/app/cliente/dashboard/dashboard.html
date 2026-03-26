@@ -37,7 +37,7 @@
             <p>Gestiona tus eventos y solicitudes desde aquí.</p>
         </div>
         <a routerLink="/cliente/solicitudes/crear"
-            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-200 hover:shadow-red-300 transition-all hover:scale-105">
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white bg-gradient-to-r from-[#3a2653] to-[#523576] hover:from-[#3a2653] hover:to-[#523576] shadow-lg shadow-red-200 hover:shadow-red-300 transition-all hover:scale-105">
             <span class="material-symbols-outlined text-[18px]">add</span>
             Pedir Servicio
         </a>
@@ -45,7 +45,7 @@
 
     <!-- Banner de Cuenta Regresiva (Ejemplo) -->
     @if (pendientesRespuesta().length > 0) {
-    <div [routerLink]="['/cliente/solicitudes', pendientesRespuesta()[0].id]" class="bg-red-500 rounded-2xl text-white p-4 flex items-center justify-between shadow-lg shadow-red-200 mb-6 cursor-pointer hover:bg-red-600 transition-colors">
+    <div [routerLink]="['/cliente/solicitudes', pendientesRespuesta()[0].id]" class="bg-[#523576] rounded-2xl text-white p-4 flex items-center justify-between shadow-lg shadow-[#523576]/20 mb-6 cursor-pointer hover:bg-[#3a2653] transition-colors">
         <div class="flex items-center gap-3 w-full">
             <div class="w-12 h-12 rounded-full bg-white/20 flex items-center justify-center shrink-0">
                 <span class="material-symbols-outlined text-white">hourglass_empty</span>
@@ -55,7 +55,7 @@
                 <p class="text-white/80 text-sm truncate">Evento - {{ pendientesRespuesta()[0].servicio }}</p>
             </div>
             <div class="bg-white rounded-xl py-2 px-3 text-center shrink-0">
-                <span class="block text-red-600 font-bold text-lg leading-none">{{ countdownString() }}</span>
+                <span class="block text-[#523576] font-bold text-lg leading-none">{{ countdownString() }}</span>
                 <span class="block text-slate-400 text-[10px] mt-1">restante</span>
             </div>
         </div>
@@ -173,12 +173,12 @@
                         <div class="flex items-center gap-2 mt-0.5">
                             <span class="text-[11px] text-slate-400">{{ act.proveedor }}</span>
                             <span class="text-slate-200">·</span>
-                            <span class="text-[11px] font-bold text-red-500">${{ act.monto.toLocaleString() }}</span>
+                            <span class="text-[11px] font-bold text-[#523576]">${{ act.monto.toLocaleString() }}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 shrink-0 ml-2">
                         <a [routerLink]="['/cliente/pago', act.id]" (click)="$event.stopPropagation()"
-                            class="inline-flex px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap bg-red-500 text-white hover:bg-red-600 transition-colors">
+                            class="inline-flex px-3 py-1.5 rounded-full text-[10px] font-bold whitespace-nowrap bg-[#523576] text-white hover:bg-[#3a2653]">
                             Pagar
                         </a>
                         <span class="material-symbols-outlined text-slate-300 text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">chevron_right</span>

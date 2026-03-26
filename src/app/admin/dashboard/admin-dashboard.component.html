@@ -4,8 +4,8 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="w-40 h-16 bg-white rounded-2xl flex items-center justify-center p-2">
-                        <img src="assets/festeasy.png" alt="FestEasy" class="h-10 w-auto">
+                    <div class="w-56 h-20 bg-white rounded-2xl flex items-center justify-center p-2">
+                        <img src="assets/fetseasy_logo_imagen.png" alt="FestEasy" class="h-14 w-auto">
                     </div>
                     <div>
                         <h1 class="text-xl font-bold text-gray-900 dark:text-white">Panel de Administración</h1>
@@ -178,7 +178,7 @@
                     @for (actividad of actividadReciente(); track actividad.mensaje) {
                     <div
                         class="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                        <div [class]="actividad.tipo === 'pago' ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'"
+                        <div [class]="actividad.tipo === 'pago' ? 'bg-green-100 text-green-600' : 'bg-[#F5F3FF] text-[#523576]'"
                             class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
                             <span class="material-symbols-outlined">{{ actividad.icono }}</span>
                         </div>

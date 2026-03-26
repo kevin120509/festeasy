@@ -82,7 +82,7 @@ export class InventarioComponent implements OnInit {
     }
 
     getEstadoStock(stock: number) {
-        if (stock === 0) return { label: 'SIN STOCK', class: 'bg-red-50 text-red-600 border-red-100' };
+        if (stock === 0) return { label: 'SIN STOCK', class: 'bg-[#523576] text-white border-transparent' };
         if (stock < 5) return { label: 'STOCK BAJO', class: 'bg-orange-50 text-orange-600 border-orange-100' };
         return { label: 'STOCK ALTO', class: 'bg-emerald-50 text-emerald-600 border-emerald-100' };
     }

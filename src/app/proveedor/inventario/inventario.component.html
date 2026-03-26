@@ -6,29 +6,29 @@
             <p class="text-slate-500 mt-1">Supervise y edite sus productos de FestEasy en tiempo real.</p>
         </div>
         <button pButton pRipple label="Agregar Producto" icon="pi pi-plus" (click)="abrirDialogo()"
-            class="p-button-danger rounded-xl px-6 py-3 shadow-lg shadow-red-100 font-semibold">
+            class="!bg-[#523576] hover:!bg-[#3a2653] text-white rounded-xl px-6 py-3 shadow-lg shadow-purple-100 font-semibold transition-all">
         </button>
     </div>
 
     <!-- Filters Section -->
     <div class="flex items-center gap-2 mb-8 border-b border-slate-100 pb-1 overflow-x-auto">
         <button (click)="setFiltro('todos')"
-            [class]="'px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ' + (filtroActual() === 'todos' ? 'text-red-500 border-b-2 border-red-500' : 'text-slate-500 hover:text-slate-700')">
+            [class]="'px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ' + (filtroActual() === 'todos' ? 'text-[#523576] border-b-2 border-[#523576]' : 'text-slate-500 hover:text-slate-700')">
             Todos los productos
         </button>
         <button (click)="setFiltro('bajo')"
-            [class]="'px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ' + (filtroActual() === 'bajo' ? 'text-red-500 border-b-2 border-red-500' : 'text-slate-500 hover:text-slate-700')">
+            [class]="'px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ' + (filtroActual() === 'bajo' ? 'text-[#523576] border-b-2 border-[#523576]' : 'text-slate-500 hover:text-slate-700')">
             Stock bajo
         </button>
         <button (click)="setFiltro('agotado')"
-            [class]="'px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ' + (filtroActual() === 'agotado' ? 'text-red-500 border-b-2 border-red-500' : 'text-slate-500 hover:text-slate-700')">
+            [class]="'px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ' + (filtroActual() === 'agotado' ? 'text-[#523576] border-b-2 border-[#523576]' : 'text-slate-500 hover:text-slate-700')">
             Sin stock
         </button>
     </div>
 
     <!-- Main Content -->
     <div *ngIf="isLoading()" class="flex flex-col items-center justify-center py-20">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#523576]"></div>
         <p class="text-slate-500 mt-4">Cargando inventario...</p>
     </div>
 
@@ -73,7 +73,7 @@
                                 class="p-button-rounded p-button-text text-blue-500 hover:bg-blue-50">
                             </button>
                             <button pButton pRipple icon="pi pi-trash" (click)="eliminarProducto(p.id)"
-                                class="p-button-rounded p-button-text text-red-500 hover:bg-red-50">
+                                class="p-button-rounded p-button-text text-[#523576] hover:bg-[#F5F3FF]">
                             </button>
                         </div>
                     </td>

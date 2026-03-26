@@ -32,11 +32,11 @@ import { MenuItem } from 'primeng/api';
       color: #334155 !important;
     }
     :host ::ng-deep .p-menuitem-link:hover {
-      background: #fee2e2 !important;
-      color: #ef4444 !important;
+      background: #f5f3ff !important;
+      color: #523576 !important;
     }
     :host ::ng-deep .p-menuitem-link:hover .p-menuitem-icon {
-      color: #ef4444 !important;
+      color: #523576 !important;
     }
     :host ::ng-deep .p-menuitem-icon {
       margin-right: 12px !important;

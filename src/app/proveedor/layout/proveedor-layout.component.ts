@@ -134,7 +134,7 @@ export class ProveedorLayoutComponent implements OnInit, OnDestroy {
       acceptLabel: 'Sí, Salir',
       acceptButtonProps: {
         label: 'Sí, Salir',
-        severity: 'danger'
+        class: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 rounded-lg'
       },
       accept: () => {
         this.auth.logout();

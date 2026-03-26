@@ -359,7 +359,7 @@ export class SolicitudDetalleComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Sí, rechazar',
             rejectLabel: 'No, mantener',
-            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            acceptButtonStyleClass: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 text-xs rounded-lg',
             rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
             accept: () => {
                 this.procesando.set(true);

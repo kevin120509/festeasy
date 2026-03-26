@@ -31,7 +31,7 @@
             <!-- Feedback Text -->
             <p class="rating-feedback" *ngIf="puntuacionActual() > 0">
                 @switch (puntuacionActual()) {
-                @case (1) { <span class="text-red-500">😞 Necesita mejorar</span> }
+                @case (1) { <span class="text-[#523576]">😞 Necesita mejorar</span> }
                 @case (2) { <span class="text-orange-500">🙁 Podría ser mejor</span> }
                 @case (3) { <span class="text-yellow-500">😐 Aceptable</span> }
                 @case (4) { <span class="text-blue-500">😊 Muy bueno</span> }

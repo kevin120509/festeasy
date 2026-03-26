@@ -21,16 +21,17 @@ button:active {
     transform: scale(0.95);
 }
 
+:deep(.p-button.bg-\[\#523576\]) {
+    background-color: #523576 !important;
+    border: none !important;
+    color: white !important;
+}
+
+:deep(.p-button.bg-\[\#523576\]:hover) {
+    background-color: #3a2653 !important;
+}
+
 /* PrimeNG Button Customization */
-:deep(.p-button.p-button-danger) {
-    background: #ff3b30;
-    border: none;
-}
-
-:deep(.p-button.p-button-danger:hover) {
-    background: #e6352b;
-}
-
 :deep(.p-button.p-button-text.p-button-secondary) {
     color: #64748b;
 }

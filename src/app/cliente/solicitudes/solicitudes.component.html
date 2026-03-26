@@ -20,7 +20,7 @@
                     <p class="mt-1 text-sm text-gray-500">Gestiona y da seguimiento a tus eventos</p>
                 </div>
                 <a routerLink="/cliente/solicitudes/crear"
-                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 transform hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-red-200"
+                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-[#3a2653] to-[#523576] hover:from-[#3a2653] hover:to-[#523576] transform hover:scale-105 transition-all focus:outline-none focus:ring-4 focus:ring-red-200"
                     aria-label="Crear nueva solicitud">
                     <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
@@ -34,36 +34,36 @@
             <div class="mt-8 relative z-20 w-full">
                 <div class="border-b border-gray-200">
                     <nav class="-mb-px flex space-x-8 overflow-x-auto" aria-label="Tabs">
-                        <button type="button" (click)="setTab('todas')" [class.border-red-500]="activeTab() === 'todas'"
-                            [class.text-red-600]="activeTab() === 'todas'"
+                        <button type="button" (click)="setTab('todas')" [class.border-[#523576]]="activeTab() === 'todas'"
+                            [class.text-[#523576]]="activeTab() === 'todas'"
                             [class.border-transparent]="activeTab() !== 'todas'"
                             [class.text-gray-500]="activeTab() !== 'todas'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
                             Todas
                         </button>
-                        <button type="button" (click)="setTab('activas')" [class.border-red-500]="activeTab() === 'activas'"
-                            [class.text-red-600]="activeTab() === 'activas'"
+                        <button type="button" (click)="setTab('activas')" [class.border-[#523576]]="activeTab() === 'activas'"
+                            [class.text-[#523576]]="activeTab() === 'activas'"
                             [class.border-transparent]="activeTab() !== 'activas'"
                             [class.text-gray-500]="activeTab() !== 'activas'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
                             Activas
                         </button>
-                        <button type="button" (click)="setTab('cotizando')" [class.border-red-500]="activeTab() === 'cotizando'"
-                            [class.text-red-600]="activeTab() === 'cotizando'"
+                        <button type="button" (click)="setTab('cotizando')" [class.border-[#523576]]="activeTab() === 'cotizando'"
+                            [class.text-[#523576]]="activeTab() === 'cotizando'"
                             [class.border-transparent]="activeTab() !== 'cotizando'"
                             [class.text-gray-500]="activeTab() !== 'cotizando'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
                             Cotizando
                         </button>
-                        <button type="button" (click)="setTab('contratadas')" [class.border-red-500]="activeTab() === 'contratadas'"
-                            [class.text-red-600]="activeTab() === 'contratadas'"
+                        <button type="button" (click)="setTab('contratadas')" [class.border-[#523576]]="activeTab() === 'contratadas'"
+                            [class.text-[#523576]]="activeTab() === 'contratadas'"
                             [class.border-transparent]="activeTab() !== 'contratadas'"
                             [class.text-gray-500]="activeTab() !== 'contratadas'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
                             Contratadas
                         </button>
-                        <button type="button" (click)="setTab('finalizadas')" [class.border-red-500]="activeTab() === 'finalizadas'"
-                            [class.text-red-600]="activeTab() === 'finalizadas'"
+                        <button type="button" (click)="setTab('finalizadas')" [class.border-[#523576]]="activeTab() === 'finalizadas'"
+                            [class.text-[#523576]]="activeTab() === 'finalizadas'"
                             [class.border-transparent]="activeTab() !== 'finalizadas'"
                             [class.text-gray-500]="activeTab() !== 'finalizadas'"
                             class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm hover:text-gray-700 transition-colors focus:outline-none cursor-pointer">
@@ -100,7 +100,7 @@
             <p class="mt-1 text-sm text-gray-500">Comienza creando tu primera solicitud de servicio.</p>
             <div class="mt-6">
                 <a routerLink="/cliente/solicitudes/crear"
-                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 transform hover:scale-105 transition-all"
+                    class="inline-flex items-center gap-3 px-5 py-3 rounded-full shadow-lg text-sm font-semibold text-white bg-gradient-to-r from-[#3a2653] to-[#523576] hover:from-[#3a2653] hover:to-[#523576] transform hover:scale-105 transition-all"
                     aria-label="Crear nueva solicitud - vacio">
                     <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                         fill="currentColor">
@@ -123,7 +123,7 @@
                         class="flex items-center justify-between px-4 py-3 hover:bg-slate-50 cursor-pointer transition-colors group">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 mb-0.5">
-                                <p class="text-xs font-bold text-red-600 uppercase tracking-wide">{{ sol.categoria }}</p>
+                                <p class="text-xs font-bold text-[#523576] uppercase tracking-wide">{{ sol.categoria }}</p>
                                 <span class="text-gray-200">·</span>
                                 <span class="text-[10px] text-gray-400 font-mono">{{ sol.id.substring(0,6) | uppercase }}</span>
                             </div>
@@ -134,7 +134,7 @@
                                     {{ sol.fecha_evento | date:'d MMM y' }}
                                 </span>
                                 <span class="text-[11px] text-gray-400">{{ getDaysRemaining(sol.fecha_evento) }}</span>
-                                <span *ngIf="sol.cotizaciones_count > 0" class="text-[11px] font-bold text-red-500">
+                                <span *ngIf="sol.cotizaciones_count > 0" class="text-[11px] font-bold text-[#523576]">
                                     {{ sol.cotizaciones_count }} cotizaciones
                                 </span>
                             </div>

@@ -3,8 +3,8 @@
 
 :root {
   /* Existing variables */
-  --color-primary: #e53935;
-  --color-primary-dark: #c62828;
+  --color-primary: #523576;
+  --color-primary-dark: #3a2653;
   --color-white: #ffffff;
   --color-dark: #212121;
   --color-gray: #757575;
@@ -19,8 +19,9 @@
   --font-family: 'Inter', sans-serif;
 
   /* New Landing Page Variables */
-  --festeasy-red: #e01d25;
-  --festeasy-red-dark: #c01820;
+  --festeasy-red: #523576;
+  --festeasy-red-dark: #3a2653;
+  --color-accent: #906BBD;
   --text-main: #1a1a1a;
   --text-body: #4a4a4a;
   --bg-light: #f8f9fa;
@@ -245,4 +246,36 @@ app-bandeja-solicitudes main {
 .animado.visible {
   opacity: 1;
   transform: translate(0, 0) scale(1);
+}
+
+/* Utilities */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* PrimeNG Overrides */
+.p-button {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.p-button-secondary {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+.p-button-text {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: var(--color-primary) !important;
+}
+
+.p-colorpicker-preview {
+  border-radius: 8px !important;
 }

@@ -283,6 +283,7 @@ export interface ProviderPublicPage {
     hero_overlay_color?: string;
     hero_overlay_opacity?: number;
     theme?: string;
+    sections_config?: any; // JSONB field for dynamic sections
     is_active: boolean;
     created_at: string;
     updated_at: string;

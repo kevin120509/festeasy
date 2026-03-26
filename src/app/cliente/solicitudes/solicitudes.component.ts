@@ -106,7 +106,7 @@ export class MisSolicitudesComponent implements OnInit {
             case 'finalizado': return 'bg-green-50 text-green-600';
             case 'rechazada':
             case 'cancelada':
-            case 'abandonada': return 'bg-red-50 text-red-600';
+            case 'abandonada': return 'bg-[#523576] text-white';
             default: return 'bg-gray-50 text-gray-600';
         }
     }

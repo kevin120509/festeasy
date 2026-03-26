@@ -169,7 +169,7 @@ export class SolicitudesComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Sí, rechazar',
             rejectLabel: 'Cancelar',
-            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            acceptButtonStyleClass: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 text-xs rounded-lg',
             rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
             accept: () => {
                 this.procesando.set(solId);
@@ -300,13 +300,13 @@ export class SolicitudesComponent implements OnInit {
                     <p class="text-sm text-slate-500">Esta acción notificará al cliente y no se podrá revertir.</p>
                     <div class="mt-4">
                         <label for="motivo-cancelacion" class="block text-sm font-semibold text-slate-700 mb-2">
-                            Motivo de cancelación <span class="text-red-500">*</span>
+                            Motivo de cancelación <span class="text-[#523576]">*</span>
                         </label>
                         <textarea 
                             id="motivo-cancelacion" 
                             rows="3"
                             placeholder="Explica brevemente por qué cancelas este servicio..."
-                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 text-sm"
+                            class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-[#523576] focus:border-[#523576] text-sm"
                         ></textarea>
                     </div>
                 </div>
@@ -315,7 +315,7 @@ export class SolicitudesComponent implements OnInit {
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Sí, cancelar servicio',
             rejectLabel: 'No, mantener',
-            acceptButtonStyleClass: 'p-button-danger p-button-sm',
+            acceptButtonStyleClass: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 text-xs rounded-lg',
             rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
             accept: () => {
                 // Obtener el motivo del textarea

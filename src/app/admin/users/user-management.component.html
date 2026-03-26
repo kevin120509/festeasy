@@ -124,7 +124,7 @@
                             </td>
                             <td class="px-6 py-4 text-right">
                                 <button (click)="abrirModalUsuario(usuario)"
-                                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300">
+                                    class="pbg-indigo-100 dark:bg-indigo-900/30 hover:bg-indigo-200 dark:hover:bg-indigo-900/50 text-[#523576] dark:text-indigo-400">
                                     <span class="material-symbols-outlined">more_vert</span>
                                 </button>
                             </td>
@@ -282,7 +282,7 @@
                 <div class="pt-4 border-t border-gray-100 dark:border-gray-700 grid grid-cols-2 gap-3">
                     @if (usuarioSeleccionado()!.estado === 'activo') {
                     <button (click)="cambiarEstadoUsuario(usuarioSeleccionado()!, 'bloqueado')"
-                        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-900/20 dark:hover:bg-red-900/30 dark:text-red-400 font-semibold transition-colors">
+                        class="flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-[#523576] font-semibold transition-colors">
                         <span class="material-symbols-outlined text-lg">block</span>
                         Bloquear
                     </button>

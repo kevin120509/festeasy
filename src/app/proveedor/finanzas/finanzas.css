@@ -48,8 +48,8 @@
 }
 
 ::ng-deep .p-paginator .p-paginator-pages .p-paginator-page.p-highlight {
-    background: #fdf2f2;
-    color: #ef4444;
+    background: #f5f3ff;
+    color: #523576;
 }
 
 ::ng-deep .finance-dialog .p-dialog-header {
@@ -75,7 +75,7 @@
 }
 
 ::ng-deep .p-inputnumber-input:focus {
-    border-color: #ef4444 !important;
+    border-color: #523576 !important;
     box-shadow: none !important;
 }
 
@@ -86,7 +86,7 @@
 }
 
 ::ng-deep .p-select:not(.p-disabled).p-focus {
-    border-color: #ef4444 !important;
+    border-color: #523576 !important;
     box-shadow: none !important;
 }
 

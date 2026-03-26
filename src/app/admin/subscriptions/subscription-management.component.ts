@@ -46,7 +46,7 @@ interface PlanConfig {
                         <span class="material-symbols-outlined text-4xl mb-3">database_off</span>
                         <h3 class="font-bold mb-2">Error de Base de Datos</h3>
                         <p class="text-sm mb-4">{{ errorMessage() }}</p>
-                        <button (click)="cargarConfiguraciones()" class="px-4 py-2 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors">
+                        <button (click)="cargarConfiguraciones()" class="px-4 py-2 bg-[#523576] text-white rounded-lg font-bold hover:bg-[#3a2653] transition-colors">
                             Reintentar
                         </button>
                     </div>

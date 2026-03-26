@@ -2,7 +2,7 @@
 <p-confirmDialog [style]="{width: '500px'}" [baseZIndex]="10000"></p-confirmDialog>
 
 <!-- Contenido Principal -->
-<div class="min-h-screen bg-red-50 overflow-y-auto">
+<div class="min-h-screen bg-slate-50 overflow-y-auto">
   <!-- Mensajes de notificacion -->
   @if (mensajeExito()) {
   <div
@@ -14,7 +14,7 @@
 
   @if (mensajeError()) {
   <div
-    class="fixed top-20 right-6 z-50 bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
+    class="fixed top-20 right-6 z-50 bg-[#523576] text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 animate-slide-in">
     <span class="material-icons-outlined text-[24px]">error</span>
     <span class="font-semibold">{{ mensajeError() }}</span>
   </div>
@@ -48,13 +48,13 @@
       </div>
 
       <!-- Sistema de Pestanas -->
-      <div class="flex bg-red-100 p-1 rounded-xl gap-1">
+      <div class="flex bg-slate-100 p-1 rounded-xl gap-1">
         <button (click)="cambiarTab('pendientes')"
           [class]="tabActivo() === 'pendientes' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-800'"
           class="relative px-4 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center gap-2">
           <span>Pendientes</span>
           @if (contadores().pendientes > 0) {
-          <span class="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().pendientes
+          <span class="bg-[#523576] text-white text-xs font-bold px-2 py-0.5 rounded-full">{{ contadores().pendientes
             }}</span>
           }
         </button>
@@ -93,7 +93,7 @@
     <!-- Contenido segun Tab Activo -->
     @if (isLoading()) {
     <div class="flex justify-center py-20">
-      <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-red-500"></div>
+      <div class="animate-spin rounded-full h-12 w-12 border-4 border-slate-200 border-t-[#523576]"></div>
     </div>
     } @else {
 
@@ -145,7 +145,7 @@
                 'bg-green-100 text-green-700': solicitud.estado === 'reservado',
                 'bg-blue-100 text-blue-700': solicitud.estado === 'en_progreso',
                 'bg-purple-100 text-purple-700': solicitud.estado === 'entregado_pendiente_liq',
-                'bg-red-100 text-red-700': solicitud.estado === 'rechazada' || solicitud.estado === 'cancelada',
+                'bg-[#523576] text-white': solicitud.estado === 'rechazada' || solicitud.estado === 'cancelada',
                 'bg-slate-100 text-slate-700': solicitud.estado === 'finalizado'
               }" class="px-3 py-1 rounded-full text-xs font-semibold w-fit lg:w-auto">
                 {{ getStatusLabel(solicitud.estado) }}
@@ -201,7 +201,7 @@
               <!-- Botón Validar PIN con lógica de activación -->
               <button (click)="esDiaDelEvento(solicitud.fecha_servicio) ? abrirModalPin(solicitud.id) : null"
                 [disabled]="!esDiaDelEvento(solicitud.fecha_servicio)" [class]="esDiaDelEvento(solicitud.fecha_servicio) 
-                    ? 'bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-md hover:shadow-lg transform hover:scale-[1.02]' 
+                    ? 'bg-gradient-to-r from-[#3a2653] to-[#523576] hover:from-[#3a2653] hover:to-[#523576] shadow-md hover:shadow-lg transform hover:scale-[1.02]' 
                     : 'bg-gray-300 cursor-not-allowed opacity-60'"
                 class="flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-xl transition-all">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -242,9 +242,9 @@
         <div class="pt-4 border-t border-slate-100">
           <div class="flex justify-start">
             <button (click)="confirmarCancelacion(solicitud)" [disabled]="procesando() === solicitud.id"
-              class="flex items-center gap-2 px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-xl transition-colors border border-red-200 hover:border-red-300 disabled:opacity-50 disabled:cursor-not-allowed p-button-danger">
+              class="flex items-center gap-2 px-4 py-2.5 bg-[#F5F3FF] hover:bg-[#EDE9FE] text-[#523576] font-semibold rounded-xl transition-colors border border-[#523576]/20 disabled:opacity-50 disabled:cursor-not-allowed">
               @if (procesando() === solicitud.id) {
-              <div class="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent"></div>
+              <div class="animate-spin rounded-full h-4 w-4 border-2 border-[#523576]"></div>
               } @else {
               <span class="material-icons-outlined text-[18px]">cancel</span>
               }

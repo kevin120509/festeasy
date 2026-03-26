@@ -17,7 +17,7 @@
         <!-- Header -->
         <div class="text-center mb-8">
             <div
-                class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-red-500 to-red-600 rounded-full mb-4 shadow-lg">
+                class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#3a2653] to-[#523576] rounded-full mb-4 shadow-lg">
                 <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -36,7 +36,7 @@
                     (paste)="onPaste($event)" class="w-16 h-16 text-center text-3xl font-bold border-2 rounded-xl transition-all duration-200
                      focus:outline-none focus:ring-4 focus:ring-blue-200 focus:border-blue-500
                      {{ digit ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-white' }}
-                     {{ showShakeAnimation ? 'animate-shake border-red-500' : '' }}
+                     {{ showShakeAnimation ? 'animate-shake border-[#523576]' : '' }}
                      hover:border-blue-400 shadow-sm" [disabled]="isValidating" />
                 }
             </div>
@@ -44,7 +44,7 @@
             <!-- Error Message -->
             @if (errorMessage) {
             <div
-                class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-shake">
+                class="bg-[#F5F3FF] border border-[#523576]/20 text-[#523576] px-4 py-3 rounded-lg text-sm flex items-start gap-2 animate-shake">
                 <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd"
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
@@ -74,7 +74,7 @@
             <button (click)="confirmarPin()" [disabled]="!isPinComplete || isValidating" class="w-full py-4 px-6 rounded-xl font-semibold text-white text-lg
                  transition-all duration-200 transform
                  {{ isPinComplete && !isValidating 
-                    ? 'bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 hover:scale-[1.02] shadow-lg hover:shadow-xl' 
+                    ? 'bg-gradient-to-r from-[#3a2653] to-[#523576] hover:from-[#3a2653] hover:to-[#523576] hover:scale-[1.02] shadow-lg hover:shadow-xl' 
                     : 'bg-gray-300 cursor-not-allowed' }}
                  flex items-center justify-center gap-2
                  disabled:transform-none disabled:shadow-none" type="button">

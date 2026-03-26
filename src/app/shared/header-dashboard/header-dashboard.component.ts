@@ -20,7 +20,7 @@ import { AuthService } from '../../services/auth.service';
         </button>
         
         <div class="flex items-center gap-2">
-          <img src="assets/festeasy.png" alt="FESTEASY" class="h-8 w-auto object-contain">
+          <img src="assets/fetseasy_logo_imagen.png" alt="FESTEASY" class="h-10 w-auto object-contain">
         </div>
       </div>
 

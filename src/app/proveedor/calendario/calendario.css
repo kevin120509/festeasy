@@ -44,7 +44,7 @@
 }
 
 :host ::ng-deep .p-datepicker table td>span.p-highlight {
-    background: #ef4444 !important;
+    background: #523576 !important;
     color: white !important;
     box-shadow: 0 10px 20px rgba(239, 68, 68, 0.25);
     transform: scale(1.1);

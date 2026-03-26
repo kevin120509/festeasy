@@ -13,7 +13,7 @@
                     (onSelect)="onDateSelect($event)" styleClass="w-full custom-calendar">
                     <ng-template pTemplate="date" let-date>
                         <div class="date-cell relative flex flex-col items-center justify-center w-full h-full p-2">
-                            <span class="z-10 text-lg hover:bg-slate-100 rounded-full w-8 h-8 flex items-center justify-center" [class.bg-red-600]="isSelected(date)" [class.text-white]="isSelected(date)">
+                            <span class="z-10 text-lg hover:bg-slate-100 rounded-full w-8 h-8 flex items-center justify-center" [class.bg-[#523576]]="isSelected(date)" [class.text-white]="isSelected(date)">
                                 {{date.day}}
                             </span>
                             <div class="flex gap-1 mt-1 justify-center absolute bottom-1">

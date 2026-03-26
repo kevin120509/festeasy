@@ -10,8 +10,8 @@
         {{ successMessage() }}
     </div>
     <div *ngIf="errorMessage()"
-        class="mb-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl flex items-center gap-3 text-sm">
-        <span class="material-icons-outlined text-red-600 text-lg">error</span>
+        class="mb-4 bg-red-50 border borderbg-[#F5F3FF] text-[#523576] px-4 py-3 rounded-xl flex items-center gap-3 text-sm">
+        <span class="material-icons-outlined text-[#523576] text-lg">error</span>
         {{ errorMessage() }}
     </div>
 
@@ -28,7 +28,7 @@
                 <!-- Header -->
                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
                     <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">Paquete Base</span>
-                    <span class="bg-red-50 text-red-500 text-[10px] font-bold uppercase px-2 py-1 rounded">Principal</span>
+                    <span class="bg-[#F5F3FF] text-[#523576] text-[10px] font-bold uppercase px-2 py-1 rounded">Principal</span>
                 </div>
                 
                 <!-- Title -->
@@ -109,7 +109,7 @@
                         </div>
                         
                         <div class="flex justify-end">
-                            <button (click)="removeProducto(i)" class="text-slate-300 hover:text-red-500 transition-colors p-1">
+                            <button (click)="removeProducto(i)" class="text-slate-300 hover:text-[#523576] transition-colors p-1">
                                 <span class="material-icons-outlined text-xl">delete</span>
                             </button>
                         </div>
@@ -137,7 +137,7 @@
                         <span class="font-bold text-sm" [ngClass]="ajuste.tipo === 'cargo' ? 'text-slate-800' : 'text-emerald-600'">
                             {{ ajuste.tipo === 'cargo' ? '' : '-' }}${{ ajuste.monto | number:'1.2-2' }}
                         </span>
-                        <button (click)="removeAjuste(i)" class="text-slate-300 hover:text-red-500">
+                        <button (click)="removeAjuste(i)" class="text-slate-300 hover:text-[#523576]">
                             <span class="material-icons-outlined text-[18px]">close</span>
                         </button>
                     </div>
@@ -193,7 +193,7 @@
                     <div *ngIf="!mostrarEdicionAnticipo()">
                         <p class="text-sm text-slate-800 font-bold mb-0.5">
                             Anticipo a solicitar: 
-                            <span class="text-red-600">{{ anticipoTipo() === 'porcentaje' ? anticipoValor() + '%' : '' }} (${{ totales().monto_anticipo | number:'1.2-2' }})</span>
+                            <span class="text-[#523576]">{{ anticipoTipo() === 'porcentaje' ? anticipoValor() + '%' : '' }} (${{ totales().monto_anticipo | number:'1.2-2' }})</span>
                         </p>
                         <p class="text-xs text-slate-500">Saldo pendiente: ${{ totales().monto_liquidacion | number:'1.2-2' }}</p>
                     </div>
@@ -221,7 +221,7 @@
                 <label class="flex items-center gap-3 cursor-pointer select-none">
                     <input type="checkbox" [checked]="acuerdoChatConfirmado()"
                            (change)="acuerdoChatConfirmado.set($any($event.target).checked)"
-                           class="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-600" />
+                           class="w-4 h-4 rounded border-slate-300 text-[#523576] focus:ring-[#523576]" />
                     <span class="text-sm text-slate-600 font-medium">Confirmo acuerdo previo en chat con el cliente</span>
                 </label>
                 
@@ -231,7 +231,7 @@
                         {{ saving() ? 'Guardando...' : 'Guardar como Plantilla' }}
                     </button>
                     <button (click)="enviarCotizacion()" [disabled]="!canSend()"
-                            class="flex-[2] md:flex-none px-8 py-3 bg-red-600 text-white rounded-lg font-bold text-sm hover:bg-red-700 transition disabled:opacity-50 shadow-sm flex items-center justify-center">
+                            class="flex-[2] md:flex-none px-8 py-3 bg-[#523576] hover:bg-[#3a2653] shadow-purple-100">
                         <span class="material-icons-outlined text-sm animate-spin mr-2" *ngIf="sending()">sync</span>
                         {{ sending() ? 'Enviando...' : 'Enviar Cotización' }}
                     </button>
@@ -275,7 +275,7 @@
                     
                     <div class="flex justify-between items-end">
                         <span class="font-bold text-slate-900 text-lg">Total</span>
-                        <span class="font-black text-red-600 text-3xl">${{ totales().monto_total | number:'1.2-2' }}</span>
+                        <span class="font-black text-[#523576] text-3xl">${{ totales().monto_total | number:'1.2-2' }}</span>
                     </div>
                     
                     <div class="pt-6 text-center">
@@ -289,7 +289,7 @@
                 <div class="p-5 border-b border-slate-100">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-2">
-                            <span class="material-icons-outlined text-red-600 text-lg">inventory_2</span>
+                            <span class="material-icons-outlined text-[#523576] text-lg">inventory_2</span>
                             <h3 class="font-bold text-slate-900">Mi Inventario</h3>
                         </div>
                         <span class="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded">{{ inventarioProductos().length }} ITEMS</span>
@@ -323,7 +323,7 @@
                                     <p class="text-sm font-bold text-slate-700 truncate mb-0.5">{{ prod.nombre }}</p>
                                     <p class="text-[11px] text-slate-500 flex items-center gap-1">
                                         ${{ prod.precio_unitario | number:'1.2-2' }} <span class="text-slate-300">•</span>
-                                        <span [ngClass]="prod.stock > 5 ? 'text-slate-400' : 'text-red-500'">Stock: {{ prod.stock }}</span>
+                                        <span [ngClass]="prod.stock > 5 ? 'text-slate-400' : 'text-[#523576]'">Stock: {{ prod.stock }}</span>
                                     </p>
                                 </div>
                             </div>
@@ -350,7 +350,7 @@
 <!-- Loading overlay -->
 <div *ngIf="loading()" class="flex justify-center items-center py-32">
     <div class="flex flex-col items-center gap-3">
-        <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-red-600"></div>
+        <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-[#523576]"></div>
         <span class="text-slate-500 font-medium animate-pulse text-sm">Cargando constructor...</span>
     </div>
 </div>

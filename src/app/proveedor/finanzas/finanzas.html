@@ -17,7 +17,7 @@
             </div>
 
             <p-button label="Registrar Gasto" icon="pi pi-plus" rounded="true" (onClick)="openNewExpense()"
-                styleClass="p-button-danger shadow-lg shadow-red-100 font-bold transition-all hover:scale-105 active:scale-95">
+                styleClass="bg-[#523576] hover:bg-[#3a2653] border-none shadow-lg shadow-purple-100 font-bold transition-all hover:scale-105 active:scale-95 text-white p-3 rounded-full">
             </p-button>
         </div>
     </div>
@@ -38,18 +38,18 @@
 
         <div class="kpi-card bg-white p-6 rounded-3xl border border-slate-100 shadow-sm transition-all hover:shadow-md">
             <div class="flex justify-between items-start mb-4">
-                <div class="bg-red-50 p-3 rounded-2xl">
-                    <i class="pi pi-arrow-down-right text-xl text-red-600"></i>
+                <div class="bg-[#523576] text-white p-3 rounded-2xl">
+                    <i class="pi pi-arrow-down-right text-xl text-[#523576]"></i>
                 </div>
                 <span
-                    class="badge flex items-center gap-1 text-[10px] font-black uppercase text-red-600 bg-red-50 px-2 py-1 rounded-full">Gastos</span>
+                    class="badge flex items-center gap-1 text-[10px] font-black uppercase text-[#523576] bg-[#F5F3FF] px-2 py-1 rounded-full">Gastos</span>
             </div>
             <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Total Egresos</p>
             <h3 class="text-2xl font-black text-slate-800">{{formatCurrency(summary().totalExpenses)}}</h3>
         </div>
 
         <div
-            class="kpi-card bg-emerald-500 p-6 rounded-3xl shadow-lg shadow-emerald-100 transition-all hover:shadow-xl group">
+            class="kpi-card bg-[#523576] p-6 rounded-3xl shadow-lg shadow-purple-200 transition-all hover:shadow-xl group">
             <div class="flex justify-between items-start mb-4">
                 <div class="bg-white/20 p-3 rounded-2xl">
                     <i class="pi pi-chart-line text-xl text-white"></i>
@@ -132,7 +132,7 @@
                                     class="p-button-text p-button-rounded p-button-secondary p-1"
                                     (click)="editExpense(expense)"></button>
                                 <button pButton icon="pi pi-trash"
-                                    class="p-button-text p-button-rounded p-button-danger p-1"
+                                    class="p-button-text p-button-rounded text-[#523576] p-1"
                                     (click)="deleteExpense(expense.id)"></button>
                             </div>
                         </td>
@@ -184,7 +184,7 @@
             <label class="text-xs font-black uppercase text-slate-400 tracking-widest">Nota / Observaciones</label>
             <textarea pTextarea [(ngModel)]="expenseForm.nota" rows="3"
                 placeholder="Ej: Material de decoración para evento..."
-                class="w-full p-3 border border-slate-200 rounded-2xl focus:border-red-500 focus:ring-0 transition-all">
+                class="w-full p-3 border border-slate-200 rounded-2xl focus:border-[#523576] focus:ring-0 transition-all">
       </textarea>
         </div>
     </div>
@@ -195,7 +195,7 @@
                 styleClass="p-button-text p-button-secondary flex-1 font-bold">
             </p-button>
             <p-button label="Guardar Gasto" (onClick)="saveExpense()" [loading]="isSaving()" [disabled]="isSaving()"
-                styleClass="p-button-danger flex-1 font-bold shadow-lg shadow-red-100">
+                styleClass="bg-[#523576] hover:bg-[#3a2653] border-none flex-1 font-bold shadow-lg shadow-purple-100 text-white p-3 rounded-xl">
             </p-button>
         </div>
     </ng-template>

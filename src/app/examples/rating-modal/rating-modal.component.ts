@@ -57,7 +57,7 @@ import { AuthService } from '../../services/auth.service';
             </p>
           }
           @if (showRatingError()) {
-            <p class="text-center mt-2 text-sm text-red-600">
+            <p class="text-center mt-2 text-sm text-[#523576]">
               Por favor selecciona una calificación
             </p>
           }

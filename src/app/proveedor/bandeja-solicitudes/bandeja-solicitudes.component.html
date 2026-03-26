@@ -140,7 +140,7 @@
                 <div class="bg-white/40 -m-5 rounded-[2.2rem]">
                     <!-- Banner de Urgencia -->
                     @if (solicitud.estado === 'pendiente_aprobacion') {
-                    <div [class]="solicitud.es_critico ? 'bg-rose-50 text-rose-600 border-rose-100' : 'bg-amber-50 text-amber-600 border-amber-100'"
+                    <div [class]="solicitud.es_critico ? 'bg-[#F5F3FF] text-[#523576] border-[#523576]/20' : 'bg-amber-50 text-amber-600 border-amber-100'"
                         class="px-8 py-3.5 flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.2em] border-b">
                         <span class="w-2 h-2 rounded-full bg-current animate-pulse"></span>
                         <span>Tiempo para responder: {{ formatearTiempoRestante(solicitud.horas_restantes) }}</span>
@@ -227,7 +227,7 @@
                             
                             <div class="flex gap-3 w-full sm:w-auto justify-end flex-wrap">
                                 @if (solicitud.estado === 'pendiente_aprobacion') {
-                                    <button (click)="rechazarSolicitud(solicitud)" class="h-12 px-6 bg-rose-50 hover:bg-rose-100 text-rose-600 rounded-xl transition-all border border-rose-100 flex items-center gap-2 font-bold text-xs uppercase tracking-widest shrink-0">
+                                    <button (click)="rechazarSolicitud(solicitud)" class="h-12 px-6 bg-[#F5F3FF] hover:bg-[#EDE9FE] text-[#523576] rounded-xl transition-all border border-[#523576]/20 flex items-center gap-2 font-bold text-xs uppercase tracking-widest shrink-0">
                                         <span class="material-icons text-[18px]">close</span>
                                         <span class="hidden sm:inline">Rechazar</span>
                                     </button>
@@ -254,7 +254,7 @@
                     <div class="px-10 pb-10 pt-0">
                         <button (click)="esDiaDelEvento(solicitud.fecha_servicio) ? abrirModalPin(solicitud.id) : null"
                             [disabled]="!esDiaDelEvento(solicitud.fecha_servicio)" [class]="esDiaDelEvento(solicitud.fecha_servicio) 
-                                        ? 'bg-rose-600 hover:bg-rose-700 shadow-xl shadow-rose-200' 
+                                        ? 'bg-[#523576] hover:bg-[#3a2653] shadow-xl shadow-purple-100' 
                                         : 'bg-slate-200 opacity-60 text-slate-500'"
                             class="w-full py-6 rounded-3xl flex items-center justify-center gap-4 font-black text-xs uppercase tracking-[0.2em] transition-all duration-500 border border-transparent text-white">
                             <span class="material-icons">vpn_key</span>

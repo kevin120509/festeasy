@@ -10,7 +10,7 @@
     <ng-template pTemplate="header">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                <span class="material-symbols-outlined text-red-600">cancel</span>
+                <span class="material-symbols-outlined text-[#523576]">cancel</span>
             </div>
             <h3 class="text-xl font-bold text-gray-900">Motivo de Cancelación</h3>
         </div>
@@ -37,7 +37,7 @@
                 Motivo de cancelación *
             </label>
             <textarea id="motivoCancelacion" [(ngModel)]="motivoTemporal" rows="4"
-                class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#523576] focus:border-transparent resize-none"
                 placeholder="Ejemplo: Cambio de fecha del evento, problema personal, etc." maxlength="500"></textarea>
             <p class="text-xs text-gray-500">{{ motivoTemporal.length }}/500 caracteres (mínimo 10)</p>
         </div>
@@ -59,13 +59,13 @@
     <main class="max-w-4xl mx-auto px-4 py-8">
         @if (loading()) {
         <div class="text-center py-20">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-[#523576] mx-auto mb-4"></div>
             <p class="text-gray-500">Cargando detalles del evento...</p>
         </div>
         } @else if (evento()) {
         <!-- Hero Section -->
         <div
-            class="bg-gradient-to-r from-red-600 to-orange-600 rounded-3xl p-8 text-white shadow-lg mb-8 relative overflow-hidden">
+            class="bg-gradient-to-r from-[#523576] to-[#3a2653] rounded-3xl p-8 text-white shadow-lg mb-8 relative overflow-hidden">
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
                 <span class="material-symbols-outlined text-[200px]">event_available</span>
             </div>
@@ -98,7 +98,7 @@
 
         <!-- 🚫 TARJETA DE CANCELACIÓN - Visible cuando el servicio está cancelado -->
         @if (evento().estado === 'cancelada') {
-        <div class="bg-gradient-to-r from-red-500 to-red-600 p-6 rounded-3xl shadow-lg my-4 text-white">
+        <div class="bg-gradient-to-r from-[#3a2653] to-[#523576] p-6 rounded-3xl shadow-lg my-4 text-white">
             <div class="flex items-start gap-4 mb-4">
                 <div class="bg-white/20 p-3 rounded-full flex-shrink-0">
                     <span class="material-symbols-outlined text-3xl">cancel</span>
@@ -150,14 +150,14 @@
         <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-red-100 my-4">
             <div class="flex items-center gap-4">
                 <div class="bg-red-100 p-3 rounded-full">
-                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-6 h-6 text-[#523576]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </div>
                 <div>
                     <h3 class="text-sm text-gray-500 font-medium">Tu PIN de Inicio</h3>
-                    <p class="text-3xl font-bold text-red-600 tracking-widest">
+                    <p class="text-3xl font-bold text-[#523576] tracking-widest">
                         {{ evento().pin_validacion || obtenerPinGuardado() || 'CARGANDO...' }}
                     </p>
                 </div>
@@ -179,7 +179,7 @@
         <div class="bg-white p-6 rounded-3xl shadow-lg border-2 border-red-100 my-4">
             <div class="flex items-center gap-4 mb-4">
                 <div class="bg-red-100 p-3 rounded-full">
-                    <span class="material-symbols-outlined text-red-600">cancel</span>
+                    <span class="material-symbols-outlined text-[#523576]">cancel</span>
                 </div>
                 <div>
                     <h3 class="text-sm text-gray-500 font-medium">¿Necesitas cancelar?</h3>
@@ -188,7 +188,7 @@
             </div>
 
             <button (click)="cancelarMiEvento(evento())"
-                class="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg">
+                class="w-full flex items-center justify-center gap-2 bg-[#523576] hover:bg-[#3a2653] text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md hover:shadow-lg">
                 <span class="material-symbols-outlined">close</span>
                 <span>Cancelar Evento</span>
             </button>
@@ -259,7 +259,7 @@
             <div class="md:col-span-2 space-y-6">
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
                     <h3 class="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                        <span class="material-symbols-outlined text-red-600">calendar_month</span>
+                        <span class="material-symbols-outlined text-[#523576]">calendar_month</span>
                         ¿Cuándo y Dónde?
                     </h3>
 
@@ -267,12 +267,12 @@
                         <div class="flex gap-4 items-start">
                             <div
                                 class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center flex-shrink-0">
-                                <span class="material-symbols-outlined text-red-600">schedule</span>
+                                <span class="material-symbols-outlined text-[#523576]">schedule</span>
                             </div>
                             <div>
                                 <p class="font-semibold text-gray-900">Fecha y Hora</p>
                                 <p class="text-gray-600">{{ evento().fecha_servicio | date:'fullDate' }}</p>
-                                <p class="text-red-600 font-bold mt-1">Llegada estimada: {{ evento().hora_servicio ||
+                                <p class="text-[#523576] font-bold mt-1">Llegada estimada: {{ evento().hora_servicio ||
                                     '12:00 PM' }}</p>
                             </div>
                         </div>
@@ -314,7 +314,7 @@
                         }
                         <div class="mt-4 pt-4 border-t border-gray-200 flex justify-between items-center">
                             <span class="font-bold text-gray-900">Total</span>
-                            <span class="text-xl font-extrabold text-red-600">\${{ (evento().monto_total ||
+                            <span class="text-xl font-extrabold text-[#523576]">\${{ (evento().monto_total ||
                                 0).toLocaleString() }}</span>
                         </div>
                     </div>
@@ -350,7 +350,7 @@
 
                     <div class="mt-6 pt-6 border-t border-gray-100">
                         <p class="text-xs text-gray-500 text-center">
-                            ¿Necesitas ayuda? <a href="#" class="text-red-600 font-bold hover:underline">Soporte</a>
+                            ¿Necesitas ayuda? <a href="#" class="text-[#523576] font-bold hover:underline">Soporte</a>
                         </p>
                     </div>
                 </div>
@@ -360,7 +360,7 @@
         <!-- Botón Volver -->
         <div class="mt-12 text-center">
             <button routerLink="/cliente/dashboard"
-                class="inline-flex items-center gap-2 bg-white border-2 border-red-600 text-red-600 font-bold px-8 py-3 rounded-2xl hover:bg-red-50 transition-all shadow-sm">
+                class="inline-flex items-center gap-2 bg-white border-2 border-[#523576] text-[#523576] font-bold px-8 py-3 rounded-2xl hover:bg-red-50 transition-all shadow-sm">
                 <span class="material-symbols-outlined">arrow_back</span>
                 Volver al Dashboard
             </button>
@@ -369,7 +369,7 @@
         <div class="text-center py-20">
             <span class="material-symbols-outlined text-6xl text-gray-300">event_busy</span>
             <h3 class="text-xl font-bold text-gray-900 mt-4">No encontramos este evento</h3>
-            <button routerLink="/cliente/dashboard" class="mt-4 text-red-600 font-bold hover:underline">Volver al
+            <button routerLink="/cliente/dashboard" class="mt-4 text-[#523576] font-bold hover:underline">Volver al
                 inicio</button>
         </div>
         }

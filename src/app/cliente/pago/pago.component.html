@@ -41,7 +41,7 @@
         <div class="bg-red-50 border border-red-100 rounded-2xl p-5 mb-6">
             <div class="flex items-center gap-3">
                 <div class="bg-red-100 p-2 rounded-full">
-                    <span class="material-symbols-outlined text-red-600">verified</span>
+                    <span class="material-symbols-outlined text-[#523576]">verified</span>
                 </div>
                 <div>
                     <p class="font-bold text-gray-900 dark:text-white">¡Servicio completado!</p>
@@ -54,7 +54,7 @@
         <div class="bg-red-50 border border-red-100 rounded-2xl p-5 mb-6">
             <div class="flex items-center gap-3">
                 <div class="bg-red-100 p-2 rounded-full">
-                    <span class="material-symbols-outlined text-red-600">payments</span>
+                    <span class="material-symbols-outlined text-[#523576]">payments</span>
                 </div>
                 <div>
                     <p class="font-bold text-gray-900 dark:text-white">Pago de anticipo ({{ solicitud().perfil_proveedor?.porcentaje_anticipo ?? 30 }}%)</p>
@@ -69,7 +69,7 @@
         <div
             class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none p-8 mb-6 border border-gray-100 dark:border-gray-700">
             <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                <span class="material-symbols-outlined text-red-600">receipt_long</span>
+                <span class="material-symbols-outlined text-[#523576]">receipt_long</span>
                 Resumen del Evento
             </h2>
 
@@ -111,13 +111,13 @@
                         <p class="text-gray-500 text-xs uppercase tracking-wider font-bold mb-1">
                             {{ tipoPago() === 'liquidacion' ? 'Liquidación a Pagar' : 'Anticipo Requerido' }}
                         </p>
-                        <p class="text-3xl font-black text-red-600">
+                        <p class="text-3xl font-black text-[#523576]">
                             ${{ montoPagar().toLocaleString('es-MX', { minimumFractionDigits: 2 }) }} <span
                                 class="text-sm font-normal">MXN</span>
                         </p>
                     </div>
                     <div class="text-right">
-                        <span class="px-3 py-1 bg-red-100 text-red-600 text-[10px] font-bold rounded-full uppercase">
+                        <span class="px-3 py-1 bg-red-100 text-[#523576] text-[10px] font-bold rounded-full uppercase">
                             {{ tipoPago() === 'liquidacion' ? (100 - (solicitud().perfil_proveedor?.porcentaje_anticipo ?? 30)) : (solicitud().perfil_proveedor?.porcentaje_anticipo ?? 30) }}% 
                             del total
                         </span>
@@ -130,14 +130,14 @@
         <div
             class="bg-white dark:bg-gray-800 rounded-[32px] shadow-xl shadow-gray-200/50 dark:shadow-none p-8 mb-8 border border-gray-100 dark:border-gray-700">
             <h2 class="text-xl font-black text-gray-900 dark:text-white mb-6 flex items-center gap-3">
-                <span class="material-symbols-outlined text-red-600">payments</span>
+                <span class="material-symbols-outlined text-[#523576]">payments</span>
                 Selecciona tu método de pago
             </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- PayPal Option -->
                 <button (click)="seleccionarMetodo('paypal')"
-                    [class]="metodoSeleccionado() === 'paypal' ? 'border-2 border-red-600 bg-red-50/50' : 'border border-gray-100 bg-gray-50/50 hover:border-gray-200'"
+                    [class]="metodoSeleccionado() === 'paypal' ? 'border-2 border-[#523576] bg-[#F5F3FF]' : 'border border-gray-100 bg-gray-50/50 hover:border-gray-200'"
                     class="p-6 rounded-3xl transition-all text-left flex items-start gap-4 transform active:scale-95">
                     <div [class]="metodoSeleccionado() === 'paypal' ? 'bg-[#003087] text-white' : 'bg-white text-gray-400'"
                         class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm overflow-hidden p-1">
@@ -151,7 +151,7 @@
 
                 <!-- Stripe/Card Option -->
                 <button (click)="seleccionarMetodo('stripe')"
-                    [class]="metodoSeleccionado() === 'stripe' ? 'border-2 border-red-600 bg-red-50/50' : 'border border-gray-100 bg-gray-50/50 hover:border-gray-200'"
+                    [class]="metodoSeleccionado() === 'stripe' ? 'border-2 border-[#523576] bg-[#F5F3FF]' : 'border border-gray-100 bg-gray-50/50 hover:border-gray-200'"
                     class="p-6 rounded-3xl transition-all text-left flex items-start gap-4 transform active:scale-95">
                     <div [class]="metodoSeleccionado() === 'stripe' ? 'bg-[#635bff] text-white' : 'bg-white text-gray-400'"
                         class="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm p-1">
@@ -183,7 +183,7 @@
                 </div>
 
                 <button (click)="pagarConStripe()" [disabled]="procesando()"
-                    class="w-full bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all shadow-xl shadow-red-500/30 flex items-center justify-center gap-3">
+                    class="w-full bg-[#523576] hover:bg-[#3a2653] shadow-[#523576]/30 flex items-center justify-center gap-3">
                     @if (procesando()) {
                     <div class="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                     Procesando...
@@ -221,7 +221,7 @@
     <div
         class="relative bg-white dark:bg-gray-800 rounded-[32px] w-full max-w-sm overflow-hidden shadow-2xl animate-in zoom-in duration-300">
         <!-- Header Image/Icon -->
-        <div class="bg-gradient-to-br from-red-600 to-red-800 p-8 text-center text-white">
+        <div class="bg-gradient-to-br from-[#523576] to-[#3a2653] p-8 text-center text-white">
             <div
                 class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-white/30">
                 <span class="material-symbols-outlined text-4xl">check_circle</span>
@@ -238,7 +238,7 @@
             </p>
 
             <button (click)="cerrarModalYSalir()"
-                class="w-full bg-[#E53935] hover:bg-[#C62828] text-white font-bold py-4 rounded-2xl transition-all shadow-lg shadow-red-500/20 transform active:scale-95">
+                class="w-full bg-[#523576] hover:bg-[#3a2653] shadow-[#523576]/20 transform active:scale-95">
                 ¡Excelente! Continuar
             </button>
         </div>

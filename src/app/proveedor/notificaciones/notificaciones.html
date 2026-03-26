@@ -166,7 +166,7 @@
         }
 
         .reveal-delete {
-            background-color: #ef4444;
+            background-color: #523576;
             justify-content: flex-start;
             padding-left: 1.5rem;
             color: white;
@@ -231,7 +231,7 @@
         }
 
         .menu-item.delete {
-            color: #ef4444;
+            color: #523576;
         }
     </style>
 
@@ -259,7 +259,7 @@
 
                 <!-- Tarjeta Principal -->
                 <div class="notificacion-card-item bg-white p-5 border border-slate-100 flex gap-4 items-start cursor-pointer transition-all"
-                    [class.border-l-4]="!notif.leida" [class.border-l-red-500]="!notif.leida"
+                    [class.border-l-4]="!notif.leida" [class.border-l-[#523576]]="!notif.leida"
                     [class.bg-red-50/50]="!notif.leida" [ngStyle]="notificationStyles()[notif.id] || {}"
                     (touchstart)="onTouchStart($event, notif.id)" (touchmove)="onTouchMove($event, notif.id)"
                     (touchend)="onTouchEnd($event, notif.id)"
@@ -286,7 +286,7 @@
                     </div>
 
                     @if (!notif.leida) {
-                    <div class="w-2.5 h-2.5 bg-red-500 rounded-full flex-shrink-0 mt-2"></div>
+                    <div class="w-2.5 h-2.5 bg-[#523576] rounded-full flex-shrink-0 mt-2"></div>
                     }
 
                     <!-- Menú Contextual / Opciones -->

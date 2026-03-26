@@ -277,7 +277,7 @@ export class PaquetesComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Sí, eliminar',
       rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      acceptButtonStyleClass: 'bg-[#523576] hover:bg-[#3a2653] text-white border-none p-2 text-xs rounded-lg',
       rejectButtonStyleClass: 'p-button-text p-button-secondary p-button-sm',
       accept: async () => {
         try {

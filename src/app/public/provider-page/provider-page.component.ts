@@ -10,160 +10,239 @@ import { CardModule } from 'primeng/card';
   standalone: true,
   imports: [CommonModule, CardModule],
   template: `
-    <div class="min-h-screen bg-white" *ngIf="page(); else loadingTemplate">
-      <!-- Hero Section -->
-      <section class="relative min-h-[90vh] flex items-center overflow-hidden bg-slate-900" 
-               [ngClass]="{
-                 'justify-start text-left': page()?.hero_alignment === 'left',
-                 'justify-center text-center': page()?.hero_alignment === 'center',
-                 'justify-end text-right': page()?.hero_alignment === 'right'
-               }">
-        
-        <!-- Background Image & Atmospheric Layers -->
-        <div class="absolute inset-0 z-0 scale-105 transition-transform duration-[20s] ease-linear overflow-hidden"
-             [ngClass]="{'scale-110': page()?.theme === 'futuristic'}">
+    <div class="min-h-screen bg-[#050505] text-white selection:bg-primary/30" *ngIf="page(); else loadingTemplate" 
+         [style.--primary]="page()?.primary_color" [style.--accent]="page()?.accent_color">
+      
+      <!-- HERO: Impacto Total -->
+      <section class="relative min-h-screen flex items-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
           <img [src]="page()?.hero_image || 'assets/images/default-hero.jpg'" 
-               class="w-full h-full object-cover">
-          
-          <!-- Dynamic Overlay -->
-          <div class="absolute inset-0" 
+               class="w-full h-full object-cover scale-110 animate-slow-zoom">
+          <div class="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-[#050505]"
                [style.background-color]="'rgba(0,0,0,' + (page()?.hero_overlay_opacity || 60) / 100 + ')'"></div>
-
-          <!-- Theme Specific Background Effects -->
-          <div *ngIf="page()?.theme === 'futuristic'" 
-               class="absolute inset-0 z-10 opacity-30 pointer-events-none mix-blend-screen"
-               [style.background]="'radial-gradient(circle at center, ' + (page()?.accent_color || '#22c55e') + '44 0%, transparent 70%)'"></div>
-          
-          <div *ngIf="page()?.theme === 'elegant'" 
-               class="absolute inset-0 z-10 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
+          <!-- Resplandor de Acento -->
+          <div class="absolute -top-[20%] -right-[10%] w-[60%] h-[60%] blur-[150px] opacity-20 rounded-full"
+               [style.background-color]="page()?.accent_color"></div>
         </div>
 
-        <!-- Content -->
-        <div class="container mx-auto px-6 relative z-10 text-white">
-          <div class="max-w-4xl transition-all duration-1000" 
-               [ngClass]="{
-                 'ml-auto': page()?.hero_alignment === 'right', 
-                 'mx-auto': page()?.hero_alignment === 'center',
-                 'p-8 backdrop-blur-md rounded-3xl border border-white/10 shadow-2xl': page()?.theme === 'futuristic'
-               }"
-               [style.border-color]="page()?.theme === 'futuristic' ? (page()?.accent_color || '#22c55e') + '33' : 'transparent'">
-            
-            <!-- HUD / Tag Element -->
-            <div *ngIf="page()?.theme === 'futuristic'" 
-                 class="inline-flex items-center gap-2 py-2 px-4 mb-8 rounded-full border text-[10px] font-black tracking-[0.2em] uppercase backdrop-blur-xl animate-pulse"
-                 [style.color]="page()?.accent_color || '#22c55e'"
-                 [style.border-color]="(page()?.accent_color || '#22c55e') + '66'"
-                 [style.box-shadow]="'0 0 20px ' + (page()?.accent_color || '#22c55e') + '33'">
-                 <span class="w-2 h-2 rounded-full bg-current"></span>
-                 ESTADO: ONLINE // SISTEMA: {{ page()?.slug?.toUpperCase() }}
-            </div>
-
-            <h1 class="text-6xl md:text-9xl font-black mb-8 animate-in slide-in-from-bottom duration-1000 leading-[0.9] tracking-tighter"
-                [style.text-shadow]="page()?.theme === 'futuristic' ? '0 0 40px ' + (page()?.accent_color || '#22c55e') + '88' : 'none'">
-              {{ page()?.slogan || 'Bienvenidos a nuestra experiencia' }}
+        <div class="container mx-auto px-6 relative z-10">
+          <div class="max-w-5xl" [ngClass]="{'mx-auto text-center': page()?.hero_alignment === 'center', 'ml-auto text-right': page()?.hero_alignment === 'right'}">
+            <span class="inline-block py-2 px-4 rounded-full border border-white/10 backdrop-blur-md mb-6 text-xs font-bold tracking-[0.3em] uppercase animate-fade-in"
+                  [style.color]="page()?.accent_color">
+              Experiencias Inolvidables
+            </span>
+            <h1 class="text-6xl md:text-8xl lg:text-9xl font-black mb-8 leading-[0.85] tracking-tighter animate-title-slide">
+              {{ page()?.slogan || 'Creamos Momentos Mágicos' }}
             </h1>
-            
-            <p class="text-xl md:text-3xl text-white/80 leading-relaxed mb-12 animate-in slide-in-from-bottom delay-300 duration-1000 max-w-2xl font-light"
-               [ngClass]="{'mx-auto': page()?.hero_alignment === 'center', 'ml-auto': page()?.hero_alignment === 'right'}"
-               [style.font-family]="page()?.theme === 'elegant' ? 'serif' : 'inherit'">
+            <p class="text-xl md:text-2xl text-white/60 mb-12 max-w-2xl font-light leading-relaxed animate-fade-up"
+               [ngClass]="{'mx-auto': page()?.hero_alignment === 'center', 'ml-auto': page()?.hero_alignment === 'right'}">
               {{ page()?.description }}
             </p>
-            
-            <!-- CTAs -->
-            <div class="flex flex-wrap gap-6" [ngClass]="{'justify-center': page()?.hero_alignment === 'center', 'justify-end': page()?.hero_alignment === 'right'}">
-              <a [href]="'tel:' + page()?.contact_phone" 
-                 class="group relative px-12 py-6 rounded-2xl transition-all flex items-center gap-3 font-black text-xl shadow-2xl hover:-translate-y-2 hover:brightness-110 active:scale-95 overflow-hidden"
-                 [style.background-color]="page()?.primary_color || '#ef4444'">
-                <div class="absolute inset-0 bg-gradient-to-tr from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <span class="material-icons">phone</span>
-                Llamar ahora
+            <div class="flex flex-wrap gap-4" [ngClass]="{'justify-center': page()?.hero_alignment === 'center', 'justify-end': page()?.hero_alignment === 'right'}">
+              <a (click)="scrollTo('contacto')" class="cursor-pointer px-10 py-5 bg-white text-black rounded-full font-black text-lg transition-all hover:scale-105 hover:shadow-[0_0_30px_rgba(255,255,255,0.3)]">
+                Cotizar Evento
               </a>
-              <a [href]="'https://wa.me/' + (page()?.contact_whatsapp || page()?.contact_phone)" 
-                 target="_blank"
-                 class="group relative px-12 py-6 rounded-2xl transition-all flex items-center gap-3 font-black text-xl shadow-2xl hover:-translate-y-2 hover:brightness-110 active:scale-95 overflow-hidden border border-white/10"
-                 [style.background-color]="page()?.accent_color || '#22c55e'">
-                <div class="absolute inset-0 bg-gradient-to-tr from-white/0 to-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <span class="material-icons">chat</span>
+              <a [href]="'https://wa.me/' + page()?.contact_whatsapp" target="_blank" 
+                 class="px-10 py-5 border border-white/20 rounded-full font-black text-lg backdrop-blur-md transition-all hover:bg-white/10">
                 WhatsApp
               </a>
             </div>
-
-            <!-- Scroll Indicator -->
-            <div class="mt-16 flex justify-center opacity-40 animate-bounce">
-               <span class="material-icons text-4xl">expand_more</span>
-            </div>
           </div>
         </div>
 
-        <!-- Technical HUD Borders (Futuristic) -->
-        <ng-container *ngIf="page()?.theme === 'futuristic'">
-           <div class="absolute top-10 left-10 w-20 h-20 border-t-2 border-l-2 opacity-20" [style.border-color]="page()?.accent_color"></div>
-           <div class="absolute top-10 right-10 w-20 h-20 border-t-2 border-r-2 opacity-20" [style.border-color]="page()?.accent_color"></div>
-           <div class="absolute bottom-10 left-10 w-20 h-20 border-b-2 border-l-2 opacity-20" [style.border-color]="page()?.accent_color"></div>
-           <div class="absolute bottom-10 right-10 w-20 h-20 border-b-2 border-r-2 opacity-20" [style.border-color]="page()?.accent_color"></div>
-        </ng-container>
+        <!-- Decoración HUD -->
+        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center opacity-30 animate-bounce">
+          <span class="text-[10px] tracking-[0.5em] uppercase mb-4">Descubrir</span>
+          <div class="w-[1px] h-12 bg-gradient-to-b from-white to-transparent"></div>
+        </div>
       </section>
 
-      <!-- Theme Specific Body Wrapper -->
-      <div [ngClass]="{
-        'bg-[#050505] text-white': page()?.theme === 'futuristic',
-        'bg-white text-slate-900': page()?.theme !== 'futuristic'
-      }">
-        <!-- Gallery Section -->
-        <section class="py-32 relative overflow-hidden" *ngIf="page()?.gallery?.length">
-          <div class="container mx-auto px-6">
-            <div class="mb-20 text-center">
-               <h2 class="text-4xl md:text-6xl font-black mb-4 tracking-tighter"
-                   [style.color]="page()?.theme === 'futuristic' ? page()?.accent_color : 'inherit'">
-                   Nuestra Galería
-               </h2>
-               <div class="w-24 h-2 bg-primary mx-auto rounded-full" [style.background-color]="page()?.primary_color"></div>
-            </div>
-            
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              <p-card *ngFor="let img of page()?.gallery; let i = index" 
-                    [styleClass]="'group relative overflow-hidden transition-all duration-700 hover:-translate-y-4 hover:shadow-2xl'"
-                    [style]="{'border-radius': '2rem', 'padding': '0', 'background': 'transparent', 'border': 'none', 'box-shadow': page()?.theme === 'futuristic' ? '0 0 30px ' + (page()?.accent_color || '#22c55e') + '22' : 'none'}">
-                
-                <div class="relative aspect-[4/5]">
-                  <img [src]="img" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000">
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-8">
-                    <p class="text-white font-bold uppercase tracking-widest text-sm">Proyecto {{ i + 1 }}</p>
-                  </div>
-                </div>
-              </p-card>
+      <!-- SECCIÓN: BENEFICIOS (Cards Modernas) -->
+      <section class="py-32 relative z-10" *ngIf="page()?.sections_config?.benefits?.length">
+        <div class="container mx-auto px-6">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div *ngFor="let benefit of page()?.sections_config?.benefits" 
+                 class="group p-8 rounded-[2.5rem] bg-white/5 border border-white/10 transition-all hover:bg-white/10 hover:-translate-y-2">
+              <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-white/10 to-white/0 flex items-center justify-center mb-6 transition-transform group-hover:rotate-12"
+                   [style.color]="page()?.accent_color">
+                <i [class]="'pi pi-' + benefit.icon + ' text-3xl'"></i>
+              </div>
+              <h3 class="text-xl font-black mb-3">{{ benefit.title }}</h3>
+              <p class="text-white/50 text-sm leading-relaxed">{{ benefit.description }}</p>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <!-- Footer / Contact -->
-        <footer class="py-24 border-t border-white/5" [ngClass]="{'bg-black': page()?.theme === 'futuristic', 'bg-slate-50': page()?.theme !== 'futuristic'}">
-          <div class="container mx-auto px-6">
-             <div class="flex flex-col md:flex-row justify-between items-center gap-12">
-               <div>
-                 <h3 class="text-2xl font-black mb-2">{{ page()?.slug }}</h3>
-                 <p class="text-slate-500 text-sm">© 2026 Crafted with Passion. Powered by FestEasy.</p>
-               </div>
-               <div class="flex gap-8">
-                  <a *ngIf="page()?.contact_email" [href]="'mailto:' + page()?.contact_email" 
-                     class="text-xl font-bold hover:opacity-70 transition-opacity flex items-center gap-2">
-                    <span class="material-icons opacity-40">mail</span>
-                    {{ page()?.contact_email }}
-                  </a>
-               </div>
-               <div class="flex gap-6">
-                  <!-- Social Links iconified -->
-                  <a *ngIf="page()?.instagram_url" [href]="page()?.instagram_url" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                     <i class="pi pi-instagram"></i>
-                  </a>
-                  <a *ngIf="page()?.facebook_url" [href]="page()?.facebook_url" target="_blank" class="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                     <i class="pi pi-facebook"></i>
-                  </a>
-               </div>
-             </div>
+      <!-- SECCIÓN: SOBRE NOSOTROS (Asimétrico) -->
+      <section class="py-32 relative overflow-hidden" *ngIf="page()?.sections_config?.about?.title">
+        <div class="container mx-auto px-6">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
+            <div class="relative">
+              <div class="aspect-[4/5] rounded-[3rem] overflow-hidden rotate-2 hover:rotate-0 transition-transform duration-700">
+                <img [src]="page()?.sections_config?.about?.image_url || page()?.hero_image" class="w-full h-full object-cover">
+              </div>
+              <!-- Badge Experiencia -->
+              <div class="absolute -bottom-10 -right-10 p-10 bg-white text-black rounded-[2.5rem] shadow-2xl animate-float">
+                <div class="text-5xl font-black leading-none mb-1">{{ page()?.sections_config?.about?.experience_label }}</div>
+                <div class="text-[10px] font-bold uppercase tracking-widest leading-tight opacity-50">
+                  {{ page()?.sections_config?.about?.experience_text }}
+                </div>
+              </div>
+            </div>
+            <div class="space-y-8">
+              <span class="text-xs font-black tracking-[0.4em] uppercase opacity-30">Nuestra Pasión</span>
+              <h2 class="text-5xl md:text-7xl font-black tracking-tighter leading-tight">
+                {{ page()?.sections_config?.about?.title }}
+              </h2>
+              <p class="text-xl text-white/60 leading-relaxed font-light">
+                {{ page()?.sections_config?.about?.description }}
+              </p>
+              <div class="pt-6">
+                 <div class="flex items-center gap-6">
+                    <div class="flex -space-x-4">
+                      <div class="w-14 h-14 rounded-full border-4 border-[#050505] bg-slate-800"></div>
+                      <div class="w-14 h-14 rounded-full border-4 border-[#050505] bg-slate-700"></div>
+                      <div class="w-14 h-14 rounded-full border-4 border-[#050505] bg-slate-600"></div>
+                    </div>
+                    <div class="text-sm">
+                      <div class="font-black">+500 Clientes Felices</div>
+                      <div class="opacity-40">Confían en nosotros</div>
+                    </div>
+                 </div>
+              </div>
+            </div>
           </div>
-        </footer>
-      </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: PAQUETES (Pricing Premium) -->
+      <section class="py-32 bg-white/2" *ngIf="page()?.sections_config?.packages?.length">
+        <div class="container mx-auto px-6">
+          <div class="text-center mb-20">
+            <h2 class="text-4xl md:text-6xl font-black mb-4 tracking-tighter">Nuestros Paquetes</h2>
+            <p class="text-white/40 max-w-xl mx-auto font-light">Diseñados para adaptarse a tus necesidades y superar tus expectativas.</p>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div *ngFor="let pkg of page()?.sections_config?.packages" 
+                 class="relative p-10 rounded-[3rem] border border-white/10 transition-all hover:border-white/30"
+                 [ngClass]="{'bg-white text-black scale-105 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-10': pkg.is_popular, 'bg-white/5': !pkg.is_popular}">
+              
+              <div *ngIf="pkg.is_popular" class="absolute -top-5 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
+                Más Popular
+              </div>
+
+              <h4 class="text-sm font-black uppercase tracking-[0.2em] mb-4 opacity-50">{{ pkg.title }}</h4>
+              <div class="flex items-end gap-2 mb-8">
+                <span class="text-5xl font-black">{{ pkg.currency === 'USD' ? '$' : '' }}{{ pkg.price }}</span>
+                <span class="text-sm font-bold opacity-40 mb-2">{{ pkg.currency || 'MXN' }}</span>
+              </div>
+              
+              <ul class="space-y-4 mb-10">
+                <li *ngFor="let feat of pkg.features" class="flex items-center gap-3 text-sm opacity-80">
+                  <i class="pi pi-check text-xs" [style.color]="pkg.is_popular ? '#000' : page()?.accent_color"></i>
+                  {{ feat }}
+                </li>
+              </ul>
+
+              <button class="w-full py-5 rounded-2xl font-black transition-all"
+                      [style.background-color]="pkg.is_popular ? page()?.primary_color : 'transparent'"
+                      [style.color]="pkg.is_popular ? 'white' : 'inherit'"
+                      [class.border]="!pkg.is_popular" [class.border-white/20]="!pkg.is_popular">
+                Seleccionar
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: GALERÍA (Masonry/Asimétrico) -->
+      <section class="py-32" *ngIf="page()?.gallery?.length">
+        <div class="container mx-auto px-6">
+          <div class="flex justify-between items-end mb-16">
+            <h2 class="text-5xl md:text-7xl font-black tracking-tighter">Galería</h2>
+            <a class="text-xs font-black uppercase tracking-widest opacity-40 hover:opacity-100 transition-opacity">Ver todos</a>
+          </div>
+          <div class="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+            <div *ngFor="let img of page()?.gallery; let i = index" 
+                 class="relative group rounded-[2rem] overflow-hidden break-inside-avoid shadow-2xl">
+              <img [src]="img" class="w-full object-cover transition-transform duration-1000 group-hover:scale-110">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 p-8 flex flex-col justify-end">
+                <p class="font-black text-xl mb-2">Momento {{ i + 1 }}</p>
+                <div class="w-10 h-1 bg-white rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECCIÓN: CONTACTO & FORM -->
+      <section id="contacto" class="py-32 relative">
+        <div class="container mx-auto px-6">
+          <div class="bg-white/5 border border-white/10 rounded-[4rem] p-12 md:p-24 overflow-hidden relative">
+            <!-- Glow background -->
+            <div class="absolute top-0 right-0 w-96 h-96 blur-[120px] opacity-10 rounded-full"
+                 [style.background-color]="page()?.primary_color"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-20">
+              <div>
+                <h2 class="text-5xl md:text-7xl font-black mb-8 tracking-tighter">Hablemos de tu idea</h2>
+                <p class="text-xl text-white/50 font-light mb-12">Estamos listos para hacer realidad tu próximo gran evento. Envíanos un mensaje y nos pondremos en contacto contigo lo antes posible.</p>
+                
+                <div class="space-y-6">
+                   <div class="flex items-center gap-6">
+                      <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                        <i class="pi pi-phone"></i>
+                      </div>
+                      <div>
+                        <div class="text-xs uppercase font-black opacity-30">Llámanos</div>
+                        <div class="text-lg font-bold">{{ page()?.contact_phone }}</div>
+                      </div>
+                   </div>
+                   <div class="flex items-center gap-6">
+                      <div class="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                        <i class="pi pi-envelope"></i>
+                      </div>
+                      <div>
+                        <div class="text-xs uppercase font-black opacity-30">Escríbenos</div>
+                        <div class="text-lg font-bold">{{ page()?.contact_email }}</div>
+                      </div>
+                   </div>
+                </div>
+              </div>
+
+              <!-- Contact Form Mockup -->
+              <div class="space-y-4">
+                 <input type="text" placeholder="Tu Nombre" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 focus:border-white/30 focus:outline-none transition-all">
+                 <input type="email" placeholder="Correo Electrónico" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 focus:border-white/30 focus:outline-none transition-all">
+                 <textarea rows="5" placeholder="Cuéntanos sobre tu evento" class="w-full bg-white/5 border border-white/10 rounded-2xl p-5 focus:border-white/30 focus:outline-none transition-all"></textarea>
+                 <button class="w-full py-6 rounded-2xl bg-white text-black font-black text-xl hover:scale-[1.02] active:scale-[0.98] transition-all">
+                   Enviar Solicitud
+                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer Minimalist -->
+      <footer class="py-20 border-t border-white/5">
+        <div class="container mx-auto px-6">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-10">
+            <h3 class="text-2xl font-black tracking-tighter" [style.color]="page()?.accent_color">
+              {{ page()?.slug?.toUpperCase() }}
+            </h3>
+            <div class="text-white/20 text-[10px] font-black uppercase tracking-[0.4em]">
+              © 2026 Powered by FestEasy • All Rights Reserved
+            </div>
+            <div class="flex gap-6">
+               <a *ngIf="page()?.instagram_url" [href]="page()?.instagram_url" class="hover:text-primary transition-colors"><i class="pi pi-instagram"></i></a>
+               <a *ngIf="page()?.facebook_url" [href]="page()?.facebook_url" class="hover:text-primary transition-colors"><i class="pi pi-facebook"></i></a>
+               <a *ngIf="page()?.tiktok_url" [href]="page()?.tiktok_url" class="hover:text-primary transition-colors"><i class="pi pi-at"></i></a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
 
     <ng-template #loadingTemplate>
@@ -177,9 +256,23 @@ import { CardModule } from 'primeng/card';
   `,
   styles: [`
     :host { display: block; }
-    .hero-left { text-align: left; }
-    .hero-center { text-align: center; }
-    .hero-right { text-align: right; }
+    @keyframes slow-zoom {
+      from { transform: scale(1); }
+      to { transform: scale(1.15); }
+    }
+    .animate-slow-zoom { animation: slow-zoom 30s infinite alternate linear; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(2deg); }
+      50% { transform: translateY(-20px) rotate(2deg); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+
+    @keyframes title-slide {
+      from { transform: translateY(50px); opacity: 0; filter: blur(10px); }
+      to { transform: translateY(0); opacity: 1; filter: blur(0); }
+    }
+    .animate-title-slide { animation: title-slide 1.2s cubic-bezier(0.2, 0.8, 0.2, 1); }
   `]
 })
 export class ProviderPublicPageComponent implements OnInit {
@@ -204,5 +297,10 @@ export class ProviderPublicPageComponent implements OnInit {
     } catch (error) {
       console.error('Error loading public page:', error);
     }
+  }
+
+  scrollTo(id: string) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
   }
 }

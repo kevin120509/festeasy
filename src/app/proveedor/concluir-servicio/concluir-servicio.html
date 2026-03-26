@@ -43,7 +43,7 @@
                         class="aspect-video rounded-2xl overflow-hidden border-2 border-primary shadow-lg">
                         <img [src]="fotoImg()" class="w-full h-full object-cover">
                         <button (click)="fotoImg.set(null)"
-                            class="absolute top-3 right-3 p-2 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                            class="absolute top-3 right-3 p-2 bg-[#523576] text-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                             <span class="material-icons-outlined text-sm">delete</span>
                         </button>
                     </div>
@@ -83,7 +83,7 @@
                         (touchstart)="startDrawing($event)" (touchmove)="draw($event)" (touchend)="stopDrawing()">
                     </canvas>
                     <button (click)="clearSignature()"
-                        class="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-red-500 transition-colors">
+                        class="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-[#523576] transition-colors">
                         Limpiar Firma
                     </button>
                 </div>
@@ -107,7 +107,7 @@
                         (touchstart)="startDrawing($event)" (touchmove)="draw($event)" (touchend)="stopDrawing()">
                     </canvas>
                     <button (click)="clearSignature()"
-                        class="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-red-500 transition-colors">
+                        class="absolute bottom-3 right-3 text-[10px] font-bold uppercase tracking-wider text-slate-400 hover:text-[#523576] transition-colors">
                         Limpiar Firma
                     </button>
                 </div>
@@ -144,7 +144,7 @@
 
             <!-- Error Message -->
             <p *ngIf="errorMessage()"
-                class="mt-4 text-xs font-bold text-red-500 text-center flex items-center justify-center gap-1">
+                class="mt-4 text-xs font-bold text-[#523576] text-center flex items-center justify-center gap-1">
                 <span class="material-icons-outlined text-sm">error</span>
                 {{ errorMessage() }}
             </p>
