@@ -677,13 +677,40 @@ export class SupabaseDataService {
      * Obtiene lista completa de proveedores para la tabla central
      */
     async getAllProvidersDetailed() {
-        const { data, error } = await this.supabase
-            .from('perfil_proveedor')
-            .select('*')
-            .order('creado_en', { ascending: false });
+        try {
+            // 1. Obtener perfiles de proveedor
+            const { data: providers, error: pError } = await this.supabase
+                .from('perfil_proveedor')
+                .select('*')
+                .order('creado_en', { ascending: false });
 
-        if (error) throw error;
-        return data || [];
+            if (pError) throw pError;
+            if (!providers || providers.length === 0) return [];
+
+            // 2. Obtener historiales de suscripción de forma masiva
+            const { data: history, error: hError } = await this.supabase
+                .from('historial_suscripciones')
+                .select('*')
+                .order('fecha_fin', { ascending: false });
+
+            // Si falla la tabla de historial, simplemente retornamos los perfiles sin sub
+            const safeHistory = history || [];
+
+            // 3. Unir en memoria
+            return providers.map((p: any) => {
+                const providerHistory = safeHistory.filter((h: any) => h.proveedor_id === p.id || h.usuario_id === p.usuario_id);
+                return { 
+                    ...p, 
+                    latest_subscription: providerHistory[0] || null,
+                    historial_suscripciones: providerHistory
+                };
+            });
+        } catch (error: any) {
+            console.error('Error en getAllProvidersDetailed:', error);
+            // Si la tabla no existe (42P01), fallamos silenciosamente retornando vacío
+            if (error?.code === '42P01') return [];
+            throw error;
+        }
     }
 
     /**

@@ -161,13 +161,13 @@ import { Checkbox } from 'primeng/checkbox';
                 <p-accordion-content>
                   <div class="flex flex-col gap-6 py-4" *ngIf="page().sections_config?.about">
                     <div class="flex flex-col gap-2">
-                      <label class="font-black text-[10px] uppercase text-slate-400 tracking-widest">Título de Sección</label>
-                      <input pInputText [(ngModel)]="page().sections_config.about.title" class="rounded-xl border-slate-200" />
+                       <label class="font-black text-[10px] uppercase text-slate-400 tracking-widest">Título de Sección</label>
+                       <input pInputText [(ngModel)]="page().sections_config.about.title" class="rounded-xl border-slate-200" />
                     </div>
                     <div class="flex flex-col gap-2">
-                      <label class="font-black text-[10px] uppercase text-slate-400 tracking-widest">Historia o Misión</label>
-                      <textarea pInputTextarea [(ngModel)]="page().sections_config.about.description" rows="5" 
-                                class="text-sm border-slate-200 rounded-xl resize-none"></textarea>
+                       <label class="font-black text-[10px] uppercase text-slate-400 tracking-widest">Historia o Misión</label>
+                       <textarea pInputTextarea [(ngModel)]="page().sections_config.about.description" rows="5" 
+                                 class="text-sm border-slate-200 rounded-xl resize-none"></textarea>
                     </div>
                     <div class="grid grid-cols-2 gap-6">
                       <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100">
@@ -288,6 +288,74 @@ import { Checkbox } from 'primeng/checkbox';
                   </div>
                 </p-accordion-content>
               </p-accordion-panel>
+
+              <!-- SECCIÓN 5: GALERÍA DE FOTOS -->
+              <p-accordion-panel value="4">
+                <p-accordion-header>
+                  <div class="flex align-items-center gap-3 py-1">
+                    <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-500 flex items-center justify-center">
+                      <i class="pi pi-images"></i>
+                    </div>
+                    <div>
+                      <span class="font-black text-sm block">Galería de Referencia</span>
+                      <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Fotos de tus trabajos</span>
+                    </div>
+                  </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                  <div class="space-y-6 py-4">
+                    <div class="bg-slate-50 p-6 rounded-2xl border border-dashed border-slate-200 text-center">
+                       <i class="pi pi-cloud-upload text-3xl text-slate-300 mb-2"></i>
+                       <p class="text-xs font-bold text-slate-500 mb-4">Sube fotos reales de tus eventos para generar confianza.</p>
+                       <p-fileUpload mode="basic" chooseLabel="Añadir Fotos a la Galería" 
+                                     [multiple]="true" accept="image/*" 
+                                     [customUpload]="true" (onSelect)="onGallerySelect($event)"></p-fileUpload>
+                    </div>
+
+                    <div class="grid grid-cols-2 p-2 gap-4" *ngIf="page().gallery?.length">
+                       <div *ngFor="let img of page().gallery; let i = index" class="relative group aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-sm">
+                          <img [src]="img" class="w-full h-full object-cover">
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                             <button (click)="removeGalleryImage(i)" class="w-8 h-8 rounded-full bg-white text-red-500 shadow-lg flex items-center justify-center">
+                                <i class="pi pi-trash"></i>
+                             </button>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                </p-accordion-content>
+              </p-accordion-panel>
+
+              <!-- SECCIÓN 6: REDES SOCIALES -->
+              <p-accordion-panel value="5">
+                <p-accordion-header>
+                  <div class="flex align-items-center gap-3 py-1">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center">
+                      <i class="pi pi-share-alt"></i>
+                    </div>
+                    <div>
+                      <span class="font-black text-sm block">Redes Sociales</span>
+                      <span class="text-[10px] text-slate-400 uppercase tracking-tighter">Canales de contacto</span>
+                    </div>
+                  </div>
+                </p-accordion-header>
+                <p-accordion-content>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                    <div class="p-inputgroup modern-group">
+                      <span class="p-inputgroup-addon"><i class="pi pi-whatsapp"></i></span>
+                      <input pInputText [(ngModel)]="page().contact_whatsapp" placeholder="WhatsApp" class="text-sm" />
+                    </div>
+                    <div class="p-inputgroup modern-group">
+                      <span class="p-inputgroup-addon"><i class="pi pi-instagram"></i></span>
+                      <input pInputText [(ngModel)]="page().instagram_url" placeholder="URL Instagram" class="text-sm" />
+                    </div>
+                    <div class="p-inputgroup modern-group">
+                      <span class="p-inputgroup-addon"><i class="pi pi-facebook"></i></span>
+                      <input pInputText [(ngModel)]="page().facebook_url" placeholder="URL Facebook" class="text-sm" />
+                    </div>
+                  </div>
+                </p-accordion-content>
+              </p-accordion-panel>
             </p-accordion>
           </div>
         </div>
@@ -305,7 +373,7 @@ import { Checkbox } from 'primeng/checkbox';
               <div class="absolute -right-[10px] top-32 w-[2px] h-16 bg-[#333] rounded-r"></div>
 
               <!-- Content Container -->
-              <div class="w-full h-full rounded-[2.8rem] overflow-hidden bg-[#050505] relative preview-scroll scrollbar-hide">
+              <div class="w-full h-full rounded-[2.8rem] overflow-y-auto bg-[#050505] relative preview-scroll scrollbar-hide">
                 
                 <!-- MINI PREVIEW DE PÁGINA PÚBLICA -->
                 <div class="preview-content-zoom" [style.--accent]="page().accent_color || '#906BBD'">
@@ -356,9 +424,35 @@ import { Checkbox } from 'primeng/checkbox';
                      </div>
                   </div>
 
+                  <!-- Gallery Preview -->
+                  <div class="p-8" *ngIf="page().gallery?.length">
+                     <div class="text-[8px] font-black text-primary uppercase tracking-[0.2em] mb-4" [style.color]="page().accent_color">Nuestro Trabajo</div>
+                     <div class="grid grid-cols-2 gap-2">
+                        <div *ngFor="let img of page().gallery" class="aspect-square rounded-xl bg-slate-800 overflow-hidden border border-white/5">
+                           <img [src]="img" class="w-full h-full object-cover">
+                        </div>
+                     </div>
+                  </div>
+
+                  <!-- Packages Preview -->
+                  <div class="p-8 space-y-4" *ngIf="page().sections_config?.packages?.length">
+                    <div *ngFor="let pkg of page().sections_config.packages" class="p-6 rounded-3xl border border-white/10 bg-white/5 relative overflow-hidden"
+                         [style.border-color]="pkg.is_popular ? page().accent_color + '44' : 'rgba(255,255,255,0.1)'">
+                       <div *ngIf="pkg.is_popular" class="absolute top-0 right-0 px-3 py-1 bg-primary text-[8px] font-black text-white rounded-bl-xl" [style.background-color]="page().accent_color">TOP SELL</div>
+                       <div class="text-lg font-black text-white mb-1">{{ pkg.title }}</div>
+                       <div class="text-base font-black text-primary mb-4" [style.color]="page().accent_color">{{ '$' }}{{ pkg.price }}</div>
+                       <div class="space-y-2">
+                          <div *ngFor="let f of pkg.features" class="flex items-center gap-2 text-[8px] text-white/50">
+                             <i class="pi pi-check text-primary" [style.color]="page().accent_color"></i>
+                             <span>{{ f }}</span>
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+
                   <!-- Footer Preview -->
                   <div class="p-8 border-t border-white/5 text-center">
-                     <div class="text-xs font-black text-white mb-2">{{ page().slug?.toUpperCase() }}</div>
+                     <div class="text-xs font-black text-white mb-2">{{ page().slug?.toUpperCase() || 'MI NEGOCIO' }}</div>
                      <div class="flex justify-center gap-4 opacity-30 scale-75">
                          <i class="pi pi-instagram"></i>
                          <i class="pi pi-facebook"></i>

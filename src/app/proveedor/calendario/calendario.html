@@ -8,9 +8,9 @@
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <!-- Calendar Column -->
         <div class="lg:col-span-7 xl:col-span-8 space-y-6">
-            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden p-6 md:p-10">
+            <div class="bg-white rounded-[2rem] border border-slate-100 shadow-sm overflow-hidden p-4 md:p-6 w-full flex flex-col">
                 <p-datepicker [(ngModel)]="selectedDate" [inline]="true" [showOtherMonths]="false"
-                    (onSelect)="onDateSelect($event)" styleClass="w-full custom-calendar">
+                    (onSelect)="onDateSelect($event)" styleClass="w-full custom-calendar flex-grow">
                     <ng-template pTemplate="date" let-date>
                         <div class="date-cell relative flex flex-col items-center justify-center w-full h-full p-2">
                             <span class="z-10 text-lg hover:bg-slate-100 rounded-full w-8 h-8 flex items-center justify-center" [class.bg-[#523576]]="isSelected(date)" [class.text-white]="isSelected(date)">
