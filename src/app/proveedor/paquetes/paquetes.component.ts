@@ -1,10 +1,12 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
-import { PackageVariant, PackageVariantOption } from '../../models';
+import { PackageVariant, PackageVariantOption, Producto } from '../../models';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { SupabaseService } from '../../services/supabase.service';
 import { SupabaseDataService } from '../../services/supabase-data.service';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
+import { InventoryService } from '../../services/inventory.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { ConfirmationService } from 'primeng/api';
 import { ProviderNavComponent } from '../shared/provider-nav/provider-nav.component';
@@ -27,6 +29,7 @@ interface Paquete {
 interface PackageItem {
   nombre_item: string;
   cantidad: number;
+  producto_id?: string;
 }
 
 interface ExtraCharge {
@@ -55,6 +58,7 @@ export class PaquetesComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private api = inject(ApiService);
+  private inventoryService = inject(InventoryService);
   private confirmationService = inject(ConfirmationService);
   public subscriptionService = inject(SubscriptionService);
 
@@ -132,6 +136,8 @@ export class PaquetesComponent implements OnInit {
   packageItems = signal<PackageItem[]>([]);
   newItemName = signal('');
   newItemQuantity = signal(1);
+  selectedProductId = signal<string>('');
+  inventoryProducts = signal<Producto[]>([]);
 
   // Cargos adicionales
   extraCharges = signal<ExtraCharge[]>([]);
@@ -153,6 +159,7 @@ export class PaquetesComponent implements OnInit {
     await this.cargarPerfil();
     await this.cargarCategorias();
     await this.cargarPaquetes();
+    await this.cargarInventario();
 
     // Verificar si hay un query param para editar después de cargar los paquetes
     this.route.queryParams.subscribe(params => {
@@ -179,6 +186,16 @@ export class PaquetesComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error cargando categorías:', error);
+    }
+  }
+  
+  async cargarInventario() {
+    try {
+        if (!this.profile) return;
+        const productos = await firstValueFrom(this.inventoryService.getProductos(true));
+        this.inventoryProducts.set(productos);
+    } catch (error) {
+        console.error('Error cargando inventario:', error);
     }
   }
 
@@ -243,6 +260,10 @@ export class PaquetesComponent implements OnInit {
   // Cerrar menú
   cerrarMenu() {
     this.menuAbierto.set(null);
+  }
+
+  irAlDashboard() {
+    this.router.navigate(['/proveedor/dashboard']);
   }
 
   // Cambiar estado del paquete (toggle online/offline)
@@ -485,14 +506,26 @@ export class PaquetesComponent implements OnInit {
   addPackageItem() {
     const name = this.newItemName().trim();
     const quantity = this.newItemQuantity();
+    const productId = this.selectedProductId();
 
-    if (name && quantity > 0) {
+    if ((name || productId) && quantity > 0) {
+      let finalName = name;
+      
+      // Si seleccionó un producto, usar su nombre si no se escribió uno manual
+      if (productId) {
+        const prod = this.inventoryProducts().find(p => p.id === productId);
+        if (prod && !finalName) finalName = prod.nombre;
+      }
+
       this.packageItems.update(items => [...items, {
-        nombre_item: name,
-        cantidad: quantity
+        nombre_item: finalName,
+        cantidad: quantity,
+        producto_id: productId || undefined
       }]);
+      
       this.newItemName.set('');
       this.newItemQuantity.set(1);
+      this.selectedProductId.set('');
     }
   }
 
@@ -570,6 +603,8 @@ export class PaquetesComponent implements OnInit {
   // Guardar borrador
   async guardarBorrador() {
     if (this.saving()) return;
+    this.saving.set(true);
+    
     this.packageData.update(data => ({ ...data, estado: 'borrador' }));
     await this.savePackage();
   }
@@ -577,18 +612,23 @@ export class PaquetesComponent implements OnInit {
   // Publicar paquete
   async publicar() {
     if (this.saving()) return;
+    this.saving.set(true);
+
     if (!this.packageData().nombre) {
       this.errorMessage.set('El nombre del paquete es obligatorio');
+      this.saving.set(false);
       return;
     }
 
     if (this.packageData().precio_base <= 0) {
       this.errorMessage.set('El precio base debe ser mayor a 0');
+      this.saving.set(false);
       return;
     }
 
     if (this.images().length === 0) {
       this.errorMessage.set('Debes subir al menos una imagen');
+      this.saving.set(false);
       return;
     }
 
@@ -690,20 +730,17 @@ export class PaquetesComponent implements OnInit {
         );
       }
 
-      // Volver a la lista después de 2 segundos
+      // Volver a la lista después de 800ms
       setTimeout(() => {
         this.volverALista();
         this.saving.set(false);
-      }, 2000);
+      }, 800);
 
     } catch (error: any) {
       console.error('❌ Error al guardar el paquete:', error);
-      let errorMsg = 'Error al guardar el paquete. ';
-      if (error.message) {
-        errorMsg += error.message;
-      }
-      this.errorMessage.set(errorMsg);
-      this.saving.set(false);
+      const errorMsg = error?.message || error?.error_description || 'Error desconocido en el servidor';
+      this.errorMessage.set(`Error al guardar: ${errorMsg}`);
+      this.saving.set(false); // Reactivar botón en caso de error
     }
   }
 

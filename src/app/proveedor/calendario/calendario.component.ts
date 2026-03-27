@@ -113,8 +113,12 @@ export class CalendarioComponent implements OnInit {
 
   goToEvent(eventId: string) {
     if (eventId) {
-        this.router.navigate(['/proveedor/solicitudes', eventId]);
+      this.router.navigate(['/proveedor/solicitudes', eventId]);
     }
+  }
+
+  irAlDashboard() {
+    this.router.navigate(['/proveedor/dashboard']);
   }
 
   isSelected(date: any): boolean {

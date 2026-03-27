@@ -249,6 +249,28 @@ export class NotificationService {
         );
     }
 
+    deleteAllNotifications(): Observable<boolean> {
+        const userId = this.auth.getUserId();
+        if (!userId) return of(false);
+
+        return from(this.supabase
+            .from('notificaciones')
+            .delete()
+            .eq('usuario_id', userId)
+        ).pipe(
+            map(({ error }) => {
+                if (error) throw error;
+                this.notifications.set([]);
+                this.unreadCount.set(0);
+                return true;
+            }),
+            catchError(error => {
+                console.error('Error deleting all notifications:', error);
+                return of(false);
+            })
+        );
+    }
+
     /**
      * Envía un correo electrónico real usando la Edge Function de Supabase
      */

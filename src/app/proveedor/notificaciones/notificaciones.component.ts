@@ -45,6 +45,16 @@ export class NotificacionesComponent implements OnInit {
         this.showMenuId.set(null);
     }
 
+    borrarTodas() {
+        if (confirm('¿Estás seguro de que quieres borrar todas las notificaciones?')) {
+            this.notificationService.deleteAllNotifications().subscribe();
+        }
+    }
+
+    irAtras() {
+        this.router.navigate(['/proveedor/dashboard']);
+    }
+
     toggleMenu(id: string, event: Event) {
         event.stopPropagation();
         this.showMenuId.set(this.showMenuId() === id ? null : id);

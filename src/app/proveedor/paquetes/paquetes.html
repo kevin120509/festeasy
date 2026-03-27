@@ -4,6 +4,15 @@
     <!-- ============================================ -->
     <ng-container *ngIf="vistaActual() === 'lista'">
         <main class="p-8 w-full">
+            <!-- Back button for mobile -->
+            <div class="mb-4">
+                <button (click)="irAlDashboard()" 
+                    class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
+                    <span class="material-icons-outlined text-lg">arrow_back</span>
+                    <span>Volver al Dashboard</span>
+                </button>
+            </div>
+            
             <!-- Page Heading Section -->
             <div class="mb-8">
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -55,14 +64,32 @@
             <!-- Filter Tabs -->
             <div class="mb-8 border-b border-gray-200 dark:border-gray-800">
                 <div class="flex gap-10">
-                    <button
-                        class="relative pb-4 text-sm font-bold text-primary">
+                    <button (click)="cambiarTab('publicado')"
+                        [class.text-primary]="tabActivo() === 'publicado'"
+                        [class.text-slate-500]="tabActivo() !== 'publicado'"
+                        class="relative pb-4 text-sm font-bold transition-all">
                         Mis Paquetes
-                        <span class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
-                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] bg-primary/10">
+                        <span *ngIf="tabActivo() === 'publicado'" class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]" 
+                            [class.bg-primary/10]="tabActivo() === 'publicado'"
+                            [class.bg-slate-100]="tabActivo() !== 'publicado'">
                             {{ paquetesActivos().length }}
                         </span>
                     </button>
+
+                    <button (click)="cambiarTab('borrador')"
+                        [class.text-primary]="tabActivo() === 'borrador'"
+                        [class.text-slate-500]="tabActivo() !== 'borrador'"
+                        class="relative pb-4 text-sm font-bold transition-all">
+                        Borradores
+                        <span *ngIf="tabActivo() === 'borrador'" class="absolute bottom-0 left-0 w-full h-0.5 bg-primary"></span>
+                        <span class="ml-2 px-2 py-0.5 rounded-full text-[10px]"
+                            [class.bg-primary/10]="tabActivo() === 'borrador'"
+                            [class.bg-slate-100]="tabActivo() !== 'borrador'">
+                            {{ paquetesBorradores().length }}
+                        </span>
+                    </button>
+
                 </div>
             </div>
 
@@ -404,26 +431,38 @@
                             <div
                                 class="flex flex-col gap-4 mb-6 p-4 bg-slate-50 dark:bg-gray-900/30 rounded-xl border border-slate-100 dark:border-gray-700">
                                 <div class="grid grid-cols-12 gap-3">
-                                    <div class="col-span-8">
+                                    <div class="col-span-12 md:col-span-5">
                                         <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Descripción
-                                            del elemento</label>
+                                            class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Producto del Inventario</label>
+                                        <select [value]="selectedProductId()"
+                                            (change)="selectedProductId.set($any($event.target).value)"
+                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm">
+                                            <option value="">-- Selección manual (Solo texto) --</option>
+                                            <option *ngFor="let prod of inventoryProducts()" [value]="prod.id">
+                                                {{ prod.nombre }} (Stock: {{ prod.stock }})
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-span-12 md:col-span-4">
+                                        <label
+                                            class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Nombre personalizado (opcional)</label>
                                         <input type="text" [value]="newItemName()"
                                             (input)="newItemName.set($any($event.target).value)"
-                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all text-sm"
                                             placeholder="Ej: Mesas rectangulares" />
                                     </div>
 
-                                    <div class="col-span-3">
+                                    <div class="col-span-9 md:col-span-2">
                                         <label
-                                            class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Cantidad</label>
+                                            class="text-[10px] font-bold text-slate-400 uppercase ml-1 mb-1 block">Cant.</label>
                                         <input type="number" [value]="newItemQuantity()"
                                             (input)="newItemQuantity.set(+$any($event.target).value)"
-                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all text-center font-bold"
+                                            class="w-full px-4 py-2.5 bg-white dark:bg-gray-700 border border-slate-200 dark:border-gray-600 rounded-lg outline-none focus:ring-2 focus:ring-primary/20 transition-all text-center font-bold text-sm"
                                             placeholder="0" min="1" />
                                     </div>
 
-                                    <div class="col-span-1 flex items-end">
+                                    <div class="col-span-3 md:col-span-1 flex items-end">
                                         <button (click)="addPackageItem()"
                                             class="w-full h-[45px] bg-primary text-white rounded-lg font-semibold hover:bg-[#3a2653] transition-all shadow-md active:scale-95 flex items-center justify-center"
                                             title="Agregar elemento">
@@ -439,10 +478,13 @@
                                     <div class="flex items-center gap-4">
                                         <div
                                             class="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-                                            <span class="material-icons-outlined text-lg">check_circle</span>
+                                            <span class="material-icons-outlined text-lg" *ngIf="!item.producto_id">check_circle</span>
+                                            <span class="material-icons-outlined text-lg" *ngIf="item.producto_id">inventory_2</span>
                                         </div>
-                                        <span class="font-bold text-slate-700 dark:text-slate-200">{{ item.nombre_item
-                                            }}</span>
+                                        <div class="flex flex-col">
+                                            <span class="font-bold text-slate-700 dark:text-slate-200">{{ item.nombre_item }}</span>
+                                            <span *ngIf="item.producto_id" class="text-[9px] font-bold text-green-500 uppercase tracking-widest">Vinculado a Inventario</span>
+                                        </div>
                                     </div>
                                     <div class="flex items-center gap-4">
                                         <span

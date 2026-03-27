@@ -4,6 +4,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { InventoryService } from '../../services/inventory.service';
 import { environment } from '../../../environments/environment';
 
 declare var paypal: any;
@@ -20,6 +21,7 @@ export class PagoComponent implements OnInit, AfterViewInit {
     private router = inject(Router);
     private api = inject(ApiService);
     private auth = inject(AuthService);
+    private inventory = inject(InventoryService);
 
     solicitud = signal<any>(null);
     loading = signal(true);
@@ -242,6 +244,15 @@ export class PagoComponent implements OnInit, AfterViewInit {
             }));
 
             await firstValueFrom(this.api.updateRequestStatus(id, nuevoEstado));
+
+            // Si el estado pasa a reservado por primera vez, descontar inventario
+            if (nuevoEstado === 'reservado') {
+                try {
+                    await this.inventory.reducirStockPorSolicitud(id);
+                } catch (invErr) {
+                    console.error('⚠️ Error al descontar inventario:', invErr);
+                }
+            }
 
             console.log('✅ Estado actualizado exitosamente');
 

@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { SupabaseService } from './supabase.service';
-import { Observable, from, map, catchError, of, shareReplay } from 'rxjs';
-import { Producto } from '../models';
+import { Observable, from, map, catchError, of, shareReplay, firstValueFrom } from 'rxjs';
+import { Producto, CotizacionBorrador } from '../models';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -144,5 +144,89 @@ export class InventoryService {
             .getPublicUrl(filePath);
 
         return data.publicUrl;
+    }
+
+    /**
+     * Reduce el stock de los productos asociados a una solicitud (paquete + extras)
+     */
+    async reducirStockPorSolicitud(solicitudId: string): Promise<void> {
+        try {
+            // 1. Obtener la solicitud con su borrador de cotización
+            const { data: sol, error: solError } = await this.supabase
+                .from('solicitudes')
+                .select('cotizacion_borrador, items_solicitud(paquete_id)')
+                .eq('id', solicitudId)
+                .single();
+
+            if (solError || !sol) throw new Error('No se pudo encontrar la solicitud');
+            
+            const borrador = sol.cotizacion_borrador as CotizacionBorrador;
+            const itemsToReduce: { id: string, cantidad: number }[] = [];
+
+            // 2. Procesar productos extra de la cotización
+            if (borrador && borrador.productos_extra) {
+                borrador.productos_extra.forEach(p => {
+                    if (p.producto_id) {
+                        itemsToReduce.push({ id: p.producto_id, cantidad: p.cantidad });
+                    }
+                });
+            }
+
+            // 3. Procesar items del paquete base
+            const itemsSol = sol.items_solicitud as any[];
+            if (itemsSol && itemsSol.length > 0) {
+                for (const item of itemsSol) {
+                    if (item.paquete_id) {
+                        const { data: pkgItems, error: pkgItemsError } = await this.supabase
+                            .from('items_paquete')
+                            .select('producto_id, cantidad')
+                            .eq('paquete_id', item.paquete_id);
+                        
+                        if (!pkgItemsError && pkgItems) {
+                            pkgItems.forEach(pi => {
+                                if (pi.producto_id) {
+                                    // Multiplicar por la cantidad de paquetes solicitados
+                                    const cantTotal = pi.cantidad * (borrador?.paquete_base?.cantidad || 1);
+                                    itemsToReduce.push({ id: pi.producto_id, cantidad: cantTotal });
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+
+            // 4. Ejecutar la reducción de cada producto
+            if (itemsToReduce.length > 0) {
+                console.log('📉 Reduciendo stock para items:', itemsToReduce);
+                for (const item of itemsToReduce) {
+                    // Usamos una operación atómica: stock = stock - cantidad
+                    const { error: updateError } = await this.supabase.rpc('increment_stock', {
+                        row_id: item.id,
+                        amount: -item.cantidad
+                    });
+
+                    if (updateError) {
+                        // Si falla el RPC (que es lo ideal para evitar race conditions), probamos update normal
+                        console.warn('⚠️ RPC increment_stock falló, usando update tradicional:', updateError);
+                        
+                        const { data: currentProd } = await this.supabase
+                            .from('productos')
+                            .select('stock')
+                            .eq('id', item.id)
+                            .single();
+                        
+                        if (currentProd) {
+                            await this.supabase
+                                .from('productos')
+                                .update({ stock: Math.max(0, currentProd.stock - item.cantidad) })
+                                .eq('id', item.id);
+                        }
+                    }
+                }
+            }
+        } catch (error) {
+            console.error('❌ Error en reducirStockPorSolicitud:', error);
+            throw error;
+        }
     }
 }

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <style>
+      .balloon-fill { fill: #9775C5; }
+      .white-line { fill: none; stroke: #ffffff; stroke-width: 5; stroke-linecap: round; }
+      .cursor-outline { fill: #ffffff; stroke: #482974; stroke-width: 5; stroke-linejoin: round; }
+    </style>
+  </defs>
+
+  <circle cx="85" cy="80" r="45" class="balloon-fill"/>
+  
+  <path d="M78 123 L72 133 L98 133 L92 123 Z" class="balloon-fill"/>
+  <rect x="75" y="115" width="20" height="10" class="balloon-fill" />
+
+  <path d="M85 133 Q80 145 92 155 T85 175" fill="none" stroke="#9775C5" stroke-width="4" stroke-linecap="round"/>
+
+  <path d="M53 70 A 30 30 0 0 1 75 43" class="white-line"/>
+  <path d="M50 85 L50 95" class="white-line"/>
+
+  <line x1="105" y1="95" x2="93" y2="98" class="white-line" stroke-width="4"/>
+  <line x1="110" y1="80" x2="103" y2="88" class="white-line" stroke-width="4"/>
+  <line x1="123" y1="90" x2="113" y2="95" class="white-line" stroke-width="4"/>
+
+  <polygon points="110,100 110,160 125,145 140,165 150,158 135,138 155,138" class="cursor-outline"/>
+</svg>

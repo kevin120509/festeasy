@@ -236,14 +236,29 @@
     </style>
 
     <main class="p-8 w-full ">
-        <div class="page-header mb-8 flex justify-between items-center">
+        <div class="mb-4">
+            <button (click)="irAtras()" 
+                class="flex items-center gap-2 text-slate-500 hover:text-primary transition-colors font-semibold text-sm">
+                <span class="material-icons-outlined text-lg">arrow_back</span>
+                <span>Volver al Dashboard</span>
+            </button>
+        </div>
+
+        <div class="page-header mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-slate-800">Notificaciones 🔔</h1>
                 <p class="text-slate-500 mt-1">Mantente al día con tu actividad</p>
             </div>
-            <button (click)="marcarTodasLeidas()"
-                class="px-4 py-2 bg-white border border-slate-200 rounded-xl font-medium text-sm text-slate-600 hover:bg-slate-50 transition-colors">Marcar
-                todas como leídas</button>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button (click)="marcarTodasLeidas()"
+                    class="flex-1 md:flex-none px-4 py-2 bg-white border border-slate-200 rounded-xl font-medium text-xs text-slate-600 hover:bg-slate-50 transition-colors">
+                    Marcar todo leido
+                </button>
+                <button (click)="borrarTodas()"
+                    class="flex-1 md:flex-none px-4 py-2 bg-red-50 border border-red-100 rounded-xl font-medium text-xs text-red-600 hover:bg-red-100 transition-colors">
+                    Borrar todas
+                </button>
+            </div>
         </div>
 
         <div class="notificaciones-list space-y-3">
@@ -276,10 +291,17 @@
                             <span class="font-semibold text-slate-800">{{ notif.titulo }}</span>
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-slate-400">{{ formatTime(notif.creado_en) }}</span>
-                                <button (click)="toggleMenu(notif.id, $event)"
-                                    class="p-1 hover:bg-slate-100 rounded-full transition-colors">
-                                    <span class="material-icons text-slate-400 text-sm">more_vert</span>
-                                </button>
+                                <div class="flex items-center gap-1">
+                                    <button (click)="borrarNotificacion(notif.id, $event)"
+                                        class="p-1.5 hover:bg-red-50 text-slate-300 hover:text-red-500 rounded-full transition-all"
+                                        title="Borrar">
+                                        <span class="material-icons-outlined text-sm">delete</span>
+                                    </button>
+                                    <button (click)="toggleMenu(notif.id, $event)"
+                                        class="p-1.5 hover:bg-slate-100 rounded-full transition-colors text-slate-400">
+                                        <span class="material-icons text-sm">more_vert</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <p class="text-sm text-slate-600">{{ notif.mensaje }}</p>

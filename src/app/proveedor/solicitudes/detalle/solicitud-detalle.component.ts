@@ -14,6 +14,7 @@ import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { ChatNegociacionComponent } from '../../../shared/chat-negociacion/chat-negociacion.component';
 import { CotizadorComponent } from '../cotizador/cotizador.component';
+import { InventoryService } from '../../../services/inventory.service';
 
 @Component({
     selector: 'app-solicitud-detalle',
@@ -26,6 +27,7 @@ export class SolicitudDetalleComponent implements OnInit {
     private route = inject(ActivatedRoute);
     private router = inject(Router);
     private api = inject(ApiService);
+    private inventory = inject(InventoryService);
     private confirmationService = inject(ConfirmationService);
     public auth = inject(AuthService);
 
@@ -531,7 +533,17 @@ export class SolicitudDetalleComponent implements OnInit {
                 // Actualizar estado de la solicitud
                 const nuevoEstado = this.pagoManual.tipo_pago === 'anticipo' ? 'reservado' : 'finalizado';
                 this.api.updateSolicitudEstado(sol.id, nuevoEstado).subscribe({
-                    next: () => {
+                    next: async () => {
+                        // Si el estado pasa a reservado, descontar inventario
+                        if (nuevoEstado === 'reservado') {
+                            try {
+                                await this.inventory.reducirStockPorSolicitud(sol.id);
+                            } catch (invErr) {
+                                console.error('⚠️ Error al descontar inventario:', invErr);
+                                // No bloqueamos el flujo principal si falla el inventario, pero avisamos en consola
+                            }
+                        }
+
                         this.mensajeExito.set('Pago registrado y estado actualizado correctamente');
                         setTimeout(() => this.mensajeExito.set(''), 3000);
                         this.mostrarModalPagoManual.set(false);

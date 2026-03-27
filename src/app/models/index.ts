@@ -103,6 +103,7 @@ export interface PackageItem {
     nombre_item: string;
     cantidad: number;
     unidad?: string;
+    producto_id?: string; // Link toproductos table
     creado_en: string;
 }
 

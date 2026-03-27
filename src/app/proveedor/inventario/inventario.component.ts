@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { InventoryService } from '../../services/inventory.service';
 import { Producto } from '../../models';
 import { FormsModule } from '@angular/forms';
@@ -37,6 +37,7 @@ import { ProductoFormComponent } from './form/producto-form.component';
 export class InventarioComponent implements OnInit {
     private inventoryService = inject(InventoryService);
     private messageService = inject(MessageService);
+    private router = inject(Router);
 
     productos = signal<Producto[]>([]);
     isLoading = signal(true);
@@ -137,5 +138,9 @@ export class InventarioComponent implements OnInit {
             this.messageService.add({ severity: 'success', summary: 'Creado', detail: 'Producto creado con éxito' });
         }
         this.cerrarDialogo();
+    }
+
+    irAlDashboard() {
+        this.router.navigate(['/proveedor/dashboard']);
     }
 }
