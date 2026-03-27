@@ -600,12 +600,16 @@ export class PaquetesComponent implements OnInit {
     });
   }
 
-  // Guardar borrador
+  // Guardar (Borrador o Actualizar)
   async guardarBorrador() {
     if (this.saving()) return;
     this.saving.set(true);
     
-    this.packageData.update(data => ({ ...data, estado: 'borrador' }));
+    // Si es nuevo, asegurar que sea borrador. Si se está editando, mantener el estado actual.
+    if (!this.paqueteEditando()) {
+      this.packageData.update(data => ({ ...data, estado: 'borrador' }));
+    }
+    
     await this.savePackage();
   }
 
@@ -679,7 +683,7 @@ export class PaquetesComponent implements OnInit {
         nombre: this.packageData().nombre,
         descripcion: this.packageData().descripcion,
         precio_base: this.packageData().precio_base,
-        estado: 'publicado',
+        estado: this.packageData().estado,
         detalles_json: {
           cargos_adicionales: this.extraCharges(),
           imagenes: this.images().map(img => ({

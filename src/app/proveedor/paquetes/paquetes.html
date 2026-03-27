@@ -233,13 +233,13 @@
             <div class="flex items-center gap-3">
                 <button (click)="guardarBorrador()" [disabled]="saving() || uploadingImages()"
                     class="px-4 py-2 text-sm font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-gray-700 rounded-lg transition-colors disabled:opacity-50">
-                    Guardar Borrador
+                    {{ vistaActual() === 'editar' ? 'Actualizar' : 'Guardar Borrador' }}
                 </button>
                 <button (click)="publicar()" [disabled]="saving() || uploadingImages()"
                     class="px-6 py-2 bg-[#523576] hover:bg-[#3a2653] text-white rounded-lg font-bold text-sm shadow-lg shadow-purple-200 dark:shadow-none transition-all disabled:opacity-50 flex items-center gap-2">
                     <span class="material-icons-outlined text-sm" *ngIf="!saving()">publish</span>
                     <span class="material-icons-outlined text-sm animate-spin" *ngIf="saving()">sync</span>
-                    {{ saving() ? 'Guardando...' : (vistaActual() === 'editar' ? 'Actualizar' : 'Publicar') }}
+                    {{ saving() ? 'Guardando...' : (vistaActual() === 'editar' ? 'Actualizar y Publicar' : 'Publicar') }}
                 </button>
             </div>
         </header>
