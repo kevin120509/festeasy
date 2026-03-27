@@ -41,7 +41,16 @@ export class NotificacionesComponent implements OnInit {
 
     borrarNotificacion(id: string, event?: Event) {
         if (event) event.stopPropagation();
-        this.notificationService.deleteNotification(id).subscribe();
+        this.notificationService.deleteNotification(id).subscribe({
+            next: (success) => {
+                if (!success) {
+                    console.error('⚠️ La eliminación falló en el servidor. Verifica las políticas RLS.');
+                }
+            },
+            error: (err) => {
+                console.error('❌ Error al eliminar notificación:', err);
+            }
+        });
         this.showMenuId.set(null);
     }
 
