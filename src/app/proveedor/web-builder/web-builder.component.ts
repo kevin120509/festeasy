@@ -681,6 +681,12 @@ export class WebBuilderComponent implements OnInit {
     try {
       // Clean up metadata from page if any
       const dataToSave = { ...this.page() };
+      
+      // Normalizar slug (quitar espacios y asegurar formato URL)
+      if (dataToSave.slug) {
+        dataToSave.slug = dataToSave.slug.trim().toLowerCase().replace(/\s+/g, '-');
+      }
+
       const updated = await this.supabaseData.upsertProviderPublicPage(dataToSave);
       this.page.set(updated);
       this.messageService.add({

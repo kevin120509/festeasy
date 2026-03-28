@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../../services/api.service';
 import { AuthService } from '../../../services/auth.service';
 import { SolicitudDataService } from '../../../services/solicitud-data.service';
+import { InventoryService } from '../../../services/inventory.service';
 import { firstValueFrom } from 'rxjs';
 
 @Component({
@@ -17,6 +18,7 @@ export class RevisarSolicitudComponent implements OnInit {
     private api = inject(ApiService);
     private auth = inject(AuthService);
     private solicitudDataService = inject(SolicitudDataService);
+    private inventory = inject(InventoryService);
 
     evento = signal<any>(null);
     proveedor = signal<any>(null);
@@ -187,6 +189,15 @@ export class RevisarSolicitudComponent implements OnInit {
 
             const createdItems = await firstValueFrom(this.api.createSolicitudItems(itemsPayload));
             console.log('🔔 Items creados en BD (respuesta insert):', createdItems);
+
+            // 2.5 Descontar Inventario Inmediatamente
+            try {
+                console.log('📉 Solicitud creada, reduciendo stock...');
+                await this.inventory.reducirStockPorSolicitud(solicitud.id);
+            } catch (invErr) {
+                console.error('⚠️ Error al descontar inventario:', invErr);
+                // No bloqueamos el flujo principal si el inventario falla, pero lo logueamos
+            }
 
             // Precalcular los paquetes a mostrar desde lo local (fallback si DB no devuelve items)
             let finalPaquetes: any[] = this.paquetes().map((pkg: any) => ({

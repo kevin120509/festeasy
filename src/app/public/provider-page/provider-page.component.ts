@@ -10,7 +10,7 @@ import { CardModule } from 'primeng/card';
   standalone: true,
   imports: [CommonModule, CardModule],
   template: `
-    <div class="min-h-screen bg-[#050505] text-white selection:bg-primary/30" *ngIf="page(); else loadingTemplate" 
+    <div class="min-h-screen bg-[#050505] text-white selection:bg-primary/30" *ngIf="page()" 
          [style.--primary]="page()?.primary_color" [style.--accent]="page()?.accent_color">
       
       <!-- HERO: Impacto Total -->
@@ -117,14 +117,15 @@ import { CardModule } from 'primeng/card';
       </section>
 
       <!-- SECCIÓN: PAQUETES (Pricing Premium) -->
-      <section class="py-32 bg-white/2" *ngIf="page()?.sections_config?.packages?.length">
+      <section class="py-32 bg-white/2" *ngIf="livePackages().length || page()?.sections_config?.packages?.length">
         <div class="container mx-auto px-6">
           <div class="text-center mb-20">
             <h2 class="text-4xl md:text-6xl font-black mb-4 tracking-tighter">Nuestros Paquetes</h2>
             <p class="text-white/40 max-w-xl mx-auto font-light">Diseñados para adaptarse a tus necesidades y superar tus expectativas.</p>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div *ngFor="let pkg of page()?.sections_config?.packages" 
+            <!-- Usamos Live Packages si existen, si no los del config estático -->
+            <div *ngFor="let pkg of (livePackages().length ? livePackages() : page()?.sections_config?.packages)" 
                  class="relative p-10 rounded-[3rem] border border-white/10 transition-all hover:border-white/30"
                  [ngClass]="{'bg-white text-black scale-105 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.5)] z-10': pkg.is_popular, 'bg-white/5': !pkg.is_popular}">
               
@@ -245,14 +246,26 @@ import { CardModule } from 'primeng/card';
       </footer>
     </div>
 
-    <ng-template #loadingTemplate>
-      <div class="min-h-screen flex items-center justify-center bg-slate-950">
-        <div class="text-center relative">
-          <div class="w-24 h-24 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-8"></div>
-          <p class="text-white font-black tracking-widest uppercase animate-pulse">Iniciando Sistemas...</p>
-        </div>
+    <div class="min-h-screen flex items-center justify-center bg-slate-950" *ngIf="!page() && !notFound()">
+      <div class="text-center relative">
+        <div class="w-24 h-24 border-4 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-8"></div>
+        <p class="text-white font-black tracking-widest uppercase animate-pulse">Iniciando Sistemas...</p>
       </div>
-    </ng-template>
+    </div>
+
+    <!-- Error state: Not Found -->
+    <div class="min-h-screen flex items-center justify-center bg-slate-950 px-6 text-center" *ngIf="notFound()">
+      <div class="max-w-md animate-fade-in">
+        <div class="w-32 h-32 bg-white/5 rounded-[3rem] border border-white/10 flex items-center justify-center mx-auto mb-10 rotate-12">
+          <i class="pi pi-search text-5xl opacity-20"></i>
+        </div>
+        <h2 class="text-4xl font-black mb-6 tracking-tighter">Página no disponible</h2>
+        <p class="text-white/50 font-light mb-12">No hemos podido encontrar la página que buscas. Es posible que el enlace sea incorrecto o el proveedor haya desactivado su sitio.</p>
+        <a href="/" class="inline-block px-10 py-5 bg-white text-black rounded-full font-black text-lg transition-transform hover:scale-105 active:scale-95">
+          Volver al Inicio
+        </a>
+      </div>
+    </div>
   `,
   styles: [`
     :host { display: block; }
@@ -280,6 +293,8 @@ export class ProviderPublicPageComponent implements OnInit {
   private supabaseData = inject(SupabaseDataService);
 
   page = signal<ProviderPublicPage | null>(null);
+  notFound = signal(false);
+  livePackages = signal<any[]>([]);
 
   ngOnInit() {
     const slug = this.route.snapshot.paramMap.get('slug');
@@ -290,12 +305,49 @@ export class ProviderPublicPageComponent implements OnInit {
 
   async loadPage(slug: string) {
     try {
-      const data = await this.supabaseData.getProviderPublicPage(slug);
+      this.notFound.set(false);
+      let data = await this.supabaseData.getProviderPublicPage(slug);
+      
+      // Caso 1: El slug buscado no coincide pero el de la DB está "limpio" y el buscado tiene espacios
+      if (!data && slug !== slug.trim()) {
+        data = await this.supabaseData.getProviderPublicPage(slug.trim());
+      }
+
+      // Caso 2: El slug buscado está "limpio" pero el de la DB tiene un espacio al final (caso reportado)
+      if (!data) {
+        data = await this.supabaseData.getProviderPublicPage(slug + ' ');
+      }
+
       if (data) {
         this.page.set(data);
+        // Cargar paquetes "en vivo" desde la base de datos
+        this.loadLivePackages(data.provider_id);
+      } else {
+        this.notFound.set(true);
       }
     } catch (error) {
       console.error('Error loading public page:', error);
+      this.notFound.set(true);
+    }
+  }
+
+  async loadLivePackages(providerId: string) {
+    try {
+      this.supabaseData.getProviderPackages(providerId).subscribe(pkgs => {
+        if (pkgs && pkgs.length > 0) {
+          // Mapear al formato que espera el template (si es necesario)
+          const mapped = pkgs.map(p => ({
+            title: p.nombre_paquete || p.nombre,
+            price: p.precio_base || p.precio,
+            currency: 'MXN',
+            features: Array.isArray(p.items_paquete) ? p.items_paquete.map((i: any) => i.nombre_item) : (p.descripcion ? [p.description || p.descripcion] : []),
+            is_popular: p.destacado || false
+          }));
+          this.livePackages.set(mapped);
+        }
+      });
+    } catch (error) {
+      console.warn('No se pudieron cargar los paquetes en vivo:', error);
     }
   }
 

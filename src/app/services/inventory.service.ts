@@ -151,19 +151,24 @@ export class InventoryService {
      */
     async reducirStockPorSolicitud(solicitudId: string): Promise<void> {
         try {
+            console.log('📉 Iniciando reducción de stock para solicitud:', solicitudId);
+            
             // 1. Obtener la solicitud con su borrador de cotización
             const { data: sol, error: solError } = await this.supabase
                 .from('solicitudes')
-                .select('cotizacion_borrador, items_solicitud(paquete_id)')
+                .select('cotizacion_borrador, items_solicitud(paquete_id, cantidad)')
                 .eq('id', solicitudId)
                 .single();
 
-            if (solError || !sol) throw new Error('No se pudo encontrar la solicitud');
+            if (solError || !sol) {
+                console.error('❌ Error al obtener solicitud para inventario:', solError);
+                throw new Error('No se pudo encontrar la solicitud');
+            }
             
             const borrador = sol.cotizacion_borrador as CotizacionBorrador;
             const itemsToReduce: { id: string, cantidad: number }[] = [];
 
-            // 2. Procesar productos extra de la cotización
+            // 2. Procesar productos extra de la cotización (si existen)
             if (borrador && borrador.productos_extra) {
                 borrador.productos_extra.forEach(p => {
                     if (p.producto_id) {
@@ -172,11 +177,12 @@ export class InventoryService {
                 });
             }
 
-            // 3. Procesar items del paquete base
+            // 3. Procesar items del paquete base (de la tabla items_solicitud)
             const itemsSol = sol.items_solicitud as any[];
             if (itemsSol && itemsSol.length > 0) {
                 for (const item of itemsSol) {
                     if (item.paquete_id) {
+                        // Obtener qué productos componen este paquete
                         const { data: pkgItems, error: pkgItemsError } = await this.supabase
                             .from('items_paquete')
                             .select('producto_id, cantidad')
@@ -185,11 +191,13 @@ export class InventoryService {
                         if (!pkgItemsError && pkgItems) {
                             pkgItems.forEach(pi => {
                                 if (pi.producto_id) {
-                                    // Multiplicar por la cantidad de paquetes solicitados
-                                    const cantTotal = pi.cantidad * (borrador?.paquete_base?.cantidad || 1);
+                                    // Multiplicar por la cantidad de paquetes solicitados en esta línea
+                                    const cantTotal = pi.cantidad * (item.cantidad || 1);
                                     itemsToReduce.push({ id: pi.producto_id, cantidad: cantTotal });
                                 }
                             });
+                        } else if (pkgItemsError) {
+                            console.warn('⚠️ Error al obtener items_paquete:', pkgItemsError);
                         }
                     }
                 }
@@ -198,31 +206,41 @@ export class InventoryService {
             // 4. Ejecutar la reducción de cada producto
             if (itemsToReduce.length > 0) {
                 console.log('📉 Reduciendo stock para items:', itemsToReduce);
-                for (const item of itemsToReduce) {
+                
+                // Agrupar por ID para no hacer múltiples updates al mismo producto
+                const groupedMap = new Map<string, number>();
+                itemsToReduce.forEach(it => {
+                    groupedMap.set(it.id, (groupedMap.get(it.id) || 0) + it.cantidad);
+                });
+
+                for (const [prodId, prodQty] of groupedMap.entries()) {
                     // Usamos una operación atómica: stock = stock - cantidad
                     const { error: updateError } = await this.supabase.rpc('increment_stock', {
-                        row_id: item.id,
-                        amount: -item.cantidad
+                        row_id: prodId,
+                        amount: -prodQty
                     });
 
                     if (updateError) {
-                        // Si falla el RPC (que es lo ideal para evitar race conditions), probamos update normal
-                        console.warn('⚠️ RPC increment_stock falló, usando update tradicional:', updateError);
-                        
+                        // Fallback si no hay RPC
+                        console.warn('⚠️ RPC increment_stock falló, usando update manual:', updateError);
                         const { data: currentProd } = await this.supabase
                             .from('productos')
                             .select('stock')
-                            .eq('id', item.id)
+                            .eq('id', prodId)
                             .single();
                         
                         if (currentProd) {
+                            const newStock = Math.max(0, currentProd.stock - prodQty);
                             await this.supabase
                                 .from('productos')
-                                .update({ stock: Math.max(0, currentProd.stock - item.cantidad) })
-                                .eq('id', item.id);
+                                .update({ stock: newStock })
+                                .eq('id', prodId);
                         }
                     }
                 }
+                console.log('✅ Stock reducido exitosamente para', itemsToReduce.length, 'ítems.');
+            } else {
+                console.log('ℹ️ No se encontraron productos para reducir stock en esta solicitud.');
             }
         } catch (error) {
             console.error('❌ Error en reducirStockPorSolicitud:', error);
